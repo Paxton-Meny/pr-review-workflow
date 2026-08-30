@@ -29,5 +29,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and the configured check passes with it in place.
 - Reviewer agent: read-only, criteria in seven categories, emits finding
   records only.
+- Editor and verifier agents: per-finding commits with thread replies, and
+  verify-or-reopen passes that return counts only.
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
