@@ -75,3 +75,26 @@ grep -qx 'alpha' "$dir/worktree/file.txt"
 out=$(sh "$REPO_ROOT/scripts/prove-suggestions.sh" "$dir" "grep -q nothere file.txt")
 [ "$out" = "prove-suggestions: 0 proven, 1 withdrawn" ]
 grep -q 'check command failed' "$dir/findings/F001"
+
+printf 'no-newline' >"$dir/worktree/tail.txt"
+git -C "$dir/worktree" add tail.txt
+git -C "$dir/worktree" -c user.name=tester -c user.email=tester@example.invalid commit --quiet -m "Tail"
+tail_sha=$(git -C "$dir/worktree" rev-parse HEAD)
+sed "s/^head_sha .*/head_sha $tail_sha/" "$dir/meta.txt" >"$dir/meta.txt.new"
+mv "$dir/meta.txt.new" "$dir/meta.txt"
+sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'
+=== finding
+category: correctness
+severity: nit
+path: tail.txt
+line: 1
+side: RIGHT
+title: Last line without newline
+---
+Rename it.
+```suggestion
+renamed
+```
+REC
+out=$(sh "$REPO_ROOT/scripts/prove-suggestions.sh" "$dir")
+[ "$out" = "prove-suggestions: 1 proven, 0 withdrawn" ]

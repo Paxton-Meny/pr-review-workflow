@@ -33,7 +33,10 @@ withdraw() {
 	drop && /^```$/ { drop = 0; withdrawn = 1; next }
 	drop { next }
 	{ print }
-	END { if (withdrawn) printf "Suggestion withdrawn: %s.\n", reason }
+	END {
+		if (drop) withdrawn = 1
+		if (withdrawn) printf "Suggestion withdrawn: %s.\n", reason
+	}
 	' "$rec" >"$tmp"
 	mv "$tmp" "$rec"
 }
@@ -62,7 +65,7 @@ for record in "$dir/findings"/F*; do
 		git -C "$repo_root" worktree add --quiet --detach "$scratch" "$head_sha"
 	fi
 	target="$scratch/$path"
-	if [ ! -f "$target" ] || [ "$(wc -l <"$target")" -lt "$last" ]; then
+	if [ ! -f "$target" ] || [ "$(awk 'END { print NR }' "$target")" -lt "$last" ]; then
 		withdraw "$record" "the target range does not exist at the pull request head"
 		withdrawn=$((withdrawn + 1))
 		continue
