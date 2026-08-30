@@ -31,5 +31,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   records only.
 - Editor and verifier agents: per-finding commits with thread replies, and
   verify-or-reopen passes that return counts only.
+- The review-pr skill: the orchestration loop, context discipline, the
+  merge gate with the auto-approve setting, and resume from the ledger.
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
