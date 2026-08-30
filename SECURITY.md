@@ -3,7 +3,7 @@
 ## Supported versions
 
 The project is pre-release. Only the tip of `main` is supported; there are no
-maintained release lines yet. This table will list them when releases begin.
+maintained release lines yet. This section will list maintained release lines when releases begin.
 
 ## What this tool does with your credentials
 
