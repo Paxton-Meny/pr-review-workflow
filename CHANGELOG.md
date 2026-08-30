@@ -12,5 +12,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Contributing guide, security policy, and issue and pull request templates.
 - Plugin manifest with user configuration: auto-approve, check command, and
   per-role model overrides.
+- Tool probe (`check-tools.sh`), state initialization (`init-state.sh`), and
+  an offline GitHub CLI stub for the test suite.
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
