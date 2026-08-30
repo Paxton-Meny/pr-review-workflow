@@ -29,3 +29,15 @@ if sh "$REPO_ROOT/scripts/count-findings.sh" "$SCRATCH/empty" 2>"$SCRATCH/err"; 
 	exit 1
 fi
 grep -q "no findings directory" "$SCRATCH/err"
+
+out=$(sh "$REPO_ROOT/scripts/count-findings.sh" "$dir" --list)
+printf '%s\n' "$out" | grep -qx 'addressed_ids F003'
+printf '%s\n' "$out" | grep -qx 'verified_ids F001'
+printf '%s\n' "$out" | grep -qx 'wont_fix_ids F002'
+printf '%s\n' "$out" | grep -qx 'open_ids'
+
+if sh "$REPO_ROOT/scripts/count-findings.sh" "$dir" --wat 2>"$SCRATCH/err"; then
+	echo "expected refusal of an unknown argument" >&2
+	exit 1
+fi
+grep -q "unknown argument" "$SCRATCH/err"
