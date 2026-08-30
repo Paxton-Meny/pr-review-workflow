@@ -16,5 +16,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   an offline GitHub CLI stub for the test suite.
 - Context fetch (`fetch-pr.sh`) and the diff transform (`split-diff.sh`):
   annotated per-file diffs, a file index, and a commentable-line index.
+- Findings ledger: record format, batch save with validation
+  (`save-findings.sh`), field updates with transition rules
+  (`update-finding.sh`), and convergence counting (`count-findings.sh`).
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
