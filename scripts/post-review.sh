@@ -32,10 +32,12 @@ for record in "$dir/findings"/F*; do
 	side=$(field "$record" side)
 
 	ok=1
-	grep -qxF "$path$tab$side$tab$line" "$ctx/commentable.txt" || ok=0
-	if [ -n "$end_line" ]; then
-		grep -qxF "$path$tab$side$tab$end_line" "$ctx/commentable.txt" || ok=0
-	fi
+	last=${end_line:-$line}
+	n=$line
+	while [ "$n" -le "$last" ]; do
+		grep -qxF "$path$tab$side$tab$n" "$ctx/commentable.txt" || ok=0
+		n=$((n + 1))
+	done
 	if [ "$ok" -eq 0 ]; then
 		sh "$(dirname -- "$0")/update-finding.sh" "$dir" "$id" placement=summary >/dev/null
 		demoted=$((demoted + 1))
@@ -67,6 +69,11 @@ for record in "$dir/findings"/F*; do
 	posted=$((posted + 1))
 done
 
+if [ $((posted + demoted)) -eq 0 ]; then
+	echo "post-review: nothing to post, round $((round - 1)) unchanged"
+	exit 0
+fi
+
 blocker=0 major=0 minor=0 nit=0
 summary_ids=''
 for record in "$dir/findings"/F*; do
@@ -79,7 +86,7 @@ for record in "$dir/findings"/F*; do
 	nit) nit=$((nit + 1)) ;;
 	esac
 	if [ "$(field "$record" placement)" = "summary" ] && [ "$(field "$record" status)" = "open" ]; then
-		summary_ids="$summary_ids $record"
+		summary_ids="$summary_ids $(field "$record" id)"
 	fi
 done
 
@@ -88,8 +95,9 @@ trap 'rm -f "$tmp"' EXIT
 {
 	printf 'Review round %d: %d blocker, %d major, %d minor, %d nit.\n' \
 		"$round" "$blocker" "$major" "$minor" "$nit"
-	for record in $summary_ids; do
-		printf '\n### `%s` %s (%s, %s) — %s:%s\n\n' "$(field "$record" id)" \
+	for sid in $summary_ids; do
+		record="$dir/findings/$sid"
+		printf '\n### `%s` %s (%s, %s) at %s:%s\n\n' "$sid" \
 			"$(field "$record" title)" "$(field "$record" severity)" \
 			"$(field "$record" category)" "$(field "$record" path)" \
 			"$(field "$record" line)"

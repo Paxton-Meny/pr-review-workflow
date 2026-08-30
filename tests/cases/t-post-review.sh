@@ -63,7 +63,8 @@ grep -q -- '-F start_line=3' "$stub/calls.log"
 grep -q -- '-F line=4' "$stub/calls.log"
 
 out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
-[ "$out" = "post-review: 0 posted inline, 0 in the summary, round 2" ]
+[ "$out" = "post-review: nothing to post, round 1 unchanged" ]
+grep -qx '1' "$dir/round.txt"
 
 if sh "$REPO_ROOT/scripts/post-review.sh" "$SCRATCH/nostate" 2>"$SCRATCH/err"; then
 	echo "expected failure without state" >&2
