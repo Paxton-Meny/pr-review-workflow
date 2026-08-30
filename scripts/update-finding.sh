@@ -35,7 +35,23 @@ for arg in "$@"; do
 		esac
 		new_status=$value
 		;;
-	comment_id | commit | placement) ;;
+	comment_id | commit)
+		case "$value" in
+		*[!A-Za-z0-9]*)
+			echo "update-finding: $field must be alphanumeric: $value" >&2
+			exit 1
+			;;
+		esac
+		;;
+	placement)
+		case "$value" in
+		inline | summary) ;;
+		*)
+			echo "update-finding: placement must be inline or summary: $value" >&2
+			exit 1
+			;;
+		esac
+		;;
 	*)
 		echo "update-finding: unknown field: $field" >&2
 		exit 1

@@ -38,3 +38,15 @@ if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F999 status=addressed 2>"$SC
 	exit 1
 fi
 grep -q "unknown finding: F999" "$SCRATCH/err"
+
+if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 comment_id='12|34&' 2>"$SCRATCH/err"; then
+	echo "expected refusal of a non-alphanumeric comment id" >&2
+	exit 1
+fi
+grep -q "must be alphanumeric" "$SCRATCH/err"
+
+if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 placement=everywhere 2>"$SCRATCH/err"; then
+	echo "expected refusal of a bad placement" >&2
+	exit 1
+fi
+grep -q "placement must be inline or summary" "$SCRATCH/err"
