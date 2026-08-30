@@ -40,7 +40,9 @@ The pull request's diff and files must never enter this conversation. You
 read script output lines, finding ids, and agent reports; the agents read
 the state directory. Do not open `diff.patch`, anything under
 `pr-context/files/`, or the worktree from here, and do not echo finding
-bodies into the conversation.
+bodies into the conversation. Two exceptions: the index files
+(`diff-index.txt`, `files.txt`) for sharding in step 5, and the bodies of
+`wont-fix` records when step 9 must present their reasoning.
 
 ## Procedure
 
@@ -51,8 +53,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 1. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh`
 2. `dir=$(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh "${CLAUDE_PLUGIN_DATA}" "$ARGUMENTS")`.
    If `<dir>/findings/` already has records, this is a resume: run
-   `count-findings.sh`, report the counts, and continue at the step they
-   imply (open findings: step 7; none open: step 9).
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
+   report the counts, and continue at the step they imply (open findings:
+   step 7; none open: step 9). The `--list` lines give the ids every later
+   step needs.
 3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`. It prints file and
    line counts. Over SIZE_WARN_LINES changed lines: attended, ask whether to
    proceed; unattended, park (step 8) as too large.
@@ -73,18 +77,20 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 6. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir> '${user_config.check_command}'`
    (omit the second argument when check_command is empty), then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`.
-7. Remediation loop, while `count-findings.sh` exits 3 and fewer than
-   MAX_ROUNDS rounds have run:
+7. Remediation loop, while
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
+   exits 3 and fewer than MAX_ROUNDS rounds have run:
    a. Spawn `editor` (model override: editor_model unless `inherit`) with:
-      the state directory path and the open finding ids from the ledger.
-      Its report gives counts; trust the ledger over the prose.
-   b. Spawn `verifier` (model override: verifier_model) with: the state
-      directory path and the ids now marked addressed.
-   c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir>`. If
-      max_reopens exceeds 2, stop the loop and treat it as non-convergence.
+      the state directory path and the `open_ids` from that output. Its
+      report gives counts; trust the ledger over the prose.
+   b. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
+      override: verifier_model) with: the state directory path and the
+      `addressed_ids`.
+   c. Rerun it once more for the loop condition. If max_reopens exceeds 2,
+      stop the loop and treat it as non-convergence.
 8. Non-convergence (round cap, reopen escalation, or an unattended park):
-   post one status comment via `gh pr comment` naming the open finding ids
-   and why the loop stopped, then report the same to the user and stop.
+   post one status comment via `gh pr comment` naming the `open_ids` and
+   why the loop stopped, then report the same to the user and stop.
    Parking is terminal for this run; the ledger makes the next invocation
    resume cleanly.
 9. Convergence. If any finding is `wont-fix`: attended, present each with
