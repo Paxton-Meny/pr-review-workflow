@@ -63,3 +63,23 @@ rc=0
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 2 ]
 grep -q "fork pull requests" "$SCRATCH/err"
+
+printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$new_sha" "$clone" >"$dir/meta.txt"
+wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir")
+git -C "$wt" config user.name tester
+git -C "$wt" config user.email tester@example.invalid
+printf 'four\n' >>"$wt/file.txt"
+git -C "$wt" commit --quiet -am "Address F002"
+ahead_sha=$(git -C "$wt" rev-parse HEAD)
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err" >/dev/null
+grep -q "keeping unpushed commits" "$SCRATCH/err"
+[ "$(git -C "$wt" rev-parse HEAD)" = "$ahead_sha" ]
+sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" >/dev/null
+
+git remote set-url origin "$SCRATCH/acme/widgets-evil.git"
+printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\n' "$new_sha" >"$dir/meta.txt"
+if sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err"; then
+	echo "expected refusal of a suffixed lookalike origin" >&2
+	exit 1
+fi
+grep -q "not acme/widgets" "$SCRATCH/err"
