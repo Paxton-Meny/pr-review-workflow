@@ -45,7 +45,9 @@ title: One line naming the defect
 
 ## Body
 
-Evidence and the expected resolution, in plain prose. A body may end with a
+Evidence and the expected resolution, in plain prose. The line `=== finding`
+is reserved as the record separator: never write it inside a body, including
+when quoting diff content that contains it (paraphrase instead). A body may end with a
 ```suggestion fence only when the replacement is small, mechanical, covers
 exactly the commented lines, and has been proven; a finding without a patch
 beats a patch that starts a review cycle.
