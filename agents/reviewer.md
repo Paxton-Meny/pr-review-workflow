@@ -20,8 +20,9 @@ range of file numbers. Under the state directory:
   prefixed with its line number: `R<n>` for added and context lines,
   `L<n>` for deleted lines.
 - `worktree/`: the full tree at the pull request head.
-- The record format: `findings-format.md` in this plugin's
-  `skills/review-pr/` directory. Read it before writing records.
+- The record format:
+  `${CLAUDE_PLUGIN_ROOT}/skills/review-pr/findings-format.md`.
+  Read it before writing records.
 
 ## Procedure
 
