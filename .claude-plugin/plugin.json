@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "pr-review-workflow",
+  "displayName": "PR Review Workflow",
+  "version": "0.1.0",
+  "description": "Reviews a GitHub pull request end to end: posts inline findings, edits the branch to address them, re-reviews until clean, then merges or asks.",
+  "author": {
+    "name": "Paxton-Meny",
+    "url": "https://github.com/Paxton-Meny"
+  },
+  "repository": "https://github.com/Paxton-Meny/pr-review-workflow",
+  "license": "Apache-2.0",
+  "keywords": ["pull-request", "code-review", "github", "automation"],
+  "userConfig": {
+    "auto_approve": {
+      "type": "boolean",
+      "title": "Auto-approve on convergence",
+      "description": "Merge automatically once the review loop finds nothing open. When off, the plugin asks before merging.",
+      "default": false
+    },
+    "check_command": {
+      "type": "string",
+      "title": "Check command",
+      "description": "The reviewed repository's own check command, run to prove suggested changes before they are posted. Leave empty to restrict suggestions to fixes that apply cleanly.",
+      "required": false
+    },
+    "reviewer_model": {
+      "type": "string",
+      "title": "Reviewer model",
+      "description": "Model for the first thorough review. Use inherit for the session model.",
+      "default": "inherit"
+    },
+    "editor_model": {
+      "type": "string",
+      "title": "Editor model",
+      "description": "Model for the agent that addresses findings. Use inherit for the session model.",
+      "default": "inherit"
+    },
+    "verifier_model": {
+      "type": "string",
+      "title": "Verifier model",
+      "description": "Model for re-review passes that only verify prior findings.",
+      "default": "sonnet"
+    }
+  }
+}
