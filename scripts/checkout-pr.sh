@@ -28,7 +28,7 @@ url=$(git -C "$repo_root" remote get-url origin 2>/dev/null) || {
 	exit 1
 }
 case "$url" in
-*"$owner/$repo"* | *"$owner/$repo.git"*) ;;
+*[/:]"$owner/$repo" | *[/:]"$owner/$repo/" | *[/:]"$owner/$repo.git" | *[/:]"$owner/$repo.git/") ;;
 *)
 	echo "checkout-pr: origin of $repo_root is $url, not $owner/$repo" >&2
 	exit 1
@@ -39,15 +39,23 @@ git -C "$repo_root" fetch --quiet origin "$head_branch"
 
 worktree="$dir/worktree"
 if [ -d "$worktree" ]; then
-	git -C "$worktree" checkout --quiet --detach "$head_sha" 2>/dev/null ||
-		git -C "$worktree" reset --hard --quiet "$head_sha"
+	actual=$(git -C "$worktree" rev-parse HEAD)
+	if [ "$actual" != "$head_sha" ]; then
+		if git -C "$worktree" merge-base --is-ancestor "$head_sha" "$actual"; then
+			echo "checkout-pr: keeping unpushed commits ahead of $head_sha" >&2
+		else
+			git -C "$worktree" checkout --quiet --detach "$head_sha" 2>/dev/null ||
+				git -C "$worktree" reset --hard --quiet "$head_sha"
+		fi
+	fi
 else
 	git -C "$repo_root" worktree add --quiet --detach "$worktree" "$head_sha"
 fi
 
 actual=$(git -C "$worktree" rev-parse HEAD)
-if [ "$actual" != "$head_sha" ]; then
-	echo "checkout-pr: worktree is at $actual, expected $head_sha" >&2
+if [ "$actual" != "$head_sha" ] &&
+	! git -C "$worktree" merge-base --is-ancestor "$head_sha" "$actual"; then
+	echo "checkout-pr: worktree is at $actual, expected $head_sha or a descendant" >&2
 	exit 1
 fi
 
