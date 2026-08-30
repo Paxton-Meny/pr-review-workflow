@@ -44,3 +44,21 @@ rc=0
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 2 ]
 grep -q "reported success but the pull request is OPEN" "$SCRATCH/err"
+
+export MERGE_PR_SETTLE_SECONDS=0
+rm -f "$stub"/pr-view.*.done "$stub"/pr-view.1 "$stub"/pr-view.2
+printf 'state OPEN\ndraft false\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.1"
+printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.2"
+: >"$stub/pr-comment"
+printf 'MERGED\n' >"$stub/pr-view.3"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
+
+rm -f "$stub"/pr-view.*.done "$stub"/pr-view.3
+for n in 1 2 3 4 5; do
+	printf 'state OPEN\ndraft false\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.$n"
+done
+if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
+	echo "expected failure when mergeability never settles" >&2
+	exit 1
+fi
+grep -q "still UNKNOWN after waiting" "$SCRATCH/err"

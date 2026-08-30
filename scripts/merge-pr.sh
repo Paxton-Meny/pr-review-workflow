@@ -22,12 +22,23 @@ pr=$(sed -n 's/^pr //p' "$dir/meta.txt")
 author=$(sed -n 's/^author //p' "$dir/meta.txt")
 self=$(sed -n 's/^self_login //p' "$dir/meta.txt")
 
-status=$(gh pr view "$pr" --repo "$owner/$repo" \
-	--json state,isDraft,mergeable,mergeStateStatus \
-	--jq '"state \(.state)\ndraft \(.isDraft)\nmergeable \(.mergeable)\nmerge_state \(.mergeStateStatus)"')
+attempts=5
+settle=${MERGE_PR_SETTLE_SECONDS:-3}
+while :; do
+	status=$(gh pr view "$pr" --repo "$owner/$repo" \
+		--json state,isDraft,mergeable,mergeStateStatus \
+		--jq '"state \(.state)\ndraft \(.isDraft)\nmergeable \(.mergeable)\nmerge_state \(.mergeStateStatus)"')
+	mergeable=$(printf '%s\n' "$status" | sed -n 's/^mergeable //p')
+	[ "$mergeable" = "UNKNOWN" ] || break
+	attempts=$((attempts - 1))
+	if [ "$attempts" -eq 0 ]; then
+		echo "merge-pr: mergeability still UNKNOWN after waiting, try again shortly" >&2
+		exit 1
+	fi
+	sleep "$settle"
+done
 state=$(printf '%s\n' "$status" | sed -n 's/^state //p')
 draft=$(printf '%s\n' "$status" | sed -n 's/^draft //p')
-mergeable=$(printf '%s\n' "$status" | sed -n 's/^mergeable //p')
 merge_state=$(printf '%s\n' "$status" | sed -n 's/^merge_state //p')
 
 [ "$state" = "OPEN" ] || {
