@@ -33,7 +33,8 @@ grep -q "no meta.txt" "$SCRATCH/err"
 
 rm -rf "$dir/pr-context"
 printf '1\n' >"$stub/pr-diff.exit"
-printf 'pull request too large\n' >"$stub/pr-diff"
+rm "$stub/pr-diff"
+printf 'pull request too large\n' >"$stub/pr-diff.err"
 if sh "$REPO_ROOT/scripts/fetch-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected failure on a failing diff fetch" >&2
 	exit 1

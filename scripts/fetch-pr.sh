@@ -20,12 +20,14 @@ ctx="$dir/pr-context"
 mkdir -p "$ctx"
 
 tmp=$(mktemp "$ctx/.fetch.XXXXXX")
-trap 'rm -f "$tmp"' EXIT
-if ! gh pr diff "$pr" --repo "$owner/$repo" >"$tmp" 2>&1; then
+err=$(mktemp "$ctx/.fetch.XXXXXX")
+trap 'rm -f "$tmp" "$err"' EXIT
+if ! gh pr diff "$pr" --repo "$owner/$repo" >"$tmp" 2>"$err"; then
 	echo "fetch-pr: diff fetch failed for $owner/$repo#$pr (very large pull requests cannot be fetched through the API)" >&2
-	sed 's/^/fetch-pr: /' "$tmp" >&2
+	sed 's/^/fetch-pr: /' "$err" >&2
 	exit 1
 fi
+rm -f "$err"
 mv "$tmp" "$ctx/diff.patch"
 
 tmp=$(mktemp "$ctx/.fetch.XXXXXX")

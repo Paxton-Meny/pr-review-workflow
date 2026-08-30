@@ -12,6 +12,7 @@ patch="$dir/pr-context/diff.patch"
 
 files_dir="$dir/pr-context/files"
 rm -rf "$files_dir"
+rm -f "$dir/pr-context/diff-index.txt" "$dir/pr-context/commentable.txt"
 mkdir -p "$files_dir"
 
 awk -v files_dir="$files_dir" \

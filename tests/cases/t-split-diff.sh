@@ -43,3 +43,8 @@ if sh "$REPO_ROOT/scripts/split-diff.sh" "$dir" 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "no diff.patch" "$SCRATCH/err"
+
+: >"$ctx/diff.patch"
+sh "$REPO_ROOT/scripts/split-diff.sh" "$dir" | grep -qx 'split-diff: 0 files, 0 commentable lines'
+[ ! -f "$ctx/diff-index.txt" ]
+[ ! -f "$ctx/commentable.txt" ]
