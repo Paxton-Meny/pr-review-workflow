@@ -6,9 +6,15 @@ set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 status=0
 
+[ -f "$root/scripts/gate.env" ] && . "$root/scripts/gate.env"
+cli=${CLAUDE_CLI:-claude}
+
 if [ -f "$root/.claude-plugin/plugin.json" ]; then
-	if command -v claude >/dev/null 2>&1; then
-		claude plugin validate --strict "$root" || status=1
+	if command -v "$cli" >/dev/null 2>&1; then
+		ship=$(mktemp -d)
+		git -C "$root" checkout-index -a --prefix="$ship/"
+		"$cli" plugin validate --strict "$ship" || status=1
+		rm -rf "$ship"
 	else
 		echo "gate: claude CLI not found, cannot validate the plugin" >&2
 		status=1
