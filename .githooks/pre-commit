@@ -1,0 +1,3 @@
+#!/bin/sh
+# Block the commit unless the gate passes.
+exec sh "$(git rev-parse --show-toplevel)/scripts/gate.sh"
