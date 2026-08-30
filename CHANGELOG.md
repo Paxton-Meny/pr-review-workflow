@@ -27,5 +27,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Proven merges (`merge-pr.sh`) and suggestion verification
   (`prove-suggestions.sh`): a fence posts only after it applies cleanly
   and the configured check passes with it in place.
+- Reviewer agent: read-only, criteria in seven categories, emits finding
+  records only.
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
