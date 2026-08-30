@@ -7,10 +7,10 @@ until nothing remains open. Then it merges, or asks you first.
 
 ## Status
 
-Working toward a first release. The scripts, agents, and skill are in place;
-end-to-end hardening against live pull requests is in progress.
-
-## Requirements
+First release cut. The full loop has run against live pull requests:
+review, inline findings with a proven suggestion, per-finding fix
+commits, thread resolution, and a proven rebase merge. Interactive
+hardening across more repositories is the current work.
 
 - `git`
 - The GitHub CLI, authenticated. The plugin shells out to it and never

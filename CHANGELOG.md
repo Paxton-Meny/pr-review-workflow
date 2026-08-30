@@ -6,6 +6,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-30
+
 ### Added
 
 - Quality gate (`scripts/gate.sh`), test harness, and pre-commit hook.
@@ -34,4 +36,5 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The review-pr skill: the orchestration loop, context discipline, the
   merge gate with the auto-approve setting, and resume from the ledger.
 
-[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
+[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Paxton-Meny/pr-review-workflow/releases/tag/v0.1.0
