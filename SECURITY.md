@@ -20,3 +20,11 @@ Do not open a public issue for a security problem.
 
 Expect an acknowledgment within a week. Please include the steps to reproduce
 and the impact you believe the problem has.
+
+## The check command
+
+When you configure a check command, the plugin runs it against a scratch copy
+of the pull request head to verify suggested changes. That executes the pull
+request's code with your local privileges, exactly as running its tests
+yourself would. Leave the option empty for repositories whose contributors
+you do not trust that far.
