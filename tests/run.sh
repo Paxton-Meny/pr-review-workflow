@@ -5,7 +5,8 @@ set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 scratch=$(mktemp -d)
-trap 'rm -rf "$scratch"' EXIT INT TERM
+trap 'rm -rf "$scratch"' EXIT
+trap 'exit 130' INT TERM
 
 passed=0
 failed=0
@@ -23,5 +24,10 @@ for tc in "$root/tests/cases"/t-*.sh; do
 	fi
 done
 
+total=$((passed + failed))
+if [ "$total" -eq 0 ]; then
+	echo "tests: no cases discovered under tests/cases/" >&2
+	exit 1
+fi
 echo "tests: $passed passed, $failed failed"
 [ "$failed" -eq 0 ]
