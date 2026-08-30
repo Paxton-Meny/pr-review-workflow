@@ -1,0 +1,27 @@
+#!/bin/sh
+# Test stub for the GitHub CLI. Replays canned responses from GH_STUB_DIR.
+set -eu
+
+[ -n "${GH_STUB_DIR:-}" ] || {
+	echo "gh stub: GH_STUB_DIR unset" >&2
+	exit 64
+}
+printf '%s\n' "$*" >>"$GH_STUB_DIR/calls.log"
+
+name=${1:-none}
+case "${2:-}" in
+'' | -*) ;;
+*) name="$name-$2" ;;
+esac
+
+resp="$GH_STUB_DIR/$name"
+if [ -f "$resp.exit" ]; then
+	[ -f "$resp" ] && cat "$resp"
+	exit "$(cat "$resp.exit")"
+fi
+if [ -f "$resp" ]; then
+	cat "$resp"
+	exit 0
+fi
+echo "gh stub: no canned response for: $name" >&2
+exit 64
