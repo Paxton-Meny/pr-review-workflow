@@ -48,8 +48,8 @@ for name in "$owner" "$repo"; do
 done
 
 meta=$(gh pr view "$number" --repo "$owner/$repo" \
-	--json author,headRefName,baseRefName,headRefOid,url,state \
-	--jq '"author \(.author.login)\nhead_branch \(.headRefName)\nbase_branch \(.baseRefName)\nhead_sha \(.headRefOid)\nurl \(.url)\nstate \(.state)"')
+	--json author,headRefName,baseRefName,headRefOid,url,state,isCrossRepository \
+	--jq '"author \(.author.login)\nhead_branch \(.headRefName)\nbase_branch \(.baseRefName)\nhead_sha \(.headRefOid)\nurl \(.url)\ncross_repo \(.isCrossRepository)\nstate \(.state)"')
 state=$(printf '%s\n' "$meta" | sed -n 's/^state //p')
 if [ "$state" != "OPEN" ]; then
 	echo "init-state: pull request $owner/$repo#$number is $state, not open" >&2
@@ -66,6 +66,10 @@ tmp=$(mktemp "$dir/.meta.XXXXXX")
 	printf 'self_login %s\n' "$self"
 } >"$tmp"
 mv "$tmp" "$dir/meta.txt"
-[ -f "$dir/round.txt" ] || printf '0\n' >"$dir/round.txt"
+if [ ! -f "$dir/round.txt" ]; then
+	tmp=$(mktemp "$dir/.round.XXXXXX")
+	printf '0\n' >"$tmp"
+	mv "$tmp" "$dir/round.txt"
+fi
 
 printf '%s\n' "$dir"
