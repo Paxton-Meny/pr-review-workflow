@@ -24,5 +24,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   thread resolution (`resolve-thread.sh`).
 - Branch plumbing: a detached review worktree (`checkout-pr.sh`), proven
   pushes (`push-branch.sh`), and state teardown (`cleanup-state.sh`).
+- Proven merges (`merge-pr.sh`) and suggestion verification
+  (`prove-suggestions.sh`): a fence posts only after it applies cleanly
+  and the configured check passes with it in place.
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
