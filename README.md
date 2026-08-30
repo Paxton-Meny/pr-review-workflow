@@ -12,6 +12,8 @@ review, inline findings with a proven suggestion, per-finding fix
 commits, thread resolution, and a proven rebase merge. Interactive
 hardening across more repositories is the current work.
 
+## Requirements
+
 - `git`
 - The GitHub CLI, authenticated. The plugin shells out to it and never
   handles a token itself.
