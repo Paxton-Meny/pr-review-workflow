@@ -14,5 +14,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   per-role model overrides.
 - Tool probe (`check-tools.sh`), state initialization (`init-state.sh`), and
   an offline GitHub CLI stub for the test suite.
+- Context fetch (`fetch-pr.sh`) and the diff transform (`split-diff.sh`):
+  annotated per-file diffs, a file index, and a commentable-line index.
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
