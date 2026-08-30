@@ -24,6 +24,7 @@ for n in 1 2 3 4 5 6 7 8 9; do
 done
 if [ -f "$resp.exit" ]; then
 	[ -f "$resp" ] && cat "$resp"
+	[ -f "$resp.err" ] && cat "$resp.err" >&2
 	exit "$(cat "$resp.exit")"
 fi
 if [ -f "$resp" ]; then
