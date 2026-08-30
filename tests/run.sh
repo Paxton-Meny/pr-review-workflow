@@ -3,6 +3,8 @@
 # Usage: sh tests/run.sh
 set -eu
 
+unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR
+
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT

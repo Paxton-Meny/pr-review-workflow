@@ -22,5 +22,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Posting layer: inline comments with placement validation and a round
   summary (`post-review.sh`), thread replies (`reply-thread.sh`), and
   thread resolution (`resolve-thread.sh`).
+- Branch plumbing: a detached review worktree (`checkout-pr.sh`), proven
+  pushes (`push-branch.sh`), and state teardown (`cleanup-state.sh`).
 
 [Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/commits/main
