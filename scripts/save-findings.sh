@@ -46,8 +46,8 @@ function flush() {
 		fail("missing title")
 	if (!sawbody)
 		fail("missing body")
-	if (!sawresolution)
-		fail("missing Resolution line in the body")
+	if (sawresolution != 1)
+		fail("the body needs exactly one Resolution line, found " sawresolution + 0)
 	id = sprintf("F%03d", first + rec - 1)
 	out = spool "/" id
 	printf "id: %s\nstatus: open\ncategory: %s\nseverity: %s\npath: %s\nline: %s\nend_line: %s\nside: %s\nplacement:\ncomment_id:\ncommit:\nround: %d\nreopens: 0\ntitle: %s\n---\n", \
@@ -69,7 +69,7 @@ rec == 0 { next }
 /^---$/ && !inbody { inbody = 1; sawbody = 1; next }
 {
 	if (inbody) {
-		if ($0 ~ /^Resolution: ./) sawresolution = 1
+		if ($0 ~ /^Resolution: ./) sawresolution++
 		body = body $0 "\n"
 	} else if (match($0, /^[a-z_]+: ?/)) {
 		key = substr($0, 1, index($0, ":") - 1)
