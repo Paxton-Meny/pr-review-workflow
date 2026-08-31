@@ -1,5 +1,5 @@
 #!/bin/sh
-# reply-thread and resolve-thread: happy paths and validation.
+# reply-thread and resolve-thread: happy paths, pagination, validation.
 set -eu
 
 stub="$SCRATCH/stub"
@@ -21,18 +21,27 @@ if printf 'x\n' | sh "$REPO_ROOT/scripts/reply-thread.sh" "$dir" '9001; rm -rf /
 fi
 grep -q "must be numeric" "$SCRATCH/err"
 
-printf 'PRRT_abc\n' >"$stub/api-graphql.1"
+printf 'page false null\nthread PRRT_abc\n' >"$stub/api-graphql.1"
 printf 'true\n' >"$stub/api-graphql.2"
 sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 | grep -qx 'resolve-thread: 9001 resolved'
 
-printf '\n' >"$stub/api-graphql.1"
+rm -f "$stub"/api-graphql.*.done
+printf 'page true CURSOR1\n' >"$stub/api-graphql.1"
+printf 'page false null\nthread PRRT_page2\n' >"$stub/api-graphql.2"
+printf 'true\n' >"$stub/api-graphql.3"
+sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 | grep -qx 'resolve-thread: 9001 resolved'
+grep -q 'after: \\"CURSOR1\\"' "$stub/calls.log" || grep -q 'after: "CURSOR1"' "$stub/calls.log"
+
+rm -f "$stub"/api-graphql.*.done "$stub"/api-graphql.3
+printf 'page false null\n' >"$stub/api-graphql.1"
+rm -f "$stub"/api-graphql.2
 if sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 2>"$SCRATCH/err"; then
 	echo "expected failure when no thread matches" >&2
 	exit 1
 fi
-grep -q "no thread starts with comment" "$SCRATCH/err"
+grep -q "no thread starts with comment 9001 (1 pages searched)" "$SCRATCH/err"
 
-printf 'PRRT_abc\n' >"$stub/api-graphql.1"
+printf 'page false null\nthread PRRT_abc\n' >"$stub/api-graphql.1"
 printf 'false\n' >"$stub/api-graphql.2"
 if sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 2>"$SCRATCH/err"; then
 	echo "expected failure when the mutation does not resolve" >&2

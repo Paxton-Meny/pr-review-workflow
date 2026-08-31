@@ -19,11 +19,26 @@ owner=$(sed -n 's/^owner //p' "$dir/meta.txt")
 repo=$(sed -n 's/^repo //p' "$dir/meta.txt")
 pr=$(sed -n 's/^pr //p' "$dir/meta.txt")
 
-thread_id=$(gh api graphql \
-	-f query="query { repository(owner: \"$owner\", name: \"$repo\") { pullRequest(number: $pr) { reviewThreads(first: 100) { nodes { id comments(first: 1) { nodes { databaseId } } } } } } }" \
-	--jq ".data.repository.pullRequest.reviewThreads.nodes[] | select(.comments.nodes[0].databaseId == $comment_id) | .id")
+page_max=10
+page=0
+cursor=''
+thread_id=''
+while [ "$page" -lt "$page_max" ]; do
+	page=$((page + 1))
+	after=''
+	[ -n "$cursor" ] && after=", after: \"$cursor\""
+	result=$(gh api graphql \
+		-f query="query { repository(owner: \"$owner\", name: \"$repo\") { pullRequest(number: $pr) { reviewThreads(first: 100$after) { pageInfo { hasNextPage endCursor } nodes { id comments(first: 1) { nodes { databaseId } } } } } } }" \
+		--jq ".data.repository.pullRequest.reviewThreads | \"page \(.pageInfo.hasNextPage) \(.pageInfo.endCursor)\", (.nodes[] | select(.comments.nodes[0].databaseId == $comment_id) | \"thread \(.id)\")")
+	thread_id=$(printf '%s\n' "$result" | sed -n 's/^thread //p' | head -n 1)
+	[ -n "$thread_id" ] && break
+	has_next=$(printf '%s\n' "$result" | sed -n 's/^page \([a-z]*\) .*/\1/p')
+	cursor=$(printf '%s\n' "$result" | sed -n 's/^page [a-z]* //p')
+	[ "$has_next" = "true" ] || break
+done
+
 [ -n "$thread_id" ] || {
-	echo "resolve-thread: no thread starts with comment $comment_id (only the first hundred threads are searched)" >&2
+	echo "resolve-thread: no thread starts with comment $comment_id ($page pages searched)" >&2
 	exit 1
 }
 
