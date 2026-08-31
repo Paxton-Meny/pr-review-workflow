@@ -6,6 +6,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Thread resolution pages past the first hundred review threads.
 ## [0.1.0] - 2026-08-30
 
 ### Added
