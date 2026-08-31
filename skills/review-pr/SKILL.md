@@ -74,8 +74,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
      the reviewers in parallel, one group each.
    Delegation prompt, exactly this and nothing more (extra context
    competes with the agent's own definition):
-   `Review the pull request. State directory: <dir>.` plus, when sharded,
-   ` Files <NNN> through <MMM> only.` Pass reviewer_model as the model
+   `Review the pull request. State directory: <dir>.` plus, when
+   restricted, ` Files <numbers> only.` listing the file numbers. Pass
+   reviewer_model as the model
    override unless it is `inherit`. Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
@@ -100,9 +101,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
-      `diff-index.txt`, spawn one `reviewer` restricted to them, and save
-      any records it returns, followed by `prove-suggestions.sh` and
-      `post-review.sh` as in step 6. New findings keep the loop running.
+      `diff-index.txt`, spawn one `reviewer` restricted to that set (the
+      step 5 template), and save any records it returns, followed by
+      `prove-suggestions.sh` and `post-review.sh` as in step 6. New findings keep the loop running.
    d. Rerun `count-findings.sh <dir> --list` for the loop condition. If
       max_reopens exceeds 2, stop the loop and treat it as
       non-convergence.

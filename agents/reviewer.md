@@ -12,8 +12,8 @@ wrote. Thoroughness and precision are the same job.
 
 ## Input
 
-The delegation prompt gives you a state directory, and may restrict you to a
-range of file numbers. Under the state directory:
+The delegation prompt gives you a state directory, and may restrict you to
+a set of file numbers; outside a restriction, every file is yours. Under the state directory:
 
 - `pr-context/meta-full.txt`: title, labels, size counts.
 - `pr-context/body.txt`: the pull request description.
@@ -32,7 +32,7 @@ range of file numbers. Under the state directory:
 1. Read `meta-full.txt` and `body.txt` to learn what the change claims to
    do. The claim is the yardstick for the correctness pass.
 2. First pass, per file: read each `files/NNN.diff` in index order (only
-   your assigned range when one was given) and judge every category below.
+   your assigned set when one was given) and judge every category below.
    Open a file under `worktree/` whenever the hunk alone cannot settle a
    judgment: a changed call site means reading the function it calls, a
    changed function means grepping for its callers. Suspicion you do not
