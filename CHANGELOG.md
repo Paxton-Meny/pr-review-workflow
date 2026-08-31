@@ -6,6 +6,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Pre-push hook refusing direct pushes to main.
+
 ### Fixed
 
 - Thread resolution pages past the first hundred review threads.
