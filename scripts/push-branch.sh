@@ -35,8 +35,10 @@ if [ "$local_sha" != "$remote_sha" ]; then
 	exit 1
 fi
 
+old_head=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 tmp=$(mktemp "$dir/.meta.XXXXXX")
-sed "s/^head_sha .*/head_sha $local_sha/" "$dir/meta.txt" >"$tmp"
+sed -e "s/^head_sha .*/head_sha $local_sha/" -e "/^prev_head /d" "$dir/meta.txt" >"$tmp"
+printf 'prev_head %s\n' "$old_head" >>"$tmp"
 mv "$tmp" "$dir/meta.txt"
 
 echo "push-branch: $head_branch at $local_sha"
