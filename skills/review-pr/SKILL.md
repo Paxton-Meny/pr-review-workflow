@@ -60,8 +60,11 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`. It prints file and
    line counts. Over SIZE_WARN_LINES changed lines: attended, ask whether to
    proceed; unattended, park (step 8) as too large.
-4. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>`. Exit 2 means a
-   fork pull request: report the limitation and stop.
+4. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>`. It prints the
+   worktree path and a mode line. `mode review-only` is a fork that does
+   not allow maintainer edits: findings can post but nothing can be fixed
+   here, so remember the mode for step 6. Exit 2 means the fork itself is
+   gone: report that and stop.
 5. Review. Read `additions` plus `deletions` from step 3's output.
    - At or under SHARD_LINES: spawn one `reviewer` agent.
    - Over: split the file numbers from `pr-context/diff-index.txt` into
@@ -77,6 +80,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 6. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir> '${user_config.check_command}'`
    (omit the second argument when check_command is empty), then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`.
+   In review-only mode, stop after posting: add one `gh pr comment` status
+   comment saying the findings stand for the author to address (proven
+   suggestions can be committed from the GitHub interface), report the
+   same, and skip every later step.
 7. Remediation loop, while
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
    exits 3 and fewer than MAX_ROUNDS rounds have run:

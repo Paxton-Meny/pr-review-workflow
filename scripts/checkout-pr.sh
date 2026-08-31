@@ -13,9 +13,11 @@ repo=$(sed -n 's/^repo //p' "$dir/meta.txt")
 head_branch=$(sed -n 's/^head_branch //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 cross_repo=$(sed -n 's/^cross_repo //p' "$dir/meta.txt")
+maintainer_can_modify=$(sed -n 's/^maintainer_can_modify //p' "$dir/meta.txt")
+head_repo_url=$(sed -n 's/^head_repo_url //p' "$dir/meta.txt")
 
-if [ "$cross_repo" = "true" ]; then
-	echo "checkout-pr: fork pull requests are not supported yet" >&2
+if [ "$cross_repo" = "true" ] && [ -z "$head_repo_url" ]; then
+	echo "checkout-pr: the fork this pull request comes from is gone" >&2
 	exit 2
 fi
 
@@ -35,7 +37,11 @@ case "$url" in
 	;;
 esac
 
-git -C "$repo_root" fetch --quiet origin "$head_branch"
+if [ "$cross_repo" = "true" ]; then
+	git -C "$repo_root" fetch --quiet "$head_repo_url" "$head_branch"
+else
+	git -C "$repo_root" fetch --quiet origin "$head_branch"
+fi
 
 worktree="$dir/worktree"
 if [ -d "$worktree" ]; then
@@ -66,3 +72,8 @@ grep -q '^repo_root ' "$dir/meta.txt" || {
 }
 
 printf '%s\n' "$worktree"
+if [ "$cross_repo" = "true" ] && [ "$maintainer_can_modify" != "true" ]; then
+	echo "mode review-only"
+else
+	echo "mode read-write"
+fi

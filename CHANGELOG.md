@@ -9,6 +9,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Pre-push hook refusing direct pushes to main.
+- Fork pull request support: the worktree fetches from the fork, pushes
+  land on the fork branch when maintainer edits are allowed, and forks
+  that refuse edits get a review-only pass with postable findings.
 
 ### Fixed
 

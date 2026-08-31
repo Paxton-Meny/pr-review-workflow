@@ -8,7 +8,7 @@ export GH_STUB_DIR="$stub"
 export PATH="$REPO_ROOT/tests/stubs:$PATH"
 data="$SCRATCH/data"
 
-printf 'author octocat\nhead_branch feat-thing\nbase_branch main\nhead_sha abc123\nurl https://github.com/acme/widgets/pull/7\ncross_repo false\nstate OPEN\n' >"$stub/pr-view"
+printf 'author octocat\nhead_branch feat-thing\nbase_branch main\nhead_sha abc123\nurl https://github.com/acme/widgets/pull/7\ncross_repo false\nmaintainer_can_modify true\nhead_repo_url https://github.com/acme/widgets.git\nstate OPEN\n' >"$stub/pr-view"
 printf 'octocat\n' >"$stub/api-user"
 
 dir=$(sh "$REPO_ROOT/scripts/init-state.sh" "$data" "acme/widgets#7")
@@ -17,6 +17,8 @@ grep -qx 'owner acme' "$dir/meta.txt"
 grep -qx 'head_sha abc123' "$dir/meta.txt"
 grep -qx 'self_login octocat' "$dir/meta.txt"
 grep -qx 'cross_repo false' "$dir/meta.txt"
+grep -qx 'maintainer_can_modify true' "$dir/meta.txt"
+grep -q '^head_repo_url https://github.com/acme/widgets.git$' "$dir/meta.txt"
 grep -qx '0' "$dir/round.txt"
 ! grep -q '^state ' "$dir/meta.txt"
 
