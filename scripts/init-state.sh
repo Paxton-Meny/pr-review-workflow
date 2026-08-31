@@ -48,8 +48,8 @@ for name in "$owner" "$repo"; do
 done
 
 meta=$(gh pr view "$number" --repo "$owner/$repo" \
-	--json author,headRefName,baseRefName,headRefOid,url,state,isCrossRepository \
-	--jq '"author \(.author.login)\nhead_branch \(.headRefName)\nbase_branch \(.baseRefName)\nhead_sha \(.headRefOid)\nurl \(.url)\ncross_repo \(.isCrossRepository)\nstate \(.state)"')
+	--json author,headRefName,baseRefName,headRefOid,url,state,isCrossRepository,maintainerCanModify,headRepository,headRepositoryOwner \
+	--jq '"author \(.author.login)\nhead_branch \(.headRefName)\nbase_branch \(.baseRefName)\nhead_sha \(.headRefOid)\nurl \(.url)\ncross_repo \(.isCrossRepository)\nmaintainer_can_modify \(.maintainerCanModify)\nhead_repo_url \(if .headRepository then "https://github.com/\(.headRepositoryOwner.login)/\(.headRepository.name).git" else "" end)\nstate \(.state)"')
 state=$(printf '%s\n' "$meta" | sed -n 's/^state //p')
 if [ "$state" != "OPEN" ]; then
 	echo "init-state: pull request $owner/$repo#$number is $state, not open" >&2

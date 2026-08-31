@@ -36,12 +36,12 @@ mv "$remote" "$SCRATCH/widgets.git"
 mkdir -p "$SCRATCH/acme"
 mv "$SCRATCH/widgets.git" "$SCRATCH/acme/widgets.git"
 
-wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir")
+wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" | head -n 1)
 [ "$wt" = "$dir/worktree" ]
 [ "$(git -C "$wt" rev-parse HEAD)" = "$sha" ]
 grep -q "^repo_root $clone\$" "$dir/meta.txt"
 
-wt2=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir")
+wt2=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" | head -n 1)
 [ "$wt2" = "$wt" ]
 
 git -C "$wt" config user.name tester
@@ -62,10 +62,10 @@ printf 'owner acme\nrepo widgets\npr 8\nhead_branch other\nhead_sha abc\ncross_r
 rc=0
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 2 ]
-grep -q "fork pull requests" "$SCRATCH/err"
+grep -q "fork this pull request comes from is gone" "$SCRATCH/err"
 
 printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$new_sha" "$clone" >"$dir/meta.txt"
-wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir")
+wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" | head -n 1)
 git -C "$wt" config user.name tester
 git -C "$wt" config user.email tester@example.invalid
 printf 'four\n' >>"$wt/file.txt"

@@ -70,7 +70,9 @@ ledger. Your own checkout is never touched.
 
 ### Limits
 
-- Fork pull requests are not supported yet; the run stops with a message.
+- Fork pull requests: full loop when the fork allows maintainer edits;
+  review-only (findings and suggestions post, nothing is fixed) when it
+  does not.
 - Pull requests past the GitHub API diff limits are parked as too large.
 - Unattended runs never merge unless auto-approve is on; they park with a
   status comment instead.
