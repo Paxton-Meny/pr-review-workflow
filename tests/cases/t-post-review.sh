@@ -23,6 +23,7 @@ side: RIGHT
 title: Off by one
 ---
 The loop stops early.
+Resolution: the loop covers every element.
 === finding
 category: best-practices
 severity: minor
@@ -33,6 +34,7 @@ side: RIGHT
 title: Duplicated block
 ---
 Extract the shared branch.
+Resolution: the branches share one implementation.
 === finding
 category: outdated-docs
 severity: nit
@@ -42,6 +44,7 @@ side: RIGHT
 title: Stale mention
 ---
 The doc names a removed flag.
+Resolution: the doc drops the flag.
 REC
 
 printf '{"id": 9001}\n' | tr -d '{}" ' >/dev/null

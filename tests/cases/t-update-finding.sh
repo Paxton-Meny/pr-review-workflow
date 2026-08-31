@@ -5,7 +5,7 @@ set -eu
 dir="$SCRATCH/state"
 mkdir -p "$dir"
 printf '0\n' >"$dir/round.txt"
-printf '=== finding\ncategory: correctness\nseverity: major\npath: a.c\nline: 3\nside: RIGHT\ntitle: Thing\n---\nBody.\n' \
+printf '=== finding\ncategory: correctness\nseverity: major\npath: a.c\nline: 3\nside: RIGHT\ntitle: Thing\n---\nResolution: done.\n' \
 	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null
 
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 comment_id=12345 placement=inline >/dev/null

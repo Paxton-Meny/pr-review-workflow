@@ -45,9 +45,21 @@ title: One line naming the defect
 
 ## Body
 
-Evidence and the expected resolution, in plain prose. The line `=== finding`
-is reserved as the record separator: never write it inside a body, including
-when quoting diff content that contains it (paraphrase instead). A body may end with a
+Evidence first, then exactly one line starting `Resolution: ` stating the
+checkable criterion the fix must satisfy. That line is the contract of the
+whole loop: the editor edits until it holds, and verification judges it and
+nothing else, so write it as a testable statement about the code
+("Resolution: the loop sums each item once, and a test covers duplicate
+SKUs"), never as advice ("consider simplifying"). A finding you cannot write
+a Resolution line for is not a finding.
+
+The line `=== finding` is reserved as the record separator: never write it
+inside a body, including when quoting diff content that contains it
+(paraphrase instead).
+
+Later steps may append notes below the body: a reopen note stating what
+still fails, or a wont-fix justification. Notes accumulate; nothing in a
+body is ever rewritten. A body may end with a
 ```suggestion fence only when the replacement is small, mechanical, covers
 exactly the commented lines, and has been proven; a finding without a patch
 beats a patch that starts a review cycle.
@@ -66,7 +78,10 @@ severity: major
 path: src/thing.py
 line: 42
 side: RIGHT
-title: One line naming the defect
+title: Retry loop drops the final attempt's error
 ---
-Body of the finding.
+The `except` on the last attempt assigns `err` but the loop exits before
+raising it, so callers see `None` instead of the failure.
+Resolution: the last attempt's exception propagates to the caller, and the
+retry test asserts it.
 ```

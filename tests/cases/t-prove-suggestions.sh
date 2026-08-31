@@ -31,6 +31,7 @@ side: RIGHT
 title: Wrong word
 ---
 Should be delta.
+Resolution: line two reads delta.
 ```suggestion
 delta
 ```
@@ -43,6 +44,7 @@ side: LEFT
 title: Deleted line suggestion
 ---
 Invalid by construction.
+Resolution: none.
 ```suggestion
 echo
 ```
@@ -55,6 +57,7 @@ side: RIGHT
 title: Out of range
 ---
 Beyond the file.
+Resolution: none.
 ```suggestion
 zulu
 ```
@@ -92,6 +95,7 @@ side: RIGHT
 title: Last line without newline
 ---
 Rename it.
+Resolution: the file reads renamed.
 ```suggestion
 renamed
 ```
