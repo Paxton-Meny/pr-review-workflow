@@ -38,6 +38,18 @@ case "$url" in
 esac
 
 if [ "$cross_repo" = "true" ]; then
+	case "$url" in
+	git@github.com:*)
+		case "$head_repo_url" in
+		https://github.com/*)
+			head_repo_url="git@github.com:${head_repo_url#https://github.com/}"
+			tmp=$(mktemp "$dir/.meta.XXXXXX")
+			sed "s|^head_repo_url .*|head_repo_url $head_repo_url|" "$dir/meta.txt" >"$tmp"
+			mv "$tmp" "$dir/meta.txt"
+			;;
+		esac
+		;;
+	esac
 	git -C "$repo_root" fetch --quiet "$head_repo_url" "$head_branch"
 else
 	git -C "$repo_root" fetch --quiet origin "$head_branch"

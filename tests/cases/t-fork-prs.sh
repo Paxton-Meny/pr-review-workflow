@@ -66,3 +66,8 @@ rc=0
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 2 ]
 grep -q "fork this pull request comes from is gone" "$SCRATCH/err"
+
+git -C "$clone" remote set-url origin "git@github.com:acme/widgets"
+printf 'owner acme\nrepo widgets\npr 9\nhead_branch feat-fork\nhead_sha x\ncross_repo true\nmaintainer_can_modify true\nhead_repo_url https://github.com/other/widgets.git\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>/dev/null || true
+grep -qx 'head_repo_url git@github.com:other/widgets.git' "$dir/meta.txt"
