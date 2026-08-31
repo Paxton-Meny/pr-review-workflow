@@ -52,6 +52,7 @@ sh "$REPO_ROOT/scripts/push-branch.sh" "$dir" | grep -q "^push-branch: feat-thin
 new_sha=$(git -C "$wt" rev-parse HEAD)
 [ "$(git -C "$SCRATCH/acme/widgets.git" rev-parse refs/heads/feat-thing)" = "$new_sha" ]
 grep -qx "head_sha $new_sha" "$dir/meta.txt"
+grep -qx "prev_head $sha" "$dir/meta.txt"
 
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" | grep -q "ledger kept"
 [ ! -d "$dir/worktree" ]
@@ -83,3 +84,4 @@ if sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "not acme/widgets" "$SCRATCH/err"
+

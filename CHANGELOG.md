@@ -12,6 +12,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Fork pull request support: the worktree fetches from the fork, pushes
   land on the fork branch when maintainer edits are allowed, and forks
   that refuse edits get a review-only pass with postable findings.
+- Round regression skim: files a remediation round changed outside any
+  finding's scope trigger an incremental review of just those files.
 
 ### Fixed
 

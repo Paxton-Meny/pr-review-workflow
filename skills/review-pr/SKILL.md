@@ -12,6 +12,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
   - Bash(gh pr comment *)
@@ -93,8 +94,15 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    b. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
       override: verifier_model) with: the state directory path and the
       `addressed_ids`.
-   c. Rerun it once more for the loop condition. If max_reopens exceeds 2,
-      stop the loop and treat it as non-convergence.
+   c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
+      files the round changed that no finding names: rerun
+      `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
+      `diff-index.txt`, spawn one `reviewer` restricted to them, and save
+      any records it returns, followed by `prove-suggestions.sh` and
+      `post-review.sh` as in step 6. New findings keep the loop running.
+   d. Rerun `count-findings.sh <dir> --list` for the loop condition. If
+      max_reopens exceeds 2, stop the loop and treat it as
+      non-convergence.
 8. Non-convergence (round cap, reopen escalation, or an unattended park):
    post one status comment via `gh pr comment` naming the `open_ids` and
    why the loop stopped, then report the same to the user and stop.
