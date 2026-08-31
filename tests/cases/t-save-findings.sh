@@ -69,4 +69,11 @@ if printf '=== finding\ncategory: correctness\nseverity: nit\npath: a.c\nline: 1
 	echo "expected rejection without a Resolution line" >&2
 	exit 1
 fi
-grep -q "missing Resolution line" "$SCRATCH/err"
+grep -q "exactly one Resolution line, found 0" "$SCRATCH/err"
+
+if printf '=== finding\ncategory: correctness\nseverity: nit\npath: a.c\nline: 1\nside: RIGHT\ntitle: Two contracts\n---\nResolution: one.\nResolution: two.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" 2>"$SCRATCH/err"; then
+	echo "expected rejection of two Resolution lines" >&2
+	exit 1
+fi
+grep -q "exactly one Resolution line, found 2" "$SCRATCH/err"
