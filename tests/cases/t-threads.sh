@@ -39,7 +39,7 @@ if sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 2>"$SCRATCH/err"; then
 	echo "expected failure when no thread matches" >&2
 	exit 1
 fi
-grep -q "no thread starts with comment 9001 (1 pages searched)" "$SCRATCH/err"
+grep -q "no thread starts with comment 9001 (1 page searched)" "$SCRATCH/err"
 
 printf 'page false null\nthread PRRT_abc\n' >"$stub/api-graphql.1"
 printf 'false\n' >"$stub/api-graphql.2"

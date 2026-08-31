@@ -38,7 +38,9 @@ while [ "$page" -lt "$page_max" ]; do
 done
 
 [ -n "$thread_id" ] || {
-	echo "resolve-thread: no thread starts with comment $comment_id ($page pages searched)" >&2
+	pages=pages
+	[ "$page" -eq 1 ] && pages=page
+	echo "resolve-thread: no thread starts with comment $comment_id ($page $pages searched)" >&2
 	exit 1
 }
 
