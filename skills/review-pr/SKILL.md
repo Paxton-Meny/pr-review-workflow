@@ -72,9 +72,11 @@ argument resumes from the ledger. Never retry a failed call in a loop.
      consecutive groups of roughly equal changed lines (use
      `pr-context/files.txt` for per-file counts; at most 4 groups) and spawn
      the reviewers in parallel, one group each.
-   Each delegation prompt is only: the state directory path, and the file
-   number range when sharded. Pass reviewer_model as the model override
-   unless it is `inherit`. Pipe each report verbatim into
+   Delegation prompt, exactly this and nothing more (extra context
+   competes with the agent's own definition):
+   `Review the pull request. State directory: <dir>.` plus, when sharded,
+   ` Files <NNN> through <MMM> only.` Pass reviewer_model as the model
+   override unless it is `inherit`. Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the change is clean: skip to step 9.
@@ -88,12 +90,13 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 7. Remediation loop, while
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
    exits 3 and fewer than MAX_ROUNDS rounds have run:
-   a. Spawn `editor` (model override: editor_model unless `inherit`) with:
-      the state directory path and the `open_ids` from that output. Its
-      report gives counts; trust the ledger over the prose.
+   a. Spawn `editor` (model override: editor_model unless `inherit`) with
+      exactly:
+      `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. Round <n> of 4.`
+      Its report gives counts; trust the ledger over the prose.
    b. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
-      override: verifier_model) with: the state directory path and the
-      `addressed_ids`.
+      override: verifier_model) with exactly:
+      `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. Round <n> of 4.`
    c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
@@ -108,9 +111,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    why the loop stopped, then report the same to the user and stop.
    Parking is terminal for this run; the ledger makes the next invocation
    resume cleanly.
-9. Convergence. If any finding is `wont-fix`: attended, present each with
-   its reasoning and ask whether to accept them and continue; unattended,
-   park (step 8) listing them. Nothing merges over an unaccepted wont-fix.
+9. Convergence. If any finding is `wont-fix`: attended, present each
+   record's `Wont-fix:` note and ask whether to accept them and continue;
+   unattended, park (step 8) listing them. Nothing merges over an
+   unaccepted wont-fix.
 10. Merge gate:
     - auto_approve true: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir> --approve`
     - auto_approve false, attended: ask the user (merge now, or hold).

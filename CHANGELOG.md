@@ -12,6 +12,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   criterion that editing satisfies and verification judges.
 - Note appending (`append-note.sh`), so reopen reasons and wont-fix
   justifications live in the record the next round reads.
+- Agent definitions rebuilt around first-round convergence: a coverage
+  audit and calibration bar for the reviewer, plan-first editing with a
+  pre-commit self-check, verbatim Resolution judging for the verifier,
+  and literal delegation templates in the skill.
 - Pre-push hook refusing direct pushes to main.
 - Fork pull request support: the worktree fetches from the fork, pushes
   land on the fork branch when maintainer edits are allowed, and forks
