@@ -77,3 +77,27 @@ if sh "$REPO_ROOT/scripts/post-review.sh" "$SCRATCH/nostate" 2>"$SCRATCH/err"; t
 	exit 1
 fi
 grep -q "incomplete" "$SCRATCH/err"
+
+printf 'src/app.py\tRIGHT\t5\n' >>"$dir/pr-context/commentable.txt"
+sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'
+=== finding
+category: security
+severity: minor
+path: src/app.py
+line: 5
+side: RIGHT
+title: Quiet gap
+---
+Evidence.
+Fix: done.
+Resolution: done.
+Criteria note: nothing lists this item yet.
+REC
+printf '9003\n' >"$stub/api-repos_acme_widgets_pulls_7_comments.3"
+sh "$REPO_ROOT/scripts/post-review.sh" "$dir" >/dev/null
+grep -q "nothing lists this item yet" "$stub/bodies.log" && {
+	echo "criteria notes must not reach the pull request" >&2
+	exit 1
+}
+grep -q "^Fix: done." "$stub/bodies.log"
+grep -q "Quiet gap" "$stub/bodies.log"

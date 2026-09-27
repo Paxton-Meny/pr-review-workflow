@@ -28,4 +28,4 @@ for f in "$findings"/F*; do
 	NOTES
 done
 
-echo "criteria-signals: $others other, $notes notes"
+echo "criteria-signals: other $others notes $notes"

@@ -7,6 +7,14 @@ set -eu
 	exit 64
 }
 printf '%s\n' "$*" >>"$GH_STUB_DIR/calls.log"
+prev=
+for a in "$@"; do
+	case "$a" in
+	body=@*) cat "${a#body=@}" >>"$GH_STUB_DIR/bodies.log" ;;
+	esac
+	[ "$prev" = "--body-file" ] && cat "$a" >>"$GH_STUB_DIR/bodies.log"
+	prev=$a
+done
 
 name=${1:-none}
 case "${2:-}" in
