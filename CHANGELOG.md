@@ -8,6 +8,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Findings carry a required Fix line: the recommended repair with its
+  reasoning and repair context, so edits need no re-reading of the
+  project (a proven suggestion fence stands in for it).
+- An other category plus per-finding criteria notes, collected by
+  criteria-signals.sh, so the criteria grow deliberately from what real
+  reviews surface.
 - Every finding body carries a required Resolution line, the checkable
   criterion that editing satisfies and verification judges.
 - Note appending (`append-note.sh`), so reopen reasons and wont-fix

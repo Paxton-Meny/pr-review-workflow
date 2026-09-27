@@ -23,6 +23,7 @@ side: RIGHT
 title: Off by one
 ---
 The loop stops early.
+Fix: loop to len(items), matching the sibling loops in this file.
 Resolution: the loop covers every element.
 === finding
 category: best-practices
@@ -34,6 +35,7 @@ side: RIGHT
 title: Duplicated block
 ---
 Extract the shared branch.
+Fix: hoist the duplicated block into a helper beside its callers.
 Resolution: the branches share one implementation.
 === finding
 category: outdated-docs
@@ -44,6 +46,7 @@ side: RIGHT
 title: Stale mention
 ---
 The doc names a removed flag.
+Fix: drop the flag from the doc list.
 Resolution: the doc drops the flag.
 REC
 
