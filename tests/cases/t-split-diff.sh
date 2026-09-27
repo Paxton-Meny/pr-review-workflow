@@ -79,3 +79,25 @@ if grep -q 'package-lock' "$ctx/diff-index.txt" "$ctx/commentable.txt"; then
 	exit 1
 fi
 [ "$(ls "$ctx/files" | wc -l)" -eq 1 ]
+
+cat > "$ctx/diff.patch" <<'PATCH'
+diff --git a/yarn.lock b/yarn.lock
+--- a/yarn.lock
++++ /dev/null
+@@ -1,2 +0,0 @@
+-a
+-b
+diff --git a/src/app.py b/src/app.py
+--- a/src/app.py
++++ b/src/app.py
+@@ -1 +1,2 @@
+ keep
++line
+PATCH
+out=$(sh "$REPO_ROOT/scripts/split-diff.sh" "$dir")
+[ "$out" = "split-diff: 1 files, 2 commentable lines, 1 excluded" ]
+grep -qx 'yarn.lock' "$ctx/excluded.txt"
+if grep -q 'yarn.lock' "$ctx/commentable.txt"; then
+	echo "a deleted lockfile must not be commentable" >&2
+	exit 1
+fi

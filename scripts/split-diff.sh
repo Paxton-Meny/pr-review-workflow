@@ -30,7 +30,7 @@ excluded_path() {
 }
 
 exclusions=$(mktemp "$dir/pr-context/.excl.XXXXXX")
-awk '/^\+\+\+ / { p = $0; sub(/^\+\+\+ /, "", p); sub(/^b\//, "", p); if (p != "/dev/null") print p }' "$patch" |
+awk '/^(\+\+\+|---) / { p = $0; sub(/^(\+\+\+|---) /, "", p); sub(/^[ab]\//, "", p); if (p != "/dev/null") print p }' "$patch" |
 	sort -u |
 	while IFS= read -r path; do
 		excluded_path "$path" && printf '%s\n' "$path"
