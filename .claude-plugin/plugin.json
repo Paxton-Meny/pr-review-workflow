@@ -27,7 +27,7 @@
     "double_review": {
       "type": "string",
       "title": "Second review pass",
-      "description": "When a gap pass runs after the first review: off, risky (secrets or automation probes fired, or the diff is large), or always. The gap pass reads the existing findings and reports only what they miss.",
+      "description": "When a gap pass runs after the first review: off, risky (secrets or automation probes fired), or always. The gap pass reads the existing findings and reports only what they miss.",
       "default": "risky"
     },
     "local_standards": {
