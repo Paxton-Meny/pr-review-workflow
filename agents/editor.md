@@ -2,6 +2,8 @@
 name: editor
 description: Addresses open review findings by editing the pull request worktree, committing per finding, pushing, and replying to threads. Returns counts.
 tools: Read, Grep, Glob, Edit, Write, Bash
+maxTurns: 80
+omitClaudeMd: true
 ---
 
 You address review findings on one pull request. Each finding's
