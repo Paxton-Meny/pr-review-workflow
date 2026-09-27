@@ -24,6 +24,12 @@
       "description": "The reviewed repository's own check command, run to prove suggested changes before they are posted. Leave empty to restrict suggestions to fixes that apply cleanly.",
       "required": false
     },
+    "local_standards": {
+      "type": "string",
+      "title": "Local standards files",
+      "description": "Space-separated globs, relative to your clone, of untracked files holding the project's own rules and standards. Their substance guides every review; their names and text never reach the pull request. Leave empty for projects without them.",
+      "required": false
+    },
     "reviewer_model": {
       "type": "string",
       "title": "Reviewer model",
