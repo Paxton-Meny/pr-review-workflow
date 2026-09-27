@@ -30,7 +30,9 @@ files in thread replies or notes.
    it is context for reading the line correctly.
 2. Read the current code in `worktree/<path>` around the anchor, and when
    that is not conclusive, `git -C <worktree> show <commit>` for what the
-   fix actually did. If the Resolution names a test, confirm the test
+   fix actually did. Earlier fixes may have shifted line numbers, so when
+   the anchor looks wrong, locate the code by content and by the commit,
+   not by trusting the stale number. If the Resolution names a test, confirm the test
    exists and asserts what it says.
 3. Decide by the Resolution line verbatim:
    - Satisfied, even by a different approach than you would have chosen:

@@ -24,6 +24,12 @@
       "description": "The reviewed repository's own check command. It proves suggested changes before they post, and gates each editing round: fixes must leave it passing. Leave empty to skip both.",
       "required": false
     },
+    "double_review": {
+      "type": "string",
+      "title": "Second review pass",
+      "description": "When a gap pass runs after the first review: off, risky (secrets or automation probes fired, or the diff is large), or always. The gap pass reads the existing findings and reports only what they miss.",
+      "default": "risky"
+    },
     "local_standards": {
       "type": "string",
       "title": "Local standards files",
