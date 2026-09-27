@@ -10,6 +10,7 @@ ctx="$dir/pr-context"
 	echo "extract-standards: state in $dir is incomplete, run fetch-pr.sh and checkout-pr.sh first" >&2
 	exit 1
 }
+ctx=$(CDPATH= cd -- "$ctx" && pwd)
 rm -f "$ctx/standards.txt"
 
 patterns=${*:-}
