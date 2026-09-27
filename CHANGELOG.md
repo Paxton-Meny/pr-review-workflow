@@ -14,6 +14,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - An other category plus per-finding criteria notes, collected by
   criteria-signals.sh, so the criteria grow deliberately from what real
   reviews surface.
+- Optional conventions block: a marked map in the reviewed repository's
+  CLAUDE.md, extracted from the base branch into the review state, so
+  agents stop re-deriving layout, test locations, and idioms every run.
 - Every finding body carries a required Resolution line, the checkable
   criterion that editing satisfies and verification judges.
 - Note appending (`append-note.sh`), so reopen reasons and wont-fix

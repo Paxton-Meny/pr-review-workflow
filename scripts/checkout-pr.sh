@@ -89,3 +89,22 @@ if [ "$cross_repo" = "true" ] && [ "$maintainer_can_modify" != "true" ]; then
 else
 	echo "mode read-write"
 fi
+
+base_branch=$(sed -n 's/^base_branch //p' "$dir/meta.txt")
+ctx="$dir/pr-context"
+if [ -n "$base_branch" ] && [ -d "$ctx" ]; then
+	rm -f "$ctx/conventions.txt"
+	if git -C "$repo_root" show "origin/$base_branch:CLAUDE.md" >/dev/null 2>&1; then
+		tmp=$(mktemp "$ctx/.conv.XXXXXX")
+		git -C "$repo_root" show "origin/$base_branch:CLAUDE.md" |
+			awk '/<!-- review-conventions:begin -->/ { take = 1; next }
+			/<!-- review-conventions:end -->/ { take = 0 }
+			take { print }' >"$tmp"
+		if [ -s "$tmp" ]; then
+			mv "$tmp" "$ctx/conventions.txt"
+			echo "conventions $(grep -c . "$ctx/conventions.txt") lines"
+		else
+			rm -f "$tmp"
+		fi
+	fi
+fi
