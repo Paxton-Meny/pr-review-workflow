@@ -20,6 +20,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh *)
   - Bash(gh pr comment *)
 ---
 
@@ -32,6 +33,7 @@ instructions bind for the whole run.
 - check_command: `${user_config.check_command}`
 - local_standards: `${user_config.local_standards}`
 - double_review: ${user_config.double_review}
+- keep_ledgers: ${user_config.keep_ledgers}
 - reviewer_model: ${user_config.reviewer_model}
 - editor_model: ${user_config.editor_model}
 - verifier_model: ${user_config.verifier_model}
@@ -171,7 +173,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
 12. After a merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
-    then report: rounds run, findings by category and outcome, and the
+    then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh <dir> ${user_config.keep_ledgers}`,
+    which also reaps sibling runs whose pull requests closed outside
+    this tool. Relay both one-line results,
+    and report: rounds run, findings by category and outcome, and the
     merge result, in a few lines.
 
 Whatever step ends the run, when the ledger holds any findings the final

@@ -63,6 +63,7 @@ Configured when you enable the plugin:
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
 | Second review pass | risky | When a gap pass runs after the first review: off, risky (secrets or automation probes fired), or always. It reads the existing findings and reports only what they miss. |
+| Ledgers kept per repository | 20 | Finished finding ledgers retained per repository after each merge; older ones are pruned, and runs still holding a worktree never are. |
 | Reviewer / editor / verifier model | inherit / inherit / sonnet | Model per role. The first review deserves your strongest model; verification passes are cheap by design. |
 
 ### Conventions block (optional)

@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A post-merge sweep: stale runs whose pull requests closed outside the
+  tool are cleaned, and finished ledgers are retained per repository up
+  to a configurable count.
 - A project site under docs/: one hand-written static page reusing the
   README figures, ready for GitHub Pages branch deployment at
   go-public time.

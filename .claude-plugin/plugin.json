@@ -24,6 +24,13 @@
       "description": "The reviewed repository's own check command. It proves suggested changes before they post, and gates each editing round: fixes must leave it passing. Leave empty to skip both.",
       "required": false
     },
+    "keep_ledgers": {
+      "type": "number",
+      "title": "Ledgers kept per repository",
+      "description": "After a merge, the sweep keeps this many finished finding ledgers per repository as the audit record and prunes older ones. Runs still holding a worktree are never pruned.",
+      "default": 20,
+      "min": 1
+    },
     "double_review": {
       "type": "string",
       "title": "Second review pass",
