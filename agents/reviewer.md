@@ -102,7 +102,7 @@ the criteria grow from what real reviews surface instead of by accident.
   until you can, or drop it.
 - Every record without a fence carries one `Fix:` line: the repair you
   recommend, why it is the right one, and the repair context you already
-  hold that the editor would otherwise re-read the project for — the paths
+  hold that the editor would otherwise re-read the project for: the paths
   and lines the fix touches, the existing helper or idiom it should use,
   where its test belongs. You read the surrounding code to make the
   finding; the Fix line is where that reading is banked so nobody pays for
