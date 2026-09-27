@@ -30,7 +30,7 @@ printf 'OPEN\n' >"$stub/pr-view.2"
 
 dir="$root/acme__widgets__3"
 out=$(sh "$REPO_ROOT/scripts/sweep-state.sh" "$dir" 3)
-[ "$out" = "sweep-state: 1 stale runs cleaned, 1 old ledgers pruned, 3 kept" ]
+[ "$out" = "sweep-state: stale 1 pruned 1 kept 3" ]
 [ ! -d "$root/acme__widgets__4/worktree" ]
 [ -f "$root/acme__widgets__4/meta.txt" ]
 [ -d "$root/acme__widgets__5/worktree" ]

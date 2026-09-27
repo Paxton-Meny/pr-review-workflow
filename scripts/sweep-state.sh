@@ -49,4 +49,4 @@ for name in $(ls -1td "$prefix"* 2>/dev/null); do
 	fi
 done
 
-echo "sweep-state: $swept stale runs cleaned, $pruned old ledgers pruned, $kept kept"
+echo "sweep-state: stale $swept pruned $pruned kept $kept"
