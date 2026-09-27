@@ -44,3 +44,9 @@ if sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" '/etc/passwd' 2>"$SCRATCH
 	exit 1
 fi
 grep -q "outside the clone" "$SCRATCH/err"
+
+cd "$SCRATCH"
+out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" state 'HOUSE_RULES.md')
+[ "$out" = "extract-standards: 1 files, 3 lines" ]
+[ -f "$SCRATCH/state/pr-context/standards.txt" ]
+[ ! -e "$clone/state" ]
