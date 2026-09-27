@@ -7,7 +7,7 @@ mkdir -p "$dir/pr-context"
 cp "$REPO_ROOT/tests/fixtures/two-files.patch" "$dir/pr-context/diff.patch"
 
 out=$(sh "$REPO_ROOT/scripts/split-diff.sh" "$dir")
-[ "$out" = "split-diff: 2 files, 9 commentable lines" ]
+[ "$out" = "split-diff: 2 files, 9 commentable lines, 0 excluded" ]
 
 ctx="$dir/pr-context"
 printf '001\tsrc/app.py\n002\tdocs/readme.md\n' >"$SCRATCH/want-index"
@@ -45,6 +45,37 @@ fi
 grep -q "no diff.patch" "$SCRATCH/err"
 
 : >"$ctx/diff.patch"
-sh "$REPO_ROOT/scripts/split-diff.sh" "$dir" | grep -qx 'split-diff: 0 files, 0 commentable lines'
+sh "$REPO_ROOT/scripts/split-diff.sh" "$dir" | grep -qx 'split-diff: 0 files, 0 commentable lines, 0 excluded'
 [ ! -f "$ctx/diff-index.txt" ]
 [ ! -f "$ctx/commentable.txt" ]
+
+cat > "$ctx/diff.patch" <<'PATCH'
+diff --git a/src/app.py b/src/app.py
+--- a/src/app.py
++++ b/src/app.py
+@@ -1 +1,2 @@
+ keep
++real change
+diff --git a/package-lock.json b/package-lock.json
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1 +1,2 @@
+ lock
++churn
+diff --git a/assets/bundle.min.js b/assets/bundle.min.js
+--- a/assets/bundle.min.js
++++ b/assets/bundle.min.js
+@@ -1 +1,2 @@
+ blob
++more
+PATCH
+out=$(sh "$REPO_ROOT/scripts/split-diff.sh" "$dir")
+[ "$out" = "split-diff: 1 files, 2 commentable lines, 2 excluded" ]
+grep -qx 'package-lock.json' "$ctx/excluded.txt"
+grep -qx 'assets/bundle.min.js' "$ctx/excluded.txt"
+grep -qx '001	src/app.py' "$ctx/diff-index.txt"
+if grep -q 'package-lock' "$ctx/diff-index.txt" "$ctx/commentable.txt"; then
+	echo "excluded files must not be indexed or commentable" >&2
+	exit 1
+fi
+[ "$(ls "$ctx/files" | wc -l)" -eq 1 ]

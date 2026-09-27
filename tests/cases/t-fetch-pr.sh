@@ -18,7 +18,7 @@ printf 'src/app.py\t3\t2\ndocs/readme.md\t1\t0\n' >"$stub/pr-view.3"
 
 out=$(sh "$REPO_ROOT/scripts/fetch-pr.sh" "$dir")
 printf '%s\n' "$out" | grep -qx 'fetch-pr: 2 files, 4 additions, 2 deletions'
-printf '%s\n' "$out" | grep -qx 'split-diff: 2 files, 9 commentable lines'
+printf '%s\n' "$out" | grep -qx 'split-diff: 2 files, 9 commentable lines, 0 excluded'
 
 grep -qx 'title Add things' "$dir/pr-context/meta-full.txt"
 grep -qx 'The body of the pull request.' "$dir/pr-context/body.txt"

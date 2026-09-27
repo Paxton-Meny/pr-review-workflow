@@ -12,18 +12,50 @@ patch="$dir/pr-context/diff.patch"
 
 files_dir="$dir/pr-context/files"
 rm -rf "$files_dir"
-rm -f "$dir/pr-context/diff-index.txt" "$dir/pr-context/commentable.txt"
+rm -f "$dir/pr-context/diff-index.txt" "$dir/pr-context/commentable.txt" \
+	"$dir/pr-context/excluded.txt"
 mkdir -p "$files_dir"
+
+excluded_path() {
+	case "$1" in
+	*/package-lock.json | package-lock.json | */npm-shrinkwrap.json | npm-shrinkwrap.json | \
+		*.lock | *.lockb | */go.sum | go.sum | \
+		*.min.js | *.min.css | *.map | *.snap | \
+		*/node_modules/* | node_modules/* | */vendor/* | vendor/* | \
+		*/dist/* | dist/* | */__snapshots__/* | __snapshots__/*)
+		return 0
+		;;
+	esac
+	return 1
+}
+
+exclusions=$(mktemp "$dir/pr-context/.excl.XXXXXX")
+awk '/^\+\+\+ / { p = $0; sub(/^\+\+\+ /, "", p); sub(/^b\//, "", p); if (p != "/dev/null") print p }' "$patch" |
+	sort -u |
+	while IFS= read -r path; do
+		excluded_path "$path" && printf '%s\n' "$path"
+	done >"$exclusions" || true
+if [ -s "$exclusions" ]; then
+	mv "$exclusions" "$dir/pr-context/excluded.txt"
+else
+	rm -f "$exclusions"
+fi
 
 awk -v files_dir="$files_dir" \
 	-v index_file="$dir/pr-context/diff-index.txt" \
-	-v commentable="$dir/pr-context/commentable.txt" '
-BEGIN { seq = 0; inhunk = 0; path = "" }
+	-v commentable="$dir/pr-context/commentable.txt" \
+	-v excluded_file="$dir/pr-context/excluded.txt" '
+BEGIN {
+	seq = 0; inhunk = 0; path = ""
+	while ((getline line < excluded_file) > 0) excluded[line] = 1
+	close(excluded_file)
+}
 /^diff --git / { inhunk = 0; path = ""; oldpath = ""; next }
 /^--- / { p = $0; sub(/^--- /, "", p); sub(/^a\//, "", p); oldpath = p; next }
 /^\+\+\+ / {
 	p = $0; sub(/^\+\+\+ /, "", p); sub(/^b\//, "", p)
 	path = (p == "/dev/null") ? oldpath : p
+	if (excluded[path]) { path = ""; next }
 	seq++
 	out = sprintf("%s/%03d.diff", files_dir, seq)
 	printf "path: %s\n", path > out
@@ -64,4 +96,6 @@ file_count=0
 [ -f "$dir/pr-context/diff-index.txt" ] && file_count=$(grep -c . "$dir/pr-context/diff-index.txt")
 line_count=0
 [ -f "$dir/pr-context/commentable.txt" ] && line_count=$(grep -c . "$dir/pr-context/commentable.txt")
-echo "split-diff: $file_count files, $line_count commentable lines"
+excl_count=0
+[ -f "$dir/pr-context/excluded.txt" ] && excl_count=$(grep -c . "$dir/pr-context/excluded.txt")
+echo "split-diff: $file_count files, $line_count commentable lines, $excl_count excluded"
