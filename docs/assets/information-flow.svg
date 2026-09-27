@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" width="860" role="img" aria-labelledby="t2 d2">
+<title id="t2">Where information lives and moves</title>
+<desc id="d2">GitHub data and the local clone feed a per-pull-request state ledger on disk; reviewer, editor, and verifier agents read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts, never the diff.</desc>
+<style>
+text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+.th{font-size:14px;font-weight:600}.ts{font-size:12px}
+.g{fill:#F1EFE8;stroke:#5F5E5A}.p{fill:#EEEDFE;stroke:#534AB7}.tl{fill:#E1F5EE;stroke:#0F6E56}.co{fill:#FAECE7;stroke:#993C1D}
+.tg{fill:#2C2C2A}.tg2{fill:#5F5E5A}.tp{fill:#26215C}.tp2{fill:#534AB7}.tt{fill:#04342C}.tt2{fill:#0F6E56}.tc{fill:#4A1B0C}.tc2{fill:#993C1D}
+.frame{fill:none;stroke:#888780}.ar{stroke:#888780;fill:none}.arh{fill:#888780}.dash{stroke-dasharray:4 4}
+@media (prefers-color-scheme:dark){
+.g{fill:#444441;stroke:#B4B2A9}.p{fill:#3C3489;stroke:#AFA9EC}.tl{fill:#085041;stroke:#5DCAA5}.co{fill:#712B13;stroke:#F0997B}
+.tg{fill:#F1EFE8}.tg2{fill:#D3D1C7}.tp{fill:#CECBF6}.tp2{fill:#AFA9EC}.tt{fill:#9FE1CB}.tt2{fill:#5DCAA5}.tc{fill:#F5C4B3}.tc2{fill:#F0997B}
+.frame{stroke:#B4B2A9}.ar{stroke:#B4B2A9}.arh{fill:#B4B2A9}}
+</style>
+<defs><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="arh" d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="ts tg2" x="430" y="26" text-anchor="middle">the diff is read from GitHub once, lives on disk, and never enters the orchestrating context</text>
+<rect class="tl" x="60" y="44" width="200" height="56" rx="8"/>
+<text class="th tt" x="160" y="66" text-anchor="middle">GitHub</text>
+<text class="ts tt2" x="160" y="86" text-anchor="middle">gh keeps the auth</text>
+<rect class="g" x="330" y="44" width="200" height="56" rx="8"/>
+<text class="th tg" x="430" y="66" text-anchor="middle">Orchestrator</text>
+<text class="ts tg2" x="430" y="86" text-anchor="middle">sees ids and counts only</text>
+<rect class="g" x="600" y="44" width="200" height="56" rx="8"/>
+<text class="th tg" x="700" y="66" text-anchor="middle">Your clone</text>
+<text class="ts tg2" x="700" y="86" text-anchor="middle">worktree and local rules</text>
+<line class="ar" x1="160" y1="100" x2="180" y2="132" marker-end="url(#b)"/>
+<line class="ar dash" x1="430" y1="100" x2="430" y2="136"/>
+<line class="ar" x1="700" y1="100" x2="680" y2="132" marker-end="url(#b)"/>
+<rect class="frame" x="60" y="140" width="740" height="190" rx="12"/>
+<text class="th tg" x="430" y="166" text-anchor="middle">State ledger, one directory per pull request</text>
+<rect class="tl" x="90" y="186" width="220" height="120" rx="8"/>
+<text class="th tt" x="200" y="212" text-anchor="middle">pr-context/</text>
+<text class="ts tt2" x="200" y="236" text-anchor="middle">annotated diffs, line maps</text>
+<text class="ts tt2" x="200" y="254" text-anchor="middle">probes, exclusions</text>
+<text class="ts tt2" x="200" y="272" text-anchor="middle">conventions, standards</text>
+<rect class="co" x="320" y="186" width="220" height="120" rx="8"/>
+<text class="th tc" x="430" y="212" text-anchor="middle">findings/F001…</text>
+<text class="ts tc2" x="430" y="236" text-anchor="middle">evidence, Fix, Resolution</text>
+<text class="ts tc2" x="430" y="254" text-anchor="middle">notes across rounds</text>
+<text class="ts tc2" x="430" y="272" text-anchor="middle">the loop's contract</text>
+<rect class="g" x="550" y="186" width="220" height="120" rx="8"/>
+<text class="th tg" x="660" y="212" text-anchor="middle">worktree/</text>
+<text class="ts tg2" x="660" y="236" text-anchor="middle">PR head, detached</text>
+<text class="ts tg2" x="660" y="254" text-anchor="middle">edits and check runs</text>
+<text class="ts tg2" x="660" y="272" text-anchor="middle">never your checkout</text>
+<line class="ar" x1="200" y1="330" x2="190" y2="366" marker-end="url(#b)"/>
+<line class="ar" x1="430" y1="330" x2="430" y2="366" marker-end="url(#b)"/>
+<line class="ar" x1="660" y1="330" x2="670" y2="366" marker-end="url(#b)"/>
+<rect class="p" x="90" y="370" width="200" height="56" rx="8"/>
+<text class="th tp" x="190" y="392" text-anchor="middle">Reviewer</text>
+<text class="ts tp2" x="190" y="412" text-anchor="middle">reads, never writes</text>
+<rect class="p" x="330" y="370" width="200" height="56" rx="8"/>
+<text class="th tp" x="430" y="392" text-anchor="middle">Editor</text>
+<text class="ts tp2" x="430" y="412" text-anchor="middle">edits and pushes</text>
+<rect class="p" x="570" y="370" width="200" height="56" rx="8"/>
+<text class="th tp" x="670" y="392" text-anchor="middle">Verifier</text>
+<text class="ts tp2" x="670" y="412" text-anchor="middle">verdicts, threads</text>
+<line class="ar" x1="430" y1="426" x2="400" y2="462" marker-end="url(#b)"/>
+<line class="ar" x1="670" y1="426" x2="550" y2="462" marker-end="url(#b)"/>
+<rect class="tl" x="230" y="466" width="400" height="56" rx="8"/>
+<text class="th tt" x="430" y="488" text-anchor="middle">GitHub</text>
+<text class="ts tt2" x="430" y="508" text-anchor="middle">pushes, replies, resolutions, merge</text>
+</svg>
