@@ -15,6 +15,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
@@ -105,16 +106,23 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. Round <n> of 4.`
       Its report gives counts; trust the ledger over the prose.
-   b. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
+   b. When check_command is set:
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
+      Exit 3 means the editor's commits broke the project's own check:
+      spawn `editor` once more with exactly:
+      `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
+      then rerun run-check. A second failure is non-convergence (step 8);
+      never proceed to verification over a failing check.
+   c. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
       override: verifier_model) with exactly:
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. Round <n> of 4.`
-   c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
+   d. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
       `diff-index.txt`, spawn one `reviewer` restricted to that set (the
       step 5 template), and save any records it returns, followed by
       `prove-suggestions.sh` and `post-review.sh` as in step 6. New findings keep the loop running.
-   d. Rerun `count-findings.sh <dir> --list` for the loop condition. If
+   e. Rerun `count-findings.sh <dir> --list` for the loop condition. If
       max_reopens exceeds 2, stop the loop and treat it as
       non-convergence.
 8. Non-convergence (round cap, reopen escalation, or an unattended park):

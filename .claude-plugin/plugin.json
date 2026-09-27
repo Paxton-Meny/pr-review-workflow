@@ -21,7 +21,7 @@
     "check_command": {
       "type": "string",
       "title": "Check command",
-      "description": "The reviewed repository's own check command, run to prove suggested changes before they are posted. Leave empty to restrict suggestions to fixes that apply cleanly.",
+      "description": "The reviewed repository's own check command. It proves suggested changes before they post, and gates each editing round: fixes must leave it passing. Leave empty to skip both.",
       "required": false
     },
     "local_standards": {
