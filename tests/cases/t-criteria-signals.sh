@@ -45,7 +45,7 @@ REC
 out=$(sh "$REPO_ROOT/scripts/criteria-signals.sh" "$dir")
 printf '%s\n' "$out" | grep -qx 'other F001: Belongs nowhere defined'
 printf '%s\n' "$out" | grep -qx 'note F002: security lists nothing about timing side channels.'
-printf '%s\n' "$out" | grep -qx 'criteria-signals: 1 other, 1 notes'
+printf '%s\n' "$out" | grep -qx 'criteria-signals: other 1 notes 1'
 if printf '%s\n' "$out" | grep -q 'F003'; then
 	echo "a plain finding must not appear in the signals" >&2
 	exit 1

@@ -17,7 +17,7 @@ round=$(($(cat "$dir/round.txt") + 1))
 tab=$(printf '\t')
 
 field() { sed -n "s/^$2: //p" "$1"; }
-body_of() { awk 'f { print } /^---$/ { f = 1 }' "$1"; }
+body_of() { awk 'f && !/^Criteria note: / { print } /^---$/ { f = 1 }' "$1"; }
 
 posted=0
 demoted=0
