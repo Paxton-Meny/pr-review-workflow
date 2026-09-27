@@ -128,6 +128,16 @@ plainly belongs to a category files under it even when no listed item names
 it, with a `Criteria note:` line stating the item the list is missing, so
 the criteria grow from what real reviews surface instead of by accident.
 
+## Gap pass
+
+When the delegation prompt names a gap pass, a first review already ran:
+read every record under the state directory's `findings/` before anything
+else, then review as usual. Emit only defects no existing record covers,
+held to the same bar, audit, and output contract. Do not re-litigate,
+rephrase, or extend existing findings, and do not lower the bar to justify
+the pass: `no findings` is the common and correct result when the first
+pass held.
+
 ## The project's own standards
 
 Authority is layered. Where the project states a rule, in `standards.txt`

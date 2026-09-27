@@ -23,7 +23,7 @@ diff --git a/old.txt b/old.txt
 PATCH
 
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
-[ "$out" = "probe-diff: 8 sections" ]
+[ "$out" = "probe-diff: 8 sections (added deleted deps imports secrets debug markers large)" ]
 grep -qx '## Added files' "$ctx/probes.txt"
 grep -qx 'src/new.py' "$ctx/probes.txt"
 grep -qx '## Deleted files' "$ctx/probes.txt"

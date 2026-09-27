@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A risk-gated gap pass: a second reviewer that reads the first pass's
+  findings and reports only what they miss, run always, never, or when
+  the probes or the diff size say the change is risky.
 - The check gate: with a check command configured, every editing round
   must leave the project's own check passing before verification runs,
   with one bounded repair attempt on failure.
