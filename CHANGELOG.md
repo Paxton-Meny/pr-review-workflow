@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A project site under docs/: one hand-written static page reusing the
+  README figures, ready for GitHub Pages branch deployment at
+  go-public time.
 - README figures: the layered pipeline and the information-flow map as
   hand-written, dark-mode-aware SVG under docs/assets/.
 - A risk-gated gap pass: a second reviewer that reads the first pass's

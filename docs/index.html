@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pr-review-workflow</title>
+<meta name="description" content="A Claude Code plugin that reviews a GitHub pull request end to end: inline findings, proven suggestions, an editing loop with a check gate, and a merge gate that asks first.">
+<style>
+:root{--bg:#FDFCFA;--panel:#F1EFE8;--ink:#2C2C2A;--muted:#5F5E5A;--line:#D3D1C7;--accent:#534AB7;--teal:#0F6E56;--coral:#993C1D;--code:#EEEDFE}
+@media (prefers-color-scheme:dark){:root{--bg:#1E1E1C;--panel:#2C2C2A;--ink:#F1EFE8;--muted:#B4B2A9;--line:#444441;--accent:#AFA9EC;--teal:#5DCAA5;--coral:#F0997B;--code:#26215C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+main{max-width:900px;margin:0 auto;padding:24px 20px 64px}
+h1{font-size:32px;margin:40px 0 8px}
+h2{font-size:22px;margin:48px 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+p{margin:12px 0}
+.lead{font-size:19px;color:var(--muted)}
+a{color:var(--accent)}
+figure{margin:24px 0;text-align:center}
+figure img{max-width:100%;height:auto}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:16px 0}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel)}
+code,pre{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13.5px}
+code{background:var(--panel);padding:1px 5px;border-radius:4px}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto}
+pre code{background:none;padding:0}
+.record{border-left:3px solid var(--coral);border-radius:0}
+.pill{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:0 6px 6px 0;color:var(--muted)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px}
+@media (max-width:700px){.cols{grid-template-columns:1fr}}
+footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>pr-review-workflow</h1>
+<p class="lead">A Claude Code plugin that reviews a GitHub pull request end to end: findings post as inline threads with proven suggestions, an editor addresses each one under a machine-checked gate, a cheap verifier judges every fix against its stated criterion, and a merge gate finishes the job or asks you first.</p>
+<p>
+<span class="pill">git and gh only, nothing installed</span>
+<span class="pill">POSIX sh, no build step</span>
+<span class="pill">state on disk, resumable</span>
+<span class="pill">at most four rounds by construction</span>
+</p>
+
+<h2>The shape of a run</h2>
+<figure>
+<img src="assets/pipeline.svg" width="860" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a risk-gated gap pass, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked.">
+<figcaption>Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub.</figcaption>
+</figure>
+<p>Everything mechanical is a script that proves its own result: fetching and annotating the diff, probing it for secrets and other greppable defects, validating comment placement before posting, pushing with the remote verified, merging with the merged state confirmed. The models spend tokens only on what needs judgment: finding defects, making fixes, and checking fixes against their criteria.</p>
+
+<h2>Where information lives</h2>
+<figure>
+<img src="assets/information-flow.svg" width="860" alt="GitHub data and the local clone feed a per-pull-request state ledger; reviewer, editor, and verifier read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts.">
+<figcaption>The diff is read from GitHub once, lives on disk, and never enters the orchestrating context.</figcaption>
+</figure>
+<p>Each agent spawns with a fresh context and reads only its slice of the ledger. Cross-round memory lives in the records themselves, so a resumed session continues exactly where the last one stopped, and the round budget survives on disk where a compacted context cannot corrupt it.</p>
+
+<h2>The contract every finding carries</h2>
+<p>Loops past round one start where a contract is loose, so every finding is one. The <code>Resolution:</code> line is a testable acceptance criterion: the editor edits until it holds and the verifier judges it verbatim. The <code>Fix:</code> line banks the reviewer's reading of the code, the paths, helpers, and test locations the repair touches, so the editor goes straight there instead of re-deriving the project.</p>
+<pre class="record"><code>category: correctness
+severity: major
+path: src/retry.py
+line: 42
+side: RIGHT
+title: Retry loop drops the final attempt's error
+---
+The except on the last attempt assigns err but the loop exits
+before raising it, so callers see None instead of the failure.
+Fix: raise err after the loop; the retry tests live in
+tests/test_client.py, and test_retry_exhausted is the one to extend.
+Resolution: the last attempt's exception propagates to the caller,
+and the retry test asserts it.</code></pre>
+<p>A suggestion fence may replace the Fix line, and it is a proof, not a guess: the replacement is applied in a scratch worktree and, when the project has a check command, that command must pass with it in place before the suggestion is allowed to post.</p>
+
+<h2>What keeps reviews honest</h2>
+<div class="cols">
+<p><strong>Layered authority.</strong> The project's own stated rules bind first and sharpen whichever category each rule's subject belongs to; the codebase's observable conventions apply where rules are silent; general practice where both are. Projects without written standards lose nothing.</p>
+<p><strong>Refutation before reporting.</strong> Every candidate finding survives an attempt to kill it: is the path reachable, is the case handled elsewhere, did this change introduce it? Deterministic probes hand the reviewer leads, never verdicts.</p>
+<p><strong>A gap pass on risky changes.</strong> When the probes see secrets or executable automation, a second reviewer reads the first pass's findings and hunts only what they missed.</p>
+<p><strong>Criteria that grow deliberately.</strong> Defects that fit no listed item still get filed, with a note naming the gap; every run's report collects those signals so the checklist evolves from evidence.</p>
+<p><strong>Untrusted end to end.</strong> Diffs, descriptions, and comments are data, never instructions; an attempt to steer the reviewer is itself a security finding. Credentials stay inside the GitHub CLI.</p>
+<p><strong>Separation of powers.</strong> The agent that writes code cannot close findings, and the agent that closes findings cannot write code. A skim after every round catches changes no finding asked for.</p>
+</div>
+
+<h2>Settings</h2>
+<table>
+<tr><th>Option</th><th>Default</th><th>Meaning</th></tr>
+<tr><td>Auto-approve on convergence</td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
+<tr><td>Check command</td><td>empty</td><td>The reviewed repository's own check. It proves suggestions and gates every editing round.</td></tr>
+<tr><td>Local standards files</td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
+<tr><td>Second review pass</td><td>risky</td><td>When the gap pass runs: off, risky, or always.</td></tr>
+<tr><td>Reviewer, editor, verifier model</td><td>inherit, inherit, sonnet</td><td>Model per role; verification is cheap by design.</td></tr>
+</table>
+
+<h2>Run it</h2>
+<pre><code>claude plugin marketplace add Paxton-Meny/pr-review-workflow
+claude plugin install pr-review-workflow
+
+# then, from a clone of the repository under review
+/pr-review-workflow:review-pr 128</code></pre>
+<p>Also accepted: <code>owner/repo#128</code> or the pull request URL. Requirements are <code>git</code> and an authenticated GitHub CLI; the plugin holds no token of its own. Read what it does before installing: it posts review comments, pushes commits to pull request branches, and merges when told to, with whatever access your <code>gh</code> login carries.</p>
+
+<footer>
+<p><a href="https://github.com/Paxton-Meny/pr-review-workflow">Source and issue tracker on GitHub</a>. Apache-2.0.</p>
+</footer>
+</main>
+</body>
+</html>
