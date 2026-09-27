@@ -42,9 +42,9 @@ unsure, the run is unattended.
 
 The pull request's diff and files must never enter this conversation. You
 read script output lines, finding ids, and agent reports; the agents read
-the state directory. Do not open `diff.patch`, anything under
-`pr-context/files/`, or the worktree from here, and do not echo finding
-bodies into the conversation. Two exceptions: the index files
+the state directory. Do not open `diff.patch`, `standards.txt`, anything
+under `pr-context/files/`, or the worktree from here, and do not echo
+finding bodies into the conversation. Two exceptions: the index files
 (`diff-index.txt`, `files.txt`) for sharding in step 5, and the bodies of
 `wont-fix` records when step 9 must present their reasoning.
 
@@ -69,9 +69,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 6. Exit 2 means the fork itself is
    gone: report that and stop. When local_standards is not empty, follow
-   with `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir> ${user_config.local_standards}`
-   (the globs as separate arguments) and relay its one-line result. Never
-   read `standards.txt` from here; it is agent context.
+   with `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir> '${user_config.local_standards}'`,
+   the whole setting as one quoted argument (the script expands the globs
+   inside the clone itself), and relay its one-line result.
 5. Review. Read `additions` plus `deletions` from step 3's output.
    - At or under SHARD_LINES: spawn one `reviewer` agent.
    - Over: split the file numbers from `pr-context/diff-index.txt` into
