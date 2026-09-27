@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Reviewer hardening from the comparison: an explicit refutation step,
+  probe leads and excluded-file handling, resource-lifecycle and wiring
+  items under correctness, executable-automation and exhaustion items
+  under security, and turn caps with memory isolation on all agents.
 - Deterministic diff probes (`probe-diff.sh`): secrets (locations only),
   risky automation, debug leftovers, work markers, imports, dependency
   files, added and deleted files, oversized additions, handed to the

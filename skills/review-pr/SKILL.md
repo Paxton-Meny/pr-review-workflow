@@ -7,6 +7,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
@@ -42,7 +43,8 @@ unsure, the run is unattended.
 
 The pull request's diff and files must never enter this conversation. You
 read script output lines, finding ids, and agent reports; the agents read
-the state directory. Do not open `diff.patch`, `standards.txt`, anything
+the state directory. Do not open `diff.patch`, `standards.txt`,
+`probes.txt`, anything
 under `pr-context/files/`, or the worktree from here, and do not echo
 finding bodies into the conversation. Two exceptions: the index files
 (`diff-index.txt`, `files.txt`) for sharding in step 5, and the bodies of
@@ -61,7 +63,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    report the counts, and continue at the step they imply (open findings:
    step 7; none open: step 9). The `--list` lines give the ids every later
    step needs.
-3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`. It prints file and
+3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`, then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh <dir>`, relaying each
+   one-line result. fetch-pr prints file and
    line counts. Over SIZE_WARN_LINES changed lines: attended, ask whether to
    proceed; unattended, park (step 8) as too large.
 4. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>`. It prints the
