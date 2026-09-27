@@ -128,11 +128,14 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       off.
 11. After a merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
     then report: rounds run, findings by category and outcome, and the
-    merge result, in a few lines. Run
-    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh <dir>` and, when
-    it lists anything, include its lines under a criteria-signals heading:
-    they are the material for growing the reviewer's criteria deliberately,
-    and dropping them from the report is how they get lost.
+    merge result, in a few lines.
+
+Whatever step ends the run, when the ledger holds any findings the final
+report also carries the output of
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh <dir>` under a
+criteria-signals heading. Those lines are the material for growing the
+reviewer's criteria deliberately, and a report that drops them is how they
+get lost.
 
 ## Boundaries
 
