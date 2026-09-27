@@ -17,6 +17,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Optional conventions block: a marked map in the reviewed repository's
   CLAUDE.md, extracted from the base branch into the review state, so
   agents stop re-deriving layout, test locations, and idioms every run.
+- The agents consume all of it: the reviewer banks its reading in Fix
+  lines, sweeps for other-category defects after the categories, and
+  files criteria notes; the editor follows Fix pointers instead of
+  re-deriving structure; the run report surfaces criteria signals.
 - Every finding body carries a required Resolution line, the checkable
   criterion that editing satisfies and verification judges.
 - Note appending (`append-note.sh`), so reopen reasons and wont-fix
