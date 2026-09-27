@@ -76,7 +76,13 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    gone: report that and stop. When local_standards is not empty, follow
    with `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir> '${user_config.local_standards}'`,
    the whole setting as one quoted argument (the script expands the globs
-   inside the clone itself), and relay its one-line result.
+   inside the clone itself), and relay its one-line result. When
+   check_command is set, take a baseline:
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
+   A passing baseline arms the step 7 gate. A failing one disarms it for
+   this run and leaves the failure tail in place as reviewer evidence: a
+   head that already fails the project's own check is material for a
+   finding, not grounds to blame the editor later.
 5. Review. Read `additions` plus `deletions` from step 3's output.
    - At or under SHARD_LINES: spawn one `reviewer` agent.
    - Over: split the file numbers from `pr-context/diff-index.txt` into
@@ -106,7 +112,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. Round <n> of 4.`
       Its report gives counts; trust the ledger over the prose.
-   b. When check_command is set:
+   b. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
       Exit 3 means the editor's commits broke the project's own check:
       spawn `editor` once more with exactly:
