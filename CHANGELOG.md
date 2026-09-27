@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- The check gate: with a check command configured, every editing round
+  must leave the project's own check passing before verification runs,
+  with one bounded repair attempt on failure.
 - Reviewer hardening from the comparison: an explicit refutation step,
   probe leads and excluded-file handling, resource-lifecycle and wiring
   items under correctness, executable-automation and exhaustion items

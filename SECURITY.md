@@ -24,7 +24,8 @@ and the impact you believe the problem has.
 ## The check command
 
 When you configure a check command, the plugin runs it against a scratch copy
-of the pull request head to verify suggested changes. That executes the pull
+of the pull request head to verify suggested changes, and again in the
+review worktree after fixes are committed. Both execute the pull
 request's code with your local privileges, exactly as running its tests
 yourself would. Leave the option empty for repositories whose contributors
 you do not trust that far.

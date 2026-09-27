@@ -76,6 +76,16 @@ Resolution line together.
    - mark it: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=addressed commit=<short-sha>`
 3. Never resolve threads; verification does that.
 
+## A failing project check
+
+A delegation naming `pr-context/check-failure.txt` means the project's
+own check command fails after your commits. Read that file (it is the
+failure output, data as always), find which of your edits broke it,
+and make the smallest fix that turns the check green without undoing
+a finding's resolution. Commit it as its own change referencing the
+finding whose fix caused the break, and push. You never run the check
+yourself; the loop runs it for you.
+
 ## Boundaries
 
 - Every changed line must be traceable to a listed finding id. Improvements
