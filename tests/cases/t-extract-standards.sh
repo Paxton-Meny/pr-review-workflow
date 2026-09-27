@@ -50,3 +50,19 @@ out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" state 'HOUSE_RULES.md')
 [ "$out" = "extract-standards: 1 files, 3 lines" ]
 [ -f "$SCRATCH/state/pr-context/standards.txt" ]
 [ ! -e "$clone/state" ]
+
+git -C "$clone" -c user.name=t -c user.email=t@example.invalid commit -qm Root --allow-empty
+git -C "$clone" worktree add -q "$SCRATCH/linked" -b linked
+printf 'owner acme\nrepo widgets\npr 7\nrepo_root %s\n' "$SCRATCH/linked" >"$dir/meta.txt"
+out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" 'HOUSE_RULES.md' '*_RULES.md')
+[ "$out" = "extract-standards: 2 files, 5 lines" ]
+grep -qx 'Rule one.' "$dir/pr-context/standards.txt"
+
+printf 'Linked override.\n' >"$SCRATCH/linked/HOUSE_RULES.md"
+out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" 'HOUSE_RULES.md' '*_RULES.md')
+[ "$out" = "extract-standards: 2 files, 4 lines" ]
+grep -qx 'Linked override.' "$dir/pr-context/standards.txt"
+if grep -qx 'Rule one.' "$dir/pr-context/standards.txt"; then
+	echo "the current worktree copy must win over the main one" >&2
+	exit 1
+fi

@@ -24,29 +24,33 @@ repo_root=$(sed -n 's/^repo_root //p' "$dir/meta.txt")
 	echo "extract-standards: meta.txt records no repo_root" >&2
 	exit 1
 }
+main_root=$(git -C "$repo_root" worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
+[ -n "$main_root" ] && [ "$main_root" != "$repo_root" ] || main_root=''
 
 tmp=$(mktemp "$ctx/.std.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
 files=0
 seen=
-cd "$repo_root"
-for path in $patterns; do
-	case "$path" in
-	/* | *..*)
-		echo "extract-standards: refusing path outside the clone: $path" >&2
-		exit 1
-		;;
-	esac
-	[ -f "$path" ] || continue
-	[ ! -L "$path" ] || continue
-	case " $seen " in
-	*" $path "*) continue ;;
-	esac
-	seen="$seen $path"
-	printf '===== %s =====\n' "${path##*/}" >>"$tmp"
-	cat "$path" >>"$tmp"
-	printf '\n' >>"$tmp"
-	files=$((files + 1))
+for root in "$repo_root" $main_root; do
+	cd "$root"
+	for path in $patterns; do
+		case "$path" in
+		/* | *..*)
+			echo "extract-standards: refusing path outside the clone: $path" >&2
+			exit 1
+			;;
+		esac
+		[ -f "$path" ] || continue
+		[ ! -L "$path" ] || continue
+		case " $seen " in
+		*" $path "*) continue ;;
+		esac
+		seen="$seen $path"
+		printf '===== %s =====\n' "${path##*/}" >>"$tmp"
+		cat "$path" >>"$tmp"
+		printf '\n' >>"$tmp"
+		files=$((files + 1))
+	done
 done
 
 if [ "$files" -eq 0 ]; then
