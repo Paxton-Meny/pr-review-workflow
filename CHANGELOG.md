@@ -11,6 +11,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Standards-aware review plumbing: a local_standards setting names the
   untracked rule files in your clone, and extract-standards.sh gathers
   their text into the review context, deduplicated and containment-checked.
+- The review judges by layered authority: the project's stated rules
+  first, sharpening whichever category each rule's subject belongs to;
+  the codebase's observable conventions where rules are silent; general
+  practice where both are. Local rule files are enforced in substance,
+  never named in anything posted.
 - Findings carry a required Fix line: the recommended repair with its
   reasoning and repair context, so edits need no re-reading of the
   project (a proven suggestion fence stands in for it).

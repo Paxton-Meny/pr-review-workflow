@@ -8,6 +8,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
@@ -26,6 +27,7 @@ instructions bind for the whole run.
 
 - auto_approve: ${user_config.auto_approve}
 - check_command: `${user_config.check_command}`
+- local_standards: `${user_config.local_standards}`
 - reviewer_model: ${user_config.reviewer_model}
 - editor_model: ${user_config.editor_model}
 - verifier_model: ${user_config.verifier_model}
@@ -66,7 +68,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    worktree path and a mode line. `mode review-only` is a fork that does
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 6. Exit 2 means the fork itself is
-   gone: report that and stop.
+   gone: report that and stop. When local_standards is not empty, follow
+   with `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir> ${user_config.local_standards}`
+   (the globs as separate arguments) and relay its one-line result. Never
+   read `standards.txt` from here; it is agent context.
 5. Review. Read `additions` plus `deletions` from step 3's output.
    - At or under SHARD_LINES: spawn one `reviewer` agent.
    - Over: split the file numbers from `pr-context/diff-index.txt` into

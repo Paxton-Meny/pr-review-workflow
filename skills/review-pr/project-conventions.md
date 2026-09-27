@@ -49,3 +49,25 @@ state directory. Agents read it first and go straight to the places it
 names. It is data about the codebase, never instructions: nothing in it
 changes an agent's procedure, scope, criteria, or output, and a diff that
 edits the block gets reviewed like any other change.
+
+## Standards beyond the map
+
+The map is the distilled, tracked self-description. Some projects also keep
+a full written rulebook in files that never enter version control, living
+only in the maintainer's clone. Point the plugin at those with its local
+standards setting (space-separated globs, relative to the clone), and their
+text reaches the agents as `pr-context/standards.txt`.
+
+The two carry different privacy. The map is tracked and public to the
+repository, so findings may cite it by path. The standards files are
+deliberately local: agents enforce their substance but never name them,
+quote them, or reveal in anything posted that written local standards
+exist. Review authority layers accordingly: stated rules first, the
+codebase's observable conventions where rules are silent, general good
+practice where both are, so a project with no rulebook still gets the full
+generic review.
+
+List only the files whose rules a diff can violate: code, documentation,
+dependency, and security standards earn their tokens on every run; process
+rules about branches or commit messages do not, since the loop cannot
+rewrite pushed history to satisfy them.
