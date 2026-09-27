@@ -66,6 +66,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Loop state that lived in model memory now lives on disk: the round
+  budget persists per pull request in the ledger, a resume routes
+  through the rerun-safe posting step, and local standards are found
+  from linked worktrees by falling back to the main worktree.
 - The skill frontmatter description is quoted, so strict YAML parsers
   accept it, and stray fence markers in agent prose are plain words now.
 - Thread resolution pages past the first hundred review threads.

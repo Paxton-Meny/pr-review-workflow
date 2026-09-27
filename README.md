@@ -79,6 +79,9 @@ Per-PR state lives under the plugin's data directory, outside every
 repository: the finding ledger, fetched context, and a detached review
 worktree. Re-invoking the skill on the same pull request resumes from the
 ledger. Your own checkout is never touched.
+State is keyed by repository and pull request, so every worktree of a
+clone shares it, and local rule files are found from a linked worktree
+by looking in the main one. Run one review per pull request at a time.
 
 <p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: GitHub data and the local clone feed a per-pull-request state ledger holding annotated diffs and probes, the finding records with their Fix and Resolution contract, and a detached worktree; reviewer, editor, and verifier agents read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts, never the diff."></p>
 

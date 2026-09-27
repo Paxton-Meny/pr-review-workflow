@@ -16,6 +16,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
@@ -35,7 +36,8 @@ instructions bind for the whole run.
 - editor_model: ${user_config.editor_model}
 - verifier_model: ${user_config.verifier_model}
 
-Constants: MAX_ROUNDS 4, SIZE_WARN_LINES 4000, SHARD_LINES 1500.
+Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
+lives in the round counter on disk, not here.
 
 Decide once, now, whether this run is attended: a human is present in this
 session and can answer a question. Hold that answer for the whole run. When
@@ -62,9 +64,12 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 2. `dir=$(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh "${CLAUDE_PLUGIN_DATA}" "$ARGUMENTS")`.
    If `<dir>/findings/` already has records, this is a resume: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
-   report the counts, and continue at the step they imply (open findings:
-   step 8; none open: step 10). The `--list` lines give the ids every later
-   step needs.
+   report the counts, and continue at the step they imply. Open findings:
+   step 7 first, because a run may have stopped between saving and
+   posting, and prove-suggestions and post-review are both rerun-safe;
+   then step 8. None open: step 10. The `--list` lines give the ids every
+   later step needs, and the round cap survives on disk, so a resumed run
+   cannot restart its budget.
 3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh <dir>`, relaying each
    one-line result. fetch-pr prints file and
@@ -118,29 +123,33 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    same, and skip every later step.
 8. Remediation loop, while
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
-   exits 3 and fewer than MAX_ROUNDS rounds have run:
-   a. Spawn `editor` (model override: editor_model unless `inherit`) with
+   exits 3:
+   a. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh <dir> next 4`.
+      Exit 3 means the persistent round budget for this pull request is
+      spent: non-convergence (step 9). Otherwise its output is the round
+      line the delegations below quote; never count rounds from memory.
+   b. Spawn `editor` (model override: editor_model unless `inherit`) with
       exactly:
-      `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. Round <n> of 4.`
+      `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. <round line>.`
       Its report gives counts; trust the ledger over the prose.
-   b. When check_command is set and the step 4 baseline passed:
+   c. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
       Exit 3 means the editor's commits broke the project's own check:
       spawn `editor` once more with exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
       then rerun run-check. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.
-   c. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
+   d. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
       override: verifier_model) with exactly:
-      `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. Round <n> of 4.`
-   d. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
+      `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
+   e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
       `diff-index.txt`, spawn one `reviewer` restricted to that set (the
       step 5 template), and save any records it returns, followed by
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
-   e. Rerun `count-findings.sh <dir> --list` for the loop condition. If
+   f. Rerun `count-findings.sh <dir> --list` for the loop condition. If
       max_reopens exceeds 2, stop the loop and treat it as
       non-convergence.
 9. Non-convergence (round cap, reopen escalation, or an unattended park):
