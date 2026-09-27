@@ -5,7 +5,7 @@ set -eu
 dir="$SCRATCH/state"
 mkdir -p "$dir"
 printf '0\n' >"$dir/round.txt"
-printf '=== finding\ncategory: correctness\nseverity: major\npath: a.c\nline: 3\nside: RIGHT\ntitle: Thing\n---\nEvidence.\nResolution: done.\n' \
+printf '=== finding\ncategory: correctness\nseverity: major\npath: a.c\nline: 3\nside: RIGHT\ntitle: Thing\n---\nEvidence.\nFix: done.\nResolution: done.\n' \
 	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null
 
 printf 'Reopened: the guard still misses the empty case.\n' \

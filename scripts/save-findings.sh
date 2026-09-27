@@ -30,7 +30,7 @@ function fail(msg) {
 }
 function flush() {
 	if (rec == 0) return
-	if (h["category"] !~ /^(correctness|security|performance|best-practices|antipatterns|content-leakage|outdated-docs)$/)
+	if (h["category"] !~ /^(correctness|security|performance|best-practices|antipatterns|content-leakage|outdated-docs|other)$/)
 		fail("bad category: " h["category"])
 	if (h["severity"] !~ /^(blocker|major|minor|nit)$/)
 		fail("bad severity: " h["severity"])
@@ -48,6 +48,10 @@ function flush() {
 		fail("missing body")
 	if (sawresolution != 1)
 		fail("the body needs exactly one Resolution line, found " sawresolution + 0)
+	if (sawfix > 1)
+		fail("at most one Fix line, found " sawfix + 0)
+	if (sawfix == 0 && !sawfence)
+		fail("the body needs a Fix line or a suggestion fence")
 	id = sprintf("F%03d", first + rec - 1)
 	out = spool "/" id
 	printf "id: %s\nstatus: open\ncategory: %s\nseverity: %s\npath: %s\nline: %s\nend_line: %s\nside: %s\nplacement:\ncomment_id:\ncommit:\nround: %d\nreopens: 0\ntitle: %s\n---\n", \
@@ -63,6 +67,8 @@ function flush() {
 	inbody = 0
 	sawbody = 0
 	sawresolution = 0
+	sawfix = 0
+	sawfence = 0
 	next
 }
 rec == 0 { next }
@@ -70,6 +76,8 @@ rec == 0 { next }
 {
 	if (inbody) {
 		if ($0 ~ /^Resolution: ./) sawresolution++
+		if ($0 ~ /^Fix: ./) sawfix++
+		if ($0 ~ /^```suggestion$/) sawfence = 1
 		body = body $0 "\n"
 	} else if (match($0, /^[a-z_]+: ?/)) {
 		key = substr($0, 1, index($0, ":") - 1)
