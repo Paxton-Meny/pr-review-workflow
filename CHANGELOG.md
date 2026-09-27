@@ -8,6 +8,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Deterministic diff probes (`probe-diff.sh`): secrets (locations only),
+  risky automation, debug leftovers, work markers, imports, dependency
+  files, added and deleted files, oversized additions, handed to the
+  reviewer as leads at zero model cost.
+- Generated and lock files are excluded from the reviewable diff and
+  listed in `excluded.txt`; probes still see them.
 - The finding record reference ships as a preloadable skill, injected
   into the reviewer at spawn instead of costing a read every run.
 - Standards-aware review plumbing: a local_standards setting names the
