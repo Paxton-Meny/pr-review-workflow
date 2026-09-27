@@ -1,4 +1,10 @@
+---
+name: finding-records
+description: Reference for the finding record format the review agents read and write. Background knowledge preloaded into those agents; the orchestrating review session does not need it.
+user-invocable: false
+---
 # Finding records
+
 
 One file per finding under the state directory's `findings/`, named by id
 (`F001`, `F002`, ...). A record is a header, a `---` line, and a body. The
@@ -76,10 +82,13 @@ instead).
 
 Later steps may append notes below the body: a reopen note stating what
 still fails, or a wont-fix justification. Notes accumulate; nothing in a
-body is ever rewritten. A body may end with a
-```suggestion fence only when the replacement is small, mechanical, covers
-exactly the commented lines, and has been proven; a finding without a patch
-beats a patch that starts a review cycle.
+body is ever rewritten.
+
+A body may end with a suggestion fence: a block whose opening line is
+`` ```suggestion `` and whose closing line is `` ``` ``, holding the exact
+replacement for the anchored lines. Use one only when the replacement is
+small, mechanical, covers exactly the commented lines, and has been proven;
+a finding without a patch beats a patch that starts a review cycle.
 
 ## Reviewer output
 

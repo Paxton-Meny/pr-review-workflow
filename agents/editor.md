@@ -39,7 +39,7 @@ Resolution line together.
 ## Per finding
 
 1. Make the smallest edit that satisfies the Resolution line completely.
-   When the body ends with a ```suggestion fence, apply that replacement
+   When the body ends with a suggestion fence, apply that replacement
    exactly. When the Resolution names a test, write the test; when it lists
    several locations, fix them all.
 2. Self-check before committing: re-read the Resolution line and confirm

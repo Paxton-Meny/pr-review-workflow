@@ -8,6 +8,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- The finding record reference ships as a preloadable skill, injected
+  into the reviewer at spawn instead of costing a read every run.
 - Standards-aware review plumbing: a local_standards setting names the
   untracked rule files in your clone, and extract-standards.sh gathers
   their text into the review context, deduplicated and containment-checked.
@@ -46,6 +48,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The skill frontmatter description is quoted, so strict YAML parsers
+  accept it, and stray fence markers in agent prose are plain words now.
 - Thread resolution pages past the first hundred review threads.
 ## [0.1.0] - 2026-08-30
 

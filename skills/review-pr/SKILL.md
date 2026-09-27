@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Review a GitHub pull request end to end: post inline findings, edit the branch to address them, re-review until clean, then merge or ask. Invoke with a PR number, owner/repo#n, or URL, from inside a clone of the reviewed repository.
+description: "Review a GitHub pull request end to end: post inline findings, edit the branch to address them, re-review until clean, then merge or ask. Invoke with a PR number, owner/repo#n, or URL, from inside a clone of the reviewed repository."
 disable-model-invocation: true
 argument-hint: "<pr number | owner/repo#n | url>"
 allowed-tools:
