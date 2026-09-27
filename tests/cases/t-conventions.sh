@@ -40,7 +40,6 @@ git -C "$clone" checkout --quiet main
 printf 'Notes only, no block.\n' >"$clone/CLAUDE.md"
 git -C "$clone" commit --quiet -am "Drop block"
 git -C "$clone" push --quiet origin main
-git -C "$clone" fetch --quiet origin
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" >/dev/null
 [ ! -f "$dir/pr-context/conventions.txt" ] || {
 	echo "a removed block must remove the stale extraction" >&2

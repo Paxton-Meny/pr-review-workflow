@@ -93,6 +93,7 @@ fi
 base_branch=$(sed -n 's/^base_branch //p' "$dir/meta.txt")
 ctx="$dir/pr-context"
 if [ -n "$base_branch" ] && [ -d "$ctx" ]; then
+	git -C "$repo_root" fetch --quiet origin "$base_branch"
 	rm -f "$ctx/conventions.txt"
 	if git -C "$repo_root" show "origin/$base_branch:CLAUDE.md" >/dev/null 2>&1; then
 		tmp=$(mktemp "$ctx/.conv.XXXXXX")
