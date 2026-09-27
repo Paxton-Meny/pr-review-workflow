@@ -61,6 +61,14 @@ Configured when you enable the plugin:
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Reviewer / editor / verifier model | inherit / inherit / sonnet | Model per role. The first review deserves your strongest model; verification passes are cheap by design. |
 
+### Conventions block (optional)
+
+Give the reviewed repository a marked block in its tracked CLAUDE.md
+(see skills/review-pr/project-conventions.md) mapping its layout, test
+locations, idioms, and intentional oddities. Reviews read the map from
+the base branch instead of re-deriving those facts every run, and the
+same file already guides Claude when developing on the repository.
+
 ### State
 
 Per-PR state lives under the plugin's data directory, outside every
