@@ -102,8 +102,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    gap pass still applies.
 6. Gap pass. Run one when double_review is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
-   `automation`, or the changed lines exceed SHARD_LINES. Spawn one
-   `reviewer` (same model override) with exactly:
+   `automation`. Size alone never triggers it: a large diff already got
+   multiplied eyes from the shard fan-out. Spawn one `reviewer` (same
+   model override) with exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    Pipe its records into save-findings as in step 5. When the ledger
    holds no findings after this step, the change is clean: skip to
