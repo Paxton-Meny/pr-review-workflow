@@ -107,10 +107,13 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the first pass found nothing; continue, since the
    gap pass still applies.
-6. Gap pass. Run one when double_review is `always`, or when it is
+6. Gap pass. Run one whenever step 5 sharded the review, whatever
+   double_review says: shards read disjoint file sets, each diff line
+   was read exactly once, so only this pass can see a defect that
+   spans shard boundaries. On a single-reviewer run, double_review
+   governs instead: run one when it is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
-   `automation`. Size alone never triggers it: a large diff already got
-   multiplied eyes from the shard fan-out. Spawn one `reviewer` (same
+   `automation`. Spawn one `reviewer` (same
    model override) with exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    Pipe its records into save-findings as in step 5. When the ledger

@@ -16,9 +16,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   go-public time.
 - README figures: the layered pipeline and the information-flow map as
   hand-written, dark-mode-aware SVG under docs/assets/.
-- A risk-gated gap pass: a second reviewer that reads the first pass's
-  findings and reports only what they miss, run always, never, or when
-  the probes or the diff size say the change is risky.
+- A gap pass: a second reviewer that reads the first pass's findings
+  and reports only what they miss, run after every sharded review
+  because only a whole-diff pass sees defects that span shards, and
+  otherwise always, never, or when the probes say the change is risky.
 - The check gate: with a check command configured, every editing round
   must leave the project's own check passing before verification runs,
   with one bounded repair attempt on failure.

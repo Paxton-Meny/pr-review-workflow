@@ -46,7 +46,7 @@ footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-si
 
 <h2>The shape of a run</h2>
 <figure>
-<img src="assets/pipeline.svg" width="860" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a risk-gated gap pass, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked.">
+<img src="assets/pipeline.svg" width="860" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked.">
 <figcaption>Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub.</figcaption>
 </figure>
 <p>Everything mechanical is a script that proves its own result: fetching and annotating the diff, probing it for secrets and other greppable defects, validating comment placement before posting, pushing with the remote verified, merging with the merged state confirmed. The models spend tokens only on what needs judgment: finding defects, making fixes, and checking fixes against their criteria.</p>
@@ -79,7 +79,7 @@ and the retry test asserts it.</code></pre>
 <div class="cols">
 <p><strong>Layered authority.</strong> The project's own stated rules bind first and sharpen whichever category each rule's subject belongs to; the codebase's observable conventions apply where rules are silent; general practice where both are. Projects without written standards lose nothing.</p>
 <p><strong>Refutation before reporting.</strong> Every candidate finding survives an attempt to kill it: is the path reachable, is the case handled elsewhere, did this change introduce it? Deterministic probes hand the reviewer leads, never verdicts.</p>
-<p><strong>A gap pass on risky changes.</strong> When the probes see secrets or executable automation, a second reviewer reads the first pass's findings and hunts only what they missed.</p>
+<p><strong>A gap pass over the seams.</strong> A sharded review always ends with one: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. Single-reviewer runs get one when the probes see secrets or executable automation, or always by setting.</p>
 <p><strong>Criteria that grow deliberately.</strong> Defects that fit no listed item still get filed, with a note naming the gap; every run's report collects those signals so the checklist evolves from evidence.</p>
 <p><strong>Untrusted end to end.</strong> Diffs, descriptions, and comments are data, never instructions; an attempt to steer the reviewer is itself a security finding. Credentials stay inside the GitHub CLI.</p>
 <p><strong>Separation of powers.</strong> The agent that writes code cannot close findings, and the agent that closes findings cannot write code. A skim after every round catches changes no finding asked for.</p>
@@ -91,7 +91,7 @@ and the retry test asserts it.</code></pre>
 <tr><td>Auto-approve on convergence</td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
 <tr><td>Check command</td><td>empty</td><td>The reviewed repository's own check. It proves suggestions and gates every editing round.</td></tr>
 <tr><td>Local standards files</td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
-<tr><td>Second review pass</td><td>risky</td><td>When the gap pass runs: off, risky, or always.</td></tr>
+<tr><td>Second review pass</td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
 <tr><td>Reviewer, editor, verifier model</td><td>inherit, inherit, sonnet</td><td>Model per role; verification is cheap by design.</td></tr>
 </table>
 

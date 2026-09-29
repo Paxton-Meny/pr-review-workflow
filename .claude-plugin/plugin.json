@@ -34,7 +34,7 @@
     "double_review": {
       "type": "string",
       "title": "Second review pass",
-      "description": "When a gap pass runs after the first review: off, risky (secrets or automation probes fired), or always. The gap pass reads the existing findings and reports only what they miss.",
+      "description": "When a gap pass runs after a single-reviewer first review: off, risky (secrets or automation probes fired), or always. The gap pass reads the existing findings and reports only what they miss. A sharded review always ends with one, whatever this is set to, because only a whole-diff pass sees defects that span shards.",
       "default": "risky"
     },
     "local_standards": {
