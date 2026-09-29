@@ -5,7 +5,7 @@ request: review the diff against categorized criteria, post inline findings,
 edit the branch to address them, re-verify with a cheaper model, and repeat
 until nothing remains open. Then it merges, or asks you first.
 
-<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The review loop, layer by layer: one invocation stages everything with shell scripts, a reviewer layer fans out on large diffs with a risk-gated gap pass, findings post to the pull request as inline threads, then a remediation loop of editor, check gate, verifier, and skim runs at most four rounds before a merge gate ends in merged, ask, or parked."></p>
+<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The review loop, layer by layer: one invocation stages everything with shell scripts, a reviewer layer fans out on large diffs with a gap pass that always follows a sharded review and is risk-gated otherwise, findings post to the pull request as inline threads, then a remediation loop of editor, check gate, verifier, and skim runs at most four rounds before a merge gate ends in merged, ask, or parked."></p>
 
 ## Status
 
@@ -62,7 +62,7 @@ Configured when you enable the plugin:
 | Auto-approve on convergence | off | Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold. |
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
-| Second review pass | risky | When a gap pass runs after the first review: off, risky (secrets or automation probes fired), or always. It reads the existing findings and reports only what they miss. |
+| Second review pass | risky | When a gap pass runs after a single-reviewer first review: off, risky (secrets or automation probes fired), or always. It reads the existing findings and reports only what they miss. A sharded review always ends with one, whatever this is set to: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. |
 | Ledgers kept per repository | 20 | Finished finding ledgers retained per repository after each merge; older ones are pruned, and runs still holding a worktree never are. |
 | Reviewer / editor / verifier model | inherit / inherit / sonnet | Model per role. The first review deserves your strongest model; verification passes are cheap by design. |
 

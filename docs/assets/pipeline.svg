@@ -37,7 +37,7 @@ text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 <text class="ts tp2" x="624" y="330" text-anchor="middle">reads shard n</text>
 <rect class="p" x="250" y="356" width="360" height="48" rx="8" stroke-dasharray="5 4"/>
 <text class="th tp" x="430" y="374" text-anchor="middle">Gap pass</text>
-<text class="ts tp2" x="430" y="392" text-anchor="middle">risk-gated: hunts what the first pass missed</text>
+<text class="ts tp2" x="430" y="392" text-anchor="middle">always after shards, risk-gated otherwise</text>
 <line class="ar" x1="430" y1="424" x2="430" y2="454" marker-end="url(#a)"/>
 <rect class="tl" x="240" y="460" width="380" height="56" rx="8"/>
 <text class="th tt" x="430" y="482" text-anchor="middle">Round posted to the PR</text>
