@@ -13,6 +13,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
@@ -43,6 +44,7 @@ instructions bind for the whole run.
 - strong_model: `${user_config.strong_model}`
 - contract_commands: `${user_config.contract_commands}`
 - finding_filter: ${user_config.finding_filter}
+- review_samples: ${user_config.review_samples}
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -111,6 +113,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
      coupling it could not co-locate. Spawn one reviewer per `group`
      line of `pr-context/shards.txt`, in parallel, restricted to that
      line's file numbers.
+   When review_samples is greater than 1, spawn that many identical
+   reviewers for each group (or for the single pass) in the same
+   parallel batch: duplicate findings are expected and reconciled
+   below.
    Delegation prompt, exactly this and nothing more (extra context
    competes with the agent's own definition):
    `Review the pull request. State directory: <dir>.` plus, when
@@ -130,7 +136,12 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the first pass found nothing; continue, since the
-   gap pass still applies.
+   gap pass still applies. When review_samples is greater than 1 and
+   any report was saved, finish with
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh <dir> ${user_config.review_samples}`,
+   relaying its one-line result: duplicates merge into the richest
+   record, and every survivor carries a support header the filter
+   weighs.
 6. Gap pass. Run one whenever step 5 sharded the review, whatever
    double_review says: shards read disjoint file sets, each diff line
    was read exactly once, so only this pass can see a defect that
