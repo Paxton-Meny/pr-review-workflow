@@ -60,6 +60,12 @@
       "title": "Verifier model",
       "description": "Model for re-review passes that only verify prior findings.",
       "default": "sonnet"
+    },
+    "model_routing": {
+      "type": "string",
+      "title": "Model routing",
+      "description": "auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose open findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks. fixed always uses the configured models.",
+      "default": "auto"
     }
   }
 }

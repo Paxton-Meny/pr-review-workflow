@@ -25,8 +25,10 @@ for arg in "$@"; do
 	value=${arg#*=}
 	case "$field" in
 	status)
+		# open->verified is the arbitration verdict: a reopened finding
+		# re-judged against code that already changed in an earlier round.
 		case "$current->$value" in
-		'open->addressed' | 'open->wont-fix' | 'addressed->verified') ;;
+		'open->addressed' | 'open->wont-fix' | 'addressed->verified' | 'open->verified') ;;
 		'addressed->open') reopen=1 ;;
 		*)
 			echo "update-finding: illegal transition $current to $value on $id" >&2

@@ -8,6 +8,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
@@ -37,6 +38,7 @@ instructions bind for the whole run.
 - reviewer_model: ${user_config.reviewer_model}
 - editor_model: ${user_config.editor_model}
 - verifier_model: ${user_config.verifier_model}
+- model_routing: ${user_config.model_routing}
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -73,9 +75,12 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    later step needs, and the round cap survives on disk, so a resumed run
    cannot restart its budget.
 3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`, then
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh <dir>`, relaying each
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh <dir>`, then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh <dir>`,
+   relaying each
    one-line result. fetch-pr prints file and
-   line counts. Over SIZE_WARN_LINES changed lines: attended, ask whether to
+   line counts; the classify line feeds model routing in steps 5
+   and 8. Over SIZE_WARN_LINES changed lines: attended, ask whether to
    proceed; unattended, park (step 9) as too large.
 4. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>`. It prints the
    worktree path and a mode line. `mode review-only` is a fork that does
@@ -100,9 +105,13 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    Delegation prompt, exactly this and nothing more (extra context
    competes with the agent's own definition):
    `Review the pull request. State directory: <dir>.` plus, when
-   restricted, ` Files <numbers> only.` listing the file numbers. Pass
-   reviewer_model as the model
-   override unless it is `inherit`. Pipe each report verbatim into
+   restricted, ` Files <numbers> only.` listing the file numbers.
+   Model override: when model_routing is `auto`, the classify line
+   said kind `docs-only` or `config-only` with lines under 300, and
+   the probe summary's slugs include none of `secrets`, `automation`,
+   `deps`, `debug`, or `test-shrink`, use `sonnet`: the change is
+   mechanical and carries no risk signal. Otherwise use
+   reviewer_model (no override when it is `inherit`). Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the first pass found nothing; continue, since the
@@ -113,8 +122,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    spans shard boundaries. On a single-reviewer run, double_review
    governs instead: run one when it is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
-   `automation`. Spawn one `reviewer` (same
-   model override) with exactly:
+   `automation`. Spawn one `reviewer` (reviewer_model override;
+   routing never cheapens the gap pass, it is the safety net) with
+   exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    Pipe its records into save-findings as in step 5. When the ledger
    holds no findings after this step, the change is clean: skip to
@@ -133,9 +143,14 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       Exit 3 means the persistent round budget for this pull request is
       spent: non-convergence (step 9). Otherwise its output is the round
       line the delegations below quote; never count rounds from memory.
-   b. Spawn `editor` (model override: editor_model unless `inherit`) with
+   b. Spawn `editor` with
       exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. <round line>.`
+      Model override: editor_model, except when model_routing is
+      `auto`, the round line says round 1, and the count's
+      `open_mechanical_ids` equals `open_ids` exactly and is not
+      empty: then `sonnet`, because every open finding is minor or
+      nit and carries a proven fence. Never route down after round 1.
       Its report gives counts; trust the ledger over the prose.
    c. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
@@ -154,9 +169,20 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       step 5 template), and save any records it returns, followed by
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
-   f. Rerun `count-findings.sh <dir> --list` for the loop condition. If
-      max_reopens exceeds 2, stop the loop and treat it as
-      non-convergence.
+   f. Rerun `count-findings.sh <dir> --list` for the loop condition.
+      When max_reopens exceeds 2: with model_routing `fixed`, stop
+      the loop and treat it as non-convergence. With `auto`,
+      arbitrate once first, because repeated reopens sometimes mean
+      the cheap verifier is wrong rather than the editor: spawn
+      `verifier` overriding its model with reviewer_model, passing
+      `inherit` explicitly when that is its value so the arbitration
+      runs on the session model, never the verifier default, and
+      exactly:
+      `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
+      using the `capped_ids` line from the count. Rerun
+      `count-findings.sh <dir> --list`: if any capped finding is
+      still open, stop the loop and treat it as non-convergence.
+      One arbitration per run, never a second.
 9. Non-convergence (round cap, reopen escalation, or an unattended park):
    post one status comment via `gh pr comment` naming the `open_ids` and
    why the loop stopped, then report the same to the user and stop.

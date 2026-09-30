@@ -20,6 +20,7 @@ findings="$dir/findings"
 
 open=0 addressed=0 verified=0 wontfix=0 max_reopens=0
 open_ids='' addressed_ids='' verified_ids='' wontfix_ids=''
+mech_ids='' capped_ids=''
 for f in "$findings"/F*; do
 	[ -f "$f" ] || continue
 	status=$(sed -n 's/^status: //p' "$f")
@@ -27,6 +28,12 @@ for f in "$findings"/F*; do
 	open)
 		open=$((open + 1))
 		open_ids="$open_ids ${f##*/}"
+		sev=$(sed -n 's/^severity: //p' "$f")
+		case "$sev" in
+		minor | nit)
+			grep -q '^```suggestion' "$f" && mech_ids="$mech_ids ${f##*/}"
+			;;
+		esac
 		;;
 	addressed)
 		addressed=$((addressed + 1))
@@ -47,6 +54,7 @@ for f in "$findings"/F*; do
 	esac
 	r=$(sed -n 's/^reopens: //p' "$f")
 	[ "$r" -gt "$max_reopens" ] && max_reopens=$r
+	[ "$r" -gt 2 ] && capped_ids="$capped_ids ${f##*/}"
 done
 
 echo "open $open addressed $addressed verified $verified wont-fix $wontfix max_reopens $max_reopens"
@@ -55,5 +63,7 @@ if [ "$list" = "--list" ]; then
 	echo "addressed_ids$addressed_ids"
 	echo "verified_ids$verified_ids"
 	echo "wont_fix_ids$wontfix_ids"
+	echo "open_mechanical_ids$mech_ids"
+	echo "capped_ids$capped_ids"
 fi
 [ "$open" -eq 0 ]  || exit 3
