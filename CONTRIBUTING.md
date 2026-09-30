@@ -51,3 +51,17 @@ merges only after the gate passes on its branch.
 - No dependencies. The only external tools invoked are `git` and the GitHub
   CLI, and nothing is ever installed.
 - Every behavior change lands with a test case under `tests/cases/`.
+
+## Evals (experimental)
+
+`evals/` holds `claude plugin eval` cases: each spawns the plugin in a
+sandboxed one-shot session and grades the transcript. They spend real
+model tokens and need a logged-in `claude`, so the offline gate never
+runs them; run them by hand before a release:
+
+    claude plugin eval . --model sonnet
+
+The suite is experimental until a release has run it green. Keep cases
+deterministic (the smoke case asserts the skill stops at a failing
+script and relays its error verbatim), one behavior per case, graders
+per file under the case's `graders/`.
