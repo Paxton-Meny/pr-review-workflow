@@ -45,6 +45,7 @@ probe "Risky automation lines added" "$(lead 'uses:|pull_request_target|continue
 probe "Possible secrets in added lines (locations only, content withheld)" "$(lead_paths 'akia[0-9a-z]{16}|-----begin [a-z ]*private key|gh[pousr]_[0-9a-z]{30,}|sk-[0-9a-z_-]{20,}|xox[abprs]-|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token)[[:space:]]*[:=][[:space:]]*.{8,}')" secrets
 probe "Debug leftovers in added lines" "$(lead 'console\.(log|debug)\(|debugger;|pdb\.set_trace|breakpoint\(\)|binding\.pry|dbg!\(|var_dump\(|print_r\(')" debug
 probe "Work markers added" "$(lead '(^|[^a-z])(todo|fixme|hack|xxx)([^a-z]|$)')" markers
+probe "Sensitive surfaces in added lines (concurrency, crypto, auth, injection)" "$(lead 'mutex|semaphore|atomic_|threading\.|goroutine|synchronized|pthread_|crypt|cipher|hmac|jwt|oauth|argon2|eval\(|exec\(|pickle\.loads|yaml\.load|deserializ|os\.system|subprocess\.')" sensitive
 probe "Test files shrink (more deleted than added, assertions may be weakening)" "$(awk -F '\t' '{
 	b = $1; sub(/.*\//, "", b)
 	t = ($1 ~ /(^|\/)(test|tests|__tests__|spec)\//) || (b ~ /^test_/) || (b ~ /_test\./) || (b ~ /\.test\./) || (b ~ /\.spec\./) || (b ~ /_spec\./) || (b == "conftest.py")

@@ -39,6 +39,7 @@ instructions bind for the whole run.
 - editor_model: ${user_config.editor_model}
 - verifier_model: ${user_config.verifier_model}
 - model_routing: ${user_config.model_routing}
+- strong_model: `${user_config.strong_model}`
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -106,12 +107,18 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    competes with the agent's own definition):
    `Review the pull request. State directory: <dir>.` plus, when
    restricted, ` Files <numbers> only.` listing the file numbers.
-   Model override: when model_routing is `auto`, the classify line
-   said kind `docs-only` or `config-only` with lines under 300, and
-   the probe summary's slugs include none of `secrets`, `automation`,
-   `deps`, `debug`, or `test-shrink`, use `sonnet`: the change is
-   mechanical and carries no risk signal. Otherwise use
-   reviewer_model (no override when it is `inherit`). Pipe each report verbatim into
+   Model override, decided top down when model_routing is `auto`:
+   - strong_model is set, the classify line said kind `code`, and
+     either its lines exceed 800 or the probe slugs include
+     `secrets`, `automation`, or `sensitive`: use strong_model. The
+     change is large or touches dangerous ground, and that is where
+     the strongest attention pays for itself.
+   - Kind `docs-only` or `config-only`, lines under 300, and no
+     slugs among `secrets`, `automation`, `deps`, `debug`,
+     `test-shrink`, `sensitive`: use `sonnet`, the change is
+     mechanical.
+   - Otherwise reviewer_model (no override when it is `inherit`).
+   With model_routing `fixed`, always reviewer_model. Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the first pass found nothing; continue, since the
@@ -122,8 +129,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    spans shard boundaries. On a single-reviewer run, double_review
    governs instead: run one when it is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
-   `automation`. Spawn one `reviewer` (reviewer_model override;
-   routing never cheapens the gap pass, it is the safety net) with
+   `automation`. Spawn one `reviewer` (the same override step 5
+   chose, floored at reviewer_model: routing can raise the gap pass,
+   never cheapen the safety net) with
    exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    Pipe its records into save-findings as in step 5. When the ledger
@@ -174,9 +182,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       the loop and treat it as non-convergence. With `auto`,
       arbitrate once first, because repeated reopens sometimes mean
       the cheap verifier is wrong rather than the editor: spawn
-      `verifier` overriding its model with reviewer_model, passing
-      `inherit` explicitly when that is its value so the arbitration
-      runs on the session model, never the verifier default, and
+      `verifier` overriding its model with strong_model when set,
+      else reviewer_model, passing `inherit` explicitly when that is
+      the chosen value so the arbitration runs on the session model,
+      never the verifier default, and
       exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
       using the `capped_ids` line from the count. Rerun

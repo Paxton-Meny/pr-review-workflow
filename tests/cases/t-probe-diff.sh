@@ -71,3 +71,17 @@ PATCH
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
 [ "$out" = "probe-diff: 1 sections (test-shrink)" ]
 grep -q 'tests/test_api.py (2 added, 9 deleted)' "$ctx/probes.txt"
+
+printf 'src/locks.py\t3\t0\n' >"$ctx/files.txt"
+cat > "$ctx/diff.patch" <<'PATCH'
+diff --git a/src/locks.py b/src/locks.py
+--- a/src/locks.py
++++ b/src/locks.py
+@@ -1,2 +1,4 @@
+ keep
++with threading.Lock():
++    digest = hmac.new(key, msg)
+PATCH
+out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
+[ "$out" = "probe-diff: 1 sections (sensitive)" ]
+grep -q 'threading.Lock' "$ctx/probes.txt"

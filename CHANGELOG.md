@@ -14,11 +14,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a sonnet reviewer, a first editing round whose open findings are
   all minor and fence-backed gets a sonnet editor, and a finding
   reopened past the limit gets one strong arbitration pass before
-  the run parks. The gap pass never routes down; fixed restores
-  static models.
+  the run parks. With a strong model configured, large code changes
+  and probe-flagged sensitive code climb above the session model,
+  and arbitration uses it. The gap pass never routes down; fixed
+  restores static models.
 - A test-shrink probe: test files whose diff deletes more lines than
   it adds are flagged as possible assertion weakening, and the slug
   blocks reviewer down-routing.
+- A sensitive probe: concurrency, crypto, auth, and injection
+  surfaces in added lines become reviewer leads, block down-routing,
+  and route the review up when a strong model is set.
 - count-findings --list now also reports `open_mechanical_ids` (open
   findings that are minor or nit and fence-backed) and `capped_ids`
   (findings past the reopen limit), the facts routing decides on.

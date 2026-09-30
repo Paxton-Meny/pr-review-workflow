@@ -66,6 +66,12 @@
       "title": "Model routing",
       "description": "auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose open findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks. fixed always uses the configured models.",
       "default": "auto"
+    },
+    "strong_model": {
+      "type": "string",
+      "title": "Strong model",
+      "description": "Model that auto routing climbs to for large code changes and for changes the probes flag as sensitive (concurrency, crypto, auth, injection surfaces), and that arbitration uses. Example: opus. Leave empty to cap routing at the reviewer model.",
+      "required": false
     }
   }
 }
