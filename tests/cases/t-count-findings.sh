@@ -41,3 +41,23 @@ if sh "$REPO_ROOT/scripts/count-findings.sh" "$dir" --wat 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "unknown argument" "$SCRATCH/err"
+
+dir2="$SCRATCH/state2"
+mkdir -p "$dir2"
+printf '0\n' >"$dir2/round.txt"
+printf '=== finding\ncategory: correctness\nseverity: minor\npath: a.c\nline: 1\nside: RIGHT\ntitle: Fenced\n---\nevidence\n```suggestion\nfixed line\n```\nResolution: done.\n=== finding\ncategory: security\nseverity: major\npath: b.c\nline: 2\nside: RIGHT\ntitle: Big\n---\nFix: do.\nResolution: done.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dir2" >/dev/null
+
+out=$(sh "$REPO_ROOT/scripts/count-findings.sh" "$dir2" --list) || true
+printf '%s\n' "$out" | grep -qx 'open_mechanical_ids F001'
+printf '%s\n' "$out" | grep -qx 'capped_ids'
+
+for _ in 1 2 3; do
+	sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F002 status=addressed >/dev/null
+	sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F002 status=open >/dev/null
+done
+out=$(sh "$REPO_ROOT/scripts/count-findings.sh" "$dir2" --list) || true
+printf '%s\n' "$out" | grep -qx 'capped_ids F002'
+
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F002 status=verified >/dev/null
+grep -q '^status: verified' "$dir2/findings/F002"

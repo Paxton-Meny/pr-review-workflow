@@ -57,3 +57,17 @@ if sh "$REPO_ROOT/scripts/probe-diff.sh" "$SCRATCH/empty" 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "no diff.patch" "$SCRATCH/err"
+
+printf 'tests/test_api.py\t2\t9\nsrc/api.py\t3\t0\n' >"$ctx/files.txt"
+cat > "$ctx/diff.patch" <<'PATCH'
+diff --git a/tests/test_api.py b/tests/test_api.py
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -1,3 +1,2 @@
+ keep
+-first assertion stays out
++pass
+PATCH
+out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
+[ "$out" = "probe-diff: 1 sections (test-shrink)" ]
+grep -q 'tests/test_api.py (2 added, 9 deleted)' "$ctx/probes.txt"

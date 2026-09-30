@@ -93,6 +93,7 @@ and the retry test asserts it.</code></pre>
 <tr><td>Local standards files</td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
 <tr><td>Second review pass</td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
 <tr><td>Reviewer, editor, verifier model</td><td>inherit, inherit, sonnet</td><td>Model per role; verification is cheap by design.</td></tr>
+<tr><td>Model routing</td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
 </table>
 
 <h2>Run it</h2>

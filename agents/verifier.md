@@ -54,6 +54,17 @@ files in thread replies or notes.
    Never resolve a thread you reopen, and never put a suggestion fence in a
    note.
 
+## Arbitration
+
+When the delegation prompt says it is an arbitration, the listed
+findings were reopened repeatedly and the run is about to park over
+them. You are the stronger model brought in to settle it: judge each
+Resolution line from scratch against the current code, using the
+earlier reopen notes only to locate the dispute, never as verdicts.
+Satisfied: verify and resolve as usual; the transition from open is
+legal for exactly this case. Not satisfied: reopen once more with
+the sharpest note yet, and the run parks carrying it.
+
 ## Boundaries
 
 - Only the listed ids, only their Resolution lines. Do not raise new
