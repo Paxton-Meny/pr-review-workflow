@@ -8,6 +8,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Run statistics (`run-stats.sh`): every finished run, merged or not,
+  appends one summary line (rounds, finding outcomes, reopens, filter
+  demotions, contracts, samples, change kind, groups, seams) to a
+  stats file beside the ledgers, so thresholds and gating rules can
+  be tuned from evidence instead of guesses.
 - Opt-in multi-review aggregation (`review_samples`, default 1): the
   first review can run two or three independent passes per shard, and
   `dedup-findings.sh` merges duplicates into the richest record with
