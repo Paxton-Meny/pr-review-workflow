@@ -42,6 +42,7 @@ instructions bind for the whole run.
 - model_routing: ${user_config.model_routing}
 - strong_model: `${user_config.strong_model}`
 - contract_commands: `${user_config.contract_commands}`
+- finding_filter: ${user_config.finding_filter}
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -146,7 +147,12 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    Pipe its records into save-findings as in step 5. When the ledger
    holds no findings after this step, the change is clean: skip to
    step 10.
-7. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir> '${user_config.check_command}'`
+7. When finding_filter is true and the ledger holds open findings not
+   yet posted, spawn `filter` (model override: verifier_model) with
+   exactly:
+   `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
+   and relay its one-line report. Then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir> '${user_config.check_command}'`
    (omit the second argument when check_command is empty), then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`.
    In review-only mode, stop after posting: add one `gh pr comment` status

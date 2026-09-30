@@ -69,6 +69,12 @@
       "description": "auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose open findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks. fixed always uses the configured models.",
       "default": "auto"
     },
+    "finding_filter": {
+      "type": "boolean",
+      "title": "Precision filter",
+      "description": "Before findings post, a cheap second context re-reads the cited code and demotes findings the fresh evidence cannot support into the round summary instead of inline threads. Nothing is dropped or closed; demoted findings are still addressed.",
+      "default": true
+    },
     "contract_commands": {
       "type": "string",
       "title": "Contract command prefixes",

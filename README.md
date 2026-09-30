@@ -67,6 +67,7 @@ Configured when you enable the plugin:
 | Reviewer / editor / verifier model | inherit / inherit / sonnet | Model per role. The first review deserves your strongest model; verification passes are cheap by design. |
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
+| Precision filter | on | Before findings post, a cheap second context re-reads the cited code and demotes findings the fresh evidence cannot support into the round summary. Nothing is dropped: demoted findings are still addressed, with the doubt recorded in the ledger. |
 | Contract command prefixes | empty | Comma-separated prefixes, beyond the check command itself, that a finding's Check line may start with to be executed during verification. Test runners only, never bare interpreters. |
 
 ### Executable contracts
