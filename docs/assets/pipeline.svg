@@ -25,7 +25,7 @@ text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 <line class="ar" x1="430" y1="212" x2="430" y2="242" marker-end="url(#a)"/>
 <rect class="frame" x="70" y="248" width="720" height="176" rx="12" stroke-dasharray="5 4"/>
 <text class="th tg" x="90" y="272">Review layer</text>
-<text class="ts tg2" x="770" y="272" text-anchor="end">one pass, or four shards sharing a cached prefix</text>
+<text class="ts tg2" x="770" y="272" text-anchor="end">one pass, or up to four shards in parallel</text>
 <rect class="p" x="151" y="288" width="170" height="56" rx="8"/>
 <text class="th tp" x="236" y="310" text-anchor="middle">Reviewer</text>
 <text class="ts tp2" x="236" y="330" text-anchor="middle">reads shard 1</text>

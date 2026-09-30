@@ -27,6 +27,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - count-findings --list now also reports `open_mechanical_ids` (open
   findings that are minor or nit and fence-backed) and `capped_ids`
   (findings past the reopen limit), the facts routing decides on.
+- Enum pickers on the second-review-pass and model-routing settings,
+  and a README cost-notes section covering subagent cache lifetimes
+  and the environment variables that interact with model routing.
 - A post-merge sweep: stale runs whose pull requests closed outside the
   tool are cleaned, and finished ledgers are retained per repository up
   to a configurable count.

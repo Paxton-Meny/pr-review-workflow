@@ -68,6 +68,20 @@ Configured when you enable the plugin:
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
 
+### Cost notes
+
+- Subagent requests cache with a five-minute lifetime on every billing
+  method (the main conversation gets an hour on a subscription). The
+  `subagentPromptCacheTtl` setting raises it, at a higher write rate.
+- Parallel reviewer shards read disjoint slices of the diff, so the
+  cost math never depends on them sharing a prompt cache; documented
+  prefix sharing between sibling agents exists only inside workflow
+  runs, not for plain subagents.
+- The `CLAUDE_CODE_SUBAGENT_MODEL` environment variable sits below the
+  plugin's per-spawn model choices, but
+  `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` overrides them entirely and will
+  defeat model routing; leave it unset when using this plugin.
+
 ### Conventions block (optional)
 
 Give the reviewed repository a marked block in its tracked CLAUDE.md
