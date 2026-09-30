@@ -7,6 +7,8 @@ until nothing remains open. Then it merges, or asks you first.
 
 <p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The review loop, layer by layer: one invocation stages everything with shell scripts, a reviewer layer fans out on large diffs with a gap pass that always follows a sharded review and is risk-gated otherwise, findings post to the pull request as inline threads, then a remediation loop of editor, check gate, verifier, and skim runs at most four rounds before a merge gate ends in merged, ask, or parked."></p>
 
+<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
+
 ## Status
 
 First release cut. The full loop has run against live pull requests:

@@ -49,6 +49,10 @@ footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-si
 <img src="assets/pipeline.svg" width="860" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked.">
 <figcaption>Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub.</figcaption>
 </figure>
+<figure>
+<img src="assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. A reopened finding sends the flow around the ring again; a clean verdict exits to a proven merge; a four-round budget bounds the cycle before it parks.">
+<figcaption>The cycle is real but bounded: reopened findings earn another lap, four laps at most, and the goal is always one.</figcaption>
+</figure>
 <p>Everything mechanical is a script that proves its own result: fetching and annotating the diff, probing it for secrets and other greppable defects, validating comment placement before posting, pushing with the remote verified, merging with the merged state confirmed. The models spend tokens only on what needs judgment: finding defects, making fixes, and checking fixes against their criteria.</p>
 
 <h2>Where information lives</h2>
