@@ -44,13 +44,13 @@ text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 <text class="th tg" x="30" y="30" font-size="16">The loop, from above</text>
 <text class="ts tg2" x="30" y="48" font-size="11">review once; revise in a cycle until every contract holds. Bounded, never endless</text>
 
-<path fill="none" stroke="#888780" stroke-width="2" marker-end="url(#la)" opacity="0.8" d="M212 146 C 300 122 400 132 468 152"/>
-<path class="arc" d="M500 165 A135 135 0 0 1 635 300"/>
-<path class="arc" d="M635 300 A135 135 0 0 1 500 435"/>
-<path class="arc" d="M500 435 A135 135 0 0 1 365 300"/>
-<path class="arc arcb" d="M365 300 A135 135 0 0 1 500 165"/>
+<path fill="none" stroke="#888780" stroke-width="2" marker-end="url(#la)" opacity="0.8" d="M212 146 C 292 120 360 126 412 148"/>
+<path class="arc" d="M550.6 174.8 A135 135 0 0 1 625.2 249.4"/>
+<path class="arc" d="M625.2 350.6 A135 135 0 0 1 550.6 425.2"/>
+<path class="arc" d="M449.4 425.2 A135 135 0 0 1 374.8 350.6"/>
+<path class="arc arcb" d="M374.8 249.4 A135 135 0 0 1 449.4 174.8"/>
 <path class="exit" d="M290 300 L 218 300"/>
-<path class="parkp" d="M330 350 C 280 405 250 420 218 428"/>
+<path class="parkp" d="M350 336 C 296 396 252 414 218 424"/>
 
 <rect class="p" x="30" y="118" width="182" height="62" rx="9"/>
 <text class="th tp" x="121" y="143" text-anchor="middle">First review</text>
@@ -89,9 +89,10 @@ text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 <circle class="pipc" cx="533" cy="292" r="6"/>
 <text class="ts tg2" x="500" y="316" text-anchor="middle" font-weight="700" letter-spacing="0.5">ROUND BUDGET</text>
 
-<text class="ts tc" x="398" y="196" text-anchor="middle">reopened: go around again</text>
-<text class="ts tt2" x="253" y="288" text-anchor="middle">nothing open</text>
-<text class="ts tg2" x="640" y="212" text-anchor="middle">revise</text>
+<text class="ts tc" x="364" y="206" text-anchor="end">reopened:</text>
+<text class="ts tc" x="364" y="218" text-anchor="end">go around again</text>
+<text class="ts tt2" x="254" y="316" text-anchor="middle">nothing open</text>
+<text class="ts tg2" x="642" y="204" text-anchor="start">revise</text>
 <text class="ts tg2" x="700" y="470" text-anchor="end">the goal is one lap: contracts, banked fixes, and the filter exist to make the first pass the last</text>
 
 <circle class="tok" r="8"/>
