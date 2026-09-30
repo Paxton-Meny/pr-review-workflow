@@ -70,7 +70,16 @@ A body carries, in this order:
    else, so write it as a testable statement about the code ("Resolution:
    the loop sums each item once, and a test covers duplicate SKUs"), never
    as advice ("consider simplifying").
-4. Optionally, one line starting `Criteria note: ` when the defect plainly
+4. Optionally, one line starting `Check: ` making the Resolution
+   executable: a single command, the project's check command narrowed
+   to the relevant test or target ("Check: pytest
+   tests/test_calc.py::test_total"). Verification runs it instead of
+   judging prose, which is the strongest contract there is. It only
+   runs when it starts with the project's check command or a
+   configured prefix and contains no shell metacharacters; otherwise
+   it is ignored and the Resolution is judged by reading. Never more
+   than one.
+5. Optionally, one line starting `Criteria note: ` when the defect plainly
    belongs to its category but no listed criteria item names it, stating
    the missing item. These lines are collected per run so the criteria
    grow deliberately instead of by accident.

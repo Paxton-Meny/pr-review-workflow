@@ -40,6 +40,7 @@ instructions bind for the whole run.
 - verifier_model: ${user_config.verifier_model}
 - model_routing: ${user_config.model_routing}
 - strong_model: `${user_config.strong_model}`
+- contract_commands: `${user_config.contract_commands}`
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.

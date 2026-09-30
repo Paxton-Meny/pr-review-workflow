@@ -28,9 +28,18 @@ files in thread replies or notes.
 
 1. Read the record. The Resolution line is the contract; the evidence above
    it is context for reading the line correctly.
-2. Read the current code in `worktree/<path>` around the anchor, and when
+2. When the record has a `Check:` line, run the contract first:
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-contract.sh <state-dir> <id> '${user_config.check_command}' '${user_config.contract_commands}'`.
+   Exit 0 is the strongest possible verification: go straight to
+   step 4. Exit 3 means the contract fails against the current code:
+   reopen (step 5) quoting the failure tail. Exit 4 means the contract
+   is not runnable; judge by reading as below.
+   Otherwise read the current code in `worktree/<path>` around the
+   anchor, and when
    that is not conclusive, `git -C <worktree> show <commit>` for what the
-   fix actually did. Earlier fixes may have shifted line numbers, so when
+   fix actually did, judging the diff content only and never the
+   commit message: an editor's prose claiming success is style, not
+   evidence. Earlier fixes may have shifted line numbers, so when
    the anchor looks wrong, locate the code by content and by the commit,
    not by trusting the stale number. If the Resolution names a test, confirm the test
    exists and asserts what it says.

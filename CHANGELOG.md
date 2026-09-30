@@ -8,6 +8,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Executable Resolution contracts: a finding may carry one `Check:`
+  line, the check command narrowed to the relevant test, and the
+  verifier runs it instead of judging prose; the editor reruns it
+  before committing a fix to a reopened finding, discarding candidates
+  the contract rejects. A Check line executes only when it starts with
+  the configured check command or a prefix from the new
+  contract_commands setting and contains no shell metacharacters;
+  otherwise verification falls back to reading. Fix lines now bank
+  exact edit-location spans, and the verifier judges diffs and code
+  only, never commit messages.
 - Dynamic model routing (`model_routing`, default auto): a
   deterministic classifier (`classify-change.sh`) types each change,
   and small docs-only or config-only changes with no risk probes get

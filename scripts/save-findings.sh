@@ -52,6 +52,8 @@ function flush() {
 		fail("at most one Fix line, found " sawfix + 0)
 	if (sawfix == 0 && !sawfence)
 		fail("the body needs a Fix line or a suggestion fence")
+	if (sawcheck > 1)
+		fail("at most one Check line, found " sawcheck + 0)
 	id = sprintf("F%03d", first + rec - 1)
 	out = spool "/" id
 	printf "id: %s\nstatus: open\ncategory: %s\nseverity: %s\npath: %s\nline: %s\nend_line: %s\nside: %s\nplacement:\ncomment_id:\ncommit:\nround: %d\nreopens: 0\ntitle: %s\n---\n", \
@@ -69,6 +71,7 @@ function flush() {
 	sawresolution = 0
 	sawfix = 0
 	sawfence = 0
+	sawcheck = 0
 	next
 }
 rec == 0 { next }
@@ -77,6 +80,7 @@ rec == 0 { next }
 	if (inbody) {
 		if ($0 ~ /^Resolution: ./) sawresolution++
 		if ($0 ~ /^Fix: ./) sawfix++
+		if ($0 ~ /^Check: ./) sawcheck++
 		if ($0 ~ /^```suggestion$/) sawfence = 1
 		body = body $0 "\n"
 	} else if (match($0, /^[a-z_]+: ?/)) {
