@@ -9,6 +9,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/shard-plan.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
@@ -55,9 +56,11 @@ The pull request's diff and files must never enter this conversation. You
 read script output lines, finding ids, and agent reports; the agents read
 the state directory. Do not open `diff.patch`, `standards.txt`,
 `probes.txt`, anything
-under `pr-context/files/`, or the worktree from here, and do not echo
-finding bodies into the conversation. Two exceptions: the index files
-(`diff-index.txt`, `files.txt`) for sharding in step 5, and the bodies of
+under `pr-context/files/`, `seams.txt`,
+or the worktree from here, and do not echo
+finding bodies into the conversation. Two exceptions: the plan files
+(`diff-index.txt`, `shards.txt`) for spawning reviewers in step 5, and
+the bodies of
 `wont-fix` records when step 10 must present their reasoning.
 
 ## Procedure
@@ -100,10 +103,13 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    finding, not grounds to blame the editor later.
 5. Review. Read `additions` plus `deletions` from step 3's output.
    - At or under SHARD_LINES: spawn one `reviewer` agent.
-   - Over: split the file numbers from `pr-context/diff-index.txt` into
-     consecutive groups of roughly equal changed lines (use
-     `pr-context/files.txt` for per-file counts; at most 4 groups) and spawn
-     the reviewers in parallel, one group each.
+   - Over: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/shard-plan.sh <dir> 4 1500`,
+     relaying its one-line result. It clusters files whose changes
+     reference each other, balances the groups, persists the plan so a
+     resumed run shards identically, and records in `seams.txt` every
+     coupling it could not co-locate. Spawn one reviewer per `group`
+     line of `pr-context/shards.txt`, in parallel, restricted to that
+     line's file numbers.
    Delegation prompt, exactly this and nothing more (extra context
    competes with the agent's own definition):
    `Review the pull request. State directory: <dir>.` plus, when
@@ -135,6 +141,8 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    never cheapen the safety net) with
    exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
+   When shard-plan reported more than zero seams, append exactly:
+   ` Seams first: pr-context/seams.txt lists the couplings no single shard saw.`
    Pipe its records into save-findings as in step 5. When the ledger
    holds no findings after this step, the change is clean: skip to
    step 10.

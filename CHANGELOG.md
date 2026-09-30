@@ -8,6 +8,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Coupling-aware shard planning (`shard-plan.sh`): large diffs are
+  split by clustering files whose changes reference each other rather
+  than by raw file order, the plan persists so resumed runs shard
+  identically, and every coupling that still crosses a shard boundary
+  lands in seams.txt, which the gap pass inspects first.
 - Executable Resolution contracts: a finding may carry one `Check:`
   line, the check command narrowed to the relevant test, and the
   verifier runs it instead of judging prose; the editor reruns it
