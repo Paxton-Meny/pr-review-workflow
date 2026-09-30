@@ -21,6 +21,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh *)
@@ -168,7 +169,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`.
    In review-only mode, stop after posting: add one `gh pr comment` status
    comment saying the findings stand for the author to address (proven
-   suggestions can be committed from the GitHub interface), report the
+   suggestions can be committed from the GitHub interface), run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> review-only`,
+   report the
    same, and skip every later step.
 8. Remediation loop, while
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
@@ -220,7 +223,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       One arbitration per run, never a second.
 9. Non-convergence (round cap, reopen escalation, or an unattended park):
    post one status comment via `gh pr comment` naming the `open_ids` and
-   why the loop stopped, then report the same to the user and stop.
+   why the loop stopped, run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> parked`,
+   then report the same to the user and stop.
    Parking is terminal for this run; the ledger makes the next invocation
    resume cleanly.
 10. Convergence. If any finding is `wont-fix`: attended, present each
@@ -231,15 +236,19 @@ argument resumes from the ledger. Never retry a failed call in a loop.
     - auto_approve true: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir> --approve`
     - auto_approve false, attended: ask the user (merge now, or hold).
       Merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>`.
-      Hold: report the state directory and stop; the pull request stays
+      Hold: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> held`,
+      report the state directory and stop; the pull request stays
       open with its review trail.
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
-12. After a merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
+12. After a merge:
+    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> merged` first,
+    while the context it summarizes still exists, then
+    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
     then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh <dir> ${user_config.keep_ledgers}`,
     which also reaps sibling runs whose pull requests closed outside
-    this tool. Relay both one-line results,
+    this tool. Relay the three one-line results,
     and report: rounds run, findings by category and outcome, and the
     merge result, in a few lines.
 
