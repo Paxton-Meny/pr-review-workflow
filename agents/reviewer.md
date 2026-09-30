@@ -132,7 +132,11 @@ the criteria grow from what real reviews surface instead of by accident.
 
 When the delegation prompt names a gap pass, a first review already ran:
 read every record under the state directory's `findings/` before anything
-else, then review as usual. Emit only defects no existing record covers,
+else, then review as usual. When the prompt names seams, read
+`pr-context/seams.txt` next: each line is a coupling between files that
+different reviewers saw in isolation, which is exactly where a defect
+hides from a sharded first pass, so inspect both sides of every seam
+before the general sweep. Emit only defects no existing record covers,
 held to the same bar, audit, and output contract. Do not re-litigate,
 rephrase, or extend existing findings, and do not lower the bar to justify
 the pass: `no findings` is the common and correct result when the first
