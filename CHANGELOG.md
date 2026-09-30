@@ -8,6 +8,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A precision filter (`finding_filter`, default on): before findings
+  post, a cheap second context re-reads each one's cited code cold
+  and demotes findings the fresh evidence cannot support into the
+  round summary, with the doubt recorded as a note. Nothing is
+  dropped or closed, and demoted findings are still addressed.
 - Coupling-aware shard planning (`shard-plan.sh`): large diffs are
   split by clustering files whose changes reference each other rather
   than by raw file order, the plan persists so resumed runs shard

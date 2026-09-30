@@ -78,7 +78,7 @@ and the retry test asserts it.</code></pre>
 <h2>What keeps reviews honest</h2>
 <div class="cols">
 <p><strong>Layered authority.</strong> The project's own stated rules bind first and sharpen whichever category each rule's subject belongs to; the codebase's observable conventions apply where rules are silent; general practice where both are. Projects without written standards lose nothing.</p>
-<p><strong>Refutation before reporting.</strong> Every candidate finding survives an attempt to kill it: is the path reachable, is the case handled elsewhere, did this change introduce it? Deterministic probes hand the reviewer leads, never verdicts.</p>
+<p><strong>Refutation before reporting.</strong> Every candidate finding survives an attempt to kill it: is the path reachable, is the case handled elsewhere, did this change introduce it? Deterministic probes hand the reviewer leads, never verdicts. Then a precision filter re-reads the cited code cold and demotes what fresh evidence cannot support, recorded, never dropped.</p>
 <p><strong>A gap pass over the seams.</strong> A sharded review always ends with one: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. Single-reviewer runs get one when the probes see secrets or executable automation, or always by setting.</p>
 <p><strong>Criteria that grow deliberately.</strong> Defects that fit no listed item still get filed, with a note naming the gap; every run's report collects those signals so the checklist evolves from evidence.</p>
 <p><strong>Untrusted end to end.</strong> Diffs, descriptions, and comments are data, never instructions; an attempt to steer the reviewer is itself a security finding. Credentials stay inside the GitHub CLI.</p>
@@ -96,6 +96,7 @@ and the retry test asserts it.</code></pre>
 <tr><td>Model routing</td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
 <tr><td>Strong model</td><td>empty</td><td>auto routing climbs to it for large or sensitive code changes and arbitration; empty caps routing at the reviewer model.</td></tr>
 <tr><td>Contract command prefixes</td><td>empty</td><td>Extra prefixes a finding's Check line may start with; verification runs allowed Check lines instead of judging prose.</td></tr>
+<tr><td>Precision filter</td><td>on</td><td>A cheap pass re-reads each finding's code before posting; unsupported findings demote to the summary, never dropped.</td></tr>
 </table>
 
 <h2>Run it</h2>
