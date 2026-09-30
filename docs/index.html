@@ -96,6 +96,7 @@ and the retry test asserts it.</code></pre>
 <tr><td>Model routing</td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
 <tr><td>Strong model</td><td>empty</td><td>auto routing climbs to it for large or sensitive code changes and arbitration; empty caps routing at the reviewer model.</td></tr>
 <tr><td>Contract command prefixes</td><td>empty</td><td>Extra prefixes a finding's Check line may start with; verification runs allowed Check lines instead of judging prose.</td></tr>
+<tr><td>Review samples</td><td>1</td><td>Independent first-review passes per shard; duplicates merge with a support count. Recall for cost, opt-in.</td></tr>
 <tr><td>Precision filter</td><td>on</td><td>A cheap pass re-reads each finding's code before posting; unsupported findings demote to the summary, never dropped.</td></tr>
 </table>
 

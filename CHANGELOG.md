@@ -8,6 +8,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Opt-in multi-review aggregation (`review_samples`, default 1): the
+  first review can run two or three independent passes per shard, and
+  `dedup-findings.sh` merges duplicates into the richest record with
+  a support count the filter weighs. Detection recall rises at
+  roughly the sample multiple of the review cost.
 - A precision filter (`finding_filter`, default on): before findings
   post, a cheap second context re-reads each one's cited code cold
   and demotes findings the fresh evidence cannot support into the

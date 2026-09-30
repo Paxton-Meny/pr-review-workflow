@@ -35,6 +35,9 @@ the code contradicts its facts.
    case really unhandled, does the quoted behavior match the code in
    front of you, does something adjacent already guard it? You are
    re-checking facts against fresh reading, never re-judging prose.
+   A `support:` header counts how many parallel review samples
+   reported the defect: one of several earns your hardest scrutiny,
+   but support is context, never the verdict either way.
 3. Solid, or you cannot show otherwise: leave the record alone.
    Uncertainty is not thinness; the bar for demotion is that your
    reading contradicts or cannot reproduce the record's evidence. For
