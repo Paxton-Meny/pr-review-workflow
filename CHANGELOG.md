@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- An experimental eval suite under evals/ for `claude plugin eval`:
+  a smoke case proving the skill engages its script layer and relays
+  a failing script's error verbatim. Run by hand before releases; the
+  offline gate never spends model tokens.
 - Run statistics (`run-stats.sh`): every finished run, merged or not,
   appends one summary line (rounds, finding outcomes, reopens, filter
   demotions, contracts, samples, change kind, groups, seams) to a
