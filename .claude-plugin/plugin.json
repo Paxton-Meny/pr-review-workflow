@@ -33,6 +33,7 @@
     },
     "double_review": {
       "type": "string",
+      "options": ["off", "risky", "always"],
       "title": "Second review pass",
       "description": "When a gap pass runs after a single-reviewer first review: off, risky (secrets or automation probes fired), or always. The gap pass reads the existing findings and reports only what they miss. A sharded review always ends with one, whatever this is set to, because only a whole-diff pass sees defects that span shards.",
       "default": "risky"
@@ -63,6 +64,7 @@
     },
     "model_routing": {
       "type": "string",
+      "options": ["auto", "fixed"],
       "title": "Model routing",
       "description": "auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose open findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks. fixed always uses the configured models.",
       "default": "auto"
