@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- An animated figure (docs/assets/loop.svg): the review-revise cycle
+  from above, hand-written SVG with CSS animation, dark-mode aware,
+  showing a run that reopens once, laps the loop again, and exits on
+  its second of four budgeted rounds.
 - An experimental eval suite under evals/ for `claude plugin eval`:
   a smoke case proving the skill engages its script layer and relays
   a failing script's error verbatim. Run by hand before releases; the
