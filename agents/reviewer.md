@@ -169,11 +169,21 @@ path as usual.
   until you can, or drop it.
 - Every record without a fence carries one `Fix:` line: the repair you
   recommend, why it is the right one, and the repair context you already
-  hold that the editor would otherwise re-read the project for: the paths
-  and lines the fix touches, the existing helper or idiom it should use,
-  where its test belongs. You read the surrounding code to make the
-  finding; the Fix line is where that reading is banked so nobody pays for
-  it twice.
+  hold that the editor would otherwise re-read the project for: the exact
+  paths and line spans the fix touches, the existing helper or idiom it
+  should use, where its test belongs. You read the surrounding code to
+  make the finding; the Fix line is where that reading is banked so
+  nobody pays for it twice, and a precise span saves the editor from
+  re-localizing.
+- When one runnable command proves the Resolution line, add one
+  `Check:` line: the project's check command narrowed to the relevant
+  test or target (for example the check command plus one test path or
+  selector). It must start with the project's own check command or a
+  configured prefix and contain no shell metacharacters, or it will not
+  run and the verifier falls back to reading. An executable contract is
+  the strongest Resolution there is; a Check line that only rebuilds
+  everything the check command already runs adds nothing, so write one
+  only when it narrows.
 - One defect, one finding. The same defect repeated across a file is one
   finding anchored at its first occurrence, with the other locations listed
   in the body and covered by the Resolution line.

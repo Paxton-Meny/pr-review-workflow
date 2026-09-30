@@ -67,6 +67,20 @@ Configured when you enable the plugin:
 | Reviewer / editor / verifier model | inherit / inherit / sonnet | Model per role. The first review deserves your strongest model; verification passes are cheap by design. |
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
+| Contract command prefixes | empty | Comma-separated prefixes, beyond the check command itself, that a finding's Check line may start with to be executed during verification. Test runners only, never bare interpreters. |
+
+### Executable contracts
+
+A finding may carry a `Check:` line, the check command narrowed to the
+relevant test, and verification then runs it instead of judging prose:
+execution is the one judge that cannot be argued with. Containment is
+strict because reviewers read untrusted pull request content: a Check
+line executes only when it starts with your configured check command or
+one of the prefixes above, and never when it contains shell
+metacharacters. With no check command configured, nothing ever
+executes, exactly as before. Running a narrowed test executes no more
+of the pull request's code than the check command you already
+configured runs on every round.
 
 ### Conventions block (optional)
 

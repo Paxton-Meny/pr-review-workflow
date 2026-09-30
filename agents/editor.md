@@ -50,7 +50,13 @@ Resolution line together.
    finding's fix or a companion it forces (a caller of a renamed function,
    the test asserting the change). Anything else gets reverted before the
    commit: an unrelated changed line triggers an extra review round by
-   itself.
+   itself. On a reopened finding, also run its contract before
+   committing when the record has a `Check:` line:
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-contract.sh <state-dir> <id> '${user_config.check_command}' '${user_config.contract_commands}'`.
+   Exit 3 means this candidate fix does not satisfy the contract:
+   discard the edit and take a genuinely different approach rather
+   than resubmitting a variation the contract already rejected. Exit 4
+   means the contract is not runnable; rely on the self-check above.
 3. Commit the edit on its own:
    `git -C <worktree> add <paths>` then
    `git -C <worktree> commit -m "<subject>" -m "Addresses <id>."`

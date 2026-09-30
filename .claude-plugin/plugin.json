@@ -67,6 +67,12 @@
       "description": "auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose open findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks. fixed always uses the configured models.",
       "default": "auto"
     },
+    "contract_commands": {
+      "type": "string",
+      "title": "Contract command prefixes",
+      "description": "Comma-separated command prefixes, beyond the check command itself, that a finding's Check line may start with to be executed during verification (example: go test, cargo test). Use test runners only, never bare interpreters. Empty means only the check command's own prefix runs.",
+      "required": false
+    },
     "strong_model": {
       "type": "string",
       "title": "Strong model",

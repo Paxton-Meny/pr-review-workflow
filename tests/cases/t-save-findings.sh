@@ -101,3 +101,17 @@ if printf '=== finding\ncategory: correctness\nseverity: nit\npath: a.c\nline: 1
 	exit 1
 fi
 grep -q "at most one Fix line, found 2" "$SCRATCH/err"
+
+dirc="$SCRATCH/state-check"
+mkdir -p "$dirc"
+printf '0\n' >"$dirc/round.txt"
+printf '=== finding\ncategory: correctness\nseverity: minor\npath: a.c\nline: 1\nside: RIGHT\ntitle: One check\n---\nevidence\nFix: do.\nCheck: pytest tests/test_a.py::t\nResolution: done.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dirc" >/dev/null
+grep -qx 'Check: pytest tests/test_a.py::t' "$dirc/findings/F001"
+
+if printf '=== finding\ncategory: correctness\nseverity: minor\npath: a.c\nline: 1\nside: RIGHT\ntitle: Two checks\n---\nevidence\nFix: do.\nCheck: pytest a\nCheck: pytest b\nResolution: done.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dirc" 2>"$SCRATCH/err"; then
+	echo "expected refusal of a second Check line" >&2
+	exit 1
+fi
+grep -q "at most one Check line" "$SCRATCH/err"
