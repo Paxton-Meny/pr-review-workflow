@@ -59,9 +59,19 @@ sandboxed one-shot session and grades the transcript. They spend real
 model tokens and need a logged-in `claude`, so the offline gate never
 runs them; run them by hand before a release:
 
-    claude plugin eval . --model sonnet
+    claude plugin eval . --model sonnet --ablation none
 
-The suite is experimental until a release has run it green. Keep cases
-deterministic (the smoke case asserts the skill stops at a failing
-script and relays its error verbatim), one behavior per case, graders
-per file under the case's `graders/`.
+Sandbox facts that shape cases, learned from the first live run:
+Bash is withheld unless granted with `--allow-tools Bash`, and that
+grant demands an OS confinement backend (`apt install bubblewrap
+socat` on Debian), so portable cases must grade behavior with the
+scripts refused: the attempted Bash call still lands in the trace,
+and honesty is the thing to assert (names where it stopped, invents
+nothing). `${user_config.*}` is not substituted in the sandbox, so
+never grade on configured values. The smoke case asserts exactly
+this: the skill reaches for check-tools first, names the stop, and
+fabricates no finding ids. With bubblewrap installed, deeper cases
+that actually execute the scripts become possible.
+
+Keep cases deterministic, one behavior per case, graders per file
+under the case's `graders/`.
