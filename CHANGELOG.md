@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A NOTICE file and a README license section carrying the copyright
+  notice, so redistributions have attribution to preserve, per the
+  license's notice clause.
 - A code of conduct, completing the documentation set ahead of the
   repository going public.
 
