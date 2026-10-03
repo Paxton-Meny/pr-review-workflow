@@ -6,7 +6,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- The skill spawns its agents by their namespaced names
+  (pr-review-workflow:reviewer and so on), so another installed
+  plugin shipping an agent called reviewer, editor, verifier, or
+  filter can never be picked up by mistake.
 
 ## [0.2.0] - 2026-10-03
 
