@@ -43,7 +43,13 @@ From a clone of the reviewed repository:
 /pr-review-workflow:review-pr 128
 ```
 
-Also accepted: `owner/repo#128` or the pull request URL.
+Also accepted: `owner/repo#128` or the pull request URL. The run
+refuses immediately, before touching anything, if the clone's origin
+is not the reviewed repository.
+
+Loading with `--plugin-dir` never shows the settings dialog: run
+`/plugin configure pr-review-workflow` in the session to fill it in,
+or the run uses the defaults and says so.
 
 The loop: a reviewer agent reads the fetched diff (split, line-annotated,
 never entering the orchestrating context) and files findings in seven

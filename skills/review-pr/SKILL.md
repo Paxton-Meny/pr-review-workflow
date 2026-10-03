@@ -54,6 +54,12 @@ Decide once, now, whether this run is attended: a human is present in this
 session and can answer a question. Hold that answer for the whole run. When
 unsure, the run is unattended.
 
+If any setting above reads as a literal placeholder (a dollar sign,
+braces, and a user_config key) instead of a value, this install has no
+saved plugin configuration: treat every setting as its manifest
+default, and say so in the final report so the user knows their
+configuration never loaded.
+
 ## Context discipline
 
 The pull request's diff and files must never enter this conversation. You

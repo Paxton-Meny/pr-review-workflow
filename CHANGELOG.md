@@ -6,6 +6,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- init-state now refuses to run from a clone whose origin is not the
+  reviewed repository, before any state is written or the pull
+  request is fetched; the first interactive dogfood run reached step
+  4 before checkout-pr caught the same mistake, leaving a part-built
+  ledger behind.
+- The skill now recognizes unsubstituted user_config placeholders as
+  an unconfigured install, runs on manifest defaults, and says so in
+  the final report. Loading with --plugin-dir never shows the
+  configuration dialog; the README now says to run /plugin configure
+  in the session.
+
 ### Added
 
 - An animated figure (docs/assets/loop.svg): the review-revise cycle
