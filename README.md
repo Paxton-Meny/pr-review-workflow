@@ -11,7 +11,7 @@ until nothing remains open. Then it merges, or asks you first.
 
 ## Status
 
-Second release. The full loop is proven end to end in a live
+Released and public. The full loop is proven end to end in a live
 interactive run: categorized review, a precision filter, per-finding
 fix commits authored as the signed-in account, a round-diff skim that
 caught and reviewed files no finding covered, cheap-model

@@ -2,8 +2,9 @@
 
 ## Supported versions
 
-The project is pre-release. Only the tip of `main` is supported; there are no
-maintained release lines yet. This section will list maintained release lines when releases begin.
+The latest release and the tip of `main` are supported. There are no
+maintained older release lines: a security fix ships as a new release,
+never as a patch to a previous one.
 
 ## What this tool does with your credentials
 
