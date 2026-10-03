@@ -8,6 +8,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The project site's footer now states the PolyForm Noncommercial
+  license; it still said Apache-2.0 after the relicense.
 - Relicensed from Apache-2.0 to the PolyForm Noncommercial License
   1.0.0, with commercial licenses available from the maintainer by
   arrangement. The two Apache-era releases and tags were withdrawn
