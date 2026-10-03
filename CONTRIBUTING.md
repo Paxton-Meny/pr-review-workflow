@@ -2,7 +2,8 @@
 
 This project is in early development and not yet accepting external
 contributions. The conventions below bind all work in the repository, and they
-will govern external contributions when they open.
+will govern external contributions when they open. Conduct in every project
+space is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Setup
 

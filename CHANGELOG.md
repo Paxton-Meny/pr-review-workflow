@@ -6,6 +6,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A code of conduct, completing the documentation set ahead of the
+  repository going public.
+
 ### Fixed
 
 - The skill spawns its agents by their namespaced names
