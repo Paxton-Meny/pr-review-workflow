@@ -171,9 +171,17 @@ every change goes through.
 Copyright 2026 Paxton-Meny. Licensed under the
 [PolyForm Noncommercial License 1.0.0](LICENSE): free to use, change,
 and share for any noncommercial purpose, with required credit per the
-license. Commercial use, including selling the plugin or services
-built on it, requires a commercial license; contact the maintainer
-through GitHub to arrange one. The [NOTICE](NOTICE) file travels with
+license.
+
+### Commercial licensing
+
+Use by or for a commercial organization needs a commercial license:
+running the plugin on a company's pull requests, selling it, bundling
+it into a product, or offering it within a paid service. Terms are
+arranged directly and sized to the use. Open an issue titled
+"Commercial license inquiry" with a sentence on the intended use, or
+reach the maintainer through their GitHub profile for anything better
+raised privately. The [NOTICE](NOTICE) file travels with
 every distribution. The name pr-review-workflow identifies this
 project: forks and derived works ship under their own name and must
 prominently state what they changed, which the license requires. If
