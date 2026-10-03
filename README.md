@@ -11,10 +11,14 @@ until nothing remains open. Then it merges, or asks you first.
 
 ## Status
 
-First release cut. The full loop has run against live pull requests:
-review, inline findings with a proven suggestion, per-finding fix
-commits, thread resolution, and a proven rebase merge. Interactive
-hardening across more repositories is the current work.
+Second release. The full loop is proven end to end in a live
+interactive run: categorized review, a precision filter, per-finding
+fix commits authored as the signed-in account, a round-diff skim that
+caught and reviewed files no finding covered, cheap-model
+verification, an attended merge gate, and a proven rebase merge, with
+the run's statistics banked for evidence-based tuning. The eval suite
+passes. Current work is accumulating runs across more repositories so
+the thresholds can be tuned from the stats ledger.
 
 ## Requirements
 

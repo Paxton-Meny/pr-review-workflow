@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "pr-review-workflow",
   "displayName": "PR Review Workflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Reviews a GitHub pull request end to end: posts inline findings, edits the branch to address them, re-reviews until clean, then merges or asks.",
   "author": {
     "name": "Paxton-Meny",
