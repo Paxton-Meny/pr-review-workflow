@@ -71,7 +71,13 @@ if [ "$state" != "OPEN" ]; then
 	echo "init-state: pull request $owner/$repo#$number is $state, not open" >&2
 	exit 1
 fi
-self=$(gh api user --jq .login)
+self=$(gh api user --jq '"\(.login) \(.id)"')
+self_login=${self%% *}
+self_id=${self##* }
+case "$self_id" in
+'' | *[!0-9]*) self_email="${self_login}@users.noreply.github.com" ;;
+*) self_email="${self_id}+${self_login}@users.noreply.github.com" ;;
+esac
 
 dir="$data_root/state/${owner}__${repo}__${number}"
 mkdir -p "$dir"
@@ -79,7 +85,7 @@ tmp=$(mktemp "$dir/.meta.XXXXXX")
 {
 	printf 'owner %s\nrepo %s\npr %s\n' "$owner" "$repo" "$number"
 	printf '%s\n' "$meta" | sed '/^state /d'
-	printf 'self_login %s\n' "$self"
+	printf 'self_login %s\nself_email %s\n' "$self_login" "$self_email"
 } >"$tmp"
 mv "$tmp" "$dir/meta.txt"
 if [ ! -f "$dir/round.txt" ]; then
