@@ -31,7 +31,9 @@ nothing to install beyond itself.
 
 Read this before installing. The plugin reads pull requests, posts review
 comments to them, pushes commits to their branches, and merges when told to.
-It acts with whatever access your GitHub CLI credentials carry. With the
+It acts with whatever access your GitHub CLI credentials carry, and fix
+commits are authored as the signed-in account's noreply address, never
+your clone's local git identity. With the
 check command configured, it also runs that command against pull request
 code (see SECURITY.md).
 

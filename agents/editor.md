@@ -57,9 +57,13 @@ Resolution line together.
    discard the edit and take a genuinely different approach rather
    than resubmitting a variation the contract already rejected. Exit 4
    means the contract is not runnable; rely on the self-check above.
-3. Commit the edit on its own:
+3. Commit the edit on its own, as the signed-in account. The state
+   directory's meta.txt holds `self_login` and `self_email`; every
+   commit you make uses them explicitly, never the clone's ambient
+   identity, so the pull request shows the account that ran the
+   review adding the fixes:
    `git -C <worktree> add <paths>` then
-   `git -C <worktree> commit -m "<subject>" -m "Addresses <id>."`
+   `git -C <worktree> -c user.name=<self_login> -c user.email=<self_email> commit -m "<subject>" -m "Addresses <id>."`
    The subject is imperative, capitalized, at most 72 characters, no
    trailing period, and describes the change, not the finding. No other
    trailers or metadata. Immediately record this finding's commit:

@@ -8,6 +8,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Fix commits are now authored as the signed-in GitHub account, with
+  its noreply address, never the clone's ambient git identity:
+  init-state banks self_login and self_email in the ledger and the
+  editor commits with them explicitly. The third dogfood run's
+  commits showed up on the pull request as the machine's default
+  identity.
 - init-state now refuses to run from a clone whose origin is not the
   reviewed repository, before any state is written or the pull
   request is fetched; the first interactive dogfood run reached step
