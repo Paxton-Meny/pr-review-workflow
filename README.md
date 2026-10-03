@@ -165,3 +165,13 @@ every change goes through.
 - `agents/`: reviewer, editor, and verifier definitions.
 - `scripts/`: POSIX sh, one proven step each.
 - `tests/`: offline suite with a stubbed GitHub CLI.
+
+## License and attribution
+
+Copyright 2026 Paxton-Meny. Licensed under
+[Apache-2.0](LICENSE); the [NOTICE](NOTICE) file travels with every
+redistribution, as the license requires. The name pr-review-workflow
+identifies this project: forks and derived works should ship under
+their own name and state what they changed, which the license also
+requires per modified file. If this plugin reviews your pull
+requests, a link back here is appreciated.
