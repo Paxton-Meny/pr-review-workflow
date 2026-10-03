@@ -29,6 +29,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   dogfood run spawned its verifier on the session model instead of
   sonnet for exactly that reason.
 
+### Changed
+
+- The content-leakage criteria gain a license-provenance item, the
+  first criterion grown from a live criteria signal: the inaugural
+  dogfood run filed GPL-copied code under other because nothing
+  named it. Final reports now quote the run-stats line verbatim
+  alongside the criteria signals, since paraphrases lose the lines
+  the tuning process greps for.
+
 ### Added
 
 - An animated figure (docs/assets/loop.svg): the review-revise cycle

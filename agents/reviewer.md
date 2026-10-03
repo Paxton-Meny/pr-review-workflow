@@ -114,7 +114,9 @@ guard would do, TODO markers standing in for work.
 **Content leakage.** Credentials, internal hostnames, machine paths,
 usernames, personal data, or private URLs entering tracked content; files
 that should not ship (environment files, keys, build output); comments that
-would embarrass in public.
+would embarrass in public; license provenance: code copied in from a
+source whose license conflicts with, or is missing from, the receiving
+project, or arrives without the attribution its license requires.
 
 **Outdated docs.** Documentation, docstrings, examples, or comments that the
 diff makes wrong; removed options still documented; a changelog the change

@@ -264,7 +264,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 Whatever step ends the run, when the ledger holds any findings the final
 report also carries the output of
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh <dir>` under a
-criteria-signals heading. Those lines are the material for growing the
+criteria-signals heading, and quotes the `run-stats:` line verbatim
+when one was produced: a paraphrase of either loses the exact lines
+the tuning process greps for. Those lines are the material for growing the
 reviewer's criteria deliberately, and a report that drops them is how they
 get lost.
 
