@@ -6,6 +6,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.2.1] - 2026-10-04
+
+### Changed
+
+- The security policy states the real support stance now that
+  releases exist, the README status no longer counts releases, and
+  CONTRIBUTING explains why external code contributions stay closed
+  under the commercial licensing model while welcoming issue
+  reports.
+
 ### Changed
 
 - The project site's footer now states the PolyForm Noncommercial

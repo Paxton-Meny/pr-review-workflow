@@ -1,8 +1,12 @@
 # Contributing
 
-This project is in early development and not yet accepting external
-contributions. The conventions below bind all work in the repository, and they
-will govern external contributions when they open. Conduct in every project
+This project does not accept external code contributions at present:
+its commercial licensing model requires a contributor agreement that
+does not exist yet, and accepting code without one would cloud the
+rights the model depends on. Bug reports and feature requests through
+the issue templates are welcome. The conventions below bind all work
+in the repository, and they will govern external contributions if a
+contributor agreement opens them. Conduct in every project
 space is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## Setup
