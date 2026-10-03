@@ -6,7 +6,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- A commercial licensing section on the site and in the README:
+  what needs a commercial license and how to start the
+  conversation, so the dual-licensing model has an operable path.
 
 ## [0.2.1] - 2026-10-04
 
