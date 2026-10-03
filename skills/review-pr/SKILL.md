@@ -115,7 +115,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    head that already fails the project's own check is material for a
    finding, not grounds to blame the editor later.
 5. Review. Read `additions` plus `deletions` from step 3's output.
-   - At or under SHARD_LINES: spawn one `reviewer` agent.
+   - At or under SHARD_LINES: spawn one `pr-review-workflow:reviewer` agent.
    - Over: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/shard-plan.sh <dir> 4 1500`,
      relaying its one-line result. It clusters files whose changes
      reference each other, balances the groups, persists the plan so a
@@ -158,7 +158,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    spans shard boundaries. On a single-reviewer run, double_review
    governs instead: run one when it is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
-   `automation`. Spawn one `reviewer` (the same override step 5
+   `automation`. Spawn one `pr-review-workflow:reviewer` (the same override step 5
    chose, floored at reviewer_model: routing can raise the gap pass,
    never cheapen the safety net) with
    exactly:
@@ -169,7 +169,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    holds no findings after this step, the change is clean: skip to
    step 10.
 7. When finding_filter is true and the ledger holds open findings not
-   yet posted, spawn `filter` (model override: verifier_model) with
+   yet posted, spawn `pr-review-workflow:filter` (model override: verifier_model) with
    exactly:
    `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
    and relay its one-line report. Then
@@ -189,7 +189,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       Exit 3 means the persistent round budget for this pull request is
       spent: non-convergence (step 9). Otherwise its output is the round
       line the delegations below quote; never count rounds from memory.
-   b. Spawn `editor` with
+   b. Spawn `pr-review-workflow:editor` with
       exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. <round line>.`
       Model override: editor_model, except when model_routing is
@@ -201,17 +201,17 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    c. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
       Exit 3 means the editor's commits broke the project's own check:
-      spawn `editor` once more with exactly:
+      spawn `pr-review-workflow:editor` once more with exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
       then rerun run-check. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.
-   d. Rerun `count-findings.sh <dir> --list`, then spawn `verifier` (model
+   d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier` (model
       override: verifier_model) with exactly:
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
-      `diff-index.txt`, spawn one `reviewer` restricted to that set (the
+      `diff-index.txt`, spawn one `pr-review-workflow:reviewer` restricted to that set (the
       step 5 template), and save any records it returns, followed by
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
@@ -220,7 +220,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       the loop and treat it as non-convergence. With `auto`,
       arbitrate once first, because repeated reopens sometimes mean
       the cheap verifier is wrong rather than the editor: spawn
-      `verifier` overriding its model with strong_model when set,
+      `pr-review-workflow:verifier` overriding its model with strong_model when set,
       else reviewer_model, passing `inherit` explicitly when that is
       the chosen value so the arbitration runs on the session model,
       never the verifier default, and
