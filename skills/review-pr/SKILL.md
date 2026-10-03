@@ -33,19 +33,19 @@ instructions bind for the whole run.
 
 ## Settings
 
-- auto_approve: ${user_config.auto_approve}
-- check_command: `${user_config.check_command}`
-- local_standards: `${user_config.local_standards}`
-- double_review: ${user_config.double_review}
-- keep_ledgers: ${user_config.keep_ledgers}
-- reviewer_model: ${user_config.reviewer_model}
-- editor_model: ${user_config.editor_model}
-- verifier_model: ${user_config.verifier_model}
-- model_routing: ${user_config.model_routing}
-- strong_model: `${user_config.strong_model}`
-- contract_commands: `${user_config.contract_commands}`
-- finding_filter: ${user_config.finding_filter}
-- review_samples: ${user_config.review_samples}
+- auto_approve: ${user_config.auto_approve} (default false)
+- check_command: `${user_config.check_command}` (default empty)
+- local_standards: `${user_config.local_standards}` (default empty)
+- double_review: ${user_config.double_review} (default risky)
+- keep_ledgers: ${user_config.keep_ledgers} (default 20)
+- reviewer_model: ${user_config.reviewer_model} (default inherit)
+- editor_model: ${user_config.editor_model} (default inherit)
+- verifier_model: ${user_config.verifier_model} (default sonnet)
+- model_routing: ${user_config.model_routing} (default auto)
+- strong_model: `${user_config.strong_model}` (default empty)
+- contract_commands: `${user_config.contract_commands}` (default empty)
+- finding_filter: ${user_config.finding_filter} (default true)
+- review_samples: ${user_config.review_samples} (default 1)
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -56,8 +56,11 @@ unsure, the run is unattended.
 
 If any setting above reads as a literal placeholder (a dollar sign,
 braces, and a user_config key) instead of a value, this install has no
-saved plugin configuration: treat every setting as its manifest
-default, and say so in the final report so the user knows their
+saved plugin configuration: use the default annotated beside each
+setting, exactly as written, everywhere the setting is referenced,
+model overrides included (an unconfigured run spawns the filter,
+verifier, and every verification pass on sonnet, never on the session
+model). Say so in the final report so the user knows their
 configuration never loaded.
 
 ## Context discipline

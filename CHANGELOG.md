@@ -18,6 +18,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the final report. Loading with --plugin-dir never shows the
   configuration dialog; the README now says to run /plugin configure
   in the session.
+- The settings block annotates every default inline, because an
+  unconfigured orchestrator cannot see the manifest: the second
+  dogfood run spawned its verifier on the session model instead of
+  sonnet for exactly that reason.
 
 ### Added
 
