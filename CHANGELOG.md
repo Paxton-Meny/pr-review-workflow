@@ -6,6 +6,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The repository is now the marketplace the README always claimed:
+  a marketplace manifest lists the plugin at the repository root,
+  so the documented install commands work. They could not have
+  before, because the manifest did not exist.
+
 ### Added
 
 - A commercial licensing section on the site and in the README:

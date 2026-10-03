@@ -1,0 +1,17 @@
+{
+  "name": "pr-review-workflow",
+  "description": "The home marketplace of the pr-review-workflow plugin: end-to-end pull request review, revision, and merge for Claude Code.",
+  "owner": {
+    "name": "Paxton-Meny",
+    "url": "https://github.com/Paxton-Meny"
+  },
+  "plugins": [
+    {
+      "name": "pr-review-workflow",
+      "source": "./",
+      "description": "Reviews a GitHub pull request end to end: posts inline findings, edits the branch to address them, re-reviews until clean, then merges or asks.",
+      "category": "code-review",
+      "tags": ["code-review", "github", "pull-request", "automation"]
+    }
+  ]
+}
