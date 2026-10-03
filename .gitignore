@@ -20,3 +20,4 @@ desktop.ini
 # Packaging artifacts
 *.skill
 *.plugin
+evals/results/

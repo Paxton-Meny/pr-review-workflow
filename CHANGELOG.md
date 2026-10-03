@@ -13,8 +13,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   showing a run that reopens once, laps the loop again, and exits on
   its second of four budgeted rounds.
 - An experimental eval suite under evals/ for `claude plugin eval`:
-  a smoke case proving the skill engages its script layer and relays
-  a failing script's error verbatim. Run by hand before releases; the
+  a smoke case proving the skill reaches for its script layer first,
+  names where the run stopped, and fabricates no finding ids even
+  with Bash withheld by the sandbox. Run by hand before releases; the
   offline gate never spends model tokens.
 - Run statistics (`run-stats.sh`): every finished run, merged or not,
   appends one summary line (rounds, finding outcomes, reopens, filter
