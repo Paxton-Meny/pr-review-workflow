@@ -9,7 +9,7 @@
     "url": "https://github.com/Paxton-Meny"
   },
   "repository": "https://github.com/Paxton-Meny/pr-review-workflow",
-  "license": "Apache-2.0",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "keywords": ["pull-request", "code-review", "github", "automation"],
   "userConfig": {
     "auto_approve": {
