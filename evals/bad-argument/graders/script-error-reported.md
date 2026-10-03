@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: (init-state|check-tools):
+pattern: "(init-state|check-tools):"
 match: contains
 ---
 The skill must stop at the first failing script and report that
