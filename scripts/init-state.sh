@@ -47,6 +47,22 @@ for name in "$owner" "$repo"; do
 	esac
 done
 
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+	echo "init-state: run from inside a clone of $owner/$repo" >&2
+	exit 1
+}
+url=$(git -C "$repo_root" remote get-url origin 2>/dev/null) || {
+	echo "init-state: the clone at $repo_root has no origin remote" >&2
+	exit 1
+}
+case "$url" in
+*[/:]"$owner/$repo" | *[/:]"$owner/$repo/" | *[/:]"$owner/$repo.git" | *[/:]"$owner/$repo.git/") ;;
+*)
+	echo "init-state: origin of $repo_root is $url, not $owner/$repo; run from a clone of the reviewed repository" >&2
+	exit 1
+	;;
+esac
+
 meta=$(gh pr view "$number" --repo "$owner/$repo" \
 	--json author,headRefName,baseRefName,headRefOid,url,state,isCrossRepository,maintainerCanModify,headRepository,headRepositoryOwner \
 	--jq '"author \(.author.login)\nhead_branch \(.headRefName)\nbase_branch \(.baseRefName)\nhead_sha \(.headRefOid)\nurl \(.url)\ncross_repo \(.isCrossRepository)\nmaintainer_can_modify \(.maintainerCanModify)\nhead_repo_url \(if .headRepository then "https://github.com/\(.headRepositoryOwner.login)/\(.headRepository.name).git" else "" end)\nstate \(.state)"')

@@ -11,6 +11,11 @@ data="$SCRATCH/data"
 printf 'author octocat\nhead_branch feat-thing\nbase_branch main\nhead_sha abc123\nurl https://github.com/acme/widgets/pull/7\ncross_repo false\nmaintainer_can_modify true\nhead_repo_url https://github.com/acme/widgets.git\nstate OPEN\n' >"$stub/pr-view"
 printf 'octocat\n' >"$stub/api-user"
 
+clone="$SCRATCH/clone"
+git init -q "$clone"
+git -C "$clone" remote add origin https://github.com/acme/widgets.git
+cd "$clone"
+
 dir=$(sh "$REPO_ROOT/scripts/init-state.sh" "$data" "acme/widgets#7")
 [ "$dir" = "$data/state/acme__widgets__7" ]
 grep -qx 'owner acme' "$dir/meta.txt"
@@ -46,3 +51,23 @@ if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "acme/widgets#7" 2>"$SCRATCH/er
 	exit 1
 fi
 grep -q "MERGED, not open" "$SCRATCH/err"
+
+other="$SCRATCH/other-clone"
+git init -q "$other"
+git -C "$other" remote add origin git@github.com:acme/other-widgets.git
+cd "$other"
+if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "acme/widgets#7" 2>"$SCRATCH/err"; then
+	echo "expected refusal from a clone of the wrong repository" >&2
+	exit 1
+fi
+grep -q "origin of .* is .*not acme/widgets" "$SCRATCH/err"
+[ ! -d "$data/state/acme__widgets__7.wrong" ]
+
+plain="$SCRATCH/plain"
+mkdir -p "$plain"
+cd "$plain"
+if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "acme/widgets#7" 2>"$SCRATCH/err"; then
+	echo "expected refusal outside any clone" >&2
+	exit 1
+fi
+grep -q "run from inside a clone" "$SCRATCH/err"
