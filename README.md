@@ -168,10 +168,14 @@ every change goes through.
 
 ## License and attribution
 
-Copyright 2026 Paxton-Meny. Licensed under
-[Apache-2.0](LICENSE); the [NOTICE](NOTICE) file travels with every
-redistribution, as the license requires. The name pr-review-workflow
-identifies this project: forks and derived works should ship under
-their own name and state what they changed, which the license also
-requires per modified file. If this plugin reviews your pull
-requests, a link back here is appreciated.
+Copyright 2026 Paxton-Meny. Licensed under the
+[PolyForm Noncommercial License 1.0.0](LICENSE): free to use, change,
+and share for any noncommercial purpose, with required credit per the
+license. Commercial use, including selling the plugin or services
+built on it, requires a commercial license; contact the maintainer
+through GitHub to arrange one. The [NOTICE](NOTICE) file travels with
+every distribution. The name pr-review-workflow identifies this
+project: forks and derived works ship under their own name and must
+prominently state what they changed, which the license requires. If
+this plugin reviews your pull requests, a link back here is
+appreciated.
