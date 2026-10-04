@@ -17,7 +17,7 @@ until nothing remains open. Then it merges, or asks you first.
 [Development](#development) &#183;
 [License](#license-and-attribution)
 
-<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The review loop, layer by layer: one invocation stages everything with shell scripts, a reviewer layer fans out on large diffs with a gap pass that always follows a sharded review and is risk-gated otherwise, findings post to the pull request as inline threads, then a remediation loop of editor, check gate, verifier, and skim runs at most four rounds before a merge gate ends in merged, ask, or parked."></p>
+<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request with no model; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; a merge gate asks first, and a run that does not converge parks with a status comment."></p>
 
 <p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
 
@@ -160,7 +160,7 @@ State is keyed by repository and pull request, so every worktree of a
 clone shares it, and local rule files are found from a linked worktree
 by looking in the main one. Run one review per pull request at a time.
 
-<p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: GitHub data and the local clone feed a per-pull-request state ledger holding annotated diffs and probes, the finding records with their Fix and Resolution contract, and a detached worktree; reviewer, editor, and verifier agents read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts, never the diff."></p>
+<p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, and verifier each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></p>
 
 ### Limits
 

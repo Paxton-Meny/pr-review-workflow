@@ -8,17 +8,23 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- The pipeline figure carries its legend as swatches inside the
-  figure, so the page no longer narrates what gray, purple, and
-  teal mean beside it.
+- The run figure is drawn as three labeled lanes, GitHub, scripts,
+  and models, with the scripts as the backbone, so who does each
+  step is read from position instead of from a color legend.
 - The origin rule reads in order now, condition before consequence,
   says plainly that it is the only tie between plugin and
   repository, and the site shows the check as a small two-row
   graphic.
-- The hero now shows a label-free animated ring mark sized for a
-  hero, and the fully labeled loop figure moved to its own
-  full-width card in the run section: at hero scale its labels were
-  unreadable.
+- The hero now follows one finding from review to merge, the same
+  F003 example the findings section uses, and the fully labeled
+  loop figure moved to its own full-width card in the run section:
+  at hero scale its labels were unreadable.
+- The loop figure reads left to right, first review in and merged
+  out, with its stations outside the ring, the reopen path passing
+  the round counter, and the round budget in the center. The
+  information figure shows the script lines the orchestrating
+  session actually sees above the ledger's real directory and all
+  four agents. The favicon and social card are redrawn to match.
 
 ### Added
 
