@@ -6,6 +6,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The hero now shows a label-free animated ring mark sized for a
+  hero, and the fully labeled loop figure moved to its own
+  full-width card in the run section: at hero scale its labels were
+  unreadable.
+
 ### Added
 
 - Issue forms replace the markdown issue templates: structured bug

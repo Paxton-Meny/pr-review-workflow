@@ -135,7 +135,8 @@ GitHub</a>
 <p class="meta">v0.2.1 &nbsp;&#183;&nbsp; PolyForm Noncommercial &nbsp;&#183;&nbsp; proven live on its own pull requests</p>
 </div>
 <div class="hero-art">
-<img src="assets/loop.svg" width="420" alt="Animated: the review-revise cycle from above. A reopened finding sends the flow around the ring again; a clean verdict exits to a proven merge; a four-round budget bounds the cycle before it parks.">
+<img src="assets/hero-ring.svg" width="340" alt="Animated mark of the review loop: a token circles the edit and verify ring, two of four round-budget pips filled.">
+<p style="margin:10px 0 0;font-size:12.5px;color:var(--faint)">The full loop, with every station labeled, is <a href="#loop">below</a>.</p>
 </div>
 </section>
 
@@ -153,6 +154,10 @@ GitHub</a>
 <figure>
 <div class="card"><img src="assets/pipeline.svg" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked."></div>
 <figcaption>One invocation, resumable from the on-disk ledger, at most four rounds by construction.</figcaption>
+</figure>
+<figure id="loop">
+<div class="card"><img src="assets/loop.svg" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></div>
+<figcaption>Cyclical when a contract is unsatisfied, bounded at four rounds, and the goal is always one lap.</figcaption>
 </figure>
 <figure>
 <div class="card"><img src="assets/information-flow.svg" alt="GitHub data and the local clone feed a per-pull-request state ledger; reviewer, editor, and verifier read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts."></div>
