@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 340" width="340" role="img" aria-labelledby="hrt">
+<title id="hrt">The review loop: a token circles edit and verify until nothing is open, bounded by a four-round budget</title>
+<style>
+.q{fill:none;stroke-width:24;stroke-linecap:round;stroke-dasharray:4 14;animation:crawl 1.4s linear infinite}
+.gray{stroke:#E4E2D8;animation:none;stroke-dasharray:none}
+@keyframes crawl{to{stroke-dashoffset:-18}}
+.tok{animation:orbit 9s linear infinite;transform-origin:170px 170px}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@media (prefers-color-scheme:dark){.gray{stroke:#3F3E3A}}
+</style>
+<circle cx="170" cy="170" r="122" class="q gray"/>
+<path d="M170 48 A122 122 0 0 1 292 170" class="q" stroke="#534AB7"/>
+<path d="M292 170 A122 122 0 0 1 170 292" class="q" stroke="#0F6E56"/>
+<path d="M48 170 A122 122 0 0 1 170 48" class="q" stroke="#993C1D"/>
+<g class="tok"><circle cx="170" cy="48" r="16" fill="#D97757" stroke="#FDFCFA" stroke-width="4"/></g>
+<g>
+<circle cx="137" cy="166" r="8" fill="#D97757"/>
+<circle cx="159" cy="166" r="8" fill="#D97757"/>
+<circle cx="181" cy="166" r="8" fill="none" stroke="#993C1D" stroke-width="2.5"/>
+<circle cx="203" cy="166" r="8" fill="none" stroke="#993C1D" stroke-width="2.5"/>
+</g>
+<text x="170" y="196" text-anchor="middle" font-family="-apple-system,Helvetica,sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.5" fill="#8b8a83">ROUND BUDGET</text>
+</svg>
