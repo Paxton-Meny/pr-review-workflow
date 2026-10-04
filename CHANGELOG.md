@@ -8,6 +8,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The pipeline figure carries its legend as swatches inside the
+  figure, so the page no longer narrates what gray, purple, and
+  teal mean beside it.
+- The origin rule reads in order now, condition before consequence,
+  says plainly that it is the only tie between plugin and
+  repository, and the site shows the check as a small two-row
+  graphic.
 - The hero now shows a label-free animated ring mark sized for a
   hero, and the fully labeled loop figure moved to its own
   full-width card in the run section: at hero scale its labels were
