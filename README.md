@@ -138,6 +138,14 @@ same file already guides Claude when developing on the repository.
 
 </details>
 
+### Checking the ledger
+
+`/pr-review-workflow:status` lists the runs recorded for the current
+repository (`all` for every repository), each with its finding
+outcomes and whether it can resume, plus the accumulated statistics
+across finished runs. Local state only; nothing is fetched or
+written.
+
 ### State
 
 Per-PR state lives under the plugin's data directory, outside every
