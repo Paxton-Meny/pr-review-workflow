@@ -1,9 +1,21 @@
 # pr-review-workflow
 
+[![Release](https://img.shields.io/github/v/release/Paxton-Meny/pr-review-workflow?color=534AB7&label=release)](https://github.com/Paxton-Meny/pr-review-workflow/releases)
+[![License](https://img.shields.io/badge/license-PolyForm--NC--1.0.0-0F6E56)](LICENSE)
+[![Site](https://img.shields.io/badge/site-paxton--meny.github.io-D97757)](https://paxton-meny.github.io/pr-review-workflow/)
+
 A Claude Code plugin that runs the full loop of reviewing a GitHub pull
 request: review the diff against categorized criteria, post inline findings,
 edit the branch to address them, re-verify with a cheaper model, and repeat
 until nothing remains open. Then it merges, or asks you first.
+
+**Contents:** [Status](#status) &#183;
+[Requirements](#requirements) &#183;
+[What it does](#what-it-does-to-your-repository) &#183;
+[Usage](#usage) &#183;
+[Settings](#settings) &#183;
+[Development](#development) &#183;
+[License](#license-and-attribution)
 
 <p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The review loop, layer by layer: one invocation stages everything with shell scripts, a reviewer layer fans out on large diffs with a gap pass that always follows a sharded review and is risk-gated otherwise, findings post to the pull request as inline threads, then a remediation loop of editor, check gate, verifier, and skim runs at most four rounds before a merge gate ends in merged, ask, or parked."></p>
 
@@ -114,11 +126,17 @@ configured runs on every round.
 
 ### Conventions block (optional)
 
+<details>
+<summary>Give the reviewed repository a conventions map that reviews
+read instead of re-deriving the project every run.</summary>
+
 Give the reviewed repository a marked block in its tracked CLAUDE.md
 (see skills/review-pr/project-conventions.md) mapping its layout, test
 locations, idioms, and intentional oddities. Reviews read the map from
 the base branch instead of re-deriving those facts every run, and the
 same file already guides Claude when developing on the repository.
+
+</details>
 
 ### State
 
