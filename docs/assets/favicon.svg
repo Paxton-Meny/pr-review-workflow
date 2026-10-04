@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 <style>
-.bg{fill:#FDFCFA}
-@media (prefers-color-scheme:dark){.bg{fill:#1E1E1C}}
+.bg{fill:#FDFCFA}.ck{stroke:#2C2C2A}
+@media (prefers-color-scheme:dark){.bg{fill:#1E1E1C}.ck{stroke:#F1EFE8}}
 </style>
 <rect class="bg" width="64" height="64" rx="14"/>
 <g fill="none" stroke-width="7" stroke-linecap="round">
-<path d="M32 10 A22 22 0 0 1 54 32" stroke="#534AB7"/>
-<path d="M54 32 A22 22 0 0 1 32 54" stroke="#0F6E56"/>
-<path d="M10 32 A22 22 0 0 1 32 10" stroke="#993C1D"/>
+<path d="M36.6 10.5A22 22 0 0 1 52.9 38.8" stroke="#534AB7"/>
+<path d="M48.9 46.1A22 22 0 0 1 15.1 46.1" stroke="#0F6E56"/>
+<path d="M11.1 38.8A22 22 0 0 1 27.4 10.5" stroke="#B5532F"/>
+<path class="ck" d="M23.5 32.5l6 6 11-12.5" stroke-linejoin="round" stroke-width="6.5"/>
 </g>
-<circle cx="32" cy="10" r="6.5" fill="#D97757"/>
 </svg>

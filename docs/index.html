@@ -150,17 +150,17 @@ GitHub</a>
 
 <section id="run">
 <h2 class="display">The shape of a run</h2>
-<p class="sub">Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub. Also accepted as an argument: <code>owner/repo#128</code> or the pull request URL; the run refuses immediately, before touching anything, if the clone's origin is not the reviewed repository.</p>
+<p class="sub">Scripts run down the center: deterministic shell at zero model cost. Purple cards are isolated model contexts, reached only for judgment. Teal is GitHub. Also accepted as an argument: <code>owner/repo#128</code> or the pull request URL; the run refuses immediately, before touching anything, if the clone's origin is not the reviewed repository.</p>
 <figure>
-<div class="card"><img src="assets/pipeline.svg" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked."></div>
-<figcaption>One invocation, resumable from the on-disk ledger, at most four rounds by construction. The legend is in the figure.</figcaption>
+<div class="card"><img src="assets/pipeline.svg" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request with no model; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; a merge gate asks first, and a run that does not converge parks with a status comment."></div>
+<figcaption>One invocation, resumable from the on-disk ledger, at most four rounds by construction. The lanes say who does the work.</figcaption>
 </figure>
 <figure id="loop">
 <div class="card"><img src="assets/loop.svg" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></div>
 <figcaption>Cyclical when a contract is unsatisfied, bounded at four rounds, and the goal is always one lap.</figcaption>
 </figure>
 <figure>
-<div class="card"><img src="assets/information-flow.svg" alt="GitHub data and the local clone feed a per-pull-request state ledger; reviewer, editor, and verifier read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts."></div>
+<div class="card"><img src="assets/information-flow.svg" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, and verifier each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></div>
 <figcaption>The diff is read from GitHub once, lives on disk, and never enters the orchestrating context.</figcaption>
 </figure>
 </section>

@@ -1,89 +1,99 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 960" width="860" role="img" aria-labelledby="t d">
-<title id="t">The review loop, layer by layer</title>
-<desc id="d">One invocation stages everything with shell scripts, a reviewer layer fans out on large diffs with an optional gap pass, findings post to the pull request, a remediation loop of editor, check gate, verifier, and skim runs at most four rounds, and a merge gate ends in merged, ask, or parked.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1012" width="860" role="img" aria-labelledby="plt pld" class="fg">
+<title id="plt">The shape of a run, in three lanes</title>
+<desc id="pld">Scripts run down the center as the backbone: one command stages the pull request from GitHub with no model, plans the read, and delegates to a reviewer, up to four in parallel, then a gap pass; findings are banked, filtered, proven, and posted as inline threads. A loop of at most four rounds opens a round, hands the editor one commit per finding, runs the project's check gate, executes the contracts for the verifier, and skims the round for unasked changes. A merge gate asks first, then merges; a run that does not converge parks with a status comment and resumes later.</desc>
 <style>
-text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
-.th{font-size:14px;font-weight:600}.ts{font-size:12px}
-.g{fill:#F1EFE8;stroke:#5F5E5A}.p{fill:#EEEDFE;stroke:#534AB7}.tl{fill:#E1F5EE;stroke:#0F6E56}.co{fill:#FAECE7;stroke:#993C1D}
-.tg{fill:#2C2C2A}.tg2{fill:#5F5E5A}.tp{fill:#26215C}.tp2{fill:#534AB7}.tt{fill:#04342C}.tt2{fill:#0F6E56}.tc{fill:#4A1B0C}.tc2{fill:#993C1D}
-.frame{fill:none;stroke:#888780}.ar{stroke:#888780;fill:none}.arh{fill:#888780}
-@media (prefers-color-scheme:dark){
-.g{fill:#444441;stroke:#B4B2A9}.p{fill:#3C3489;stroke:#AFA9EC}.tl{fill:#085041;stroke:#5DCAA5}.co{fill:#712B13;stroke:#F0997B}
-.tg{fill:#F1EFE8}.tg2{fill:#D3D1C7}.tp{fill:#CECBF6}.tp2{fill:#AFA9EC}.tt{fill:#9FE1CB}.tt2{fill:#5DCAA5}.tc{fill:#F5C4B3}.tc2{fill:#F0997B}
-.frame{stroke:#B4B2A9}.ar{stroke:#B4B2A9}.arh{fill:#B4B2A9}}
+.fg{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
+@media (prefers-color-scheme:dark){.fg{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--clay:#D97757;--term:#141413;--term-line:#44433F;--shadow:.3}}
+.fg text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.fg .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.fg .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+.fg .h{font-size:13.5px;font-weight:700;fill:var(--ink)}
+.fg .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.fg .mid{text-anchor:middle}.fg .end{text-anchor:end}
+.fg .c{fill:var(--card);stroke:var(--line)}
+.fg .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.fg .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.fg .hm{fill:var(--accent-ink)}.fg .sm{fill:var(--accent)}
+.fg .hg2{fill:var(--teal-ink)}.fg .sg{fill:var(--teal)}
+.fg .accent{fill:var(--accent)}.fg .teal{fill:var(--teal)}.fg .coral{fill:var(--coral)}
+.fg .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fg .arh{fill:var(--faint)}
+.fg .term{fill:var(--term);stroke:var(--term-line)}
+.fg .tt{fill:#F1EFE8}.fg .tm{fill:#B4B2A9}.fg .tp{fill:#D97757;font-weight:700}.fg .tok{fill:#5DCAA5;font-weight:700}
+.fg .lane{fill:var(--lane)}
+.fg .spine{stroke:var(--rule);stroke-width:2;fill:none}
+.fg .chev{fill:none;stroke:var(--rule);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fg .loop{fill:none;stroke:var(--coral);stroke-width:1.5;stroke-dasharray:5 5;opacity:.75}
+.fg .ph{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.fg .ph.coral{fill:var(--coral)}.fg .ph.teal{fill:var(--teal)}
+.fg .num{font-size:10.5px;font-weight:700;fill:var(--faint)}
+.fg .cmd{font-size:10.5px}
+.fg .ret{fill:none;stroke:var(--coral);stroke-width:1.7;stroke-linecap:round}
+.fg .reth{fill:var(--coral)}
+.fg .done{fill:var(--teal);stroke:var(--teal)}
+.fg .doneh{fill:var(--bg)}.fg .dones{fill:var(--bg);opacity:.85}
+.fg .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 </style>
-<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="arh" d="M0 0L10 5L0 10z"/></marker></defs>
-<g aria-label="Legend">
-<rect class="g" x="118" y="12" width="26" height="17" rx="5"/>
-<text class="ts tg2" x="152" y="25">deterministic shell, zero model cost</text>
-<rect class="p" x="404" y="12" width="26" height="17" rx="5"/>
-<text class="ts tp2" x="438" y="25">isolated model context</text>
-<rect class="tl" x="628" y="12" width="26" height="17" rx="5"/>
-<text class="ts tt2" x="662" y="25">GitHub</text>
-</g>
-<rect class="g" x="270" y="44" width="320" height="56" rx="8"/>
-<text class="th tg" x="430" y="66" text-anchor="middle">/pr-review-workflow:review-pr</text>
-<text class="ts tg2" x="430" y="86" text-anchor="middle">one invocation, resumable from the ledger</text>
-<line class="ar" x1="430" y1="100" x2="430" y2="130" marker-end="url(#a)"/>
-<rect class="g" x="210" y="136" width="440" height="76" rx="8"/>
-<text class="th tg" x="430" y="158" text-anchor="middle">Deterministic staging</text>
-<text class="ts tg2" x="430" y="178" text-anchor="middle">a POSIX script layer probes, fetches, and prepares</text>
-<text class="ts tg2" x="430" y="196" text-anchor="middle">annotated diffs, leads, conventions, standards, worktree</text>
-<line class="ar" x1="430" y1="212" x2="430" y2="242" marker-end="url(#a)"/>
-<rect class="frame" x="70" y="248" width="720" height="176" rx="12" stroke-dasharray="5 4"/>
-<text class="th tg" x="90" y="272">Review layer</text>
-<text class="ts tg2" x="770" y="272" text-anchor="end">one pass, or up to four shards in parallel</text>
-<rect class="p" x="151" y="288" width="170" height="56" rx="8"/>
-<text class="th tp" x="236" y="310" text-anchor="middle">Reviewer</text>
-<text class="ts tp2" x="236" y="330" text-anchor="middle">reads shard 1</text>
-<rect class="p" x="345" y="288" width="170" height="56" rx="8"/>
-<text class="th tp" x="430" y="310" text-anchor="middle">Reviewer</text>
-<text class="ts tp2" x="430" y="330" text-anchor="middle">reads shard 2</text>
-<rect class="p" x="539" y="288" width="170" height="56" rx="8"/>
-<text class="th tp" x="624" y="310" text-anchor="middle">Reviewer</text>
-<text class="ts tp2" x="624" y="330" text-anchor="middle">reads shard n</text>
-<rect class="p" x="250" y="356" width="360" height="48" rx="8" stroke-dasharray="5 4"/>
-<text class="th tp" x="430" y="374" text-anchor="middle">Gap pass</text>
-<text class="ts tp2" x="430" y="392" text-anchor="middle">always after shards, risk-gated otherwise</text>
-<line class="ar" x1="430" y1="424" x2="430" y2="454" marker-end="url(#a)"/>
-<rect class="tl" x="240" y="460" width="380" height="56" rx="8"/>
-<text class="th tt" x="430" y="482" text-anchor="middle">Round posted to the PR</text>
-<text class="ts tt2" x="430" y="502" text-anchor="middle">inline threads; suggestion fences only after proof</text>
-<line class="ar" x1="430" y1="516" x2="430" y2="546" marker-end="url(#a)"/>
-<rect class="frame" x="40" y="552" width="780" height="190" rx="12" stroke-dasharray="5 4"/>
-<text class="th tc" x="60" y="576">Remediation loop</text>
-<text class="ts tg2" x="800" y="576" text-anchor="end">at most four rounds; two reopens escalate</text>
-<rect class="p" x="55" y="592" width="170" height="56" rx="8"/>
-<text class="th tp" x="140" y="614" text-anchor="middle">Editor</text>
-<text class="ts tp2" x="140" y="634" text-anchor="middle">a commit per finding</text>
-<line class="ar" x1="225" y1="620" x2="241" y2="620" marker-end="url(#a)"/>
-<rect class="g" x="245" y="592" width="180" height="56" rx="8"/>
-<text class="th tg" x="335" y="614" text-anchor="middle">Check gate</text>
-<text class="ts tg2" x="335" y="634" text-anchor="middle">the project checks pass</text>
-<line class="ar" x1="425" y1="620" x2="441" y2="620" marker-end="url(#a)"/>
-<rect class="p" x="445" y="592" width="170" height="56" rx="8"/>
-<text class="th tp" x="530" y="614" text-anchor="middle">Verifier</text>
-<text class="ts tp2" x="530" y="634" text-anchor="middle">judges the contract</text>
-<line class="ar" x1="615" y1="620" x2="631" y2="620" marker-end="url(#a)"/>
-<rect class="g" x="635" y="592" width="170" height="56" rx="8"/>
-<text class="th tg" x="720" y="614" text-anchor="middle">Skim</text>
-<text class="ts tg2" x="720" y="634" text-anchor="middle">no drive-by changes</text>
-<path class="ar" d="M720 648V666H140V652" marker-end="url(#a)"/>
-<text class="ts tc2" x="430" y="692" text-anchor="middle">open findings return for the next round; a clean count exits below</text>
-<line class="ar" x1="430" y1="742" x2="430" y2="772" marker-end="url(#a)"/>
-<rect class="g" x="330" y="778" width="200" height="56" rx="8"/>
-<text class="th tg" x="430" y="800" text-anchor="middle">Merge gate</text>
-<text class="ts tg2" x="430" y="820" text-anchor="middle">auto-approve setting</text>
-<line class="ar" x1="430" y1="834" x2="167" y2="862" marker-end="url(#a)"/>
-<line class="ar" x1="430" y1="834" x2="430" y2="862" marker-end="url(#a)"/>
-<line class="ar" x1="430" y1="834" x2="693" y2="862" marker-end="url(#a)"/>
-<rect class="tl" x="50" y="866" width="230" height="56" rx="8"/>
-<text class="th tt" x="165" y="888" text-anchor="middle">Merged</text>
-<text class="ts tt2" x="165" y="908" text-anchor="middle">rebase, proven MERGED</text>
-<rect class="g" x="315" y="866" width="230" height="56" rx="8"/>
-<text class="th tg" x="430" y="888" text-anchor="middle">You choose</text>
-<text class="ts tg2" x="430" y="908" text-anchor="middle">merge now or hold</text>
-<rect class="g" x="580" y="866" width="230" height="56" rx="8"/>
-<text class="th tg" x="695" y="888" text-anchor="middle">Parked</text>
-<text class="ts tg2" x="695" y="908" text-anchor="middle">status comment, resumable</text>
+<defs><filter id="plsh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="pla" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<rect class="lane" x="146" y="16" width="176" height="980" rx="14"/>
+<rect class="lane" x="334" y="16" width="256" height="980" rx="14"/>
+<rect class="lane" x="602" y="16" width="238" height="980" rx="14"/>
+<text class="k mid teal" x="234" y="44">GITHUB</text><text class="mid" x="234" y="61">the pull request</text>
+<text class="k mid " x="462" y="44">SCRIPTS</text><text class="mid" x="462" y="61">deterministic shell, zero tokens</text>
+<text class="k mid accent" x="721" y="44">MODELS</text><text class="mid" x="721" y="61">isolated contexts, judgment only</text>
+<path class="spine" d="M462 122V810"/>
+<path class="spine" stroke-dasharray="3 5" d="M462 864V888"/>
+<path class="chev" d="M458 132l4 4 4-4"/>
+<path class="chev" d="M458 210l4 4 4-4"/>
+<path class="chev" d="M458 288l4 4 4-4"/>
+<path class="chev" d="M458 366l4 4 4-4"/>
+<path class="chev" d="M458 454l4 4 4-4"/>
+<path class="chev" d="M458 542l4 4 4-4"/>
+<path class="chev" d="M458 620l4 4 4-4"/>
+<path class="chev" d="M458 698l4 4 4-4"/>
+<path class="chev" d="M458 786l4 4 4-4"/>
+<rect class="loop" x="140.5" y="462" width="705" height="320" rx="14"/>
+<g filter="url(#plsh)"><rect class="term" x="344" y="84" width="236" height="38" rx="9"/></g><text class="mono cmd tt" x="357" y="107"><tspan class="tp">›</tspan> /pr-review-workflow:review-pr 128</text>
+<text x="24" y="101"><tspan class="num">0</tspan><tspan class="ph " dx="7">INVOKE</tspan></text><text x="24" y="118">one command</text>
+<text x="24" y="171"><tspan class="num">1</tspan><tspan class="ph " dx="7">STAGE</tspan></text><text x="24" y="188">no model yet</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="146" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="168">Pull request #128</text><text class="sg" x="170" y="185">diff and threads, once</text>
+<path class="ar" d="M315 173.0H339" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="146" width="236" height="54" rx="9"/></g><text class="h" x="358" y="168">Stage</text><text class="" x="358" y="185">fetch · probe · classify · check out</text>
+<text x="24" y="249"><tspan class="num">2</tspan><tspan class="ph " dx="7">REVIEW</tspan></text><text x="24" y="266">once, thoroughly</text>
+<g filter="url(#plsh)"><rect class="c" x="344" y="224" width="236" height="54" rx="9"/></g><text class="h" x="358" y="246">Plan the read</text><text class="" x="358" y="263">shards and seams for a large diff</text>
+<path class="ar" d="M583 251.0H609" marker-end="url(#pla)"/>
+<rect class="cm" x="622" y="232" width="206" height="54" rx="9"/>
+<rect class="cm" x="618" y="228" width="206" height="54" rx="9"/>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="224" width="206" height="54" rx="9"/></g><text class="h hm" x="628" y="246">Reviewer</text><text class="sm" x="628" y="263">one pass, or up to four shards</text>
+<g filter="url(#plsh)"><rect class="c" x="344" y="302" width="236" height="54" rx="9"/></g><text class="h" x="358" y="324">Bank the findings</text><text class="" x="358" y="341">one record each, ids assigned</text>
+<path class="ar" d="M611 329.0H585" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="302" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="324">Gap pass</text><text class="sm" x="628" y="341">seams first, then what was missed</text>
+<text x="24" y="405"><tspan class="num">3</tspan><tspan class="ph " dx="7">POST</tspan></text><text x="24" y="422">proof before posting</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="380" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="402">Inline threads</text><text class="sg" x="170" y="419">one per finding</text>
+<path class="ar" d="M341 407.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="380" width="236" height="54" rx="9"/></g><text class="h" x="358" y="402">Prove and post</text><text class="" x="358" y="419">suggestions post only after passing</text>
+<path class="ar" d="M583 407.0H609" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="380" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="402">Filter</text><text class="sm" x="628" y="419">a cold re-read: demote, never drop</text>
+<text x="24" y="503"><tspan class="num">4</tspan><tspan class="ph coral" dx="7">FIX LOOP</tspan></text><text x="24" y="520">at most four rounds</text>
+<path class="ret" d="M37.8 545.3A7.5 7.5 0 1 1 26 548.4"/><path class="reth" d="M29.2 544.5L29.2 550.3L22.1 549z"/>
+<text x="50" y="547">open findings</text><text x="50" y="562">loop again</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="478" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="500">Commits, replies</text><text class="sg" x="170" y="517">pushed to the PR branch</text>
+<path class="ar" d="M341 505.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="478" width="236" height="54" rx="9"/></g><text class="h" x="358" y="500">Open a round</text><text class="" x="358" y="517">the round budget lives on disk</text>
+<path class="ar" d="M583 505.0H609" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="478" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="500">Editor</text><text class="sm" x="628" y="517">one commit per finding</text>
+<g filter="url(#plsh)"><rect class="c" x="344" y="556" width="236" height="54" rx="9"/></g><text class="h" x="358" y="578">Check gate</text><text class="" x="358" y="595">the project’s own check must pass</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="634" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="656">Threads resolved</text><text class="sg" x="170" y="673">or reopened, with notes</text>
+<path class="ar" d="M341 661.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="634" width="236" height="54" rx="9"/></g><text class="h" x="358" y="656">Run the contracts</text><text class="" x="358" y="673">Check lines execute, not prose</text>
+<path class="ar" d="M583 661.0H609" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="634" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="656">Verifier</text><text class="sm" x="628" y="673">judges each Resolution verbatim</text>
+<g filter="url(#plsh)"><rect class="c" x="344" y="712" width="236" height="54" rx="9"/></g><text class="h" x="358" y="734">Skim the round</text><text class="" x="358" y="751">unasked changes get their own review</text>
+<text x="24" y="835"><tspan class="num">5</tspan><tspan class="ph teal" dx="7">MERGE</tspan></text><text x="24" y="852">after asking you</text>
+<g filter="url(#plsh)"><rect class="done" x="156" y="810" width="156" height="54" rx="9"/></g><path class="tick" d="M171 829l3.5 3.5 6.5-7.5"/><text class="h doneh" x="189" y="833">Merged</text><text class="dones" x="170" y="850">rebase, proven merged</text>
+<path class="ar" d="M341 837.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="810" width="236" height="54" rx="9"/></g><text class="h" x="358" y="832">Merge gate</text><text class="" x="358" y="849">asks first unless auto-approve is on</text>
+<g filter="url(#plsh)"><rect class="c" x="156" y="888" width="156" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="170" y="910">Status comment</text><text class="" x="170" y="927">resumable later</text>
+<path class="ar" stroke-dasharray="3 4" d="M341 915.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="888" width="236" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="358" y="910">Or park</text><text class="" x="358" y="927">the budget is spent: stop, never spin</text>
 </svg>

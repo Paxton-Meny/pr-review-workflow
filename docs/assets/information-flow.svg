@@ -1,63 +1,66 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" width="860" role="img" aria-labelledby="t2 d2">
-<title id="t2">Where information lives and moves</title>
-<desc id="d2">GitHub data and the local clone feed a per-pull-request state ledger on disk; reviewer, editor, and verifier agents read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts, never the diff.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 528" width="860" role="img" aria-labelledby="nft nfd" class="fg">
+<title id="nft">Where information lives and moves</title>
+<desc id="nfd">The orchestrating session sees one line per script: counts and ids, never the diff. Below that line, GitHub's diff and threads, read once, and your clone's worktree and local rules feed a per-pull-request ledger on disk holding the annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree. Reviewer, filter, editor, and verifier each read their own slice in an isolated context, and pushes, replies, resolutions, and the merge flow back to GitHub.</desc>
 <style>
-text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
-.th{font-size:14px;font-weight:600}.ts{font-size:12px}
-.g{fill:#F1EFE8;stroke:#5F5E5A}.p{fill:#EEEDFE;stroke:#534AB7}.tl{fill:#E1F5EE;stroke:#0F6E56}.co{fill:#FAECE7;stroke:#993C1D}
-.tg{fill:#2C2C2A}.tg2{fill:#5F5E5A}.tp{fill:#26215C}.tp2{fill:#534AB7}.tt{fill:#04342C}.tt2{fill:#0F6E56}.tc{fill:#4A1B0C}.tc2{fill:#993C1D}
-.frame{fill:none;stroke:#888780}.ar{stroke:#888780;fill:none}.arh{fill:#888780}.dash{stroke-dasharray:4 4}
-@media (prefers-color-scheme:dark){
-.g{fill:#444441;stroke:#B4B2A9}.p{fill:#3C3489;stroke:#AFA9EC}.tl{fill:#085041;stroke:#5DCAA5}.co{fill:#712B13;stroke:#F0997B}
-.tg{fill:#F1EFE8}.tg2{fill:#D3D1C7}.tp{fill:#CECBF6}.tp2{fill:#AFA9EC}.tt{fill:#9FE1CB}.tt2{fill:#5DCAA5}.tc{fill:#F5C4B3}.tc2{fill:#F0997B}
-.frame{stroke:#B4B2A9}.ar{stroke:#B4B2A9}.arh{fill:#B4B2A9}}
+.fg{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
+@media (prefers-color-scheme:dark){.fg{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--clay:#D97757;--term:#141413;--term-line:#44433F;--shadow:.3}}
+.fg text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.fg .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.fg .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+.fg .h{font-size:13.5px;font-weight:700;fill:var(--ink)}
+.fg .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.fg .mid{text-anchor:middle}.fg .end{text-anchor:end}
+.fg .c{fill:var(--card);stroke:var(--line)}
+.fg .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.fg .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.fg .hm{fill:var(--accent-ink)}.fg .sm{fill:var(--accent)}
+.fg .hg2{fill:var(--teal-ink)}.fg .sg{fill:var(--teal)}
+.fg .accent{fill:var(--accent)}.fg .teal{fill:var(--teal)}.fg .coral{fill:var(--coral)}
+.fg .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fg .arh{fill:var(--faint)}
+.fg .term{fill:var(--term);stroke:var(--term-line)}
+.fg .tt{fill:#F1EFE8}.fg .tm{fill:#B4B2A9}.fg .tp{fill:#D97757;font-weight:700}.fg .tok{fill:#5DCAA5;font-weight:700}
+.fg .wall{stroke:var(--coral);stroke-width:1.5;stroke-dasharray:5 5;opacity:.75;fill:none}
+.fg .tl{font-size:11.5px}
+.fg .panel{fill:var(--panel)}
+.fg .hl{stroke:var(--line);fill:none}
+.fg .nm{font-size:12px;font-weight:700;fill:var(--ink)}
+.fg .dir{font-size:11.5px;fill:var(--muted)}
+.fg .sq{stroke:none}
+.fg .small{font-size:10.5px}
+.fg .dash{stroke-dasharray:4 4}
 </style>
-<defs><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="arh" d="M0 0L10 5L0 10z"/></marker></defs>
-<text class="ts tg2" x="430" y="26" text-anchor="middle">the diff is read from GitHub once, lives on disk, and never enters the orchestrating context</text>
-<rect class="tl" x="60" y="44" width="200" height="56" rx="8"/>
-<text class="th tt" x="160" y="66" text-anchor="middle">GitHub</text>
-<text class="ts tt2" x="160" y="86" text-anchor="middle">gh keeps the auth</text>
-<rect class="g" x="330" y="44" width="200" height="56" rx="8"/>
-<text class="th tg" x="430" y="66" text-anchor="middle">Orchestrator</text>
-<text class="ts tg2" x="430" y="86" text-anchor="middle">sees ids and counts only</text>
-<rect class="g" x="600" y="44" width="200" height="56" rx="8"/>
-<text class="th tg" x="700" y="66" text-anchor="middle">Your clone</text>
-<text class="ts tg2" x="700" y="86" text-anchor="middle">worktree and local rules</text>
-<line class="ar" x1="160" y1="100" x2="180" y2="132" marker-end="url(#b)"/>
-<line class="ar dash" x1="430" y1="100" x2="430" y2="136"/>
-<line class="ar" x1="700" y1="100" x2="680" y2="132" marker-end="url(#b)"/>
-<rect class="frame" x="60" y="140" width="740" height="190" rx="12"/>
-<text class="th tg" x="430" y="166" text-anchor="middle">State ledger, one directory per pull request</text>
-<rect class="tl" x="90" y="186" width="220" height="120" rx="8"/>
-<text class="th tt" x="200" y="212" text-anchor="middle">pr-context/</text>
-<text class="ts tt2" x="200" y="236" text-anchor="middle">annotated diffs, line maps</text>
-<text class="ts tt2" x="200" y="254" text-anchor="middle">probes, exclusions</text>
-<text class="ts tt2" x="200" y="272" text-anchor="middle">conventions, standards</text>
-<rect class="co" x="320" y="186" width="220" height="120" rx="8"/>
-<text class="th tc" x="430" y="212" text-anchor="middle">findings/F001…</text>
-<text class="ts tc2" x="430" y="236" text-anchor="middle">evidence, Fix, Resolution</text>
-<text class="ts tc2" x="430" y="254" text-anchor="middle">notes across rounds</text>
-<text class="ts tc2" x="430" y="272" text-anchor="middle">the loop's contract</text>
-<rect class="g" x="550" y="186" width="220" height="120" rx="8"/>
-<text class="th tg" x="660" y="212" text-anchor="middle">worktree/</text>
-<text class="ts tg2" x="660" y="236" text-anchor="middle">PR head, detached</text>
-<text class="ts tg2" x="660" y="254" text-anchor="middle">edits and check runs</text>
-<text class="ts tg2" x="660" y="272" text-anchor="middle">never your checkout</text>
-<line class="ar" x1="200" y1="330" x2="190" y2="366" marker-end="url(#b)"/>
-<line class="ar" x1="430" y1="330" x2="430" y2="366" marker-end="url(#b)"/>
-<line class="ar" x1="660" y1="330" x2="670" y2="366" marker-end="url(#b)"/>
-<rect class="p" x="90" y="370" width="200" height="56" rx="8"/>
-<text class="th tp" x="190" y="392" text-anchor="middle">Reviewer</text>
-<text class="ts tp2" x="190" y="412" text-anchor="middle">reads, never writes</text>
-<rect class="p" x="330" y="370" width="200" height="56" rx="8"/>
-<text class="th tp" x="430" y="392" text-anchor="middle">Editor</text>
-<text class="ts tp2" x="430" y="412" text-anchor="middle">edits and pushes</text>
-<rect class="p" x="570" y="370" width="200" height="56" rx="8"/>
-<text class="th tp" x="670" y="392" text-anchor="middle">Verifier</text>
-<text class="ts tp2" x="670" y="412" text-anchor="middle">verdicts, threads</text>
-<line class="ar" x1="430" y1="426" x2="400" y2="462" marker-end="url(#b)"/>
-<line class="ar" x1="670" y1="426" x2="550" y2="462" marker-end="url(#b)"/>
-<rect class="tl" x="230" y="466" width="400" height="56" rx="8"/>
-<text class="th tt" x="430" y="488" text-anchor="middle">GitHub</text>
-<text class="ts tt2" x="430" y="508" text-anchor="middle">pushes, replies, resolutions, merge</text>
+<defs><filter id="nfsh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="nfa" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<text class="k mid" x="430" y="28">THE ORCHESTRATING SESSION SEES ONLY THIS</text>
+<g filter="url(#nfsh)"><rect class="term" x="150" y="40" width="560" height="78" rx="10"/></g>
+<text class="mono tl tt" x="166" y="63"><tspan class="tm">fetch-pr:</tspan> 14 files, 612 additions, 88 deletions</text>
+<text class="mono tl tt" x="166" y="82"><tspan class="tm">save-findings:</tspan> 5 findings saved, next id F006</text>
+<text class="mono tl tt" x="166" y="101"><tspan class="tm"></tspan>open 0 addressed 0 verified 5 wont-fix 0 max_reopens 0</text>
+<path class="wall" d="M24 143.5H246M614 143.5H836"/>
+<text class="mid coral" x="430" y="147.5" style="font-weight:600">one line per script crosses; the diff never does</text>
+<path class="ar dash" d="M430 172V124" marker-end="url(#nfa)"/>
+<g filter="url(#nfsh)"><rect class="c" x="230" y="174" width="400" height="188" rx="10"/></g>
+<path class="panel" d="M230.5 184a9.5 9.5 0 0 1 9.5-9.5h380a9.5 9.5 0 0 1 9.5 9.5v17.5h-399z"/><path class="hl" d="M230 201.5H630"/>
+<text class="mono dir" x="244" y="192">state/acme__api__128/</text><text class="end" x="616" y="192">the ledger, on disk</text>
+<rect class="sq" x="246" y="217" width="9" height="9" rx="2.5" fill="var(--rule)"/><text class="mono nm" x="264" y="226">meta.txt</text><text x="364" y="226">who, which branches, which head</text>
+<rect class="sq" x="246" y="247" width="9" height="9" rx="2.5" fill="var(--teal)"/><text class="mono nm" x="264" y="256">pr-context/</text><text x="364" y="256">annotated diffs, probes, your rules</text>
+<rect class="sq" x="246" y="277" width="9" height="9" rx="2.5" fill="var(--coral)"/><text class="mono nm" x="264" y="286">findings/</text><text x="364" y="286">F001 to F005: Fix, Resolution, notes</text>
+<rect class="sq" x="246" y="307" width="9" height="9" rx="2.5" fill="var(--rule)"/><text class="mono nm" x="264" y="316">rounds.txt</text><text x="364" y="316">the round budget, so a resume cannot reset it</text>
+<rect class="sq" x="246" y="337" width="9" height="9" rx="2.5" fill="var(--accent)"/><text class="mono nm" x="264" y="346">worktree/</text><text x="364" y="346">the PR head, detached, where edits happen</text>
+<g filter="url(#nfsh)"><rect class="cg" x="24" y="204" width="166" height="92" rx="9"/></g><text class="h hg2" x="38" y="237.5">GitHub</text><text class="sg" x="38" y="254.5">the diff and threads,</text><text class="sg" x="38" y="269.5">read once, through gh</text>
+<path class="ar" d="M193 250H225" marker-end="url(#nfa)"/>
+<g filter="url(#nfsh)"><rect class="c" x="670" y="204" width="166" height="92" rx="9"/></g><text class="h" x="684" y="237.5">Your clone</text><text class="" x="684" y="254.5">worktree and local rules;</text><text class="" x="684" y="269.5">your checkout untouched</text>
+<path class="ar" d="M667 250H635" marker-end="url(#nfa)"/>
+<path class="ar" d="M430 366V390"/><path class="ar" d="M215.5 390H644.5"/>
+<path class="ar" d="M215.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M358.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M501.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M644.5 390V411" marker-end="url(#nfa)"/>
+<text x="442" y="382">each agent reads its own slice, in its own context</text>
+<g filter="url(#nfsh)"><rect class="cm" x="150" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="164" y="442.5">Reviewer</text><text class="sm" x="164" y="459.5">reads diffs and rules</text><text class="sm" x="164" y="474.5">returns records</text>
+<g filter="url(#nfsh)"><rect class="cm" x="293" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="307" y="442.5">Filter</text><text class="sm" x="307" y="459.5">re-reads cited code</text><text class="sm" x="307" y="474.5">demotes with a note</text>
+<g filter="url(#nfsh)"><rect class="cm" x="436" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="450" y="442.5">Editor</text><text class="sm" x="450" y="459.5">edits the worktree</text><text class="sm" x="450" y="474.5">commits per finding</text>
+<g filter="url(#nfsh)"><rect class="cm" x="579" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="593" y="442.5">Verifier</text><text class="sm" x="593" y="459.5">runs the contracts</text><text class="sm" x="593" y="474.5">closes or reopens</text>
+<path class="ar" d="M146 455H107V301" marker-end="url(#nfa)"/>
+<text class="end" x="96" y="330">pushes,</text><text class="end" x="96" y="345">replies,</text><text class="end" x="96" y="360">resolutions,</text><text class="end" x="96" y="375">the merge</text>
 </svg>
