@@ -153,7 +153,7 @@ GitHub</a>
 <p class="sub">Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub. Also accepted as an argument: <code>owner/repo#128</code> or the pull request URL; the run refuses immediately, before touching anything, if the clone's origin is not the reviewed repository.</p>
 <figure>
 <div class="card"><img src="assets/pipeline.svg" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked."></div>
-<figcaption>One invocation, resumable from the on-disk ledger, at most four rounds by construction.</figcaption>
+<figcaption>One invocation, resumable from the on-disk ledger, at most four rounds by construction. The legend is in the figure.</figcaption>
 </figure>
 <figure id="loop">
 <div class="card"><img src="assets/loop.svg" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></div>

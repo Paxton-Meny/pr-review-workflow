@@ -13,7 +13,14 @@ text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 .frame{stroke:#B4B2A9}.ar{stroke:#B4B2A9}.arh{fill:#B4B2A9}}
 </style>
 <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="arh" d="M0 0L10 5L0 10z"/></marker></defs>
-<text class="ts tg2" x="430" y="26" text-anchor="middle">gray scripts run deterministically at zero model cost, purple boxes are isolated model contexts, teal is GitHub</text>
+<g aria-label="Legend">
+<rect class="g" x="118" y="12" width="26" height="17" rx="5"/>
+<text class="ts tg2" x="152" y="25">deterministic shell, zero model cost</text>
+<rect class="p" x="404" y="12" width="26" height="17" rx="5"/>
+<text class="ts tp2" x="438" y="25">isolated model context</text>
+<rect class="tl" x="628" y="12" width="26" height="17" rx="5"/>
+<text class="ts tt2" x="662" y="25">GitHub</text>
+</g>
 <rect class="g" x="270" y="44" width="320" height="56" rx="8"/>
 <text class="th tg" x="430" y="66" text-anchor="middle">/pr-review-workflow:review-pr</text>
 <text class="ts tg2" x="430" y="86" text-anchor="middle">one invocation, resumable from the ledger</text>

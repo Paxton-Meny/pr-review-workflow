@@ -61,9 +61,13 @@ From a clone of the reviewed repository:
 /pr-review-workflow:review-pr 128
 ```
 
-Also accepted: `owner/repo#128` or the pull request URL. The run
-refuses immediately, before touching anything, if the clone's origin
-is not the reviewed repository.
+The argument can be a bare number, `owner/repo#128`, or the pull
+request URL. One rule about where you run it: start from inside a
+clone of the repository the pull request belongs to. If the clone's
+origin points anywhere else, the run refuses up front, before
+creating state or touching the network. That is the whole tie
+between plugin and repository, so review as many repositories as
+you like, each from its own clone.
 
 Loading with `--plugin-dir` never shows the settings dialog: run
 `/plugin configure pr-review-workflow` in the session to fill it in,
