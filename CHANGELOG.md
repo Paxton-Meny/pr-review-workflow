@@ -6,6 +6,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A status skill: /pr-review-workflow:status lists recorded runs
+  for the current repository or all of them, with finding outcomes
+  and resumability, and summarizes the stats ledger
+  (stats-report.sh: outcomes, a rounds histogram, finding totals),
+  reading local state only.
+
 ### Changed
 
 - The README leads with a restrained badge row (release, license,
