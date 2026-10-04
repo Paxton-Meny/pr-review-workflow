@@ -6,6 +6,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The project site is redesigned from a reviewed set of design
+  comps: editorial serif display over the system sans, a sticky
+  section nav, a hero led by the animated loop figure, an install
+  band, the finding record as an annotated card with its contract
+  lines keyed by color, licensing cards, and tables that scroll
+  inside their card on narrow screens, in light and dark.
+- The site now carries link-preview and social metadata: Open Graph
+  and Twitter cards backed by a generated brand-mark image, a
+  favicon in the loop's own mark, canonical URL, and theme colors
+  for both schemes.
+
 ### Fixed
 
 - The repository is now the marketplace the README always claimed:

@@ -4,121 +4,257 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pr-review-workflow</title>
-<meta name="description" content="A Claude Code plugin that reviews a GitHub pull request end to end: inline findings, proven suggestions, an editing loop with a check gate, and a merge gate that asks first.">
+<meta name="description" content="A Claude Code plugin that reviews a GitHub pull request end to end: inline findings with testable contracts, an editing loop under a check gate, verification that executes, and a merge gate that asks first.">
+<link rel="canonical" href="https://paxton-meny.github.io/pr-review-workflow/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FDFCFA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1E1C" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="pr-review-workflow">
+<meta property="og:title" content="pr-review-workflow">
+<meta property="og:description" content="Reviews the pull request. Fixes what it finds. Proves it before merging. A Claude Code plugin with testable finding contracts, execution-grounded verification, and a bounded review-revise loop.">
+<meta property="og:url" content="https://paxton-meny.github.io/pr-review-workflow/">
+<meta property="og:image" content="https://paxton-meny.github.io/pr-review-workflow/assets/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="pr-review-workflow">
+<meta name="twitter:description" content="Reviews the pull request. Fixes what it finds. Proves it before merging.">
+<meta name="twitter:image" content="https://paxton-meny.github.io/pr-review-workflow/assets/social-card.png">
 <style>
-:root{--bg:#FDFCFA;--panel:#F1EFE8;--ink:#2C2C2A;--muted:#5F5E5A;--line:#D3D1C7;--accent:#534AB7;--teal:#0F6E56;--coral:#993C1D;--code:#EEEDFE}
-@media (prefers-color-scheme:dark){:root{--bg:#1E1E1C;--panel:#2C2C2A;--ink:#F1EFE8;--muted:#B4B2A9;--line:#444441;--accent:#AFA9EC;--teal:#5DCAA5;--coral:#F0997B;--code:#26215C}}
+:root{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--accent:#534AB7;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--band:#26215C;--band-ink:#EEEDFE;--band-muted:#AFA9EC}
+@media (prefers-color-scheme:dark){:root{--bg:#1E1E1C;--card:#262624;--panel:#2C2C2A;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--accent:#AFA9EC;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#9FE1CB;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--clay:#D97757;--band:#201c4e;--band-ink:#EEEDFE;--band-muted:#AFA9EC}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
-main{max-width:900px;margin:0 auto;padding:24px 20px 64px}
-h1{font-size:32px;margin:40px 0 8px}
-h2{font-size:22px;margin:48px 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
-p{margin:12px 0}
-.lead{font-size:19px;color:var(--muted)}
-a{color:var(--accent)}
-figure{margin:24px 0;text-align:center}
-figure img{max-width:100%;height:auto}
-figcaption{font-size:13px;color:var(--muted);margin-top:8px}
-table{border-collapse:collapse;width:100%;font-size:14px;margin:16px 0}
-th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
-th{background:var(--panel)}
-code,pre{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13.5px}
-code{background:var(--panel);padding:1px 5px;border-radius:4px}
-pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto}
+.display{font-family:'Iowan Old Style',Palatino,Georgia,serif;letter-spacing:-0.01em}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px)}
+.bar{display:flex;align-items:center;gap:24px;height:56px}
+.mark{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:18px;font-weight:700;color:var(--ink)}
+nav{display:flex;gap:20px;font-size:13.5px;overflow-x:auto}
+nav a{color:var(--muted);white-space:nowrap}
+.gh{display:inline-flex;align-items:center;gap:7px;background:var(--clay);color:#fff;font-size:13.5px;font-weight:600;padding:8px 15px;border-radius:8px;margin-left:auto;white-space:nowrap}
+.gh:hover{text-decoration:none;filter:brightness(0.94)}
+section{scroll-margin-top:72px}
+.hero{display:flex;gap:56px;align-items:center;padding:64px 0 48px;flex-wrap:wrap}
+.hero-copy{flex:1 1 480px;min-width:280px}
+.kicker{margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--coral)}
+h1{margin:0 0 16px;font-size:clamp(32px,5vw,50px);line-height:1.12;font-weight:700}
+.lead{margin:0 0 26px;font-size:18px;color:var(--muted);max-width:560px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.btn{display:inline-block;font-size:14.5px;font-weight:600;padding:12px 20px;border-radius:9px;text-decoration:none}
+.btn:hover{text-decoration:none;filter:brightness(1.06)}
+.btn-ink{background:var(--ink);color:var(--bg)}
+.btn-ghost{border:1.5px solid var(--line);color:var(--ink)}
+.meta{margin:0;font-size:13px;color:var(--faint)}
+.hero-art{flex:0 1 360px;min-width:260px;text-align:center}
+.hero-art img{max-width:100%;height:auto}
+h2{margin:0 0 8px;font-size:28px;font-weight:700}
+.sub{margin:0 0 20px;font-size:15.5px;color:var(--muted);max-width:760px}
+.band{background:var(--band);border-radius:14px;padding:26px 30px;color:var(--band-ink);margin:0 0 56px}
+.band h2{color:#FDFCFA;font-size:20px;display:inline}
+.band .note{font-size:12.5px;color:var(--band-muted);margin-left:12px}
+.band pre{background:none;border:none;padding:0;margin:14px 0 0;color:var(--band-ink);font-size:14px;line-height:2;overflow-x:auto}
+.band .p{color:var(--clay)}
+.band .c{color:var(--band-muted);font-size:12.5px;line-height:1.5}
+.card{border:1px solid var(--line);border-radius:14px;background:var(--card)}
+figure{margin:0 0 20px}
+figure .card{padding:22px;text-align:center;overflow-x:auto}
+figure img{max-width:860px;width:100%;height:auto;min-width:640px}
+figcaption{font-size:13px;color:var(--faint);margin-top:10px;text-align:center}
+.split{display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap}
+.split>div{flex:1 1 380px;min-width:280px}
+.rec-head{background:var(--panel);padding:10px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);border-radius:14px 14px 0 0}
+pre{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;margin:0;padding:18px 20px;overflow-x:auto;white-space:pre-wrap}
+code{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;background:var(--panel);padding:1px 5px;border-radius:4px}
 pre code{background:none;padding:0}
-.record{border-left:3px solid var(--coral);border-radius:0}
-.pill{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:0 6px 6px 0;color:var(--muted)}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px}
-@media (max-width:700px){.cols{grid-template-columns:1fr}}
-footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted)}
+.k-fix{color:var(--accent);font-weight:700}
+.k-check{color:var(--teal);font-weight:700}
+.k-res{color:var(--coral);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.grid .card{padding:20px 22px}
+.grid p{margin:0}
+.grid .t{font-size:15px;font-weight:700;margin-bottom:7px}
+.grid .d{font-size:13.5px;line-height:1.6;color:var(--muted)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+th,td{padding:11px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--panel)}
+tr:last-child td{border-bottom:none}
+th{background:var(--panel);font-weight:700}
+td:first-child{white-space:nowrap;font-weight:600}
+td:nth-child(2){color:var(--muted);white-space:nowrap}
+td:nth-child(3){color:var(--muted)}
+.lic{display:flex;gap:16px;flex-wrap:wrap}
+.lic>div{flex:1 1 340px;min-width:280px;border-radius:14px;background:var(--card);padding:22px 24px}
+.lic .free{border:1px solid var(--teal)}
+.lic .com{border:1px solid var(--coral)}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:999px;margin-bottom:10px}
+.tag-free{background:var(--teal-bg);color:var(--teal-ink)}
+.tag-com{background:var(--coral-bg);color:var(--coral-ink)}
+.lic p{margin:0;font-size:14px;line-height:1.65;color:var(--muted)}
+.lic a{display:inline-block;margin-top:10px;font-size:14px;font-weight:600}
+.spacer{height:56px}
+footer{border-top:1px solid var(--line);margin-top:64px;padding:24px 0 34px}
+.foot{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;font-size:13px;color:var(--faint)}
+.foot .mark{font-size:14px}
+.foot .quip{font-style:italic;margin-left:auto}
+@media (max-width:720px){nav{display:none}.hero{padding-top:40px}.foot .quip{margin-left:0}}
 </style>
 </head>
 <body>
-<main>
-<h1>pr-review-workflow</h1>
-<p class="lead">A Claude Code plugin that reviews a GitHub pull request end to end: findings post as inline threads with proven suggestions, an editor addresses each one under a machine-checked gate, a cheap verifier judges every fix against its stated criterion, and a merge gate finishes the job or asks you first.</p>
-<p>
-<span class="pill">git and gh only, nothing installed</span>
-<span class="pill">POSIX sh, no build step</span>
-<span class="pill">state on disk, resumable</span>
-<span class="pill">at most four rounds by construction</span>
-</p>
 
-<h2>The shape of a run</h2>
+<header>
+<div class="wrap bar">
+<a class="mark" href="#top">pr-review-workflow</a>
+<nav aria-label="Sections">
+<a href="#run">How it runs</a>
+<a href="#findings">Findings</a>
+<a href="#honesty">Honesty</a>
+<a href="#settings">Settings</a>
+<a href="#licensing">Licensing</a>
+</nav>
+<a class="gh" href="https://github.com/Paxton-Meny/pr-review-workflow">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-1-2.6c3.2-.3 6.5-1.5 6.5-7A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5 5 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.7c0 5.4 3.3 6.7 6.4 7a3.4 3.4 0 0 0-1 2.6V22"/></svg>
+GitHub</a>
+</div>
+</header>
+
+<main id="top" class="wrap">
+
+<section class="hero">
+<div class="hero-copy">
+<p class="kicker">A CLAUDE CODE PLUGIN</p>
+<h1 class="display">Reviews the pull request. Fixes what it finds. Proves it before merging.</h1>
+<p class="lead">Categorized findings with testable contracts, fixes committed one per finding, verification that executes instead of judging prose, and a merge gate that asks you first. Deterministic scripts do the mechanics; models spend tokens only on judgment.</p>
+<div class="cta">
+<a class="btn btn-ink" href="#install">Install in two commands</a>
+<a class="btn btn-ghost" href="#run">See how a run flows</a>
+</div>
+<p class="meta">v0.2.1 &nbsp;&#183;&nbsp; PolyForm Noncommercial &nbsp;&#183;&nbsp; proven live on its own pull requests</p>
+</div>
+<div class="hero-art">
+<img src="assets/loop.svg" width="420" alt="Animated: the review-revise cycle from above. A reopened finding sends the flow around the ring again; a clean verdict exits to a proven merge; a four-round budget bounds the cycle before it parks.">
+</div>
+</section>
+
+<section id="install" class="band">
+<h2 class="display">Install</h2><span class="note">requires git and an authenticated GitHub CLI; the plugin holds no token of its own</span>
+<pre><span class="p">$</span> claude plugin marketplace add Paxton-Meny/pr-review-workflow
+<span class="p">$</span> claude plugin install pr-review-workflow
+<span class="c">then, from a clone of the repository under review</span>
+<span class="p">&#8250;</span> /pr-review-workflow:review-pr 128</pre>
+</section>
+
+<section id="run">
+<h2 class="display">The shape of a run</h2>
+<p class="sub">Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub. Also accepted as an argument: <code>owner/repo#128</code> or the pull request URL; the run refuses immediately, before touching anything, if the clone's origin is not the reviewed repository.</p>
 <figure>
-<img src="assets/pipeline.svg" width="860" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked.">
-<figcaption>Gray work is deterministic shell at zero model cost. Purple boxes are isolated model contexts. Teal is GitHub.</figcaption>
+<div class="card"><img src="assets/pipeline.svg" alt="The review loop, layer by layer: staging scripts, a reviewer layer with shard fan-out and a gap pass that always follows a sharded review and is risk-gated otherwise, posting, the remediation loop with editor, check gate, verifier and skim, and a merge gate ending in merged, ask, or parked."></div>
+<figcaption>One invocation, resumable from the on-disk ledger, at most four rounds by construction.</figcaption>
 </figure>
 <figure>
-<img src="assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. A reopened finding sends the flow around the ring again; a clean verdict exits to a proven merge; a four-round budget bounds the cycle before it parks.">
-<figcaption>The cycle is real but bounded: reopened findings earn another lap, four laps at most, and the goal is always one.</figcaption>
-</figure>
-<p>Everything mechanical is a script that proves its own result: fetching and annotating the diff, probing it for secrets and other greppable defects, validating comment placement before posting, pushing with the remote verified, merging with the merged state confirmed. The models spend tokens only on what needs judgment: finding defects, making fixes, and checking fixes against their criteria.</p>
-
-<h2>Where information lives</h2>
-<figure>
-<img src="assets/information-flow.svg" width="860" alt="GitHub data and the local clone feed a per-pull-request state ledger; reviewer, editor, and verifier read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts.">
+<div class="card"><img src="assets/information-flow.svg" alt="GitHub data and the local clone feed a per-pull-request state ledger; reviewer, editor, and verifier read slices of it; edits and comments flow back to GitHub; the orchestrating session sees only ids and counts."></div>
 <figcaption>The diff is read from GitHub once, lives on disk, and never enters the orchestrating context.</figcaption>
 </figure>
-<p>Each agent spawns with a fresh context and reads only its slice of the ledger. Cross-round memory lives in the records themselves, so a resumed session continues exactly where the last one stopped, and the round budget survives on disk where a compacted context cannot corrupt it.</p>
+</section>
 
-<h2>The contract every finding carries</h2>
-<p>Loops past round one start where a contract is loose, so every finding is one. The <code>Resolution:</code> line is a testable acceptance criterion: the editor edits until it holds and the verifier judges it verbatim. The <code>Fix:</code> line banks the reviewer's reading of the code, the paths, helpers, and test locations the repair touches, so the editor goes straight there instead of re-deriving the project.</p>
-<pre class="record"><code>category: correctness
+<div class="spacer"></div>
+
+<section id="findings">
+<div class="split">
+<div>
+<h2 class="display">Every finding is a contract</h2>
+<p class="sub" style="max-width:none">The <strong>Resolution</strong> line is a testable acceptance criterion: the editor edits until it holds and the verifier judges it verbatim. Where one command can prove it, a <strong>Check</strong> line makes verification an execution instead of an opinion, contained to the project's own check command and prefixes you approve.</p>
+<p class="sub" style="max-width:none">The <strong>Fix</strong> line banks the reviewer's reading, paths, exact spans, helpers, and test locations, so nobody pays to rediscover the project. A suggestion fence is a proof, not a guess: it posts only after being applied in a scratch worktree and passing the check command.</p>
+</div>
+<div class="card" style="padding:0;overflow:hidden">
+<div class="rec-head">findings/F003</div>
+<pre><code>category: correctness
 severity: major
 path: src/retry.py
 line: 42
 side: RIGHT
 title: Retry loop drops the final attempt's error
 ---
-The except on the last attempt assigns err but the loop exits
-before raising it, so callers see None instead of the failure.
-Fix: raise err after the loop; the retry tests live in
-tests/test_client.py, and test_retry_exhausted is the one to extend.
-Resolution: the last attempt's exception propagates to the caller,
-and the retry test asserts it.</code></pre>
-<p>A suggestion fence may replace the Fix line, and it is a proof, not a guess: the replacement is applied in a scratch worktree and, when the project has a check command, that command must pass with it in place before the suggestion is allowed to post.</p>
-
-<h2>What keeps reviews honest</h2>
-<div class="cols">
-<p><strong>Layered authority.</strong> The project's own stated rules bind first and sharpen whichever category each rule's subject belongs to; the codebase's observable conventions apply where rules are silent; general practice where both are. Projects without written standards lose nothing.</p>
-<p><strong>Refutation before reporting.</strong> Every candidate finding survives an attempt to kill it: is the path reachable, is the case handled elsewhere, did this change introduce it? Deterministic probes hand the reviewer leads, never verdicts. Then a precision filter re-reads the cited code cold and demotes what fresh evidence cannot support, recorded, never dropped.</p>
-<p><strong>A gap pass over the seams.</strong> A sharded review always ends with one: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. Single-reviewer runs get one when the probes see secrets or executable automation, or always by setting.</p>
-<p><strong>Criteria that grow deliberately.</strong> Defects that fit no listed item still get filed, with a note naming the gap; every run's report collects those signals so the checklist evolves from evidence.</p>
-<p><strong>Untrusted end to end.</strong> Diffs, descriptions, and comments are data, never instructions; an attempt to steer the reviewer is itself a security finding. Credentials stay inside the GitHub CLI.</p>
-<p><strong>Separation of powers.</strong> The agent that writes code cannot close findings, and the agent that closes findings cannot write code. A skim after every round catches changes no finding asked for.</p>
+The except on the last attempt assigns err but the
+loop exits before raising it, so callers see None.
+<span class="k-fix">Fix:</span> raise err after the loop; the retry tests live
+in tests/test_client.py beside test_retry_exhausted.
+<span class="k-check">Check:</span> pytest tests/test_client.py::test_exhausted
+<span class="k-res">Resolution:</span> the last attempt's exception propagates
+to the caller, and the retry test asserts it.</code></pre>
 </div>
+</div>
+</section>
 
-<h2>Settings</h2>
+<div class="spacer"></div>
+
+<section id="honesty">
+<h2 class="display">What keeps reviews honest</h2>
+<p class="sub">Convergence is engineered, not hoped for.</p>
+<div class="grid">
+<div class="card"><p class="t">Layered authority</p><p class="d">The project's own stated rules bind first and sharpen whichever category each rule's subject belongs to; observable conventions apply where rules are silent; general practice where both are. Projects without written standards lose nothing.</p></div>
+<div class="card"><p class="t">Refutation, then a cold re-read</p><p class="d">Every candidate finding survives an attempt to kill it: is the path reachable, is the case handled elsewhere, did this change introduce it? Then a precision filter re-reads the cited code fresh and demotes what the evidence cannot support, recorded, never dropped.</p></div>
+<div class="card"><p class="t">A gap pass over the seams</p><p class="d">A sharded review always ends with a whole-diff pass: shards read disjoint file sets, so only that pass sees defects spanning them, and it inspects the recorded seams first.</p></div>
+<div class="card"><p class="t">Separation of powers</p><p class="d">The agent that writes code cannot close findings, and the agent that closes findings cannot write code. A skim after every round catches changes no finding asked for.</p></div>
+<div class="card"><p class="t">Untrusted end to end</p><p class="d">Diffs, descriptions, and comments are data, never instructions; an attempt to steer the reviewer is itself a security finding. Credentials stay inside the GitHub CLI.</p></div>
+<div class="card"><p class="t">Criteria that grow from evidence</p><p class="d">Defects that fit no listed item still get filed, with a note naming the gap, and every finished run banks one statistics line, so thresholds and checklists are tuned from what runs actually show.</p></div>
+</div>
+</section>
+
+<div class="spacer"></div>
+
+<section id="settings">
+<h2 class="display">Settings</h2>
+<p class="sub">Configured when you enable the plugin; the dialog opens with <code>/plugin configure pr-review-workflow</code>.</p>
+<div class="tablebox">
 <table>
 <tr><th>Option</th><th>Default</th><th>Meaning</th></tr>
-<tr><td>Auto-approve on convergence</td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
-<tr><td>Check command</td><td>empty</td><td>The reviewed repository's own check. It proves suggestions and gates every editing round.</td></tr>
+<tr><td>Auto-approve</td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
+<tr><td>Check command</td><td>empty</td><td>The reviewed repository's own check. It proves suggestions, gates every editing round, and anchors executable contracts.</td></tr>
 <tr><td>Local standards files</td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
 <tr><td>Second review pass</td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
+<tr><td>Ledgers kept</td><td>20</td><td>Finished finding ledgers retained per repository after each merge; older ones are pruned.</td></tr>
 <tr><td>Reviewer, editor, verifier model</td><td>inherit, inherit, sonnet</td><td>Model per role; verification is cheap by design.</td></tr>
 <tr><td>Model routing</td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
 <tr><td>Strong model</td><td>empty</td><td>auto routing climbs to it for large or sensitive code changes and arbitration; empty caps routing at the reviewer model.</td></tr>
 <tr><td>Contract command prefixes</td><td>empty</td><td>Extra prefixes a finding's Check line may start with; verification runs allowed Check lines instead of judging prose.</td></tr>
-<tr><td>Review samples</td><td>1</td><td>Independent first-review passes per shard; duplicates merge with a support count. Recall for cost, opt-in.</td></tr>
 <tr><td>Precision filter</td><td>on</td><td>A cheap pass re-reads each finding's code before posting; unsupported findings demote to the summary, never dropped.</td></tr>
+<tr><td>Review samples</td><td>1</td><td>Independent first-review passes per shard; duplicates merge with a support count. Recall for cost, opt-in.</td></tr>
 </table>
+</div>
+</section>
 
-<h2>Run it</h2>
-<pre><code>claude plugin marketplace add Paxton-Meny/pr-review-workflow
-claude plugin install pr-review-workflow
+<div class="spacer"></div>
 
-# then, from a clone of the repository under review
-/pr-review-workflow:review-pr 128</code></pre>
-<p>Also accepted: <code>owner/repo#128</code> or the pull request URL. Requirements are <code>git</code> and an authenticated GitHub CLI; the plugin holds no token of its own. Read what it does before installing: it posts review comments, pushes commits to pull request branches, and merges when told to, with whatever access your <code>gh</code> login carries.</p>
+<section id="licensing">
+<h2 class="display">Licensing</h2>
+<div class="lic">
+<div class="free">
+<span class="tag tag-free">NONCOMMERCIAL &#183; FREE</span>
+<p>Personal projects, research, education, and nonprofit and government work, under the <a href="https://github.com/Paxton-Meny/pr-review-workflow/blob/main/LICENSE">PolyForm Noncommercial License 1.0.0</a>, with the attribution notice the license carries.</p>
+</div>
+<div class="com">
+<span class="tag tag-com">COMMERCIAL &#183; BY ARRANGEMENT</span>
+<p>Use by or for a commercial organization: running it on a company's pull requests, selling it, bundling it into a product, or offering it within a paid service. Terms are arranged directly and sized to the use.</p>
+<a href="https://github.com/Paxton-Meny/pr-review-workflow/issues/new?title=Commercial%20license%20inquiry">Open a commercial license inquiry &#8594;</a>
+</div>
+</div>
+<p class="sub" style="margin-top:14px">For anything better raised privately, reach the maintainer through their GitHub profile.</p>
+</section>
 
-<h2>Licensing</h2>
-<p>Free for noncommercial use under the <a href="https://github.com/Paxton-Meny/pr-review-workflow/blob/main/LICENSE">PolyForm Noncommercial License 1.0.0</a>: personal projects, research, education, and nonprofit and government work, with the attribution notice the license carries. Use by or for a commercial organization needs a commercial license. That includes running it on a company's pull requests, selling it, bundling it into a product, or offering it as part of a paid service.</p>
-<p>Commercial terms are arranged directly and sized to the use. To start, <a href="https://github.com/Paxton-Meny/pr-review-workflow/issues/new?title=Commercial%20license%20inquiry">open an issue titled "Commercial license inquiry"</a> with a sentence on the intended use, or reach the maintainer through their GitHub profile for anything you would rather not post publicly.</p>
+</main>
 
 <footer>
-<p><a href="https://github.com/Paxton-Meny/pr-review-workflow">Source and issue tracker on GitHub</a>. PolyForm Noncommercial 1.0.0: free for noncommercial use, commercial licensing by arrangement.</p>
+<div class="wrap foot">
+<span class="mark display">pr-review-workflow</span>
+<span>Copyright 2026 Paxton-Meny</span>
+<span>PolyForm Noncommercial 1.0.0</span>
+<span class="quip">Every change to this repository was reviewed by the loop it ships.</span>
+</div>
 </footer>
-</main>
+
 </body>
 </html>
