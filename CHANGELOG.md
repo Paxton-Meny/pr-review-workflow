@@ -8,6 +8,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Issue forms replace the markdown issue templates: structured bug
+  and feature forms, a dedicated commercial license inquiry form,
+  and contact links to the site and the security policy. A
+  CITATION.cff makes the project citable, and CONTRIBUTING now
+  documents the release ritual, proofs first, in order.
 - A status skill: /pr-review-workflow:status lists recorded runs
   for the current repository or all of them, with finding outcomes
   and resumability, and summarizes the stats ledger

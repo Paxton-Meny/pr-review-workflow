@@ -1,0 +1,36 @@
+name: Bug report
+description: Something the plugin did wrong, from a wrong finding to a broken script.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What the run did, and what it should have done instead.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Run output
+      description: The relevant script one-liners or the run's final report. Paste text, not screenshots, and redact anything private.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      placeholder: "0.2.1"
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Invocation
+      placeholder: "/pr-review-workflow:review-pr owner/repo#128"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before filing
+      options:
+        - label: I searched existing issues for this.
+          required: true

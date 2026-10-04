@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: If you reference this software, cite it as below.
+title: pr-review-workflow
+type: software
+authors:
+  - name: Paxton-Meny
+repository-code: https://github.com/Paxton-Meny/pr-review-workflow
+url: https://paxton-meny.github.io/pr-review-workflow/
+license: PolyForm-Noncommercial-1.0.0
+version: 0.2.1
+date-released: 2026-10-04
