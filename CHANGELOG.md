@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The README leads with a restrained badge row (release, license,
+  site), a contents line, and folds the optional conventions-block
+  detail behind a summary, so the install path and the figures stay
+  above the depth.
 - The project site is redesigned from a reviewed set of design
   comps: editorial serif display over the system sans, a sticky
   section nav, a hero led by the animated loop figure, an install
