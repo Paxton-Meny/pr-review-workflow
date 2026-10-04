@@ -80,3 +80,19 @@ that actually execute the scripts become possible.
 
 Keep cases deterministic, one behavior per case, graders per file
 under the case's `graders/`.
+
+## Releases
+
+A release is cut only after its proofs, in this order:
+
+1. The gate is green: `sh scripts/gate.sh`.
+2. The eval suite passes on a logged-in machine:
+   `claude plugin eval . --model sonnet --ablation none`.
+3. A dogfood run on a staged pull request converges and merges.
+4. One release pull request: cut the CHANGELOG's Unreleased section to
+   the new version, bump the version in `.claude-plugin/plugin.json`
+   (the field that ships the release to marketplace installs), and
+   refresh any standing document the release makes stale.
+5. After the merge: an annotated tag `vX.Y.Z` and a GitHub release
+   whose notes summarize the CHANGELOG section, and a check that the
+   published site and the documented install path still work.

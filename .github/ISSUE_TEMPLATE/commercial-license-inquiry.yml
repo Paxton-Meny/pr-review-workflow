@@ -1,0 +1,20 @@
+name: Commercial license inquiry
+description: Arrange commercial use, from company pull requests to resale or bundling.
+title: "Commercial license inquiry"
+labels: [licensing]
+body:
+  - type: textarea
+    id: use
+    attributes:
+      label: Intended use
+      description: A sentence or two on how the plugin would be used commercially.
+    validations:
+      required: true
+  - type: input
+    id: scale
+    attributes:
+      label: Rough scale
+      placeholder: "e.g. one team's repositories, a product integration, a hosted service"
+  - type: markdown
+    attributes:
+      value: For anything better raised privately, contact the maintainer through their GitHub profile instead.

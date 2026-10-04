@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Project site
+    url: https://paxton-meny.github.io/pr-review-workflow/
+    about: What the plugin does, how a run flows, settings, and licensing.
+  - name: Security policy
+    url: https://github.com/Paxton-Meny/pr-review-workflow/blob/main/SECURITY.md
+    about: How to report a vulnerability.
