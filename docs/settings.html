@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<title>Settings reference &#183; pr-review-workflow</title>
+<meta name="description" content="Every pr-review-workflow setting explained: what it does, what each value changes on a pull request, when to choose it, and how the settings work together.">
+<link rel="canonical" href="https://paxton-meny.github.io/pr-review-workflow/settings.html">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FDFCFA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1E1C" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="pr-review-workflow">
+<meta property="og:title" content="Settings reference &#183; pr-review-workflow">
+<meta property="og:description" content="Every pr-review-workflow setting explained: what it does, what each value changes on a pull request, when to choose it, and how the settings work together.">
+<meta property="og:url" content="https://paxton-meny.github.io/pr-review-workflow/settings.html">
+<meta property="og:image" content="https://paxton-meny.github.io/pr-review-workflow/assets/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/settings.css">
+<script src="assets/settings.js" defer></script>
+</head>
+<body>
+
+<header class="top">
+<div class="top-in">
+<button class="menu" id="menu" type="button" aria-label="Show the list of settings" aria-controls="settings-nav" aria-expanded="false"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<a class="mark" href="./">pr-review-workflow</a>
+<nav class="top-nav" aria-label="Site">
+<a href="./">Overview</a>
+<a href="settings.html" aria-current="page">Settings</a>
+</nav>
+<a class="gh" href="https://github.com/Paxton-Meny/pr-review-workflow">GitHub</a>
+</div>
+</header>
+
+<div class="page">
+
+<nav class="side" id="settings-nav" aria-label="Settings">
+<div class="find">
+<svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+<label class="sr" for="filter">Filter settings</label>
+<input id="filter" type="search" placeholder="Filter 13 settings" autocomplete="off">
+</div>
+<p class="nomatch" id="filter-none" hidden>No setting matches.</p>
+<div class="side-group">
+<div class="side-head">MERGING</div>
+<a href="#auto-approve" data-words="auto_approve merge ask">Auto-approve</a>
+</div>
+<div class="side-group">
+<div class="side-head">PROOF AND CHECKS</div>
+<a href="#check-command" data-words="check_command test gate suggestion">Check command</a>
+<a href="#contract-commands" data-words="contract_commands check line verify">Contract command prefixes</a>
+<a href="#local-standards" data-words="local_standards rules glob">Local standards files</a>
+</div>
+<div class="side-group">
+<div class="side-head">REVIEW DEPTH</div>
+<a href="#double-review" data-words="double_review gap pass">Second review pass</a>
+<a href="#finding-filter" data-words="finding_filter demote summary">Precision filter</a>
+<a href="#review-samples" data-words="review_samples support cost">Review samples</a>
+</div>
+<div class="side-group">
+<div class="side-head">MODELS AND COST</div>
+<a href="#reviewer-model" data-words="reviewer_model">Reviewer model</a>
+<a href="#editor-model" data-words="editor_model">Editor model</a>
+<a href="#verifier-model" data-words="verifier_model">Verifier model</a>
+<a href="#model-routing" data-words="model_routing auto fixed">Model routing</a>
+<a href="#strong-model" data-words="strong_model opus arbitration">Strong model</a>
+</div>
+<div class="side-group">
+<div class="side-head">HOUSEKEEPING</div>
+<a href="#keep-ledgers" data-words="keep_ledgers disk prune">Ledgers kept</a>
+</div>
+<div class="side-group">
+<div class="side-head">REFERENCE</div>
+<a href="#glossary" data-words="terms definitions">Glossary</a>
+</div>
+</nav>
+
+<main id="top">
+
+<div class="intro">
+<div class="kicker">Settings reference</div>
+<h1 class="display">What each setting changes</h1>
+<p>Thirteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
+</div>
+
+<div id="merging">
+<div class="group"><h2>Merging</h2></div>
+<section class="entry" id="auto-approve" data-key="auto_approve" data-default="false">
+<h3 class="display">Auto-approve</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>auto_approve</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">off</dd></div>
+<div><dt>ACCEPTS</dt><dd>on | off</dd></div>
+</dl>
+<p class="lead">When a run finishes with nothing left open, the pull request is ready to merge. This setting decides whether the plugin merges it or asks you first.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Auto-approve value">
+<button type="button" data-set="off" aria-pressed="true">off <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="on" aria-pressed="false">on</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="termbox">
+<div><span class="dim">review loop:</span> 0 open, 5 verified</div>
+<div data-show="off"><div>Everything holds. Merge now, or hold?</div><div class="ask"><span class="fake pri">Merge now</span><span class="fake">Hold</span></div></div>
+<div data-show="on" hidden><span class="dim">merge-pr:</span> acme/api#128 <span class="ok">merged</span></div>
+</div>
+<p class="note" data-show="off">You are asked at the end of every clean run. When nobody is there to answer, the plugin posts a comment saying the review converged and stops; it never merges unattended with this off.</p>
+<p class="note" data-show="on" hidden>The pull request merges as soon as the loop is clean, whether or not anyone is watching.</p>
+<p class="note">Either way, nothing merges while a finding is open, or over a finding marked won&#8217;t-fix that you have not accepted.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>off <span class="badge">DEFAULT</span></dt><dd>Most projects. You keep the last word on every merge.</dd></div>
+<div><dt>on</dt><dd>Repositories where a clean review is all you require, or unattended runs that should finish the job.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a></p>
+</section>
+</div>
+
+<div id="proof">
+<div class="group"><h2>Proof and checks</h2></div>
+<section class="entry" id="check-command" data-key="check_command" data-default="">
+<h3 class="display">Check command</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>check_command</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
+<div><dt>ACCEPTS</dt><dd>a shell command</dd></div>
+</dl>
+<p class="lead">The command your project already uses to check itself: its test suite, or tests plus lint. The plugin runs it inside its own copy of the pull request, never in your checkout, and three behaviours depend on it.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">For example, set it to</span>
+<div class="seg" role="group" aria-label="Check command example">
+<button type="button" data-set="empty" aria-pressed="true">empty <span class="badge">DEFAULT</span></button>
+<button type="button" class="mono" data-set="set" aria-pressed="false">npm test</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="rows">
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">Suggested changes are proven</div>
+<div class="row-s" data-show="empty">A <a class="term" href="#g-suggestion">suggestion</a> posts once it applies cleanly to the file. Nothing is run.</div>
+<div class="row-s" data-show="set" hidden>A <a class="term" href="#g-suggestion">suggestion</a> posts only if the check still passes with it applied. One that fails is withdrawn, and its finding posts without it.</div>
+</div>
+</div>
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">Every round of fixes is gated</div>
+<div class="row-s" data-show="empty">No gate. Fixes go straight to verification.</div>
+<div class="row-s" data-show="set" hidden>After each round of fixes the check must still pass. A failure gets one repair attempt; a second failure <a class="term" href="#g-park">parks</a> the run.</div>
+</div>
+</div>
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">Check lines can execute</div>
+<div class="row-s" data-show="empty">A finding&#8217;s <a class="term" href="#g-check-line">Check line</a> runs only if it starts with a contract command prefix.</div>
+<div class="row-s" data-show="set" hidden>A finding&#8217;s <a class="term" href="#g-check-line">Check line</a> runs when it starts with this command, such as <span class="cmd">npm test -- retry</span>.</div>
+</div>
+</div>
+</div>
+<p class="note">If the check already fails before any fix is made, the gate switches itself off for that run and the failure is handed to the reviewer as evidence.</p>
+<p class="note">This executes the pull request&#8217;s code on your machine. Read the <a href="https://github.com/Paxton-Meny/pr-review-workflow/blob/main/SECURITY.md">security notes</a> before pointing it at pull requests you do not trust.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>empty <span class="badge">DEFAULT</span></dt><dd>Projects with no single check command, or pull requests you do not want executed locally.</dd></div>
+<div><dt>a command</dt><dd>Any project with a reliable test command. It is what turns a review opinion into a proof.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#contract-commands">Contract command prefixes</a>, <a href="#auto-approve">Auto-approve</a></p>
+</section>
+
+<section class="entry" id="contract-commands" data-key="contract_commands" data-default="">
+<h3 class="display">Contract command prefixes</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>contract_commands</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
+<div><dt>ACCEPTS</dt><dd>command prefixes, separated by commas</dd></div>
+</dl>
+<p class="lead">A finding can carry a <a class="term" href="#g-check-line">Check line</a>: one command that proves the fix, such as a single test. The verifier runs that line instead of judging the fix by reading, but only when the line starts with a command you have approved. The check command is always approved; this setting approves more.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">For example, set it to</span>
+<div class="seg" role="group" aria-label="Contract command prefixes example">
+<button type="button" data-set="empty" aria-pressed="true">empty <span class="badge">DEFAULT</span></button>
+<button type="button" class="mono" data-set="set" aria-pressed="false">go test, cargo test</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="rows">
+<div class="row is-on" data-on="empty set">
+<span class="row-i"><span data-show="empty set"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+<div class="row-b">
+<div class="row-t"><span class="cmd">Check: make check</span></div>
+<div class="row-s" data-show="empty set">Runs. It is the check command itself, in this example <span class="cmd">make check</span>.</div>
+</div>
+</div>
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t"><span class="cmd">Check: go test ./retry -run TestExhausted</span></div>
+<div class="row-s" data-show="empty">Not run: no approved prefix matches. The verifier judges the fix by reading instead.</div>
+<div class="row-s" data-show="set" hidden>Runs. The line starts with <span class="cmd">go test</span>.</div>
+</div>
+</div>
+<div class="row" data-on="">
+<span class="row-i"><span data-show="empty set"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t"><span class="cmd">Check: go test ./... | tee out.txt</span></div>
+<div class="row-s" data-show="empty set">Never runs. A line containing a shell operator is refused, whatever is listed.</div>
+</div>
+</div>
+</div>
+<p class="note">Separate prefixes with commas, not spaces, so that <span class="cmd">go test</span> stays one prefix.</p>
+<p class="note">List test runners only. A bare interpreter such as <span class="cmd">python</span> or <span class="cmd">sh</span> as a prefix would let a Check line run anything.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>empty <span class="badge">DEFAULT</span></dt><dd>Your check command already covers every test you would want run on its own.</dd></div>
+<div><dt>prefixes</dt><dd>Your check command is a wrapper such as <span class="cmd">make check</span>, but single tests run through another tool.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a>, <a href="#verifier-model">Verifier model</a></p>
+</section>
+
+<section class="entry" id="local-standards" data-key="local_standards" data-default="">
+<h3 class="display">Local standards files</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>local_standards</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
+<div><dt>ACCEPTS</dt><dd>file patterns, separated by spaces</dd></div>
+</dl>
+<p class="lead">Some projects keep their rules in files that are not committed: a standards document, a team checklist. Name those files here and every review applies them. Their substance shapes the findings; their file names and wording never appear on the pull request.</p>
+<p class="sub">A pattern is a path relative to your clone. A <code>*</code> stands for any run of characters in a file name, so <code>docs/rules/*.md</code> matches every Markdown file in that folder.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">For example, set it to</span>
+<div class="seg" role="group" aria-label="Local standards example">
+<button type="button" data-set="empty" aria-pressed="true">empty <span class="badge">DEFAULT</span></button>
+<button type="button" class="mono" data-set="set" aria-pressed="false">STANDARDS.md docs/rules/*.md</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="empty" data-show="empty">Nothing project-specific is read from untracked files. Reviews follow the rules the repository states in tracked files, then the conventions visible in its code, then general practice.</div>
+<div class="grid2" data-show="set" hidden>
+<div class="surface">
+<div class="surface-h"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>On the pull request</div>
+<div class="surface-b">
+<div class="finding">
+<div class="finding-h"><span class="fid">F004</span><span>best-practices &#183; minor</span></div>
+<div class="finding-t">Public function fetch() has no type annotations</div><div class="finding-n">Public functions in this project carry type annotations; this one has none.</div>
+</div>
+</div>
+</div>
+<div class="surface">
+<div class="surface-h"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>Never on the pull request</div>
+<div class="surface-b">
+<div class="empty"><span class="struck">Violates STANDARDS.md, section 3.</span><br>The rule is enforced; the file is not named or quoted.</div>
+</div>
+</div>
+</div>
+<p class="note">Rules about commit messages and branch names are out of scope: the loop cannot rewrite history that is already pushed.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>empty <span class="badge">DEFAULT</span></dt><dd>Projects whose rules all live in tracked files, or that have none written down.</dd></div>
+<div><dt>patterns</dt><dd>You keep private or uncommitted standards and want every review to hold changes to them.</dd></div>
+</dl>
+</div>
+</section>
+</div>
+
+<div id="depth">
+<div class="group"><h2>Review depth</h2></div>
+<section class="entry" id="double-review" data-key="double_review" data-default="risky" data-options="off risky always">
+<h3 class="display">Second review pass</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>double_review</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">risky</dd></div>
+<div><dt>ACCEPTS</dt><dd>off | risky | always</dd></div>
+</dl>
+<p class="lead">After the first review, a second reviewer can read the same change again, looking only for what the first one missed. That second read is the <a class="term" href="#g-gap-pass">gap pass</a>. This setting decides when it happens on a change small enough for one reviewer.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Second review pass value">
+<button type="button" data-set="off" aria-pressed="false">off</button>
+<button type="button" data-set="risky" aria-pressed="true">risky <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="always" aria-pressed="false">always</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="grid3">
+<div class="tile" data-on="always">
+<svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg>
+<div class="tile-t">A small, clean change</div>
+<div class="tile-s">One reviewer. No risk signal fired.</div>
+<div class="tile-r">
+<div class="yes" data-show="always" hidden><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Gap pass runs</div>
+<div class="no" data-show="off risky"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>No gap pass</div>
+</div>
+</div>
+<div class="tile is-on" data-on="risky always">
+<svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+<div class="tile-t">A CI workflow change</div>
+<div class="tile-s">One reviewer. The automation <a class="term" href="#g-probe">probe</a> fired.</div>
+<div class="tile-r">
+<div class="yes" data-show="risky always"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Gap pass runs</div>
+<div class="no" data-show="off" hidden><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>No gap pass</div>
+</div>
+</div>
+<div class="tile is-on" data-on="off risky always">
+<svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5M3 17.5l9 5 9-5"/></svg>
+<div class="tile-t">A change over 1,500 lines</div>
+<div class="tile-s">Split into <a class="term" href="#g-shard">shards</a>, one reviewer each.</div>
+<div class="tile-r">
+<div class="yes" data-show="off risky always"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Gap pass runs</div>
+</div>
+</div>
+</div>
+<p class="note" data-show="off" hidden>A single-reviewer change never gets the second read. Cheapest; a miss waits for a human reviewer.</p>
+<p class="note" data-show="risky">The second read happens only when a scripted check flags something that looks like a secret, or a change to automation such as a CI workflow.</p>
+<p class="note" data-show="always" hidden>Every change gets the second read, at roughly double the cost of the first review.</p>
+<p class="note">A sharded change always ends with a gap pass, whatever this is set to: each reviewer saw only part of it, so nothing else can catch a defect that spans two parts.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>off</dt><dd>Throwaway or docs-heavy repositories, where a missed defect is cheap.</dd></div>
+<div><dt>risky <span class="badge">DEFAULT</span></dt><dd>Most projects. You pay for the second read only where a miss would hurt.</dd></div>
+<div><dt>always</dt><dd>Code where a missed defect is expensive: payments, authentication, infrastructure.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#review-samples">Review samples</a>, <a href="#strong-model">Strong model</a></p>
+</section>
+
+<section class="entry" id="finding-filter" data-key="finding_filter" data-default="true">
+<h3 class="display">Precision filter</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>finding_filter</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">on</dd></div>
+<div><dt>ACCEPTS</dt><dd>on | off</dd></div>
+</dl>
+<p class="lead">Before anything is posted, a cheap second reader opens the code each finding points at and asks one question: does the code really show this? Findings that hold up post as inline comments. Findings it cannot support still post, but in the round&#8217;s summary comment, with the reason.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Precision filter value">
+<button type="button" data-set="on" aria-pressed="true">on <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="off" aria-pressed="false">off</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="grid2">
+<div class="surface">
+<div class="surface-h"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13"/></svg>Inline, on the changed lines</div>
+<div class="surface-b">
+<div class="finding">
+<div class="finding-h"><span class="fid">F001</span><span>correctness &#183; major</span></div>
+<div class="finding-t">Retry loop drops the final attempt&#8217;s error</div>
+</div>
+<div class="finding" data-show="off" hidden>
+<div class="finding-h"><span class="fid">F002</span><span>correctness &#183; minor</span></div>
+<div class="finding-t">Timeout is never passed to the session</div>
+</div>
+<div class="finding">
+<div class="finding-h"><span class="fid">F003</span><span>outdated-docs &#183; minor</span></div>
+<div class="finding-t">README still names the old flag</div>
+</div>
+</div>
+</div>
+<div class="surface">
+<div class="surface-h"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>In the round summary comment</div>
+<div class="surface-b">
+<div class="finding moved" data-show="on">
+<div class="finding-h"><span class="fid">F002</span><span>correctness &#183; minor</span><span class="tag tag-coral">MOVED BY THE FILTER</span></div>
+<div class="finding-t">Timeout is never passed to the session</div><div class="finding-n"><b>Filter:</b> the session at src/client.py:18 already takes the timeout from config.</div>
+</div>
+<div class="empty" data-show="off" hidden>Nothing is moved here. Every finding opens its own thread.</div>
+</div>
+</div>
+</div>
+<p class="note">The filter never drops or closes a finding. One it moves to the summary is still fixed and verified like the rest.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>on <span class="badge">DEFAULT</span></dt><dd>Most projects. Fewer wrong comments on the pull request, for the price of one cheap pass.</dd></div>
+<div><dt>off</dt><dd>When you want every raw finding inline, for example while judging the reviewer itself.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#verifier-model">Verifier model</a> (the filter runs on it), <a href="#review-samples">Review samples</a></p>
+</section>
+
+<section class="entry" id="review-samples" data-key="review_samples" data-default="1" data-min="1" data-max="3">
+<h3 class="display">Review samples</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>review_samples</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">1</dd></div>
+<div><dt>ACCEPTS</dt><dd>1, 2 or 3</dd></div>
+</dl>
+<p class="lead">How many reviewers independently read each part of the change on the first review. More readers catch more, and the first review costs proportionally more.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Review samples value">
+<button type="button" data-set="1" aria-pressed="true">1 <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="2" aria-pressed="false">2</button>
+<button type="button" data-set="3" aria-pressed="false">3</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="readers">
+<span class="reader"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Reviewer</span>
+<span class="reader" data-show="2 3" hidden><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Reviewer</span>
+<span class="reader" data-show="3" hidden><svg class="ic" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>Reviewer</span>
+<span class="cost" data-show="1">first-review cost: about 1&#215;</span><span class="cost" data-show="2" hidden>first-review cost: about 2&#215;</span><span class="cost" data-show="3" hidden>first-review cost: about 3&#215;</span>
+</div>
+<div class="surface">
+<div class="surface-h"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>What reaches the <a class="term" href="#g-ledger">ledger</a></div>
+<div class="surface-b">
+<div data-show="1"><div class="finding">
+<div class="finding-h"><span class="fid">F001</span><span>correctness &#183; major</span></div>
+<div class="finding-t">Retry loop drops the final attempt&#8217;s error</div>
+</div></div>
+<div data-show="2" hidden><div class="finding">
+<div class="finding-h"><span class="fid">F001</span><span>correctness &#183; major</span><span class="tag tag-teal">RAISED BY 2 OF 2</span></div>
+<div class="finding-t">Retry loop drops the final attempt&#8217;s error</div>
+</div></div>
+<div data-show="3" hidden><div class="finding">
+<div class="finding-h"><span class="fid">F001</span><span>correctness &#183; major</span><span class="tag tag-teal">RAISED BY 3 OF 3</span></div>
+<div class="finding-t">Retry loop drops the final attempt&#8217;s error</div>
+</div></div>
+<div data-show="2" hidden><div class="finding">
+<div class="finding-h"><span class="fid">F002</span><span>correctness &#183; minor</span><span class="tag tag-teal">RAISED BY 1 OF 2</span></div>
+<div class="finding-t">Timeout is never passed to the session</div>
+</div></div>
+<div data-show="3" hidden><div class="finding">
+<div class="finding-h"><span class="fid">F002</span><span>correctness &#183; minor</span><span class="tag tag-teal">RAISED BY 1 OF 3</span></div>
+<div class="finding-t">Timeout is never passed to the session</div>
+</div></div>
+<div data-show="3" hidden><div class="finding">
+<div class="finding-h"><span class="fid">F003</span><span>outdated-docs &#183; minor</span><span class="tag tag-teal">RAISED BY 2 OF 3</span></div>
+<div class="finding-t">README still names the old flag</div>
+</div></div>
+</div>
+</div>
+<p class="note" data-show="1">One reader, so each finding is one reader&#8217;s view and carries no count.</p>
+<p class="note" data-show="2 3" hidden>When two or three readers raise the same defect, the duplicates merge into the fullest record, and the count says how many raised it.</p>
+<p class="note">The count is context for the precision filter, never a verdict: a finding only one reader raised can still be right.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>1 <span class="badge">DEFAULT</span></dt><dd>Most projects.</dd></div>
+<div><dt>2 or 3</dt><dd>Repositories where an escaped defect costs enough to justify paying two or three times for the first review.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#finding-filter">Precision filter</a>, <a href="#double-review">Second review pass</a></p>
+</section>
+</div>
+
+<div id="models-group">
+<div class="group"><h2>Models and cost</h2></div>
+<section class="entry" id="models">
+<h3 class="display">Models and cost</h3>
+<p class="lead">Five settings decide which model does which job. Three name a model for a role. One decides whether the plugin may swap those models when the change makes that safe or necessary. One names the stronger model it may climb to.</p>
+<h4 class="display" id="model-roles">A model for each role</h4>
+<div class="card">
+<div class="setting" id="reviewer-model" data-key="reviewer_model" data-default="inherit">
+<div class="setting-k">
+<h5>Reviewer model</h5>
+<code>reviewer_model</code>
+<span>default <b>inherit</b></span>
+</div>
+<div class="setting-d">
+<p>Runs the first, thorough review: the pass that finds the defects and writes their <a class="term" href="#g-contract">contracts</a>.</p>
+<p><b>Accepts</b> &#183; <code>inherit</code> (the model your session is using) or a model name such as <code>sonnet</code> or <code>opus</code></p>
+<p><b>Relates to</b> &#183; It is the floor for the <a class="term" href="#g-gap-pass">gap pass</a>. With no strong model set, it is also the highest routing can go.</p>
+</div>
+</div>
+<div class="setting" id="editor-model" data-key="editor_model" data-default="inherit">
+<div class="setting-k">
+<h5>Editor model</h5>
+<code>editor_model</code>
+<span>default <b>inherit</b></span>
+</div>
+<div class="setting-d">
+<p>Runs the agent that edits the branch, one commit per finding.</p>
+<p><b>Accepts</b> &#183; <code>inherit</code> or a model name</p>
+<p><b>Relates to</b> &#183; Routing can lower it for one narrow case, shown below. Nothing raises it.</p>
+</div>
+</div>
+<div class="setting" id="verifier-model" data-key="verifier_model" data-default="sonnet">
+<div class="setting-k">
+<h5>Verifier model</h5>
+<code>verifier_model</code>
+<span>default <b>sonnet</b></span>
+</div>
+<div class="setting-d">
+<p>Runs the agent that checks each fix against its <a class="term" href="#g-contract">contract</a>, and the precision filter&#8217;s re-read. Both are narrow questions with a yes or no answer, which is why the default is a cheaper model.</p>
+<p><b>Accepts</b> &#183; <code>inherit</code> or a model name</p>
+<p><b>Relates to</b> &#183; Routing never changes it. It is the only model setting whose default is not your session&#8217;s model.</p>
+</div>
+</div>
+</div>
+<h4 class="display" id="model-overrides">Whether those choices can be overridden</h4>
+<div class="card">
+<div class="setting" id="model-routing" data-key="model_routing" data-default="auto" data-options="auto fixed">
+<div class="setting-k">
+<h5>Model routing</h5>
+<code>model_routing</code>
+<span>default <b>auto</b></span>
+</div>
+<div class="setting-d">
+<p><b>auto</b> lets the plugin pick a cheaper model where the work is provably mechanical and a stronger one where the change is large or sensitive. <b>fixed</b> turns that off: every role runs on exactly the model its setting names.</p>
+<p><b>Accepts</b> &#183; <code>auto</code> or <code>fixed</code></p>
+<p><b>Relates to</b> &#183; Reads the three role settings as its starting point and the strong model as its ceiling.</p>
+</div>
+</div>
+<div class="setting" id="strong-model" data-key="strong_model" data-default="">
+<div class="setting-k">
+<h5>Strong model</h5>
+<code>strong_model</code>
+<span>default <b>empty</b></span>
+</div>
+<div class="setting-d">
+<p>The model auto routing climbs to for code changes over 800 lines, for changes that touch concurrency, cryptography, authentication or injection surfaces, and for the one <a class="term" href="#g-arbitration">arbitration</a> pass before a run <a class="term" href="#g-park">parks</a>.</p>
+<p><b>Accepts</b> &#183; empty, or a model name such as <code>opus</code></p>
+<p><b>Relates to</b> &#183; Does nothing when routing is <code>fixed</code>. Left empty, climbing stops at the reviewer model.</p>
+</div>
+</div>
+</div>
+<h4 class="display" id="model-combine">How they combine</h4>
+<p class="sub">Each role starts on its own setting, in the middle column. With routing on <b>auto</b> the plugin may move it left or right; with <b>fixed</b> it never leaves the middle.</p>
+<div class="card scroll">
+<table class="ladder">
+<tr><th scope="col">ROLE</th><th scope="col"><span><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>AUTO MAY DROP TO</span></th><th scope="col">STARTS ON</th><th scope="col"><span>AUTO MAY CLIMB TO<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></th></tr>
+<tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a docs-only or config-only change under 300 lines, no risk signal</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>code over 800 lines, or a sensitive surface</td></tr>
+<tr><th scope="row">Gap pass</th><td><span class="never">never</span><br>the safety net is never cheapened</td><td><span class="pill">reviewer_model</span><br>or wherever the reviewer was raised to</td><td><span class="pill pill-high">strong_model</span><br>together with the reviewer</td></tr>
+<tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only, when every open finding is minor and carries a proven <a class="term" href="#g-suggestion">suggestion</a></td><td><span class="pill">editor_model</span></td><td><span class="never">never</span></td></tr>
+<tr><th scope="row">Precision filter</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
+<tr><th scope="row">Verifier</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
+<tr><th scope="row">Arbitration</th><td><span class="never">never</span></td><td><span class="pill">reviewer_model</span><br>one pass per run, when a finding keeps being reopened</td><td><span class="pill pill-high">strong_model</span><br>whenever one is set</td></tr>
+</table>
+</div>
+<h4 class="display" id="model-try">Try a combination</h4>
+<div class="unit" data-routing>
+<div class="unit-bar" hidden>
+<span class="kicker">Pick a change</span>
+<div class="seg" role="group" aria-label="The change" data-group="change">
+<button type="button" data-set="docs" aria-pressed="false">Docs, 120 lines</button>
+<button type="button" data-set="small" aria-pressed="true">Code, 240 lines</button>
+<button type="button" data-set="large" aria-pressed="false">Code, 1,400 lines</button>
+<button type="button" data-set="auth" aria-pressed="false">Auth code, 90 lines</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="ctl-row" hidden>
+<div class="ctl"><div class="kicker">Model routing</div>
+<div class="seg" role="group" aria-label="Model routing" data-group="routing">
+<button type="button" data-set="auto" aria-pressed="true">auto <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="fixed" aria-pressed="false">fixed</button>
+</div></div>
+<div class="ctl"><div class="kicker">Strong model</div>
+<div class="seg" role="group" aria-label="Strong model" data-group="strong">
+<button type="button" data-set="empty" aria-pressed="true">empty <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="opus" aria-pressed="false">opus</button>
+</div></div>
+<div class="ctl"><div class="kicker">Verifier model</div>
+<div class="seg" role="group" aria-label="Verifier model" data-group="verifier">
+<button type="button" data-set="sonnet" aria-pressed="true">sonnet <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="inherit" aria-pressed="false">inherit</button>
+</div></div>
+</div>
+<div>
+<div class="out-h"><span class="out-r">ROLE</span><span class="out-m">RUNS ON</span><span>WHY</span></div>
+<div class="out">
+<span class="out-r">Reviewer</span>
+<span class="out-m"><span class="pill" data-model="reviewer">session model</span></span>
+<span class="out-w" data-why="reviewer">Nothing about this change routes it up or down.</span>
+</div>
+<div class="out">
+<span class="out-r">Gap pass</span>
+<span class="out-m"><span class="pill" data-model="gap">session model</span></span>
+<span class="out-w" data-why="gap">Same as the reviewer, when a gap pass runs.</span>
+</div>
+<div class="out">
+<span class="out-r">Filter</span>
+<span class="out-m"><span class="pill pill-low" data-model="filter">sonnet</span></span>
+<span class="out-w" data-why="filter">Always the verifier model. Routing never changes it.</span>
+</div>
+<div class="out">
+<span class="out-r">Editor</span>
+<span class="out-m"><span class="pill" data-model="editor">session model</span></span>
+<span class="out-w" data-why="editor">Drops to sonnet only in round one, when every open finding is minor and carries a proven suggestion.</span>
+</div>
+<div class="out">
+<span class="out-r">Verifier</span>
+<span class="out-m"><span class="pill pill-low" data-model="verifier">sonnet</span></span>
+<span class="out-w" data-why="verifier">Always the verifier model. Routing never changes it.</span>
+</div>
+</div>
+<p class="note">Shown for a 240-line code change with every setting on its default. Reviewer and editor models are left on <b>inherit</b>, so &#8220;session model&#8221; is whatever your session runs on.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>auto <span class="badge">DEFAULT</span></dt><dd>Most projects. Cheaper where the work is mechanical, stronger only where the change is large or sensitive.</dd></div>
+<div><dt>fixed</dt><dd>When every run must use exactly the models you named, for budgeting or for comparing models.</dd></div>
+</dl>
+</div>
+</section>
+</div>
+
+<div id="housekeeping">
+<div class="group"><h2>Housekeeping</h2></div>
+<section class="entry" id="keep-ledgers" data-key="keep_ledgers" data-default="20" data-min="1">
+<h3 class="display">Ledgers kept</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>keep_ledgers</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">20</dd></div>
+<div><dt>ACCEPTS</dt><dd>a whole number, 1 or more</dd></div>
+</dl>
+<p class="lead">Each reviewed pull request leaves a <a class="term" href="#g-ledger">ledger</a> on your machine: its findings, their notes, and how each one ended. After every merge the plugin tidies up, keeping the most recent ledgers for that repository as your audit record and deleting older ones.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">For example, set it to</span>
+<div class="seg" role="group" aria-label="Ledgers kept example">
+<button type="button" data-set="5" aria-pressed="false">5</button>
+<button type="button" data-set="20" aria-pressed="true">20 <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="100" aria-pressed="false">100</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="rows">
+<div class="row is-on" data-on="5 20 100">
+<span class="row-i"><span data-show="5 20 100"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">Kept</div>
+<div class="row-s" data-show="5" hidden>The 5 most recently finished ledgers for the repository that just merged.</div>
+<div class="row-s" data-show="20">The 20 most recently finished ledgers for the repository that just merged.</div>
+<div class="row-s" data-show="100" hidden>The 100 most recently finished ledgers for the repository that just merged.</div>
+</div>
+</div>
+<div class="row" data-on="">
+<span class="row-i"><span data-show="5 20 100"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">Deleted</div>
+<div class="row-s" data-show="5 20 100">Finished ledgers of that repository older than those.</div>
+</div>
+</div>
+<div class="row is-on" data-on="5 20 100">
+<span class="row-i"><span data-show="5 20 100"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">Never touched</div>
+<div class="row-s" data-show="5 20 100">A run that still has its working copy, because it is paused or <a class="term" href="#g-park">parked</a> and can resume. Ledgers of other repositories. The statistics file that records one line per finished run.</div>
+</div>
+</div>
+</div>
+<p class="note">List what is on disk at any time with <code>/pr-review-workflow:status</code>.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>lower</dt><dd>Disk space matters more to you than history.</dd></div>
+<div><dt>20 <span class="badge">DEFAULT</span></dt><dd>Most projects.</dd></div>
+<div><dt>higher</dt><dd>You want a long audit trail, or more past runs to learn from.</dd></div>
+</dl>
+</div>
+</section>
+</div>
+
+<div id="reference">
+<div class="group"><h2>Reference</h2></div>
+<section class="entry" id="glossary">
+<h3 class="display">Glossary</h3>
+<dl class="card gloss">
+<div id="g-gap-pass"><dt>gap pass</dt><dd>A second review that reads the first one&#8217;s findings and reports only what they missed.</dd></div>
+<div id="g-shard"><dt>shard</dt><dd>One slice of a large change, read by its own reviewer in parallel with the others.</dd></div>
+<div id="g-probe"><dt>probe</dt><dd>A scripted pattern check over the change, run before any model, that flags things like possible secrets or CI edits.</dd></div>
+<div id="g-contract"><dt>contract</dt><dd>The Resolution line on a finding: the testable statement a fix must make true.</dd></div>
+<div id="g-check-line"><dt>Check line</dt><dd>An optional line on a finding naming one command, usually a single test, that proves the fix.</dd></div>
+<div id="g-suggestion"><dt>suggestion</dt><dd>A ready-to-commit replacement posted with a finding, which you can apply from the pull request page.</dd></div>
+<div id="g-ledger"><dt>ledger</dt><dd>The per-pull-request directory on disk that holds the findings and the round count.</dd></div>
+<div id="g-round"><dt>round</dt><dd>One pass of fixing and verifying. A run has at most four.</dd></div>
+<div id="g-park"><dt>park</dt><dd>To stop a run that is not converging, leaving a status comment and everything needed to resume.</dd></div>
+<div id="g-arbitration"><dt>arbitration</dt><dd>One extra verification pass on a stronger model, used when a finding keeps being reopened.</dd></div>
+</dl>
+</section>
+</div>
+
+</main>
+
+<aside class="rail" aria-label="On this page">
+<div class="rail-head">ON THIS PAGE</div>
+<a href="#merging">Merging</a>
+<a href="#proof">Proof and checks</a>
+<a href="#depth">Review depth</a>
+<a href="#models-group">Models and cost</a>
+<a class="sub" href="#model-roles">A model for each role</a>
+<a class="sub" href="#model-overrides">Overriding those choices</a>
+<a class="sub" href="#model-combine">How they combine</a>
+<a class="sub" href="#model-try">Try a combination</a>
+<a href="#housekeeping">Housekeeping</a>
+<a href="#glossary">Glossary</a>
+</aside>
+
+</div>
+
+<footer>
+<div class="foot">
+<span class="mark">pr-review-workflow</span>
+<span>Copyright 2026 Paxton-Meny</span>
+<span>PolyForm Noncommercial 1.0.0</span>
+<span class="legal">An independent project, not affiliated with or endorsed by Anthropic. Claude and Claude Code are trademarks of Anthropic, PBC, named only to say what the plugin runs on.</span>
+</div>
+</footer>
+
+</body>
+</html>

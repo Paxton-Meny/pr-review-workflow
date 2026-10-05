@@ -85,7 +85,10 @@ the merge gate runs.
 
 ### Settings
 
-Configured when you enable the plugin:
+Configured when you enable the plugin. The
+[settings reference](https://paxton-meny.github.io/pr-review-workflow/settings.html)
+explains each one in plain terms, shows what every value changes on a
+pull request, and says when to choose it.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
