@@ -28,6 +28,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A settings reference page on the site: every setting explained in
+  plain terms, with a switch on each entry showing what each value
+  changes on a pull request, when to choose it, how the five model
+  settings combine, and a glossary for the terms the descriptions
+  lean on. The page works without scripts, loads nothing from other
+  origins, and a test holds its keys, defaults, and options to the
+  plugin manifest.
 - Issue forms replace the markdown issue templates: structured bug
   and feature forms, a dedicated commercial license inquiry form,
   and contact links to the site and the security policy. A

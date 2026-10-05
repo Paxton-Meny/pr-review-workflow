@@ -213,21 +213,21 @@ to the caller, and the retry test asserts it.</code></pre>
 
 <section id="settings">
 <h2 class="display">Settings</h2>
-<p class="sub">Configured when you enable the plugin; the dialog opens with <code>/plugin configure pr-review-workflow</code>.</p>
+<p class="sub">Configured when you enable the plugin; the dialog opens with <code>/plugin configure pr-review-workflow</code>. The <a href="settings.html">settings reference</a> explains each one in plain terms, shows what every value changes on a pull request, and says when to choose it.</p>
 <div class="tablebox">
 <table>
 <tr><th>Option</th><th>Default</th><th>Meaning</th></tr>
-<tr><td>Auto-approve</td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
-<tr><td>Check command</td><td>empty</td><td>The reviewed repository's own check. It proves suggestions, gates every editing round, and anchors executable contracts.</td></tr>
-<tr><td>Local standards files</td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
-<tr><td>Second review pass</td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
-<tr><td>Ledgers kept</td><td>20</td><td>Finished finding ledgers retained per repository after each merge; older ones are pruned.</td></tr>
-<tr><td>Reviewer, editor, verifier model</td><td>inherit, inherit, sonnet</td><td>Model per role; verification is cheap by design.</td></tr>
-<tr><td>Model routing</td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
-<tr><td>Strong model</td><td>empty</td><td>auto routing climbs to it for large or sensitive code changes and arbitration; empty caps routing at the reviewer model.</td></tr>
-<tr><td>Contract command prefixes</td><td>empty</td><td>Extra prefixes a finding's Check line may start with; verification runs allowed Check lines instead of judging prose.</td></tr>
-<tr><td>Precision filter</td><td>on</td><td>A cheap pass re-reads each finding's code before posting; unsupported findings demote to the summary, never dropped.</td></tr>
-<tr><td>Review samples</td><td>1</td><td>Independent first-review passes per shard; duplicates merge with a support count. Recall for cost, opt-in.</td></tr>
+<tr><td><a href="settings.html#auto-approve">Auto-approve</a></td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
+<tr><td><a href="settings.html#check-command">Check command</a></td><td>empty</td><td>The reviewed repository's own check. It proves suggestions, gates every editing round, and anchors executable contracts.</td></tr>
+<tr><td><a href="settings.html#local-standards">Local standards files</a></td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
+<tr><td><a href="settings.html#double-review">Second review pass</a></td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
+<tr><td><a href="settings.html#keep-ledgers">Ledgers kept</a></td><td>20</td><td>Finished finding ledgers retained per repository after each merge; older ones are pruned.</td></tr>
+<tr><td><a href="settings.html#model-roles">Reviewer, editor, verifier model</a></td><td>inherit, inherit, sonnet</td><td>Model per role; verification is cheap by design.</td></tr>
+<tr><td><a href="settings.html#model-routing">Model routing</a></td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
+<tr><td><a href="settings.html#strong-model">Strong model</a></td><td>empty</td><td>auto routing climbs to it for large or sensitive code changes and arbitration; empty caps routing at the reviewer model.</td></tr>
+<tr><td><a href="settings.html#contract-commands">Contract command prefixes</a></td><td>empty</td><td>Extra prefixes a finding's Check line may start with; verification runs allowed Check lines instead of judging prose.</td></tr>
+<tr><td><a href="settings.html#finding-filter">Precision filter</a></td><td>on</td><td>A cheap pass re-reads each finding's code before posting; unsupported findings demote to the summary, never dropped.</td></tr>
+<tr><td><a href="settings.html#review-samples">Review samples</a></td><td>1</td><td>Independent first-review passes per shard; duplicates merge with a support count. Recall for cost, opt-in.</td></tr>
 </table>
 </div>
 </section>
