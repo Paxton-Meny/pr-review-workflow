@@ -256,11 +256,16 @@
     window.addEventListener('scroll', hide, { passive: true });
   }
 
-  /* Mark the section being read in the sidebar and the outline. */
+  /*
+   * Mark the section being read in the sidebar and the outline. A link
+   * may name, in data-spy, a section that starts above its own target,
+   * so the first setting of a group is marked from the group's opening.
+   */
   function initSpy() {
     var sets = [all('#settings-nav a'), all('.rail a')].map(function (links) {
       return links.map(function (link) {
-        return { link: link, target: doc.getElementById((link.getAttribute('href') || '').slice(1)) };
+        var id = link.getAttribute('data-spy') || (link.getAttribute('href') || '').slice(1);
+        return { link: link, target: doc.getElementById(id) };
       }).filter(function (pair) {
         return pair.target;
       });
