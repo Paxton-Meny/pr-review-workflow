@@ -211,7 +211,11 @@ it into a product, or offering it within a paid service. Terms are
 arranged directly and sized to the use. Open an issue titled
 "Commercial license inquiry" with a sentence on the intended use, or
 reach the maintainer through their GitHub profile for anything better
-raised privately. The [NOTICE](NOTICE) file travels with
+raised privately.
+
+This is an independent project, not affiliated with or endorsed by
+Anthropic. Claude and Claude Code are trademarks of Anthropic, PBC,
+named here only to say what the plugin runs on. The [NOTICE](NOTICE) file travels with
 every distribution. The name pr-review-workflow identifies this
 project: forks and derived works ship under their own name and must
 prominently state what they changed, which the license requires. If
