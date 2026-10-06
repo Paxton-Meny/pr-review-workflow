@@ -5,6 +5,12 @@
 #        ...
 #        END
 #        sh scripts/resolve-settings.sh <state-dir> --approve <hash>
+#        sh scripts/resolve-settings.sh --preview <data-root> <<'END' ... END
+#
+# --preview resolves for the clone the command runs in, against the
+# base its origin/HEAD names, as of the last fetch: it fetches nothing,
+# writes nothing, records no pending approval, and prints every
+# setting with its source.
 #
 # Sources, lowest to highest: the manifest defaults; the user's plugin
 # configuration (stdin, one "key value" line each); the project file
@@ -35,12 +41,35 @@
 # set above the user's own configuration, and one per ignored entry.
 set -eu
 
-dir=${1:?usage: resolve-settings.sh <state-dir>}
-[ -f "$dir/meta.txt" ] || {
-	echo "resolve-settings: no meta.txt in $dir, run init-state.sh first" >&2
-	exit 1
-}
-data_root=$(CDPATH= cd -- "$dir/../.." && pwd)
+preview=0
+if [ "${1:-}" = --preview ]; then
+	preview=1
+	data_root=${2:?usage: resolve-settings.sh --preview <data-root>}
+	clone=$(git rev-parse --show-toplevel 2>/dev/null) || {
+		echo "resolve-settings: run the preview from inside a clone" >&2
+		exit 1
+	}
+	url=$(git -C "$clone" remote get-url origin 2>/dev/null) || {
+		echo "resolve-settings: the clone at $clone has no origin remote" >&2
+		exit 1
+	}
+	trimmed=${url%/}
+	trimmed=${trimmed%.git}
+	p_repo=${trimmed##*/}
+	rest=${trimmed%/*}
+	p_owner=${rest##*[:/]}
+	p_base=$(git -C "$clone" symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||') || p_base=''
+	dir=$(mktemp -d)
+	trap 'rm -rf "$dir"' EXIT
+	printf 'owner %s\nrepo %s\nbase_branch %s\nrepo_root %s\n' "$p_owner" "$p_repo" "$p_base" "$clone" >"$dir/meta.txt"
+else
+	dir=${1:?usage: resolve-settings.sh <state-dir>}
+	[ -f "$dir/meta.txt" ] || {
+		echo "resolve-settings: no meta.txt in $dir, run init-state.sh first" >&2
+		exit 1
+	}
+	data_root=$(CDPATH= cd -- "$dir/../.." && pwd)
+fi
 owner=$(sed -n 's/^owner //p' "$dir/meta.txt")
 repo=$(sed -n 's/^repo //p' "$dir/meta.txt")
 trusted="$data_root/trust/${owner}__${repo}.trusted"
@@ -77,7 +106,11 @@ manifest="$here/../.claude-plugin/plugin.json"
 }
 
 work=$(mktemp -d "$dir/.settings.XXXXXX")
-trap 'rm -rf "$work"' EXIT
+if [ "$preview" -eq 1 ]; then
+	trap 'rm -rf "$dir"' EXIT
+else
+	trap 'rm -rf "$work"' EXIT
+fi
 
 # key|type|default|options|min|max, one line per userConfig entry.
 awk '
@@ -132,7 +165,16 @@ base_lacks_it=0
 base=$(sed -n 's/^base_branch //p' "$dir/meta.txt")
 repo_root=$(sed -n 's/^repo_root //p' "$dir/meta.txt")
 if [ -n "$base" ] && [ -n "$repo_root" ] && [ -d "$repo_root" ]; then
-	fetch=$(sh "$here/fetch-base.sh" "$repo_root" "$base" 2>/dev/null || true)
+	if [ "$preview" -eq 1 ]; then
+		# No network: whatever the last fetch left.
+		if git -C "$repo_root" rev-parse --verify --quiet "refs/remotes/origin/$base" >/dev/null; then
+			fetch="as-of-last-fetch"
+		else
+			fetch=''
+		fi
+	else
+		fetch=$(sh "$here/fetch-base.sh" "$repo_root" "$base" 2>/dev/null || true)
+	fi
 	freshness=${fetch##* }
 	if [ "$freshness" = unavailable ] || [ -z "$fetch" ]; then
 		shared_state=unavailable
@@ -215,8 +257,10 @@ if [ -s "$work/exec" ]; then
 	exec_hash=$(git hash-object --stdin <"$work/exec")
 	if ! { [ -f "$trusted" ] && grep -qx "$exec_hash" "$trusted"; }; then
 		exec_trusted=0
-		mkdir -p "$data_root/trust"
-		printf '%s\n' "$exec_hash" >"$pending"
+		if [ "$preview" -eq 0 ]; then
+			mkdir -p "$data_root/trust"
+			printf '%s\n' "$exec_hash" >"$pending"
+		fi
 		sed "s/^/settings: trust pending $exec_hash /" "$work/exec" >>"$work/notes"
 	fi
 fi
@@ -311,6 +355,15 @@ END {
 ' "$work/user" "$work/project" "$work/local" "$work/run" >"$work/report"
 printf 'settings: project file %s, local file %s\n' "$shared_state" "$local_state" >>"$work/report"
 cat "$work/notes" >>"$work/report"
+
+if [ "$preview" -eq 1 ]; then
+	cat "$work/report"
+	awk 'NR == FNR { k = $1; v = $0; sub(/^[^ ]*/, "", v); sub(/^ /, "", v); val[k] = v; order[++n] = k; next }
+	{ from[$1] = $2 }
+	END { for (i = 1; i <= n; i++) { k = order[i]; print "settings: " k " " (val[k] == "" ? "(empty)" : val[k]) " from " from[k] } }
+	' "$work/settings" "$work/sources"
+	exit 0
+fi
 
 # Publish atomically, read-only, and record its hash outside the state
 # directory, where the executing scripts check it.

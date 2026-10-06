@@ -20,12 +20,14 @@ if grep -n '\${user_config\.' "$REPO_ROOT"/agents/*.md; then
 	exit 1
 fi
 
-# Every manifest key appears in the heredoc exactly once.
-for key in $(sed -n 's/^    "\([a-z_]*\)": {$/\1/p' "$REPO_ROOT/.claude-plugin/plugin.json"); do
-	[ "$(grep -c "^$key \${user_config\.$key}\$" "$skill")" -eq 1 ] || {
-		echo "the resolver heredoc must pass $key exactly once" >&2
-		exit 1
-	}
+# Every manifest key appears in each resolver heredoc exactly once.
+for file in "$skill" "$REPO_ROOT/skills/status/SKILL.md"; do
+	for key in $(sed -n 's/^    "\([a-z_]*\)": {$/\1/p' "$REPO_ROOT/.claude-plugin/plugin.json"); do
+		[ "$(grep -c "^$key \${user_config\.$key}\$" "$file")" -eq 1 ] || {
+			echo "$file: the resolver heredoc must pass $key exactly once" >&2
+			exit 1
+		}
+	done
 done
 
 # Scripts called without settings arguments read the resolved record.
