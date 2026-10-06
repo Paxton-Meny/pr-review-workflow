@@ -21,7 +21,7 @@ printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $keys user 0 r
 [ "$(value auto_approve)" = false ]
 grep -qx 'check_command' "$dir/settings.txt"
 [ "$(source_of verifier_model)" = default ]
-printf '%s\n' "$out" | grep -qx 'settings: for this run auto_approve false check unset standards unset double_review risky finding_filter true review_samples 1'
+printf '%s\n' "$out" | grep -qx 'settings: for this run auto_approve false'
 
 # User values win over defaults; empty user values count as unset.
 cat >"$SCRATCH/user" <<'END'

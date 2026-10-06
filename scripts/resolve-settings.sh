@@ -122,10 +122,7 @@ END {
 	}
 	printf "settings: resolved %d default %d user %d run %d ignored %d\n", nk, count["default"] + 0, count["user"] + 0, count["run"] + 0, ni + 0
 	# The facts the orchestrator branches on, never the commands themselves.
-	printf "settings: for this run auto_approve %s check %s standards %s double_review %s finding_filter %s review_samples %s\n", \
-		val["auto_approve"], (val["check_command"] == "" ? "unset" : "set"), \
-		(val["local_standards"] == "" ? "unset" : "set"), val["double_review"], \
-		val["finding_filter"], val["review_samples"]
+	printf "settings: for this run auto_approve %s\n", val["auto_approve"]
 	for (i = 1; i <= nk; i++) {
 		k = keys[i]
 		if (from[k] != "default" && from[k] != "user") printf "settings: %s %s from %s\n", k, (val[k] == "" ? "(empty)" : val[k]), from[k]

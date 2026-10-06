@@ -38,10 +38,11 @@ instructions bind for the whole run.
 
 Every setting is resolved by a script at step 2 into the run's ledger,
 and the scripts read it from there: never pass a setting to a script
-yourself, and never pick a value or a model yourself. Its
-`settings: for this run` line gives the facts this procedure branches
-on (auto_approve, whether a check command and standards are set,
-double_review, finding_filter, review_samples); hold those for the run.
+yourself, and never pick a value or a model yourself. The scripts make
+every settings-driven decision (whether a gap pass or the filter runs,
+how many review samples, whether the check gate is armed) and print
+it; the one you hold is the `settings: for this run auto_approve`
+value, for the merge gate.
 
 Every model decision below comes from one script,
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> <stage>`. It
@@ -140,14 +141,15 @@ PRWF_SETTINGS_END
    worktree path and a mode line. `mode review-only` is a fork that does
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 7. Exit 2 means the fork itself is
-   gone: report that and stop. When standards are set, follow with
+   gone: report that and stop. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir>`
-   (the script expands the globs inside the clone itself) and relay
-   its one-line result. When a check command is set, take a baseline:
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir>`.
-   A passing baseline arms the step 8 gate. A failing one disarms it for
-   this run and leaves the failure tail in place as reviewer evidence: a
-   head that already fails the project's own check is material for a
+   (it expands any configured globs inside the clone itself, or says
+   none are configured) and
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --baseline`,
+   relaying each one-line result. The baseline is recorded on disk: a
+   passing one arms the step 8 gate, and a failing one disarms it and
+   leaves the failure tail in place as reviewer evidence, since a head
+   that already fails the project's own check is material for a
    finding, not grounds to blame the editor later.
 5. Review. Read `additions` plus `deletions` from step 3's output.
    - At or under SHARD_LINES: spawn one `pr-review-workflow:reviewer` agent.
@@ -158,9 +160,9 @@ PRWF_SETTINGS_END
      coupling it could not co-locate. Spawn one reviewer per `group`
      line of `pr-context/shards.txt`, in parallel, restricted to that
      line's file numbers.
-   When review_samples is greater than 1, spawn that many identical
-   reviewers for each group (or for the single pass) in the same
-   parallel batch: duplicate findings are expected and reconciled
+   When a route line's `samples` is greater than 1, spawn that many
+   identical reviewers for its group (or for the single pass) in the
+   same parallel batch: duplicate findings are expected and reconciled
    below.
    Delegation prompt, exactly this and nothing more (extra context
    competes with the agent's own definition):
@@ -181,23 +183,22 @@ PRWF_SETTINGS_END
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the first pass found nothing; continue, since the
-   gap pass still applies. When review_samples is greater than 1 and
-   any report was saved, finish with
+   gap pass still applies. When `samples` was greater than 1 and any
+   report was saved, finish with
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh <dir>`,
    relaying its one-line result: duplicates merge into the richest
    record, and every survivor carries a support header the filter
    weighs.
-6. Gap pass. Run one whenever step 5 sharded the review, whatever
-   double_review says: shards read disjoint file sets, each diff line
-   was read exactly once, so only this pass can see a defect that
-   spans shard boundaries. On a single-reviewer run, double_review
-   governs instead: run one when it is `always`, or when it is
-   `risky` and the probe summary's slugs include `secrets` or
-   `automation`. Spawn one `pr-review-workflow:reviewer` with the `model` from
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> gap`
-   (the highest rung any review unit used, never below
-   reviewer_model: routing can raise the gap pass, never cheapen the
-   safety net) with
+6. Gap pass. Run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> gap`. A
+   `skip` line means no gap pass this run: go on to the clean-change
+   check at the end of this step. It always runs after a sharded
+   review, since each shard read only its own files and only this pass
+   sees a defect spanning them; otherwise the second review pass
+   setting decides, with a risk signal from the probes. When it runs,
+   spawn one `pr-review-workflow:reviewer` with the line's `model` (the
+   highest rung any review unit used, never below reviewer_model:
+   routing can raise the gap pass, never cheapen the safety net) and
    exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    When shard-plan reported more than zero seams, append exactly:
@@ -205,10 +206,10 @@ PRWF_SETTINGS_END
    Pipe its records into save-findings as in step 5. When the ledger
    holds no findings after this step, the change is clean: skip to
    step 10.
-7. When finding_filter is true and the ledger holds open findings not
-   yet posted, spawn `pr-review-workflow:filter` with the `model` from
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter`
-   and exactly:
+7. When the ledger holds open findings not yet posted, run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter`;
+   unless it prints a `skip` line, spawn `pr-review-workflow:filter`
+   with its `model` and exactly:
    `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
    and relay its one-line report. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir>`, then
@@ -244,15 +245,18 @@ PRWF_SETTINGS_END
       then run step c before starting the next line, so a broken
       check is pinned on the batch that broke it.
       Its report gives counts; trust the ledger over the prose.
-   c. When a check command is set and the step 4 baseline passed:
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir>`.
+   c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`.
+      It checks only when the recorded baseline passed for the same
+      command, and takes the baseline again first when there is none
+      for it (a resumed run, or a changed command), so never decide
+      this from memory.
       Exit 3 means the editor's commits broke the project's own check:
       run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> repair round=<n> -- <that batch's ids>`
       (one rung above the batch that broke it) and spawn
       `pr-review-workflow:editor` once more with its `model` and exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
-      then rerun run-check. A second failure is non-convergence (step 9);
+      then rerun `run-check.sh <dir> --gate`. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.
    d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier`
       with the `model` from
@@ -267,13 +271,13 @@ PRWF_SETTINGS_END
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
    f. Rerun `count-findings.sh <dir> --list` for the loop condition.
-      When max_reopens exceeds 2: with model_routing `fixed`, stop
-      the loop and treat it as non-convergence. With `auto`,
-      arbitrate once first, because repeated reopens sometimes mean
-      the cheap verifier is wrong rather than the editor: spawn
-      `pr-review-workflow:arbiter` with the `model` from
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate`
-      (the strong model when set, else reviewer_model, passed
+      When max_reopens exceeds 2, run
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate`.
+      A `skip` line (fixed routing) means stop the loop and treat it
+      as non-convergence. Otherwise arbitrate once first, because
+      repeated reopens sometimes mean the cheap verifier is wrong
+      rather than the editor: spawn `pr-review-workflow:arbiter` with
+      the line's `model` (the strong model when set, else reviewer_model, passed
       explicitly even when it is `inherit` so the arbitration runs on
       the session model, never the agent's default) and
       exactly:
