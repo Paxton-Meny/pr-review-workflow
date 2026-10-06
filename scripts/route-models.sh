@@ -14,13 +14,16 @@
 # label-value, is appended to pr-context/routes.txt, and names the model
 # the orchestrator passes as the override, "inherit" included:
 #   route <stage> <unit> rung <rung> model <model> reason <reason>[ ids ...]
-# The reviewer climbs for large or sensitive code when a strong model is
-# set and drops for a small docs-only or config-only change with no risk
-# signal; the gap pass follows the reviewer up but never down; the editor
-# drops in round one when every open finding is minor or nit with a
-# proven suggestion; the verifier and the filter never move; arbitration
-# takes the strong model, else the reviewer's. With routing fixed, every
-# role stays on its own setting.
+# A sharded review gets one line per group, judged on that group's own
+# files: it climbs for large or sensitive code when a strong model is
+# set and drops for a small docs-only or config-only group with no risk
+# signal. The gap pass follows the highest review rung but never drops.
+# An editing round in round one splits into a mechanical batch (minor or
+# nit findings with a proven suggestion, on the cheap rung) and the rest,
+# when both have at least two findings; otherwise it is one batch, cheap
+# only when every finding is mechanical. The verifier and the filter
+# never move; arbitration takes the strong model, else the reviewer's.
+# With routing fixed, every role stays on its own setting.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -105,6 +108,38 @@ kind=none lines=0 code_lines=0
 slugs=''
 [ -f "$ctx/probe-slugs.txt" ] && slugs=$(cat "$ctx/probe-slugs.txt")
 
+# The facts for one shard group: its kind, lines, code lines, and the
+# probe slugs that fired on its files. Prints "kind lines code_lines slugs".
+group_facts() {
+	# group_facts <file numbers>
+	awk -F '\t' -v nums="$1" -v kinds="$ctx/files-kind.txt" -v probes="$ctx/probe-files.txt" '
+	BEGIN {
+		n = split(nums, want, " ")
+		for (i = 1; i <= n; i++) in_group[want[i]] = 1
+		while ((getline line < kinds) > 0) {
+			split(line, f, "\t")
+			if (!(f[1] in in_group)) continue
+			files++; path[f[2]] = 1
+			if (f[3] == "docs") docs++
+			if (f[3] == "tests") tests++
+			if (f[3] == "config") config++
+			if (f[3] == "code") { code++; cl += f[4] }
+			lines += f[4]
+		}
+		while ((getline line < probes) > 0) {
+			split(line, p, "\t")
+			if ((p[2] in path) && !(p[1] in seen)) { seen[p[1]] = 1; s = s " " p[1] }
+		}
+		kind = "mixed"
+		if (code > 0) kind = "code"
+		if (files == docs) kind = "docs-only"
+		if (files == tests) kind = "tests-only"
+		if (files == config) kind = "config-only"
+		if (files == 0) kind = "empty"
+		printf "%s %d %d%s\n", kind, lines, cl, s
+	}'
+}
+
 # The reviewer's rung for one unit of the change, and why.
 review_rung() {
 	# review_rung <kind> <lines> <code_lines> <slugs>; prints "<rung> <reason>"
@@ -139,11 +174,27 @@ model_for() {
 
 case "$stage" in
 review)
-	set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
-	emit all "$1" "$(model_for "$1" "$reviewer")" "$2"
+	if [ -s "$ctx/shards.txt" ] && [ -f "$ctx/files-kind.txt" ]; then
+		# One decision per group, on that group's own files.
+		[ -f "$ctx/probe-files.txt" ] || : >"$ctx/probe-files.txt"
+		while read -r _g gi _l _gl _f nums; do
+			facts=$(group_facts "$nums")
+			gk=${facts%% *}
+			rest=${facts#* }
+			gl=${rest%% *}
+			rest=${rest#* }
+			gc=${rest%% *}
+			gs=${rest#"$gc"}
+			set -- $(review_rung "$gk" "$gl" "$gc" "$gs")
+			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" "$2"
+		done <"$ctx/shards.txt"
+	else
+		set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
+		emit all "$1" "$(model_for "$1" "$reviewer")" "$2"
+	fi
 	;;
 gap)
-	# Never below the reviewer's own setting, however the review was routed.
+	# The highest rung any review unit used, never below the reviewer's own setting.
 	rung=base reason=follows-reviewer
 	if [ -f "$ctx/routes.txt" ] && grep -q '^route review .* rung strong ' "$ctx/routes.txt"; then
 		rung=strong
@@ -158,25 +209,41 @@ edit)
 		echo "route-models: the edit stage needs the open finding ids after --" >&2
 		exit 1
 	}
-	rung=base reason=role-model
+	mech='' rest='' nmech=0 nrest=0
+	for id in $ids; do
+		record="$dir/findings/$id"
+		[ -f "$record" ] || {
+			echo "route-models: unknown finding: $id" >&2
+			exit 1
+		}
+		mechanical=0
+		case "$(sed -n 's/^severity: //p' "$record")" in
+		minor | nit) grep -q '^```suggestion$' "$record" && mechanical=1 ;;
+		esac
+		if [ "$mechanical" -eq 1 ]; then
+			mech="$mech $id"
+			nmech=$((nmech + 1))
+		else
+			rest="$rest $id"
+			nrest=$((nrest + 1))
+		fi
+	done
+	mech=${mech# }
+	rest=${rest# }
 	if [ "$routing" = fixed ]; then
-		reason=fixed
-	elif [ "$round" -eq 1 ]; then
-		mechanical=1
-		for id in $ids; do
-			record="$dir/findings/$id"
-			[ -f "$record" ] || {
-				echo "route-models: unknown finding: $id" >&2
-				exit 1
-			}
-			case "$(sed -n 's/^severity: //p' "$record")" in
-			minor | nit) grep -q '^```suggestion$' "$record" || mechanical=0 ;;
-			*) mechanical=0 ;;
-			esac
-		done
-		[ "$mechanical" -eq 1 ] && rung=cheap reason=mechanical-round-one
+		emit all base "$editor" fixed "$ids"
+	elif [ "$round" -ne 1 ]; then
+		# Never route down after round one.
+		emit all base "$editor" role-model "$ids"
+	elif [ "$nrest" -eq 0 ]; then
+		emit all cheap "$CHEAP" mechanical-round-one "$ids"
+	elif [ "$nmech" -ge 2 ]; then
+		# Two batches, the mechanical one first: run them in order, never together.
+		emit batch-1 cheap "$CHEAP" mechanical-round-one "$mech"
+		emit batch-2 base "$editor" role-model "$rest"
+	else
+		emit all base "$editor" role-model "$ids"
 	fi
-	emit all "$rung" "$(model_for "$rung" "$editor")" "$reason" "$ids"
 	;;
 arbitrate)
 	if [ -n "$strong" ]; then

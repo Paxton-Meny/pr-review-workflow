@@ -54,12 +54,31 @@ printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n``
 [ "$(route edit $ARGS round=2 -- F001 F002)" = "route edit all rung base model inherit reason role-model ids F001 F002" ]
 [ "$(route edit routing=fixed round=1 -- F001)" = "route edit all rung base model inherit reason fixed ids F001" ]
 
+# A mixed round splits into a mechanical batch first and the rest, when both hold two findings.
+printf 'id: F004\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F004"
+[ "$(route edit $ARGS round=1 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet reason mechanical-round-one ids F001 F002
+route edit batch-2 rung base model inherit reason role-model ids F003 F004" ]
+[ "$(route edit $ARGS round=2 -- F003 F001 F004 F002)" = "route edit all rung base model inherit reason role-model ids F003 F001 F004 F002" ]
+
+# A sharded review is routed group by group, on each group's own files.
+printf '001\tdocs/a.md\tdocs\t40\n002\tdocs/b.md\tdocs\t30\n003\tsrc/auth.py\tcode\t120\n004\tsrc/util.py\tcode\t60\n' >"$ctx/files-kind.txt"
+printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ctx/shards.txt"
+printf 'sensitive\tsrc/auth.py\nadded\tdocs/b.md\n' >"$ctx/probe-files.txt"
+classify code 250 180
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet reason docs-only-small
+route review group-2 rung strong model opus reason risky-probe" ]
+[ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus reason follows-reviewer" ]
+printf 'deps\tdocs/a.md\n' >"$ctx/probe-files.txt"
+[ "$(route review $ARGS)" = "route review group-1 rung base model inherit reason role-model
+route review group-2 rung base model inherit reason role-model" ]
+rm -f "$ctx/shards.txt"
+
 # Arbitration takes the strong model, else the reviewer's.
 [ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus reason arbitration" ]
 [ "$(route arbitrate routing=auto reviewer=inherit)" = "route arbitrate all rung base model inherit reason no-strong-model" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 18 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 26 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet reason docs-only-small" ]
 
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.

@@ -525,6 +525,7 @@
 </div>
 </div>
 </div>
+<p class="note">Routing decides per unit of work, not per pull request: a sharded review is judged group by group on each group&#8217;s own files, and a first editing round splits into a mechanical batch and the rest when each holds at least two findings. The gap pass takes the highest rung any group used.</p>
 <p class="note">Each role also runs at a fixed reasoning effort set in its agent definition, whatever your session&#8217;s level: the reviewer and the arbiter high, the editor medium, the verifier and the filter low. Finding defects is where thinking pays; checking a fix against a stated contract is a narrow question.</p>
 <h4 class="display" id="model-overrides">Whether those choices can be overridden</h4>
 <div class="card">
@@ -560,7 +561,7 @@
 <tr><th scope="col">ROLE</th><th scope="col"><span><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>AUTO MAY DROP TO</span></th><th scope="col">STARTS ON</th><th scope="col"><span>AUTO MAY CLIMB TO<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></th></tr>
 <tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a docs-only or config-only change under 300 lines, no risk signal</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>over 800 changed lines of code, tests and docs not counted, or a sensitive surface</td></tr>
 <tr><th scope="row">Gap pass</th><td><span class="never">never</span><br>the safety net is never cheapened</td><td><span class="pill">reviewer_model</span><br>or wherever the reviewer was raised to</td><td><span class="pill pill-high">strong_model</span><br>together with the reviewer</td></tr>
-<tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only, when every open finding is minor and carries a proven <a class="term" href="#g-suggestion">suggestion</a></td><td><span class="pill">editor_model</span></td><td><span class="never">never</span></td></tr>
+<tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only, for the batch of findings that are minor or nit and carry a proven <a class="term" href="#g-suggestion">suggestion</a></td><td><span class="pill">editor_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Precision filter</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Verifier</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Arbitration</th><td><span class="never">never</span></td><td><span class="pill">reviewer_model</span><br>one pass per run, when a finding keeps being reopened</td><td><span class="pill pill-high">strong_model</span><br>whenever one is set</td></tr>

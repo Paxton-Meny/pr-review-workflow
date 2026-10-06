@@ -12,7 +12,8 @@ ctx="$dir/pr-context"
 
 added=$(mktemp "$ctx/.probe.XXXXXX")
 out=$(mktemp "$ctx/.probe.XXXXXX")
-trap 'rm -f "$added" "$out"' EXIT
+files=$(mktemp "$ctx/.probe.XXXXXX")
+trap 'rm -f "$added" "$out" "$files"' EXIT
 rm -f "$ctx/probes.txt"
 
 awk '
@@ -31,6 +32,8 @@ probe() {
 	hits=$2
 	[ -n "$hits" ] || return 0
 	printf '## %s\n%s\n\n' "$1" "$hits" >>"$out"
+	# The files each probe touched, slug and path, for per-shard routing.
+	printf '%s\n' "$hits" | sed 's/[: (].*//' | sort -u | awk -v s="$3" 'NF { print s "\t" $0 }' >>"$files"
 	slugs="$slugs $3"
 	sections=$((sections + 1))
 }
@@ -55,8 +58,9 @@ probe "Large additions (over 800 added lines in one file)" "$(awk -F '\t' '$2 + 
 
 if [ "$sections" -gt 0 ]; then
 	mv "$out" "$ctx/probes.txt"
-	trap 'rm -f "$added"' EXIT
 fi
+mv "$files" "$ctx/probe-files.txt"
+trap 'rm -f "$added" "$out"' EXIT
 slugs=${slugs# }
 # The fired slugs, one line, for the router.
 printf '%s\n' "$slugs" >"$ctx/probe-slugs.txt"

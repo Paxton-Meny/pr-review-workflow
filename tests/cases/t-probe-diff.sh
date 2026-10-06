@@ -25,6 +25,8 @@ PATCH
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
 [ "$out" = "probe-diff: 8 sections (added deleted deps imports secrets debug markers large)" ]
 [ "$(cat "$ctx/probe-slugs.txt")" = "added deleted deps imports secrets debug markers large" ]
+grep -q "^secrets	" "$ctx/probe-files.txt"
+grep -q "^large	" "$ctx/probe-files.txt"
 grep -qx '## Added files' "$ctx/probes.txt"
 grep -qx 'src/new.py' "$ctx/probes.txt"
 grep -qx '## Deleted files' "$ctx/probes.txt"
@@ -52,6 +54,7 @@ PATCH
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
 [ "$out" = "probe-diff: 0 sections" ]
 [ -z "$(cat "$ctx/probe-slugs.txt")" ]
+[ ! -s "$ctx/probe-files.txt" ]
 [ ! -f "$ctx/probes.txt" ]
 
 if sh "$REPO_ROOT/scripts/probe-diff.sh" "$SCRATCH/empty" 2>"$SCRATCH/err"; then
