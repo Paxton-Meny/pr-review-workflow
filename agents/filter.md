@@ -2,6 +2,7 @@
 name: filter
 description: Re-reads the code behind each banked finding before it posts, demoting findings that fresh evidence cannot support. Never drops or closes anything.
 model: sonnet
+effort: low
 tools: Read, Grep, Glob, Bash
 maxTurns: 30
 omitClaudeMd: true

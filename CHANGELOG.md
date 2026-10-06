@@ -28,6 +28,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Each agent declares its reasoning effort: the reviewer high, the
+  editor medium, the verifier and the filter low, so the narrow
+  checks no longer inherit whatever level the session runs at. An
+  arbiter agent carries the verifier's procedure at high effort for
+  the one arbitration pass before a run parks.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model
