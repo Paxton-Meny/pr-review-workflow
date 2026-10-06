@@ -246,6 +246,8 @@ FNR == 1 { for (i = 1; i <= 4; i++) if (FILENAME == ARGV[i]) source = names[i] }
 		if (k == "review_samples" && nv + 0 < val[k] + 0) {
 			ignored[++ni] = "project " k ": would lower " val[k] " to " nv "; a project may only raise it"; next
 		}
+		# A project adds sensitive paths; it never removes yours.
+		if (k == "sensitive_paths" && val[k] != "") nv = (nv == "" ? val[k] : val[k] " " nv)
 	}
 	val[k] = nv; from[k] = source
 }
