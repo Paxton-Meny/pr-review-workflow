@@ -58,4 +58,6 @@ if [ "$sections" -gt 0 ]; then
 	trap 'rm -f "$added"' EXIT
 fi
 slugs=${slugs# }
+# The fired slugs, one line, for the router.
+printf '%s\n' "$slugs" >"$ctx/probe-slugs.txt"
 echo "probe-diff: $sections sections${slugs:+ ($slugs)}"

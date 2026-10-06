@@ -9,6 +9,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/shard-plan.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
@@ -47,6 +48,14 @@ instructions bind for the whole run.
 - finding_filter: ${user_config.finding_filter} (default true)
 - review_samples: ${user_config.review_samples} (default 1)
 
+Every model decision below comes from one script, called with the
+routing arguments
+`routing=${user_config.model_routing} reviewer=${user_config.reviewer_model} editor=${user_config.editor_model} verifier=${user_config.verifier_model} strong='${user_config.strong_model}'`
+(the same five every time; written as `<routing args>` from here on).
+It prints one `route` line per unit, and the `model` value on that
+line is the override to pass when spawning, `inherit` included: pass
+it as given, never pick a model yourself. Relay every route line.
+
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
 
@@ -57,10 +66,11 @@ unsure, the run is unattended.
 If any setting above reads as a literal placeholder (a dollar sign,
 braces, and a user_config key) instead of a value, this install has no
 saved plugin configuration: use the default annotated beside each
-setting, exactly as written, everywhere the setting is referenced,
-model overrides included (an unconfigured run spawns the filter,
-verifier, and every verification pass on sonnet, never on the session
-model). Say so in the final report so the user knows their
+setting, exactly as written, everywhere the setting is referenced.
+The routing script does the same on its own: a placeholder passed to
+it counts as unset, so an unconfigured run still routes the filter,
+verifier, and every verification pass to sonnet, never the session
+model. Say so in the final report so the user knows their
 configuration never loaded.
 
 ## Context discipline
@@ -131,18 +141,15 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    competes with the agent's own definition):
    `Review the pull request. State directory: <dir>.` plus, when
    restricted, ` Files <numbers> only.` listing the file numbers.
-   Model override, decided top down when model_routing is `auto`:
-   - strong_model is set, the classify line said kind `code`, and
-     either its lines exceed 800 or the probe slugs include
-     `secrets`, `automation`, or `sensitive`: use strong_model. The
-     change is large or touches dangerous ground, and that is where
-     the strongest attention pays for itself.
-   - Kind `docs-only` or `config-only`, lines under 300, and no
-     slugs among `secrets`, `automation`, `deps`, `debug`,
-     `test-shrink`, `sensitive`: use `sonnet`, the change is
-     mechanical.
-   - Otherwise reviewer_model (no override when it is `inherit`).
-   With model_routing `fixed`, always reviewer_model. Pipe each report verbatim into
+   Model override: run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> review <routing args>`
+   once before spawning and pass its `model` to every reviewer of
+   this step. It climbs to the strong model for large or sensitive
+   code, drops to sonnet for a small docs-only or config-only change
+   with no risk signal, and otherwise keeps reviewer_model; a reason
+   of `strong-wanted-unset` means the change deserved a stronger
+   model and none is configured, which the final report must say.
+   Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
    findings` means the first pass found nothing; continue, since the
@@ -158,9 +165,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    spans shard boundaries. On a single-reviewer run, double_review
    governs instead: run one when it is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
-   `automation`. Spawn one `pr-review-workflow:reviewer` (the same override step 5
-   chose, floored at reviewer_model: routing can raise the gap pass,
-   never cheapen the safety net) with
+   `automation`. Spawn one `pr-review-workflow:reviewer` with the `model` from
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> gap <routing args>`
+   (it follows the reviewer up, never down: routing can raise the gap
+   pass, never cheapen the safety net) with
    exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    When shard-plan reported more than zero seams, append exactly:
@@ -169,8 +177,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    holds no findings after this step, the change is clean: skip to
    step 10.
 7. When finding_filter is true and the ledger holds open findings not
-   yet posted, spawn `pr-review-workflow:filter` (model override: verifier_model) with
-   exactly:
+   yet posted, spawn `pr-review-workflow:filter` with the `model` from
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter <routing args>`
+   and exactly:
    `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
    and relay its one-line report. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir> '${user_config.check_command}'`
@@ -192,11 +201,11 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    b. Spawn `pr-review-workflow:editor` with
       exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. <round line>.`
-      Model override: editor_model, except when model_routing is
-      `auto`, the round line says round 1, and the count's
-      `open_mechanical_ids` equals `open_ids` exactly and is not
-      empty: then `sonnet`, because every open finding is minor or
-      nit and carries a proven fence. Never route down after round 1.
+      Model override: the `model` from
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> edit <routing args> round=<n> -- <open_ids>`
+      with the round number from step a. It drops to sonnet only in
+      round 1 when every open finding is minor or nit and carries a
+      proven fence, and never routes down after round 1.
       Its report gives counts; trust the ledger over the prose.
    c. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
@@ -205,8 +214,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
       then rerun run-check. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.
-   d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier` (model
-      override: verifier_model) with exactly:
+   d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier`
+      with the `model` from
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify <routing args>`
+      and exactly:
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
@@ -220,10 +231,11 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       the loop and treat it as non-convergence. With `auto`,
       arbitrate once first, because repeated reopens sometimes mean
       the cheap verifier is wrong rather than the editor: spawn
-      `pr-review-workflow:arbiter` overriding its model with strong_model when set,
-      else reviewer_model, passing `inherit` explicitly when that is
-      the chosen value so the arbitration runs on the session model,
-      never the verifier default, and
+      `pr-review-workflow:arbiter` with the `model` from
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate <routing args>`
+      (the strong model when set, else reviewer_model, passed
+      explicitly even when it is `inherit` so the arbitration runs on
+      the session model, never the agent's default) and
       exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
       using the `capped_ids` line from the count. Rerun
@@ -268,7 +280,9 @@ criteria-signals heading, and quotes the `run-stats:` line verbatim
 when one was produced: a paraphrase of either loses the exact lines
 the tuning process greps for. Those lines are the material for growing the
 reviewer's criteria deliberately, and a report that drops them is how they
-get lost.
+get lost. When any route line carried the reason `strong-wanted-unset`,
+the report also says that the change called for a stronger model and
+that the strong model setting is empty.
 
 ## Boundaries
 
