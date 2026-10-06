@@ -28,6 +28,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Model routing is a script, `route-models.sh`, that prints one
+  `route` line per decision with its rung, model, and reason, and
+  keeps them in the ledger. The skill passes the model it names
+  instead of choosing one. Large means over 800 changed lines of
+  code, with tests, docs, and configuration no longer counted. When a
+  change calls for a stronger model and none is set, the route says
+  so and the final report repeats it. Each run's statistics line
+  gains the count of decisions per rung, and the status report sums
+  them.
 - Each agent declares its reasoning effort: the reviewer high, the
   editor medium, the verifier and the filter low, so the narrow
   checks no longer inherit whatever level the session runs at. An

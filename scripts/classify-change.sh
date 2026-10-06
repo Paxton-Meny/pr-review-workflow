@@ -1,5 +1,7 @@
 #!/bin/sh
 # Classify the fetched change by file kind and size for model routing.
+# Writes class.txt (the summary line) and files-kind.txt (one line per
+# file: number, path, class, changed lines) under pr-context/.
 # Usage: sh scripts/classify-change.sh <state-dir>
 set -eu
 
@@ -37,19 +39,28 @@ class_of() {
 	esac
 }
 
-docs=0 tests=0 config=0 code=0 files=0 lines=0
-while IFS='	' read -r _num path; do
+docs=0 tests=0 config=0 code=0 files=0 lines=0 code_lines=0
+table=$(mktemp "$ctx/.class.XXXXXX")
+while IFS='	' read -r num path; do
 	[ -n "$path" ] || continue
 	files=$((files + 1))
-	case $(class_of "$path") in
+	class=$(class_of "$path")
+	counts=$(awk -F '\t' -v p="$path" '$1 == p { print $2 + $3; exit }' "$ctx/files.txt" 2>/dev/null || true)
+	counts=${counts:-0}
+	case $class in
 	docs) docs=$((docs + 1)) ;;
 	tests) tests=$((tests + 1)) ;;
 	config) config=$((config + 1)) ;;
-	code) code=$((code + 1)) ;;
+	code)
+		code=$((code + 1))
+		code_lines=$((code_lines + counts))
+		;;
 	esac
-	counts=$(awk -F '\t' -v p="$path" '$1 == p { print $2 + $3; exit }' "$ctx/files.txt" 2>/dev/null || true)
-	lines=$((lines + ${counts:-0}))
+	lines=$((lines + counts))
+	printf '%s\t%s\t%s\t%s\n' "$num" "$path" "$class" "$counts" >>"$table"
 done <"$ctx/diff-index.txt"
+# One line per file for the router: number, path, class, changed lines.
+mv "$table" "$ctx/files-kind.txt"
 
 kind=mixed
 [ "$code" -gt 0 ] && kind=code
@@ -58,6 +69,6 @@ kind=mixed
 [ "$files" -eq "$config" ] && kind=config-only
 [ "$files" -eq 0 ] && kind=empty
 
-line="classify-change: kind $kind files $files lines $lines"
+line="classify-change: kind $kind files $files lines $lines code_lines $code_lines"
 printf '%s\n' "$line" >"$ctx/class.txt"
 echo "$line"

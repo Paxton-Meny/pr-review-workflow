@@ -547,7 +547,7 @@
 <span>default <b>empty</b></span>
 </div>
 <div class="setting-d">
-<p>The model auto routing climbs to for code changes over 800 lines, for changes that touch concurrency, cryptography, authentication or injection surfaces, and for the one <a class="term" href="#g-arbitration">arbitration</a> pass before a run <a class="term" href="#g-park">parks</a>.</p>
+<p>The model auto routing climbs to for changes with over 800 changed lines of code (tests and docs not counted), for changes that touch concurrency, cryptography, authentication or injection surfaces, and for the one <a class="term" href="#g-arbitration">arbitration</a> pass before a run <a class="term" href="#g-park">parks</a>.</p>
 <p><b>Accepts</b> &#183; empty, or a model name such as <code>opus</code></p>
 <p><b>Relates to</b> &#183; Does nothing when routing is <code>fixed</code>. Left empty, climbing stops at the reviewer model.</p>
 </div>
@@ -558,7 +558,7 @@
 <div class="card scroll">
 <table class="ladder">
 <tr><th scope="col">ROLE</th><th scope="col"><span><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>AUTO MAY DROP TO</span></th><th scope="col">STARTS ON</th><th scope="col"><span>AUTO MAY CLIMB TO<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></th></tr>
-<tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a docs-only or config-only change under 300 lines, no risk signal</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>code over 800 lines, or a sensitive surface</td></tr>
+<tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a docs-only or config-only change under 300 lines, no risk signal</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>over 800 changed lines of code, tests and docs not counted, or a sensitive surface</td></tr>
 <tr><th scope="row">Gap pass</th><td><span class="never">never</span><br>the safety net is never cheapened</td><td><span class="pill">reviewer_model</span><br>or wherever the reviewer was raised to</td><td><span class="pill pill-high">strong_model</span><br>together with the reviewer</td></tr>
 <tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only, when every open finding is minor and carries a proven <a class="term" href="#g-suggestion">suggestion</a></td><td><span class="pill">editor_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Precision filter</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>

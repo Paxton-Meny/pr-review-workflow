@@ -24,6 +24,7 @@ PATCH
 
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
 [ "$out" = "probe-diff: 8 sections (added deleted deps imports secrets debug markers large)" ]
+[ "$(cat "$ctx/probe-slugs.txt")" = "added deleted deps imports secrets debug markers large" ]
 grep -qx '## Added files' "$ctx/probes.txt"
 grep -qx 'src/new.py' "$ctx/probes.txt"
 grep -qx '## Deleted files' "$ctx/probes.txt"
@@ -50,6 +51,7 @@ diff --git a/docs/a.md b/docs/a.md
 PATCH
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
 [ "$out" = "probe-diff: 0 sections" ]
+[ -z "$(cat "$ctx/probe-slugs.txt")" ]
 [ ! -f "$ctx/probes.txt" ]
 
 if sh "$REPO_ROOT/scripts/probe-diff.sh" "$SCRATCH/empty" 2>"$SCRATCH/err"; then

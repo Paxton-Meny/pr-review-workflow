@@ -1,5 +1,5 @@
 #!/bin/sh
-# Summarize the stats ledger: outcomes, rounds, finding totals.
+# Summarize the stats ledger: outcomes, rounds, finding totals, routes.
 # Usage: sh scripts/stats-report.sh <data-root>
 set -eu
 
@@ -20,6 +20,7 @@ awk '
 	findings += v["findings"]; verified += v["verified"]
 	wontfix += v["wont-fix"]; demoted += v["demoted"]
 	contracts += v["contracts"]; seams += v["seams"]
+	cheap += v["cheap"]; base += v["base"]; strong += v["strong"]; wanted += v["strong_wanted"]
 	if (v["reopens"] + 0 > 0) reopened++
 	delete v
 }
@@ -30,5 +31,7 @@ END {
 		hist[0] + 0, hist[1] + 0, hist[2] + 0, hist[3] + 0, hist[4] + 0, reopened + 0
 	printf "stats-report: findings %d verified %d wont-fix %d demoted %d contracts %d seams %d\n", \
 		findings, verified, wontfix, demoted, contracts, seams
+	printf "stats-report: routes cheap %d base %d strong %d strong-wanted %d\n", \
+		cheap, base, strong, wanted
 }
 ' "$stats"
