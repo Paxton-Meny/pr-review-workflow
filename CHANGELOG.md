@@ -28,6 +28,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Routing decides per unit of work. A sharded review is routed group
+  by group on each group's own files, so a documentation group runs
+  on the cheap rung while an authentication group climbs, and the gap
+  pass takes the highest rung any group used. A first editing round
+  splits into a mechanical batch and the rest when each holds at
+  least two findings, run one after the other with the check gate
+  after each, so a broken check is pinned on the batch that broke it.
 - Model routing is a script, `route-models.sh`, that prints one
   `route` line per decision with its rung, model, and reason, and
   keeps them in the ledger. The skill passes the model it names

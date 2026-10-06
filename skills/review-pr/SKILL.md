@@ -143,12 +143,15 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    restricted, ` Files <numbers> only.` listing the file numbers.
    Model override: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> review <routing args>`
-   once before spawning and pass its `model` to every reviewer of
-   this step. It climbs to the strong model for large or sensitive
-   code, drops to sonnet for a small docs-only or config-only change
-   with no risk signal, and otherwise keeps reviewer_model; a reason
-   of `strong-wanted-unset` means the change deserved a stronger
-   model and none is configured, which the final report must say.
+   once before spawning. Unsharded, it prints one line and every
+   reviewer of this step takes its `model`. Sharded, it prints one
+   line per group, judged on that group's own files, and each
+   group's reviewers take their own line's `model`. A group climbs
+   to the strong model for large or sensitive code, drops to sonnet
+   for a small docs-only or config-only group with no risk signal,
+   and otherwise keeps reviewer_model; a reason of
+   `strong-wanted-unset` means the change deserved a stronger model
+   and none is configured, which the final report must say.
    Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
@@ -167,8 +170,9 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    `risky` and the probe summary's slugs include `secrets` or
    `automation`. Spawn one `pr-review-workflow:reviewer` with the `model` from
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> gap <routing args>`
-   (it follows the reviewer up, never down: routing can raise the gap
-   pass, never cheapen the safety net) with
+   (the highest rung any review unit used, never below
+   reviewer_model: routing can raise the gap pass, never cheapen the
+   safety net) with
    exactly:
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    When shard-plan reported more than zero seams, append exactly:
@@ -198,14 +202,18 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       Exit 3 means the persistent round budget for this pull request is
       spent: non-convergence (step 9). Otherwise its output is the round
       line the delegations below quote; never count rounds from memory.
-   b. Spawn `pr-review-workflow:editor` with
-      exactly:
-      `Address the open findings. State directory: <dir>. Open finding ids: <open_ids>. <round line>.`
-      Model override: the `model` from
+   b. Run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> edit <routing args> round=<n> -- <open_ids>`
-      with the round number from step a. It drops to sonnet only in
-      round 1 when every open finding is minor or nit and carries a
-      proven fence, and never routes down after round 1.
+      with the round number from step a. It prints one line, or in
+      round 1 two: a mechanical batch (minor or nit findings with a
+      proven fence, on sonnet) and the rest, when each holds at least
+      two findings. It never routes down after round 1. For each line
+      in the order printed, one after the other and never in
+      parallel, spawn `pr-review-workflow:editor` with that line's
+      `model` and `ids` and exactly:
+      `Address the open findings. State directory: <dir>. Open finding ids: <ids from the line>. <round line>.`
+      then run step c before starting the next line, so a broken
+      check is pinned on the batch that broke it.
       Its report gives counts; trust the ledger over the prose.
    c. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
