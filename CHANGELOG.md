@@ -11,6 +11,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - A round whose every finding the precision filter demoted now posts
   its summary comment. Before, nothing posted and the demoted findings
   never reached the pull request.
+- The base branch is fetched with an explicit refspec, so a clone made
+  with --single-branch still reads the conventions block from a
+  pull request's non-default base instead of silently skipping it.
+- The invocation text reaches the first script on stdin through a
+  quoted heredoc, never pasted into a shell command, so quotes and
+  command substitutions typed after the pull request stay inert.
 - The run figure is drawn as three labeled lanes, GitHub, scripts,
   and models, with the scripts as the backbone, so who does each
   step is read from position instead of from a color legend.
@@ -43,6 +49,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- Per-run settings typed after the pull request,
+  `/pr-review-workflow:review-pr 128 posture=quality`, are parsed and
+  recorded in the ledger for that invocation only; a later invocation
+  without them clears them. They take effect once the settings
+  resolver lands.
 - An escalation ladder for fixes. Every editing attempt is noted on
   the finding's record with its round, rung, model, and reason; a
   finding attempted and still open climbs one rung above its last

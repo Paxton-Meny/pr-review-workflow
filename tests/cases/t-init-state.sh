@@ -31,6 +31,31 @@ grep -qx '0' "$dir/round.txt"
 url_dir=$(sh "$REPO_ROOT/scripts/init-state.sh" "$data" "https://github.com/acme/widgets/pull/7")
 [ "$url_dir" = "$dir" ]
 
+grep -q "^repo_root $clone\$" "$dir/meta.txt" || grep -q '^repo_root .*/clone$' "$dir/meta.txt"
+[ ! -s "$dir/overrides.txt" ]
+
+# Per-run overrides arrive on stdin, quoted values keep their spaces, and
+# nothing typed is ever executed.
+marker="$SCRATCH/ran"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" - >/dev/null <<EOF
+  acme/widgets#7   posture=quality check_command="npm test -- --ci" note='it'"'"'s \$(touch $marker)'
+EOF
+[ ! -e "$marker" ]
+printf 'posture quality\ncheck_command npm test -- --ci\nnote it'"'"'s $(touch %s)\n' "$marker" >"$SCRATCH/want"
+cmp -s "$dir/overrides.txt" "$SCRATCH/want" || { cat "$dir/overrides.txt" >&2; exit 1; }
+
+# A later invocation without overrides clears them.
+printf 'acme/widgets#7\n' | sh "$REPO_ROOT/scripts/init-state.sh" "$data" - >/dev/null
+[ ! -s "$dir/overrides.txt" ]
+
+for bad in 'acme/widgets#7 posture' 'acme/widgets#7 Posture=x' "acme/widgets#7 check=\"npm test"; do
+	if printf '%s\n' "$bad" | sh "$REPO_ROOT/scripts/init-state.sh" "$data" - 2>"$SCRATCH/err" >/dev/null; then
+		echo "expected refusal of: $bad" >&2
+		exit 1
+	fi
+done
+grep -q "unclosed quote" "$SCRATCH/err"
+
 printf '2\n' >"$dir/round.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "acme/widgets#7" >/dev/null
 grep -qx '2' "$dir/round.txt"

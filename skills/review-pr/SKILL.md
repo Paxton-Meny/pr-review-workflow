@@ -2,7 +2,7 @@
 name: review-pr
 description: "Review a GitHub pull request end to end: post inline findings, edit the branch to address them, re-review until clean, then merge or ask. Invoke with a PR number, owner/repo#n, or URL, from inside a clone of the reviewed repository."
 disable-model-invocation: true
-argument-hint: "<pr number | owner/repo#n | url>"
+argument-hint: "<pr number | owner/repo#n | url> [key=value ...]"
 allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh *)
@@ -95,7 +95,17 @@ path, and leave everything in place. Re-invoking this skill with the same
 argument resumes from the ledger. Never retry a failed call in a loop.
 
 1. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh`
-2. `dir=$(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh "${CLAUDE_PLUGIN_DATA}" "$ARGUMENTS")`.
+2. Create or refresh the ledger. Pass the invocation text on stdin,
+   never inside the command line, exactly as below (the quoted
+   delimiter keeps anything typed inert):
+   ```
+   dir=$(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh "${CLAUDE_PLUGIN_DATA}" - <<'PRWF_ARGS_END'
+   $ARGUMENTS
+   PRWF_ARGS_END
+   )
+   ```
+   The first word is the pull request; any `key=value` words after it
+   are per-run settings, recorded for this invocation only.
    If `<dir>/findings/` already has records, this is a resume: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
    report the counts, and continue at the step they imply. Open findings:
