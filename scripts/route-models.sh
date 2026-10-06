@@ -2,7 +2,9 @@
 # Decide which model each role runs on, one line per unit of work.
 # Usage: sh scripts/route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]
 #
-# Stages: review, gap, filter, edit, repair, verify, arbitrate. Keys,
+# Settings come from the run's resolved settings.txt when there is one;
+# key=value arguments override them. Stages: review, gap, filter, edit,
+# repair, verify, arbitrate. Keys,
 # each with its manifest default: routing (auto), reviewer (inherit),
 # editor (inherit), verifier (sonnet), strong (empty), posture
 # (balanced), check (empty), prefixes (empty), round (1). A value that
@@ -54,6 +56,19 @@ RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
 posture=balanced check='' prefixes=''
 ids=''
+# The run's resolved settings come first; key=value arguments override
+# them, which is how the tests drive every branch.
+if [ -f "$dir/settings.txt" ]; then
+	get() { sh "$(dirname "$0")/setting.sh" "$dir" "$1"; }
+	routing=$(get model_routing)
+	reviewer=$(get reviewer_model)
+	editor=$(get editor_model)
+	verifier=$(get verifier_model)
+	strong=$(get strong_model)
+	posture=$(get cost_posture)
+	check=$(get check_command)
+	prefixes=$(get contract_commands)
+fi
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--)
