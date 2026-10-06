@@ -15,7 +15,7 @@ source_of() { sed -n "s/^$1 //p" "$dir/sources.txt"; }
 # placeholder from an unconfigured install counts as unset.
 out=$(printf 'cost_posture ${user_config.cost_posture}\ncheck_command ${user_config.check_command}\n' | resolve)
 keys=$(grep -c '^    "[a-z_]*": {' "$REPO_ROOT/.claude-plugin/plugin.json")
-printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $keys user 0 run 0 ignored 0"
+printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $keys user 0 project 0 local 0 run 0 ignored 0"
 [ "$(value cost_posture)" = balanced ]
 [ "$(value keep_ledgers)" = 20 ]
 [ "$(value auto_approve)" = false ]
@@ -38,7 +38,7 @@ out=$(resolve <"$SCRATCH/user")
 [ "$(value reviewer_model)" = inherit ]
 [ "$(value auto_approve)" = true ]
 [ "$(source_of cost_posture)" = user ]
-printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $((keys - 4)) user 4 run 0 ignored 0"
+printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $((keys - 4)) user 4 project 0 local 0 run 0 ignored 0"
 
 # Per-run overrides win over the user, aliases resolve, and an invalid
 # value falls back to the source below it, not to the default.
