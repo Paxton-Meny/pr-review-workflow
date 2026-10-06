@@ -75,6 +75,7 @@
 </div>
 <div class="side-group">
 <div class="side-head">REFERENCE</div>
+<a href="#where" data-words="project file local shared precedence override trust configure">Where settings come from</a>
 <a href="#glossary" data-words="terms definitions">Glossary</a>
 </div>
 </nav>
@@ -89,12 +90,13 @@
 
 <div id="merging">
 <div class="group"><h2>Merging</h2></div>
-<section class="entry" id="auto-approve" data-key="auto_approve" data-default="false">
+<section class="entry" id="auto-approve" data-key="auto_approve" data-project="never" data-default="false">
 <h3 class="display">Auto-approve</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>auto_approve</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">off</dd></div>
 <div><dt>ACCEPTS</dt><dd>on | off</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
 <p class="lead">When a run finishes with nothing left open, the pull request is ready to merge. This setting decides whether the plugin merges it or asks you first.</p>
 <div class="unit" data-switch>
@@ -129,12 +131,13 @@
 
 <div id="proof">
 <div class="group"><h2>Proof and checks</h2></div>
-<section class="entry" id="check-command" data-key="check_command" data-default="">
+<section class="entry" id="check-command" data-key="check_command" data-project="trusted" data-default="">
 <h3 class="display">Check command</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>check_command</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
 <div><dt>ACCEPTS</dt><dd>a shell command</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">after approval</a></dd></div>
 </dl>
 <p class="lead">The command your project already uses to check itself: its test suite, or tests plus lint. The plugin runs it inside its own copy of the pull request, never in your checkout, and three behaviours depend on it.</p>
 <div class="unit" data-switch>
@@ -186,12 +189,13 @@
 <p class="works"><b>Works with</b> &#183; <a href="#contract-commands">Contract command prefixes</a>, <a href="#auto-approve">Auto-approve</a></p>
 </section>
 
-<section class="entry" id="contract-commands" data-key="contract_commands" data-default="">
+<section class="entry" id="contract-commands" data-key="contract_commands" data-project="trusted" data-default="">
 <h3 class="display">Contract command prefixes</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>contract_commands</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
 <div><dt>ACCEPTS</dt><dd>command prefixes, separated by commas</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">after approval</a></dd></div>
 </dl>
 <p class="lead">A finding can carry a <a class="term" href="#g-check-line">Check line</a>: one command that proves the fix, such as a single test. The verifier runs that line instead of judging the fix by reading, but only when the line starts with a command you have approved. The check command is always approved; this setting approves more.</p>
 <div class="unit" data-switch>
@@ -241,12 +245,13 @@
 <p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a>, <a href="#verifier-model">Verifier model</a></p>
 </section>
 
-<section class="entry" id="local-standards" data-key="local_standards" data-default="">
+<section class="entry" id="local-standards" data-key="local_standards" data-project="never" data-default="">
 <h3 class="display">Local standards files</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>local_standards</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
 <div><dt>ACCEPTS</dt><dd>file patterns, separated by spaces</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
 <p class="lead">Some projects keep their rules in files that are not committed: a standards document, a team checklist. Name those files here and every review applies them. Their substance shapes the findings; their file names and wording never appear on the pull request.</p>
 <p class="sub">A pattern is a path relative to your clone. A <code>*</code> stands for any run of characters in a file name, so <code>docs/rules/*.md</code> matches every Markdown file in that folder.</p>
@@ -292,12 +297,13 @@
 
 <div id="depth">
 <div class="group"><h2>Review depth</h2></div>
-<section class="entry" id="double-review" data-key="double_review" data-default="risky" data-options="off risky always">
+<section class="entry" id="double-review" data-key="double_review" data-project="raise" data-default="risky" data-options="off risky always">
 <h3 class="display">Second review pass</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>double_review</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">risky</dd></div>
 <div><dt>ACCEPTS</dt><dd>off | risky | always</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
 </dl>
 <p class="lead">After the first review, a second reviewer can read the same change again, looking only for what the first one missed. That second read is the <a class="term" href="#g-gap-pass">gap pass</a>. This setting decides when it happens on a change small enough for one reviewer.</p>
 <div class="unit" data-switch>
@@ -355,12 +361,13 @@
 <p class="works"><b>Works with</b> &#183; <a href="#review-samples">Review samples</a>, <a href="#strong-model">Strong model</a></p>
 </section>
 
-<section class="entry" id="sensitive-paths" data-key="sensitive_paths" data-default="">
+<section class="entry" id="sensitive-paths" data-key="sensitive_paths" data-project="adds" data-default="">
 <h3 class="display">Sensitive paths</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>sensitive_paths</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
 <div><dt>ACCEPTS</dt><dd>file patterns, separated by spaces</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">adds to yours</a></dd></div>
 </dl>
 <p class="lead">Name the parts of the repository where a defect costs most: authentication, payments, database migrations. A change that touches one is treated as high stakes, even when nothing in the changed lines looks risky to the <a class="term" href="#g-probe">probes</a>.</p>
 <div class="unit" data-switch>
@@ -412,12 +419,13 @@
 <p class="works"><b>Works with</b> &#183; <a href="#double-review">Second review pass</a>, <a href="#strong-model">Strong model</a>, <a href="#cost-posture">Cost posture</a></p>
 </section>
 
-<section class="entry" id="finding-filter" data-key="finding_filter" data-default="true">
+<section class="entry" id="finding-filter" data-key="finding_filter" data-project="raise" data-default="true">
 <h3 class="display">Precision filter</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>finding_filter</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">on</dd></div>
 <div><dt>ACCEPTS</dt><dd>on | off</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
 </dl>
 <p class="lead">Before anything is posted, a cheap second reader opens the code each finding points at and asks one question: does the code really show this? Findings that hold up post as inline comments. Findings it cannot support still post, but in the round&#8217;s summary comment, with the reason.</p>
 <div class="unit" data-switch>
@@ -471,12 +479,13 @@
 <p class="works"><b>Works with</b> &#183; <a href="#verifier-model">Verifier model</a> (the filter runs on it), <a href="#review-samples">Review samples</a></p>
 </section>
 
-<section class="entry" id="review-samples" data-key="review_samples" data-default="1" data-min="1" data-max="3">
+<section class="entry" id="review-samples" data-key="review_samples" data-project="raise" data-default="1" data-min="1" data-max="3">
 <h3 class="display">Review samples</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>review_samples</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">1</dd></div>
 <div><dt>ACCEPTS</dt><dd>1, 2 or 3</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
 </dl>
 <p class="lead">How many reviewers independently read each part of the change on the first review. More readers catch more, and the first review costs proportionally more.</p>
 <div class="unit" data-switch>
@@ -547,7 +556,7 @@
 <p class="lead">Five settings decide which model does which job. Three name a model for a role. One decides whether the plugin may swap those models when the change makes that safe or necessary. One names the stronger model it may climb to.</p>
 <h4 class="display" id="model-roles">A model for each role</h4>
 <div class="card">
-<div class="setting" id="reviewer-model" data-key="reviewer_model" data-default="inherit">
+<div class="setting" id="reviewer-model" data-key="reviewer_model" data-project="never" data-default="inherit">
 <div class="setting-k">
 <h5>Reviewer model</h5>
 <code>reviewer_model</code>
@@ -556,10 +565,11 @@
 <div class="setting-d">
 <p>Runs the first, thorough review: the pass that finds the defects and writes their <a class="term" href="#g-contract">contracts</a>.</p>
 <p><b>Accepts</b> &#183; <code>inherit</code> (the model your session is using) or a model name such as <code>sonnet</code> or <code>opus</code></p>
+<p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
 <p><b>Relates to</b> &#183; It is the floor for the <a class="term" href="#g-gap-pass">gap pass</a>. With no strong model set, it is also the highest routing can go.</p>
 </div>
 </div>
-<div class="setting" id="editor-model" data-key="editor_model" data-default="inherit">
+<div class="setting" id="editor-model" data-key="editor_model" data-project="never" data-default="inherit">
 <div class="setting-k">
 <h5>Editor model</h5>
 <code>editor_model</code>
@@ -568,10 +578,11 @@
 <div class="setting-d">
 <p>Runs the agent that edits the branch, one commit per finding.</p>
 <p><b>Accepts</b> &#183; <code>inherit</code> or a model name</p>
+<p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
 <p><b>Relates to</b> &#183; Routing can lower it for one narrow case, shown below. Nothing raises it.</p>
 </div>
 </div>
-<div class="setting" id="verifier-model" data-key="verifier_model" data-default="sonnet">
+<div class="setting" id="verifier-model" data-key="verifier_model" data-project="never" data-default="sonnet">
 <div class="setting-k">
 <h5>Verifier model</h5>
 <code>verifier_model</code>
@@ -580,6 +591,7 @@
 <div class="setting-d">
 <p>Runs the agent that checks each fix against its <a class="term" href="#g-contract">contract</a>, and the precision filter&#8217;s re-read. Both are narrow questions with a yes or no answer, which is why the default is a cheaper model.</p>
 <p><b>Accepts</b> &#183; <code>inherit</code> or a model name</p>
+<p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
 <p><b>Relates to</b> &#183; Routing never changes it. It is the only model setting whose default is not your session&#8217;s model.</p>
 </div>
 </div>
@@ -588,7 +600,7 @@
 <p class="note">Each role also runs at a fixed reasoning effort set in its agent definition, whatever your session&#8217;s level: the reviewer and the arbiter high, the editor medium, the verifier and the filter low. Finding defects is where thinking pays; checking a fix against a stated contract is a narrow question.</p>
 <h4 class="display" id="model-overrides">Whether those choices can be overridden</h4>
 <div class="card">
-<div class="setting" id="model-routing" data-key="model_routing" data-default="auto" data-options="auto fixed">
+<div class="setting" id="model-routing" data-key="model_routing" data-project="never" data-default="auto" data-options="auto fixed">
 <div class="setting-k">
 <h5>Model routing</h5>
 <code>model_routing</code>
@@ -597,10 +609,11 @@
 <div class="setting-d">
 <p><b>auto</b> lets the plugin pick a cheaper model where the work is provably mechanical and a stronger one where the change is large or sensitive. <b>fixed</b> turns that off: every role runs on exactly the model its setting names.</p>
 <p><b>Accepts</b> &#183; <code>auto</code> or <code>fixed</code></p>
+<p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
 <p><b>Relates to</b> &#183; Reads the three role settings as its starting point and the strong model as its ceiling.</p>
 </div>
 </div>
-<div class="setting" id="strong-model" data-key="strong_model" data-default="">
+<div class="setting" id="strong-model" data-key="strong_model" data-project="never" data-default="">
 <div class="setting-k">
 <h5>Strong model</h5>
 <code>strong_model</code>
@@ -609,6 +622,7 @@
 <div class="setting-d">
 <p>The model auto routing climbs to for changes with over 800 changed lines of code (tests and docs not counted), for changes that touch concurrency, cryptography, authentication or injection surfaces, and for the one <a class="term" href="#g-arbitration">arbitration</a> pass before a run <a class="term" href="#g-park">parks</a>.</p>
 <p><b>Accepts</b> &#183; empty, or a model name such as <code>opus</code></p>
+<p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
 <p><b>Relates to</b> &#183; Does nothing when routing is <code>fixed</code>. Left empty, climbing stops at the reviewer model.</p>
 </div>
 </div>
@@ -695,12 +709,13 @@
 </div>
 </section>
 
-<section class="entry" id="cost-posture" data-key="cost_posture" data-default="balanced" data-options="quality balanced economy">
+<section class="entry" id="cost-posture" data-key="cost_posture" data-project="raise" data-default="balanced" data-options="quality balanced economy">
 <h3 class="display">Cost posture</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>cost_posture</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">balanced</dd></div>
 <div><dt>ACCEPTS</dt><dd>quality | balanced | economy</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
 </dl>
 <p class="lead">When a round of fixes begins, each open finding starts on a rung of the ladder. This setting decides how readily a fix may start on the cheap model. It only moves the starting rung: a fix that fails climbs one rung whatever the posture, and some findings never start cheap at all.</p>
 <div class="unit" data-switch>
@@ -767,12 +782,13 @@
 
 <div id="housekeeping">
 <div class="group"><h2>Housekeeping</h2></div>
-<section class="entry" id="keep-ledgers" data-key="keep_ledgers" data-default="20" data-min="1">
+<section class="entry" id="keep-ledgers" data-key="keep_ledgers" data-project="never" data-default="20" data-min="1">
 <h3 class="display">Ledgers kept</h3>
 <dl class="spec">
 <div><dt>KEY</dt><dd>keep_ledgers</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">20</dd></div>
 <div><dt>ACCEPTS</dt><dd>a whole number, 1 or more</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
 <p class="lead">Each reviewed pull request leaves a <a class="term" href="#g-ledger">ledger</a> on your machine: its findings, their notes, and how each one ended. After every merge the plugin tidies up, keeping the most recent ledgers for that repository as your audit record and deleting older ones.</p>
 <div class="unit" data-switch>
@@ -824,6 +840,43 @@
 </section>
 </div>
 
+<div id="sources">
+<div class="group"><h2>Where settings come from</h2></div>
+<section class="entry" id="where">
+<h3 class="display">Your settings, the project&#8217;s, and this run&#8217;s</h3>
+<p class="lead">Settings come from up to five places. Each one overrides the ones before it, so you only ever write down what differs.</p>
+<div class="card">
+<div class="setting"><div class="setting-k"><h5>1. Defaults</h5><span>built into the plugin</span></div><div class="setting-d"><p>What every entry on this page shows as its default.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>2. Your configuration</h5><span>every project</span></div><div class="setting-d"><p>Set once in the dialog <code>/plugin configure pr-review-workflow</code>. Your baseline everywhere.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>3. The project&#8217;s shared file</h5><code>.claude/pr-review-workflow.conf</code></div><div class="setting-d"><p>Committed to the repository, so the whole team shares it. It is read from the pull request&#8217;s base branch, never from the files on disk, so a pull request can never change how it is reviewed. What it may set is limited; see <a href="#where-project">below</a>.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>4. Your local file</h5><code>.claude/pr-review-workflow.local.conf</code></div><div class="setting-d"><p>Untracked, in your clone, yours alone: overrides for this repository only. It may set anything. The plugin refuses it if the repository tracks it or if it is a symlink.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>5. This run</h5><code>review-pr 128 posture=quality</code></div><div class="setting-d"><p>Words typed after the pull request, as <code>key=value</code>. They apply to that invocation only; quote a value with spaces, <code>check="npm test -- --ci"</code>. Short names work: <code>posture</code>, <code>samples</code>, <code>check</code>, <code>prefixes</code>, <code>filter</code>, <code>second_review</code>, <code>strong</code>.</p></div></div>
+</div>
+<h4 class="display">The file format</h4>
+<p class="sub">One setting per line: the key, a space, the value. A key alone on its line sets it to empty. Lines starting with <code>#</code> are comments. The short names above work here too.</p>
+<pre class="card file">
+<code># .claude/pr-review-workflow.conf
+check_command npm test -- --ci
+contract_commands npx vitest, npx playwright test
+double_review always
+sensitive_paths src/auth/** src/payments/**</code></pre>
+<h4 class="display" id="where-project">What a project&#8217;s shared file may set</h4>
+<p class="sub">The shared file belongs to the repository, and anyone who can change the base branch can change it, so it may do less than your own files.</p>
+<div class="card scroll">
+<table class="ladder trust">
+<tr><th scope="col">SETTINGS</th><th scope="col">THE SHARED FILE MAY</th><th scope="col">WHY</th></tr>
+<tr><th scope="row">Check command, contract command prefixes</th><td><b>set them after you approve</b></td><td>They run on your machine. The first run that sees them, and every run after they change, shows you the exact commands and asks; an unattended run goes without them.</td></tr>
+<tr><th scope="row">Second review pass, precision filter, cost posture, review samples</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
+<tr><th scope="row">Sensitive paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
+<tr><th scope="row">Auto-approve, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
+</table>
+</div>
+<p class="note">Everything the shared file tried and was refused, and every command waiting for your approval, is listed at the start of the run, so nothing is applied or dropped silently.</p>
+<h4 class="display">Setting up a team</h4>
+<p class="sub">Commit the shared file with the check command and the review depth the project needs, and enable the plugin for the repository in <code>.claude/settings.json</code> so teammates are offered it. Each person keeps their own models and auto-approve choice in their configuration, and adds a local file only where they want something different for this repository. Keep the local file out of version control with <code>.git/info/exclude</code>.</p>
+</section>
+</div>
+
 <div id="reference">
 <div class="group"><h2>Reference</h2></div>
 <section class="entry" id="glossary">
@@ -856,6 +909,7 @@
 <a class="sub" href="#model-combine">How they combine</a>
 <a class="sub" href="#model-try">Try a combination</a>
 <a href="#housekeeping">Housekeeping</a>
+<a href="#sources">Where settings come from</a>
 <a href="#glossary">Glossary</a>
 </aside>
 

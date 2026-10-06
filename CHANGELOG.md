@@ -53,6 +53,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- The settings reference explains where settings come from: the five
+  sources and their order, the file format, what a project's shared
+  file may set and why, and a team setup. Every entry shows what the
+  shared file may do with it, and a test holds those markers to the
+  resolver's own lists.
 - A `sensitive_paths` setting: globs for files where a defect costs
   most. A change touching one counts as a sensitive probe hit, so the
   reviewer may climb to the strong model, no fix there starts cheap,
