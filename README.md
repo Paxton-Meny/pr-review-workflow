@@ -106,6 +106,31 @@ pull request, and says when to choose it.
 | Precision filter | on | Before findings post, a cheap second context re-reads the cited code and demotes findings the fresh evidence cannot support into the round summary. Nothing is dropped: demoted findings are still addressed, with the doubt recorded in the ledger. |
 | Contract command prefixes | empty | Comma-separated prefixes, beyond the check command itself, that a finding's Check line may start with to be executed during verification. Test runners only, never bare interpreters. |
 
+### Per-project settings
+
+The plugin's settings are per user. A repository can add a committed
+`.claude/pr-review-workflow.conf`, read from the pull request's base
+branch, never from disk, and you can keep an untracked
+`.claude/pr-review-workflow.local.conf` in your clone. Settings typed
+after the pull request apply to one run:
+`/pr-review-workflow:review-pr 128 posture=quality`. Each source
+overrides the ones before it: defaults, your configuration, the shared
+file, your local file, the run.
+
+```text
+# .claude/pr-review-workflow.conf
+check_command npm test -- --ci
+double_review always
+sensitive_paths src/auth/** src/payments/**
+```
+
+The shared file may do less than your own. Its check command and
+contract prefixes apply only after you approve them, once per change.
+It may only raise the review depth settings. It may never set
+auto-approve, the models, ledgers kept, or local standards. The
+[settings reference](https://paxton-meny.github.io/pr-review-workflow/settings.html#where)
+has the full table.
+
 ### Executable contracts
 
 A finding may carry a `Check:` line, the check command narrowed to the
