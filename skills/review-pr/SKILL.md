@@ -44,14 +44,15 @@ instructions bind for the whole run.
 - verifier_model: ${user_config.verifier_model} (default sonnet)
 - model_routing: ${user_config.model_routing} (default auto)
 - strong_model: `${user_config.strong_model}` (default empty)
+- cost_posture: ${user_config.cost_posture} (default balanced)
 - contract_commands: `${user_config.contract_commands}` (default empty)
 - finding_filter: ${user_config.finding_filter} (default true)
 - review_samples: ${user_config.review_samples} (default 1)
 
 Every model decision below comes from one script, called with the
 routing arguments
-`routing=${user_config.model_routing} reviewer=${user_config.reviewer_model} editor=${user_config.editor_model} verifier=${user_config.verifier_model} strong='${user_config.strong_model}'`
-(the same five every time; written as `<routing args>` from here on).
+`routing=${user_config.model_routing} reviewer=${user_config.reviewer_model} editor=${user_config.editor_model} verifier=${user_config.verifier_model} strong='${user_config.strong_model}' posture=${user_config.cost_posture} check='${user_config.check_command}' prefixes='${user_config.contract_commands}'`
+(the same eight every time; written as `<routing args>` from here on).
 It prints one `route` line per unit, and the `model` value on that
 line is the override to pass when spawning, `inherit` included: pass
 it as given, never pick a model yourself. Relay every route line.
@@ -204,13 +205,18 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       line the delegations below quote; never count rounds from memory.
    b. Run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> edit <routing args> round=<n> -- <open_ids>`
-      with the round number from step a. It prints one line, or in
-      round 1 two: a mechanical batch (minor or nit findings with a
-      proven fence, on sonnet) and the rest, when each holds at least
-      two findings. It never routes down after round 1. For each line
-      in the order printed, one after the other and never in
-      parallel, spawn `pr-review-workflow:editor` with that line's
-      `model` and `ids` and exactly:
+      with the round number from step a. It gives every open finding
+      a starting rung and prints one line per rung used, cheapest
+      first: in round 1 a finding starts cheap when it is mechanical
+      (minor or nit with a proven fence) or, as the cost posture
+      allows, when its Check line will execute or a check command
+      gates the round; a finding attempted before and still open
+      climbs one rung above its last attempt; nothing starts cheap on
+      a blocker, a security finding, or a file the secrets or
+      sensitive probe flagged. Each attempt is noted on the record.
+      For each line in the order printed, one after the other and
+      never in parallel, spawn `pr-review-workflow:editor` with that
+      line's `model` and `ids` and exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <ids from the line>. <round line>.`
       then run step c before starting the next line, so a broken
       check is pinned on the batch that broke it.
@@ -218,7 +224,10 @@ argument resumes from the ledger. Never retry a failed call in a loop.
    c. When check_command is set and the step 4 baseline passed:
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
       Exit 3 means the editor's commits broke the project's own check:
-      spawn `pr-review-workflow:editor` once more with exactly:
+      run
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> repair <routing args> round=<n> -- <that batch's ids>`
+      (one rung above the batch that broke it) and spawn
+      `pr-review-workflow:editor` once more with its `model` and exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
       then rerun run-check. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.

@@ -17,8 +17,8 @@ printf 'id: F002\nstatus: wont-fix\nreopens: 0\nsupport: 1/2\nplacement: summary
 printf 'id: F003\nstatus: open\nreopens: 0\nplacement: inline\n---\nbody\nResolution: done.\n' >"$dir/findings/F003"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 3 verified 1 wont-fix 1 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 3 verified 1 wont-fix 1 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 3 verified 1 wont-fix 1 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 3 verified 1 wont-fix 1 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0' "$root/stats.txt"
 
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]

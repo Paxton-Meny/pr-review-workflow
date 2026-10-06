@@ -40,7 +40,7 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 13 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 14 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
@@ -66,6 +66,7 @@
 <a href="#verifier-model" data-words="verifier_model">Verifier model</a>
 <a href="#model-routing" data-words="model_routing auto fixed">Model routing</a>
 <a href="#strong-model" data-words="strong_model opus arbitration">Strong model</a>
+<a href="#cost-posture" data-words="cost_posture cheap economy quality balanced">Cost posture</a>
 </div>
 <div class="side-group">
 <div class="side-head">HOUSEKEEPING</div>
@@ -82,7 +83,7 @@
 <div class="intro">
 <div class="kicker">Settings reference</div>
 <h1 class="display">What each setting changes</h1>
-<p>Thirteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
+<p>Fourteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
 </div>
 
 <div id="merging">
@@ -561,7 +562,7 @@
 <tr><th scope="col">ROLE</th><th scope="col"><span><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>AUTO MAY DROP TO</span></th><th scope="col">STARTS ON</th><th scope="col"><span>AUTO MAY CLIMB TO<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></th></tr>
 <tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a docs-only or config-only change under 300 lines, no risk signal</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>over 800 changed lines of code, tests and docs not counted, or a sensitive surface</td></tr>
 <tr><th scope="row">Gap pass</th><td><span class="never">never</span><br>the safety net is never cheapened</td><td><span class="pill">reviewer_model</span><br>or wherever the reviewer was raised to</td><td><span class="pill pill-high">strong_model</span><br>together with the reviewer</td></tr>
-<tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only, for the batch of findings that are minor or nit and carry a proven <a class="term" href="#g-suggestion">suggestion</a></td><td><span class="pill">editor_model</span></td><td><span class="never">never</span></td></tr>
+<tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only: the batch of findings that are minor or nit and carry a proven <a class="term" href="#g-suggestion">suggestion</a>, and as the <a href="#cost-posture">cost posture</a> allows, fixes a Check line or the check gate will prove</td><td><span class="pill">editor_model</span></td><td><span class="pill pill-high">strong_model</span><br>one rung above a fix that was attempted and is still open, or that broke the check</td></tr>
 <tr><th scope="row">Precision filter</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Verifier</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Arbitration</th><td><span class="never">never</span></td><td><span class="pill">reviewer_model</span><br>one pass per run, when a finding keeps being reopened</td><td><span class="pill pill-high">strong_model</span><br>whenever one is set</td></tr>
@@ -634,6 +635,75 @@
 <div><dt>fixed</dt><dd>When every run must use exactly the models you named, for budgeting or for comparing models.</dd></div>
 </dl>
 </div>
+</section>
+
+<section class="entry" id="cost-posture" data-key="cost_posture" data-default="balanced" data-options="quality balanced economy">
+<h3 class="display">Cost posture</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>cost_posture</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">balanced</dd></div>
+<div><dt>ACCEPTS</dt><dd>quality | balanced | economy</dd></div>
+</dl>
+<p class="lead">When a round of fixes begins, each open finding starts on a rung of the ladder. This setting decides how readily a fix may start on the cheap model. It only moves the starting rung: a fix that fails climbs one rung whatever the posture, and some findings never start cheap at all.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Cost posture value">
+<button type="button" data-set="quality" aria-pressed="false">quality</button>
+<button type="button" data-set="balanced" aria-pressed="true">balanced <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="economy" aria-pressed="false">economy</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="rows">
+<div class="row">
+<div class="row-b grow">
+<div class="finding-h"><span class="fid">F001</span><span>antipatterns &#183; nit</span></div>
+<div class="row-t">Unused import left behind</div>
+<div class="row-s">Carries a proven suggestion: mechanical.</div>
+</div>
+<div class="row-r"><span data-show="quality" hidden><span class="pill pill-low">sonnet</span></span><span data-show="balanced"><span class="pill pill-low">sonnet</span></span><span data-show="economy" hidden><span class="pill pill-low">sonnet</span></span></div>
+</div>
+<div class="row">
+<div class="row-b grow">
+<div class="finding-h"><span class="fid">F002</span><span>correctness &#183; major</span></div>
+<div class="row-t">Retry loop drops the final attempt&#8217;s error</div>
+<div class="row-s">Carries a Check line that will execute, so a wrong fix is caught by running it.</div>
+</div>
+<div class="row-r"><span data-show="quality" hidden><span class="pill">editor model</span></span><span data-show="balanced"><span class="pill pill-low">sonnet</span></span><span data-show="economy" hidden><span class="pill pill-low">sonnet</span></span></div>
+</div>
+<div class="row">
+<div class="row-b grow">
+<div class="finding-h"><span class="fid">F003</span><span>best-practices &#183; major</span></div>
+<div class="row-t">Timeout is read from the wrong config key</div>
+<div class="row-s">No Check line; only the check gate and the verifier stand behind it.</div>
+</div>
+<div class="row-r"><span data-show="quality" hidden><span class="pill">editor model</span></span><span data-show="balanced"><span class="pill">editor model</span></span><span data-show="economy" hidden><span class="pill pill-low">sonnet</span></span></div>
+</div>
+<div class="row">
+<div class="row-b grow">
+<div class="finding-h"><span class="fid">F004</span><span>security &#183; major</span></div>
+<div class="row-t">Token compared with a non-constant-time equality</div>
+<div class="row-s">A security finding never starts cheap, nor does a blocker or a file the secrets or sensitive probe flagged.</div>
+</div>
+<div class="row-r"><span data-show="quality" hidden><span class="pill">editor model</span></span><span data-show="balanced"><span class="pill">editor model</span></span><span data-show="economy" hidden><span class="pill">editor model</span></span></div>
+</div>
+</div>
+<p class="note" data-show="quality" hidden>Only a fix with a proven suggestion starts on the cheap model. Everything else starts on the editor model.</p>
+<p class="note" data-show="balanced">A fix also starts cheap when its Check line will execute: the fix is proven by running it, so a cheap attempt costs at most one extra round.</p>
+<p class="note" data-show="economy" hidden>Any fix starts cheap once a check command gates the round. The gate catches what breaks and the verifier catches what is not fixed; the bill is lowest and reopens are likeliest.</p>
+<p class="note">Shown with a check command set. Without one, there is nothing to catch a wrong cheap fix, so quality and balanced behave the same and economy adds nothing. The editor model is <code>editor_model</code>, by default your session&#8217;s.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>quality</dt><dd>Correctness matters more than the model bill, or the project has no check command yet.</dd></div>
+<div><dt>balanced <span class="badge">DEFAULT</span></dt><dd>Most projects with a check command. Cheap where a wrong fix is caught by execution, your model everywhere else.</dd></div>
+<div><dt>economy</dt><dd>A check command you trust to catch a wrong fix, and a bill you want down; expect the occasional extra round.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a>, <a href="#contract-commands">Contract command prefixes</a>, <a href="#model-routing">Model routing</a></p>
 </section>
 </div>
 
