@@ -96,6 +96,12 @@
       "description": "How readily auto routing starts a fix on the cheap model. quality: only fixes with a proven suggestion. balanced: also fixes whose Check line will execute, so a wrong fix is caught by running it. economy: any fix once a check command gates the round. A blocker, a security finding, or a finding on a file a secrets or sensitive probe flagged never starts cheap, and a fix that fails climbs a rung whatever the posture.",
       "default": "balanced"
     },
+    "sensitive_paths": {
+      "type": "string",
+      "title": "Sensitive paths",
+      "description": "Space-separated globs, relative to the repository, for files where a defect costs most (authentication, payments, migrations). A change touching one is treated like a change the sensitive probe flagged: the reviewer may climb to the strong model, no fix there starts on the cheap model, and the second review pass runs under the risky setting. A project's shared file adds to this list rather than replacing it.",
+      "required": false
+    },
     "strong_model": {
       "type": "string",
       "title": "Strong model",

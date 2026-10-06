@@ -118,6 +118,7 @@ cost_posture ${user_config.cost_posture}
 contract_commands ${user_config.contract_commands}
 finding_filter ${user_config.finding_filter}
 review_samples ${user_config.review_samples}
+sensitive_paths ${user_config.sensitive_paths}
 PRWF_SETTINGS_END
 ```
 
