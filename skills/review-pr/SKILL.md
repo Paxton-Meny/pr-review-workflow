@@ -6,6 +6,7 @@ argument-hint: "<pr number | owner/repo#n | url> [key=value ...]"
 allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh *)
@@ -35,28 +36,18 @@ instructions bind for the whole run.
 
 ## Settings
 
-- auto_approve: ${user_config.auto_approve} (default false)
-- check_command: `${user_config.check_command}` (default empty)
-- local_standards: `${user_config.local_standards}` (default empty)
-- double_review: ${user_config.double_review} (default risky)
-- keep_ledgers: ${user_config.keep_ledgers} (default 20)
-- reviewer_model: ${user_config.reviewer_model} (default inherit)
-- editor_model: ${user_config.editor_model} (default inherit)
-- verifier_model: ${user_config.verifier_model} (default sonnet)
-- model_routing: ${user_config.model_routing} (default auto)
-- strong_model: `${user_config.strong_model}` (default empty)
-- cost_posture: ${user_config.cost_posture} (default balanced)
-- contract_commands: `${user_config.contract_commands}` (default empty)
-- finding_filter: ${user_config.finding_filter} (default true)
-- review_samples: ${user_config.review_samples} (default 1)
+Every setting is resolved by a script at step 2 into the run's ledger,
+and the scripts read it from there: never pass a setting to a script
+yourself, and never pick a value or a model yourself. Its
+`settings: for this run` line gives the facts this procedure branches
+on (auto_approve, whether a check command and standards are set,
+double_review, finding_filter, review_samples); hold those for the run.
 
-Every model decision below comes from one script, called with the
-routing arguments
-`routing=${user_config.model_routing} reviewer=${user_config.reviewer_model} editor=${user_config.editor_model} verifier=${user_config.verifier_model} strong='${user_config.strong_model}' posture=${user_config.cost_posture} check='${user_config.check_command}' prefixes='${user_config.contract_commands}'`
-(the same eight every time; written as `<routing args>` from here on).
-It prints one `route` line per unit, and the `model` value on that
-line is the override to pass when spawning, `inherit` included: pass
-it as given, never pick a model yourself. Relay every route line.
+Every model decision below comes from one script,
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> <stage>`. It
+prints one `route` line per unit, and the `model` value on that line is
+the override to pass when spawning, `inherit` included: pass it as
+given. Relay every route line.
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -65,15 +56,11 @@ Decide once, now, whether this run is attended: a human is present in this
 session and can answer a question. Hold that answer for the whole run. When
 unsure, the run is unattended.
 
-If any setting above reads as a literal placeholder (a dollar sign,
-braces, and a user_config key) instead of a value, this install has no
-saved plugin configuration: use the default annotated beside each
-setting, exactly as written, everywhere the setting is referenced.
-The routing script does the same on its own: a placeholder passed to
-it counts as unset, so an unconfigured run still routes the filter,
-verifier, and every verification pass to sonnet, never the session
-model. Say so in the final report so the user knows their
-configuration never loaded.
+When the resolver reports `user 0`, either nothing is configured or
+this install has no saved plugin configuration (the values arrived as
+literal placeholders, which count as unset): the defaults apply. Say
+so in the final report so the user knows their configuration never
+loaded.
 
 ## Context discipline
 
@@ -109,6 +96,30 @@ PRWF_ARGS_END
 
    The first word is the pull request; any `key=value` words after it
    are per-run settings, recorded for this invocation only.
+   Then resolve the settings, on every invocation including a resume,
+   exactly as below, with the closing delimiter alone at the start of
+   its line (the quoted delimiter keeps every value inert), and relay
+   its lines:
+
+```
+sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh <dir> <<'PRWF_SETTINGS_END'
+auto_approve ${user_config.auto_approve}
+check_command ${user_config.check_command}
+local_standards ${user_config.local_standards}
+double_review ${user_config.double_review}
+keep_ledgers ${user_config.keep_ledgers}
+reviewer_model ${user_config.reviewer_model}
+editor_model ${user_config.editor_model}
+verifier_model ${user_config.verifier_model}
+model_routing ${user_config.model_routing}
+strong_model ${user_config.strong_model}
+cost_posture ${user_config.cost_posture}
+contract_commands ${user_config.contract_commands}
+finding_filter ${user_config.finding_filter}
+review_samples ${user_config.review_samples}
+PRWF_SETTINGS_END
+```
+
    If `<dir>/findings/` already has records, this is a resume: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
    report the counts, and continue at the step they imply. Open findings:
@@ -129,12 +140,11 @@ PRWF_ARGS_END
    worktree path and a mode line. `mode review-only` is a fork that does
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 7. Exit 2 means the fork itself is
-   gone: report that and stop. When local_standards is not empty, follow
-   with `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir> '${user_config.local_standards}'`,
-   the whole setting as one quoted argument (the script expands the globs
-   inside the clone itself), and relay its one-line result. When
-   check_command is set, take a baseline:
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
+   gone: report that and stop. When standards are set, follow with
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir>`
+   (the script expands the globs inside the clone itself) and relay
+   its one-line result. When a check command is set, take a baseline:
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir>`.
    A passing baseline arms the step 8 gate. A failing one disarms it for
    this run and leaves the failure tail in place as reviewer evidence: a
    head that already fails the project's own check is material for a
@@ -157,7 +167,7 @@ PRWF_ARGS_END
    `Review the pull request. State directory: <dir>.` plus, when
    restricted, ` Files <numbers> only.` listing the file numbers.
    Model override: run
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> review <routing args>`
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> review`
    once before spawning. Unsharded, it prints one line and every
    reviewer of this step takes its `model`. Sharded, it prints one
    line per group, judged on that group's own files, and each
@@ -173,7 +183,7 @@ PRWF_ARGS_END
    findings` means the first pass found nothing; continue, since the
    gap pass still applies. When review_samples is greater than 1 and
    any report was saved, finish with
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh <dir> ${user_config.review_samples}`,
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh <dir>`,
    relaying its one-line result: duplicates merge into the richest
    record, and every survivor carries a support header the filter
    weighs.
@@ -184,7 +194,7 @@ PRWF_ARGS_END
    governs instead: run one when it is `always`, or when it is
    `risky` and the probe summary's slugs include `secrets` or
    `automation`. Spawn one `pr-review-workflow:reviewer` with the `model` from
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> gap <routing args>`
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> gap`
    (the highest rung any review unit used, never below
    reviewer_model: routing can raise the gap pass, never cheapen the
    safety net) with
@@ -197,12 +207,11 @@ PRWF_ARGS_END
    step 10.
 7. When finding_filter is true and the ledger holds open findings not
    yet posted, spawn `pr-review-workflow:filter` with the `model` from
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter <routing args>`
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter`
    and exactly:
    `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
    and relay its one-line report. Then
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir> '${user_config.check_command}'`
-   (omit the second argument when check_command is empty), then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`.
    In review-only mode, stop after posting: add one `gh pr comment` status
    comment saying the findings stand for the author to address (proven
@@ -218,7 +227,7 @@ PRWF_ARGS_END
       spent: non-convergence (step 9). Otherwise its output is the round
       line the delegations below quote; never count rounds from memory.
    b. Run
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> edit <routing args> round=<n> -- <open_ids>`
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> edit round=<n> -- <open_ids>`
       with the round number from step a. It gives every open finding
       a starting rung and prints one line per rung used, cheapest
       first: in round 1 a finding starts cheap when it is mechanical
@@ -235,11 +244,11 @@ PRWF_ARGS_END
       then run step c before starting the next line, so a broken
       check is pinned on the batch that broke it.
       Its report gives counts; trust the ledger over the prose.
-   c. When check_command is set and the step 4 baseline passed:
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> '${user_config.check_command}'`.
+   c. When a check command is set and the step 4 baseline passed:
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir>`.
       Exit 3 means the editor's commits broke the project's own check:
       run
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> repair <routing args> round=<n> -- <that batch's ids>`
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> repair round=<n> -- <that batch's ids>`
       (one rung above the batch that broke it) and spawn
       `pr-review-workflow:editor` once more with its `model` and exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
@@ -247,7 +256,7 @@ PRWF_ARGS_END
       never proceed to verification over a failing check.
    d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier`
       with the `model` from
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify <routing args>`
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify`
       and exactly:
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
@@ -263,7 +272,7 @@ PRWF_ARGS_END
       arbitrate once first, because repeated reopens sometimes mean
       the cheap verifier is wrong rather than the editor: spawn
       `pr-review-workflow:arbiter` with the `model` from
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate <routing args>`
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate`
       (the strong model when set, else reviewer_model, passed
       explicitly even when it is `inherit` so the arbitration runs on
       the session model, never the agent's default) and
@@ -298,7 +307,7 @@ PRWF_ARGS_END
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> merged` first,
     while the context it summarizes still exists, then
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
-    then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh <dir> ${user_config.keep_ledgers}`,
+    then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh <dir>`,
     which also reaps sibling runs whose pull requests closed outside
     this tool. Relay the three one-line results,
     and report: rounds run, findings by category and outcome, and the

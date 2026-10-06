@@ -1,10 +1,17 @@
 #!/bin/sh
 # Run the project's check command in the worktree and record any failure.
-# Usage: sh scripts/run-check.sh <state-dir> <command>
+# Usage: sh scripts/run-check.sh <state-dir> [command]
+# Without a command, the run's resolved check_command is used.
 set -eu
 
-dir=${1:?usage: run-check.sh <state-dir> <command>}
-cmd=${2:-}
+dir=${1:?usage: run-check.sh <state-dir> [command]}
+if [ $# -ge 2 ]; then
+	cmd=$2
+elif [ -f "$dir/settings.txt" ]; then
+	cmd=$(sh "$(dirname "$0")/setting.sh" "$dir" check_command)
+else
+	cmd=''
+fi
 worktree="$dir/worktree"
 ctx="$dir/pr-context"
 [ -d "$worktree" ] && [ -d "$ctx" ] || {

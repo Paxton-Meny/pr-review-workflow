@@ -16,8 +16,8 @@
 # Writes <state-dir>/settings.txt (key value, read-only), sources.txt
 # (key source), and a hash of settings.txt under the data root's
 # trust/runs/ that the executing scripts check. Prints a summary line,
-# one line per value set above the user's own configuration, and one
-# per ignored entry.
+# a line of the facts the orchestrator branches on, one line per value
+# set above the user's own configuration, and one per ignored entry.
 set -eu
 
 dir=${1:?usage: resolve-settings.sh <state-dir>}
@@ -100,8 +100,8 @@ BEGIN {
 }
 FNR == 1 { source = (FILENAME == ARGV[1]) ? "user" : "run" }
 {
-	line = $0
-	if (line ~ /^[ \t]*(#|$)/) next
+	line = trim($0)
+	if (line ~ /^(#|$)/) next
 	k = line; sub(/[ \t].*$/, "", k)
 	v = line; sub(/^[^ \t]*/, "", v); v = trim(v)
 	k = canon(k)
@@ -121,6 +121,11 @@ END {
 		count[from[k]]++
 	}
 	printf "settings: resolved %d default %d user %d run %d ignored %d\n", nk, count["default"] + 0, count["user"] + 0, count["run"] + 0, ni + 0
+	# The facts the orchestrator branches on, never the commands themselves.
+	printf "settings: for this run auto_approve %s check %s standards %s double_review %s finding_filter %s review_samples %s\n", \
+		val["auto_approve"], (val["check_command"] == "" ? "unset" : "set"), \
+		(val["local_standards"] == "" ? "unset" : "set"), val["double_review"], \
+		val["finding_filter"], val["review_samples"]
 	for (i = 1; i <= nk; i++) {
 		k = keys[i]
 		if (from[k] != "default" && from[k] != "user") printf "settings: %s %s from %s\n", k, (val[k] == "" ? "(empty)" : val[k]), from[k]

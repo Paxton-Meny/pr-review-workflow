@@ -1,10 +1,17 @@
 #!/bin/sh
 # Prove every pending suggestion fence by applying it, or withdraw it.
 # Usage: sh scripts/prove-suggestions.sh <state-dir> [check-command]
+# Without a command, the run's resolved check_command is used.
 set -eu
 
 dir=${1:?usage: prove-suggestions.sh <state-dir> [check-command]}
-check=${2:-}
+if [ $# -ge 2 ]; then
+	check=$2
+elif [ -f "$dir/settings.txt" ]; then
+	check=$(sh "$(dirname "$0")/setting.sh" "$dir" check_command)
+else
+	check=''
+fi
 worktree="$dir/worktree"
 [ -f "$dir/meta.txt" ] && [ -d "$worktree" ] || {
 	echo "prove-suggestions: no worktree in $dir, run checkout-pr.sh first" >&2

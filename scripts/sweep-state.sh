@@ -1,10 +1,11 @@
 #!/bin/sh
 # Reap sibling ledgers whose pull request closed, then apply retention.
-# Usage: sh scripts/sweep-state.sh <state-dir> <keep>
+# Usage: sh scripts/sweep-state.sh <state-dir> [keep]
+# Without a count, the run's resolved keep_ledgers is used.
 set -eu
 
 dir=${1:?usage: sweep-state.sh <state-dir> <keep>}
-keep=${2:?usage: sweep-state.sh <state-dir> <keep>}
+keep=${2:-$(sh "$(dirname "$0")/setting.sh" "$dir" keep_ledgers)}
 case "$keep" in
 '' | *[!0-9]* | 0)
 	echo "sweep-state: keep must be a positive number: $keep" >&2

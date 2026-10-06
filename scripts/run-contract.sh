@@ -6,7 +6,9 @@
 # stdout). Exit 4: no runnable check; judge the finding by reading.
 # With --policy nothing runs: exit 0 says the line would be allowed to
 # run, exit 4 says why not, so the router can tell an executable
-# contract from one that will be judged by reading.
+# contract from one that will be judged by reading. Without the command
+# arguments, the run's resolved check_command and contract_commands
+# are used.
 #
 # A Check line executes only when it starts with the configured check
 # command or one of the comma-separated extra prefixes, and contains no
@@ -21,8 +23,13 @@ if [ "${1:-}" = --policy ]; then
 fi
 dir=${1:?usage: run-contract.sh <state-dir> <id> [check-command] [extra-prefixes]}
 id=${2:?usage: run-contract.sh <state-dir> <id> [check-command] [extra-prefixes]}
-check=${3:-}
-extra=${4:-}
+if [ $# -ge 3 ]; then
+	check=$3
+	extra=${4:-}
+else
+	check=$(sh "$(dirname "$0")/setting.sh" "$dir" check_command)
+	extra=$(sh "$(dirname "$0")/setting.sh" "$dir" contract_commands)
+fi
 
 record="$dir/findings/$id"
 [ -f "$record" ] || {

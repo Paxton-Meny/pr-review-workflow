@@ -1,6 +1,7 @@
 #!/bin/sh
 # Gather the project's local standards files into the review context.
 # Usage: sh scripts/extract-standards.sh <state-dir> [glob ...]
+# Without globs, the run's resolved local_standards is used.
 set -eu
 
 dir=${1:?usage: extract-standards.sh <state-dir> [glob ...]}
@@ -13,7 +14,13 @@ ctx="$dir/pr-context"
 ctx=$(CDPATH= cd -- "$ctx" && pwd)
 rm -f "$ctx/standards.txt"
 
-patterns=${*:-}
+if [ $# -gt 0 ]; then
+	patterns=$*
+elif [ -f "$dir/settings.txt" ]; then
+	patterns=$(sh "$(dirname "$0")/setting.sh" "$dir" local_standards)
+else
+	patterns=''
+fi
 if [ -z "$patterns" ]; then
 	echo "extract-standards: none configured"
 	exit 0
