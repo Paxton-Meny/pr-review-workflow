@@ -34,6 +34,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `resolve-settings.sh` resolves a run's settings from the manifest
+  defaults, the user's plugin configuration, and the per-run
+  overrides, in that order, into a read-only settings.txt with a
+  sources record and a hash kept outside the state directory. An
+  invalid value is reported and falls back to the source below it;
+  a placeholder from an unconfigured install counts as unset. Short
+  aliases (posture, samples, check, prefixes, ...) are accepted.
 - Per-run settings typed after the pull request,
   `/pr-review-workflow:review-pr 128 posture=quality`, are parsed and
   recorded in the ledger for that invocation only; a later invocation
