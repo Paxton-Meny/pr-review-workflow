@@ -11,6 +11,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - A round whose every finding the precision filter demoted now posts
   its summary comment. Before, nothing posted and the demoted findings
   never reached the pull request.
+- A check command or contract prefix containing a single quote no
+  longer breaks the shell commands it was pasted into: settings reach
+  the scripts through the resolved record, and `${user_config}` now
+  appears only in the one quoted heredoc that feeds the resolver.
 - The base branch is fetched with an explicit refspec, so a clone made
   with --single-branch still reads the conventions block from a
   pull request's non-default base instead of silently skipping it.
@@ -49,6 +53,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- Scripts read the run's resolved settings themselves, checking the
+  record against the hash kept outside the state directory, so a
+  changed settings.txt is refused rather than trusted. The agents no
+  longer carry settings at all, and the skill resolves once per
+  invocation, a resume included.
 - `resolve-settings.sh` resolves a run's settings from the manifest
   defaults, the user's plugin configuration, and the per-run
   overrides, in that order, into a read-only settings.txt with a

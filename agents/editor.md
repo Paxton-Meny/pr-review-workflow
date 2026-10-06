@@ -53,7 +53,7 @@ Resolution line together.
    commit: an unrelated changed line triggers an extra review round by
    itself. On a reopened finding, also run its contract before
    committing when the record has a `Check:` line:
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-contract.sh <state-dir> <id> '${user_config.check_command}' '${user_config.contract_commands}'`.
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-contract.sh <state-dir> <id>`.
    Exit 3 means this candidate fix does not satisfy the contract:
    discard the edit and take a genuinely different approach rather
    than resubmitting a variation the contract already rejected. Exit 4
