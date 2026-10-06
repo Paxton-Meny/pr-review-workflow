@@ -118,9 +118,17 @@ resolve </dev/null | grep -qx 'settings: project file unavailable, local file pr
 # The trust store sits outside state/, where retention never looks.
 [ -f "$data/trust/acme__widgets.trusted" ]
 
+# A project adds sensitive paths to yours; it never replaces them.
+mv "$remote.gone" "$remote"
+printf 'owner acme\nrepo widgets\npr 7\nbase_branch main\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
+printf 'sensitive_paths src/payments/**\n' >>"$clone/.claude/pr-review-workflow.conf"
+git -C "$clone" commit --quiet -am sensitive
+git -C "$clone" push --quiet origin HEAD:main
+printf 'sensitive_paths src/auth/**\n' | resolve >/dev/null
+[ "$(value sensitive_paths)" = "src/auth/** src/payments/**" ]
+
 # A project file git does not track is the user's own: read from the
 # clone, free to set anything, and still outranked by the local file.
-mv "$remote.gone" "$remote"
 own_remote="$SCRATCH/own.git"
 git init --quiet --bare "$own_remote"
 own="$SCRATCH/own"

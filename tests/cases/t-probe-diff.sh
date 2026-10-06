@@ -90,3 +90,25 @@ PATCH
 out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$dir")
 [ "$out" = "probe-diff: 1 sections (sensitive)" ]
 grep -q 'threading.Lock' "$ctx/probes.txt"
+
+# Paths declared sensitive in the settings count as sensitive hits, so
+# the router treats them like the sensitive probe, even with no keyword.
+sdir="$SCRATCH/data/state/o__r__1"
+sctx="$sdir/pr-context"
+mkdir -p "$sctx"
+printf 'owner o\nrepo r\npr 1\n' >"$sdir/meta.txt"
+printf 'sensitive_paths src/auth/** migrations/*.sql\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$sdir" >/dev/null
+printf 'src/auth/session/token.py\t2\t1\nsrc/util.py\t1\t0\nmigrations/0042.sql\t5\t0\n' >"$sctx/files.txt"
+cat > "$sctx/diff.patch" <<'PATCH'
+diff --git a/src/util.py b/src/util.py
+--- a/src/util.py
++++ b/src/util.py
+@@ -1 +1,2 @@
+ keep
++x = 1
+PATCH
+out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$sdir")
+[ "$out" = "probe-diff: 1 sections (sensitive)" ]
+grep -qx 'sensitive	src/auth/session/token.py' "$sctx/probe-files.txt"
+grep -qx 'sensitive	migrations/0042.sql' "$sctx/probe-files.txt"
+! grep -q 'src/util.py' "$sctx/probe-files.txt"

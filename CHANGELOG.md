@@ -53,6 +53,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- A `sensitive_paths` setting: globs for files where a defect costs
+  most. A change touching one counts as a sensitive probe hit, so the
+  reviewer may climb to the strong model, no fix there starts cheap,
+  and the second review pass runs under the risky setting. A
+  project's shared file adds its patterns to yours rather than
+  replacing them.
 - Per-project settings. A repository can commit
   `.claude/pr-review-workflow.conf`, read from the pull request's base
   branch and never from disk, and you can keep an untracked

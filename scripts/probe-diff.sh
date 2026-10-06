@@ -54,6 +54,23 @@ probe "Test files shrink (more deleted than added, assertions may be weakening)"
 	t = ($1 ~ /(^|\/)(test|tests|__tests__|spec)\//) || (b ~ /^test_/) || (b ~ /_test\./) || (b ~ /\.test\./) || (b ~ /\.spec\./) || (b ~ /_spec\./) || (b == "conftest.py")
 	if (t && $3 + 0 > $2 + 0 && $3 + 0 >= 5) print $1 " (" $2 " added, " $3 " deleted)"
 }' "$ctx/files.txt" 2>/dev/null || true)" test-shrink
+# Paths the project or the user declared sensitive, from the resolved settings.
+declared=''
+[ -f "$dir/settings.txt" ] && declared=$(sh "$(dirname "$0")/setting.sh" "$dir" sensitive_paths)
+if [ -n "$declared" ]; then
+	set -f
+	probe "Declared sensitive paths changed" "$(cut -f1 "$ctx/files.txt" 2>/dev/null | while IFS= read -r p; do
+		for g in $declared; do
+			case "$p" in
+			$g)
+				printf '%s\n' "$p"
+				break
+				;;
+			esac
+		done
+	done)" sensitive
+	set +f
+fi
 probe "Large additions (over 800 added lines in one file)" "$(awk -F '\t' '$2 + 0 > 800 { print $1 " (" $2 " added)" }' "$ctx/files.txt" 2>/dev/null || true)" large
 
 if [ "$sections" -gt 0 ]; then
