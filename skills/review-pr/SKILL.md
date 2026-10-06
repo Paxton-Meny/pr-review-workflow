@@ -96,14 +96,17 @@ argument resumes from the ledger. Never retry a failed call in a loop.
 
 1. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh`
 2. Create or refresh the ledger. Pass the invocation text on stdin,
-   never inside the command line, exactly as below (the quoted
-   delimiter keeps anything typed inert):
-   ```
-   dir=$(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh "${CLAUDE_PLUGIN_DATA}" - <<'PRWF_ARGS_END'
-   $ARGUMENTS
-   PRWF_ARGS_END
-   )
-   ```
+   never inside the command line, exactly as below, with the closing
+   delimiter alone at the start of its line (the quoted delimiter
+   keeps anything typed inert):
+
+```
+dir=$(sh ${CLAUDE_PLUGIN_ROOT}/scripts/init-state.sh "${CLAUDE_PLUGIN_DATA}" - <<'PRWF_ARGS_END'
+$ARGUMENTS
+PRWF_ARGS_END
+)
+```
+
    The first word is the pull request; any `key=value` words after it
    are per-run settings, recorded for this invocation only.
    If `<dir>/findings/` already has records, this is a resume: run
