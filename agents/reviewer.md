@@ -1,6 +1,7 @@
 ---
 name: reviewer
 description: Reviews a fetched pull request against the categorized criteria and returns finding records. Read-only; never posts, edits, or runs anything.
+effort: high
 tools: Read, Grep, Glob
 maxTurns: 60
 omitClaudeMd: true

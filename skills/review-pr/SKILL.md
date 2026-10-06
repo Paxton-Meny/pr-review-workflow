@@ -220,7 +220,7 @@ argument resumes from the ledger. Never retry a failed call in a loop.
       the loop and treat it as non-convergence. With `auto`,
       arbitrate once first, because repeated reopens sometimes mean
       the cheap verifier is wrong rather than the editor: spawn
-      `pr-review-workflow:verifier` overriding its model with strong_model when set,
+      `pr-review-workflow:arbiter` overriding its model with strong_model when set,
       else reviewer_model, passing `inherit` explicitly when that is
       the chosen value so the arbitration runs on the session model,
       never the verifier default, and

@@ -119,6 +119,11 @@ configured runs on every round.
 
 ### Cost notes
 
+- Each agent runs at a fixed reasoning effort set in its definition,
+  independent of your session's level: the reviewer and the arbiter
+  high, the editor medium, the verifier and the filter low. Finding
+  defects is where thinking pays; checking a fix against a stated
+  contract is a narrow question.
 - Subagent requests cache with a five-minute lifetime on every billing
   method (the main conversation gets an hour on a subscription). The
   `subagentPromptCacheTtl` setting raises it, at a higher write rate.
