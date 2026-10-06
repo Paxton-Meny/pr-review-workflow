@@ -53,6 +53,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- `/pr-review-workflow:status` previews the settings a review started
+  in the current clone would use, each with its source, and any
+  command from the project's shared file still awaiting approval. It
+  reads the base as of the last fetch and writes nothing.
 - The settings reference explains where settings come from: the five
   sources and their order, the file format, that the project file
   may be committed for the team or kept out of version control as
