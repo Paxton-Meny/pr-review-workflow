@@ -1,10 +1,58 @@
 #!/bin/sh
 # Create or refresh the review state directory for one pull request.
-# Usage: sh scripts/init-state.sh <data-root> <pr-ref>
+# Usage: sh scripts/init-state.sh <data-root> <pr-ref> [key=value ...]
+#        sh scripts/init-state.sh <data-root> - <<'END'
+#        <pr-ref> [key=value ...]
+#        END
+# With "-" the invocation text arrives on stdin, so whatever was typed is
+# never pasted into a shell command line: quotes and $( ) stay inert.
+# The first word is the pull request; the rest are per-run settings,
+# key=value, a value with spaces quoted with " or '. They are written to
+# overrides.txt (key value, one per line), replaced on every invocation,
+# so a resumed run never keeps an earlier invocation's overrides.
 set -eu
 
-data_root=${1:?usage: init-state.sh <data-root> <pr-ref>}
-ref=${2:?usage: init-state.sh <data-root> <pr-ref>}
+data_root=${1:?usage: init-state.sh <data-root> <pr-ref> [key=value ...]}
+shift
+if [ "${1:-}" = - ]; then
+	text=$(cat)
+else
+	text=$*
+fi
+# Split into words, honouring quotes, one word per line; a bare word is
+# kept as typed so the reference check below can name it.
+words=$(printf '%s\n' "$text" | tr '\r\n' '  ' | awk '
+{
+	line = $0; n = length(line); w = ""; inword = 0; q = ""
+	for (i = 1; i <= n; i++) {
+		c = substr(line, i, 1)
+		if (q != "") {
+			if (c == q) q = ""; else w = w c
+			continue
+		}
+		if (c == "\"" || c == "\047") { q = c; inword = 1; continue }
+		if (c == " " || c == "\t") {
+			if (inword) { print w; w = ""; inword = 0 }
+			continue
+		}
+		w = w c; inword = 1
+	}
+	if (q != "") { print "init-state: unclosed quote in the arguments" > "/dev/stderr"; exit 2 }
+	if (inword) print w
+}') || exit 1
+ref=$(printf '%s\n' "$words" | sed -n '1p')
+[ -n "$ref" ] || {
+	echo "usage: init-state.sh <data-root> <pr-ref> [key=value ...]" >&2
+	exit 1
+}
+overrides=$(printf '%s\n' "$words" | sed '1d')
+if [ -n "$overrides" ]; then
+	bad=$(printf '%s\n' "$overrides" | grep -v '^[a-z_][a-z_]*=' | head -n 1 || true)
+	[ -z "$bad" ] || {
+		echo "init-state: expected key=value after the pull request, got: $bad" >&2
+		exit 1
+	}
+fi
 
 owner='' repo='' number=''
 case "$ref" in
@@ -86,8 +134,12 @@ tmp=$(mktemp "$dir/.meta.XXXXXX")
 	printf 'owner %s\nrepo %s\npr %s\n' "$owner" "$repo" "$number"
 	printf '%s\n' "$meta" | sed '/^state /d'
 	printf 'self_login %s\nself_email %s\n' "$self_login" "$self_email"
+	printf 'repo_root %s\n' "$repo_root"
 } >"$tmp"
 mv "$tmp" "$dir/meta.txt"
+tmp=$(mktemp "$dir/.overrides.XXXXXX")
+[ -z "$overrides" ] || printf '%s\n' "$overrides" | sed 's/=/ /' >"$tmp"
+mv "$tmp" "$dir/overrides.txt"
 if [ ! -f "$dir/round.txt" ]; then
 	tmp=$(mktemp "$dir/.round.XXXXXX")
 	printf '0\n' >"$tmp"
