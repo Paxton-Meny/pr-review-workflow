@@ -38,6 +38,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `/pr-review-workflow:status` previews the settings a review started
+  in the current clone would use, each with its source, and any
+  command from the project's shared file still awaiting approval. It
+  reads the base as of the last fetch and writes nothing.
 - The settings reference explains where settings come from: the five
   sources and their order, the file format, what a project's shared
   file may set and why, and a team setup. Every entry shows what the
