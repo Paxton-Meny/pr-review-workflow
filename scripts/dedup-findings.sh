@@ -1,6 +1,7 @@
 #!/bin/sh
 # Merge duplicate findings from parallel review samples; record support.
-# Usage: sh scripts/dedup-findings.sh <state-dir> <samples>
+# Usage: sh scripts/dedup-findings.sh <state-dir> [samples]
+# Without a count, the run's resolved review_samples is used.
 #
 # Two unposted open findings describe the same defect when they share a
 # path and category and sit within three lines of each other. Each such
@@ -11,7 +12,7 @@
 set -eu
 
 dir=${1:?usage: dedup-findings.sh <state-dir> <samples>}
-n=${2:?usage: dedup-findings.sh <state-dir> <samples>}
+n=${2:-$(sh "$(dirname "$0")/setting.sh" "$dir" review_samples)}
 findings="$dir/findings"
 [ -d "$findings" ] || {
 	echo "dedup-findings: no findings directory in $dir" >&2
