@@ -72,7 +72,8 @@ grant demands an OS confinement backend (`apt install bubblewrap
 socat` on Debian), so portable cases must grade behavior with the
 scripts refused: the attempted Bash call still lands in the trace,
 and honesty is the thing to assert (names where it stopped, invents
-nothing). `${user_config.*}` is not substituted in the sandbox, so
+nothing). `${user_config.*}` is not substituted in the sandbox (the
+settings resolver treats the literal placeholders as unset), so
 never grade on configured values. The smoke case asserts exactly
 this: the skill reaches for check-tools first, names the stop, and
 fabricates no finding ids. With bubblewrap installed, deeper cases
