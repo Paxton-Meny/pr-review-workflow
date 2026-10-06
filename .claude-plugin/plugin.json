@@ -89,6 +89,13 @@
       "description": "Comma-separated command prefixes, beyond the check command itself, that a finding's Check line may start with to be executed during verification (example: go test, cargo test). Use test runners only, never bare interpreters. Empty means only the check command's own prefix runs.",
       "required": false
     },
+    "cost_posture": {
+      "type": "string",
+      "options": ["quality", "balanced", "economy"],
+      "title": "Cost posture",
+      "description": "How readily auto routing starts a fix on the cheap model. quality: only fixes with a proven suggestion. balanced: also fixes whose Check line will execute, so a wrong fix is caught by running it. economy: any fix once a check command gates the round. A blocker, a security finding, or a finding on a file a secrets or sensitive probe flagged never starts cheap, and a fix that fails climbs a rung whatever the posture.",
+      "default": "balanced"
+    },
     "strong_model": {
       "type": "string",
       "title": "Strong model",

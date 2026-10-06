@@ -13,6 +13,13 @@ mkrec 'Check: sh check.sh one'
 printf '#!/bin/sh\nexit 0\n' >"$dir/worktree/check.sh"
 out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F001 'sh check.sh')
 [ "$out" = "run-contract: F001 verdict satisfied" ]
+out=$(sh "$REPO_ROOT/scripts/run-contract.sh" --policy "$dir" F001 'sh check.sh')
+[ "$out" = "run-contract: F001 verdict executable" ]
+if sh "$REPO_ROOT/scripts/run-contract.sh" --policy "$dir" F001 'make check' >"$SCRATCH/pol"; then
+	echo "policy mode must refuse an unapproved prefix" >&2
+	exit 1
+fi
+[ "$(cat "$SCRATCH/pol")" = "run-contract: F001 verdict not-executable reason unapproved-prefix" ]
 
 printf '#!/bin/sh\necho broken assertion\nexit 1\n' >"$dir/worktree/check.sh"
 rc=0

@@ -1,8 +1,12 @@
 #!/bin/sh
 # Run one finding's Check line in the worktree when policy allows it.
 # Usage: sh scripts/run-contract.sh <state-dir> <id> [check-command] [extra-prefixes]
+#        sh scripts/run-contract.sh --policy <state-dir> <id> [check-command] [extra-prefixes]
 # Exit 0: the check ran and passed. Exit 3: it ran and failed (tail on
 # stdout). Exit 4: no runnable check; judge the finding by reading.
+# With --policy nothing runs: exit 0 says the line would be allowed to
+# run, exit 4 says why not, so the router can tell an executable
+# contract from one that will be judged by reading.
 #
 # A Check line executes only when it starts with the configured check
 # command or one of the comma-separated extra prefixes, and contains no
@@ -10,6 +14,11 @@
 # beyond commands the user already chose to trust.
 set -eu
 
+policy=0
+if [ "${1:-}" = --policy ]; then
+	policy=1
+	shift
+fi
 dir=${1:?usage: run-contract.sh <state-dir> <id> [check-command] [extra-prefixes]}
 id=${2:?usage: run-contract.sh <state-dir> <id> [check-command] [extra-prefixes]}
 check=${3:-}
@@ -61,6 +70,10 @@ fi
 if [ "$allowed" -eq 0 ]; then
 	echo "run-contract: $id verdict not-executable reason unapproved-prefix"
 	exit 4
+fi
+if [ "$policy" -eq 1 ]; then
+	echo "run-contract: $id verdict executable"
+	exit 0
 fi
 
 out=$(mktemp "$dir/findings/.contract.XXXXXX")

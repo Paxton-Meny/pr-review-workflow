@@ -52,16 +52,17 @@ groups=1
 seams=0
 [ -f "$dir/pr-context/seams.txt" ] && seams=$(grep -c . "$dir/pr-context/seams.txt")
 
-routes=0 cheap=0 base=0 strong=0 strong_wanted=0
+routes=0 cheap=0 base=0 strong=0 strong_wanted=0 escalations=0
 [ -f "$dir/pr-context/routes.txt" ] && {
 	routes=$(grep -c '^route ' "$dir/pr-context/routes.txt" || true)
 	cheap=$(grep -c ' rung cheap ' "$dir/pr-context/routes.txt" || true)
 	base=$(grep -c ' rung base ' "$dir/pr-context/routes.txt" || true)
 	strong=$(grep -c ' rung strong ' "$dir/pr-context/routes.txt" || true)
 	strong_wanted=$(grep -c ' reason strong-wanted-unset' "$dir/pr-context/routes.txt" || true)
+	escalations=$(grep -c ' reason \(escalated\|gate-failed\|mixed\) ' "$dir/pr-context/routes.txt" || true)
 }
 
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations"
 printf '%s\n' "$line" >>"$root/stats.txt"
 echo "run-stats: $line"

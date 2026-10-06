@@ -113,6 +113,8 @@ h1{margin:0;font-size:clamp(32px,4.4vw,42px);line-height:1.1;font-weight:700}
 .row-t{font-size:14.5px;font-weight:700}
 .row-s{font-size:13.5px;line-height:1.55;color:var(--muted)}
 .cmd{font:600 13px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.row-b.grow{flex:1 1 260px}
+.row-r{flex:0 0 150px}
 
 /* surfaces and finding cards */
 .surface{border:1px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden}

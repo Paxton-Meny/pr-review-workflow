@@ -28,6 +28,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- An escalation ladder for fixes. Every editing attempt is noted on
+  the finding's record with its round, rung, model, and reason; a
+  finding attempted and still open climbs one rung above its last
+  attempt, and a repair after a failed check gate climbs one rung
+  above the batch that broke it. A new `cost_posture` setting
+  (quality, balanced, economy; default balanced) decides how readily
+  a fix starts on the cheap model: proven suggestions only, also
+  fixes whose Check line will execute, or any fix once a check
+  command gates the round. A blocker, a security finding, or a file
+  the secrets or sensitive probe flagged never starts cheap. The
+  contract runner gains a policy-only mode the router uses to tell
+  an executable Check line from one judged by reading, and the
+  statistics count escalations.
 - Routing decides per unit of work. A sharded review is routed group
   by group on each group's own files, so a documentation group runs
   on the cheap rung while an authentication group climbs, and the gap

@@ -2,12 +2,13 @@
 # Decide which model each role runs on, one line per unit of work.
 # Usage: sh scripts/route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]
 #
-# Stages: review, gap, filter, edit, verify, arbitrate. Keys, each with
-# its manifest default: routing (auto), reviewer (inherit), editor
-# (inherit), verifier (sonnet), strong (empty), round (1). A value that
+# Stages: review, gap, filter, edit, repair, verify, arbitrate. Keys,
+# each with its manifest default: routing (auto), reviewer (inherit),
+# editor (inherit), verifier (sonnet), strong (empty), posture
+# (balanced), check (empty), prefixes (empty), round (1). A value that
 # is still a literal ${user_config...} placeholder, as on an install with
-# no saved configuration, counts as unset. For the edit stage the open
-# finding ids follow a lone "--".
+# no saved configuration, counts as unset. For the edit and repair
+# stages the finding ids follow a lone "--".
 #
 # Every decision is a rung on one ladder: cheap (sonnet), base (the
 # role's own setting), strong (the strong model). Each printed line is
@@ -18,12 +19,21 @@
 # files: it climbs for large or sensitive code when a strong model is
 # set and drops for a small docs-only or config-only group with no risk
 # signal. The gap pass follows the highest review rung but never drops.
-# An editing round in round one splits into a mechanical batch (minor or
-# nit findings with a proven suggestion, on the cheap rung) and the rest,
-# when both have at least two findings; otherwise it is one batch, cheap
-# only when every finding is mechanical. The verifier and the filter
-# never move; arbitration takes the strong model, else the reviewer's.
-# With routing fixed, every role stays on its own setting.
+# An editing round gives each open finding a starting rung and batches
+# the round by rung, cheapest first. In round one a finding starts cheap
+# when it is mechanical (minor or nit with a proven suggestion), or,
+# under the balanced posture, when a check command is set and its Check
+# line would execute, so a wrong fix is caught by running it; under the
+# economy posture any finding starts cheap once a check command gates
+# the round; under the quality posture only mechanical ones do. A
+# blocker, a security finding, or a finding on a file where the secrets
+# or sensitive probe fired never starts cheap. A finding that was
+# attempted and is still open climbs one rung above its last attempt,
+# and a repair after a failed check gate climbs one rung above the batch
+# that broke it. Each attempt is noted on the finding's record. The
+# verifier and the filter never move; arbitration takes the strong
+# model, else the reviewer's. With routing fixed, every role stays on
+# its own setting.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -42,6 +52,7 @@ CLIMB_SLUGS='secrets automation sensitive'
 RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
+posture=balanced check='' prefixes=''
 ids=''
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -60,6 +71,9 @@ while [ $# -gt 0 ]; do
 		editor) editor=${value:-inherit} ;;
 		verifier) verifier=${value:-sonnet} ;;
 		strong) strong=$value ;;
+		posture) posture=${value:-balanced} ;;
+		check) check=$value ;;
+		prefixes) prefixes=$value ;;
 		round) round=${value:-1} ;;
 		*)
 			echo "route-models: unknown key: $key" >&2
@@ -78,6 +92,13 @@ case "$routing" in
 auto | fixed) ;;
 *)
 	echo "route-models: routing must be auto or fixed: $routing" >&2
+	exit 1
+	;;
+esac
+case "$posture" in
+quality | balanced | economy) ;;
+*)
+	echo "route-models: posture must be quality, balanced, or economy: $posture" >&2
 	exit 1
 	;;
 esac
@@ -172,6 +193,112 @@ model_for() {
 	esac
 }
 
+up() {
+	# up <rung>: the next rung, capped where the ladder ends
+	case "$1" in
+	cheap) echo base ;;
+	*) if [ -n "$strong" ]; then echo strong; else echo base; fi ;;
+	esac
+}
+
+last_rung() {
+	# last_rung <record>: the rung of the finding's latest attempt, if any
+	sed -n 's/^Route: round [0-9]* rung \([a-z]*\) .*/\1/p' "$1" | tail -n 1
+}
+
+note_attempt() {
+	# note_attempt <id> <rung> <model> <reason>
+	printf 'Route: round %s rung %s model %s reason %s\n' "$round" "$2" "$3" "$4" |
+		sh "$(dirname "$0")/append-note.sh" "$dir" "$1" >/dev/null
+}
+
+# A finding's starting rung for this round, and why. Prints "<rung> <reason>".
+finding_rung() {
+	# finding_rung <id>
+	record="$dir/findings/$1"
+	[ -f "$record" ] || {
+		echo "route-models: unknown finding: $1" >&2
+		exit 1
+	}
+	if [ "$routing" = fixed ]; then
+		echo "base fixed"
+		return
+	fi
+	last=$(last_rung "$record")
+	if [ -n "$last" ]; then
+		# Attempted before and still open: one rung above the last attempt.
+		next=$(up "$last")
+		if [ "$next" != "$last" ]; then
+			echo "$next escalated"
+		elif [ "$last" = base ]; then
+			echo "base strong-wanted-unset"
+		else
+			echo "$next ladder-top"
+		fi
+		return
+	fi
+	if [ "$round" -ne 1 ]; then
+		echo "base role-model"
+		return
+	fi
+	sev=$(sed -n 's/^severity: //p' "$record")
+	cat=$(sed -n 's/^category: //p' "$record")
+	path=$(sed -n 's/^path: //p' "$record")
+	high=0
+	[ "$sev" = blocker ] && high=1
+	[ "$cat" = security ] && high=1
+	[ -f "$ctx/probe-files.txt" ] && grep -q "^\(secrets\|sensitive\)	$path\$" "$ctx/probe-files.txt" && high=1
+	if [ "$high" -eq 1 ]; then
+		echo "base stakes-floor"
+		return
+	fi
+	case "$sev" in
+	minor | nit)
+		if grep -q '^```suggestion$' "$record"; then
+			echo "cheap mechanical"
+			return
+		fi
+		;;
+	esac
+	if [ "$posture" != quality ] && [ -n "$check" ] && grep -q '^Check: ' "$record" &&
+		sh "$(dirname "$0")/run-contract.sh" --policy "$dir" "$1" "$check" "$prefixes" >/dev/null 2>&1; then
+		echo "cheap contract-first"
+		return
+	fi
+	if [ "$posture" = economy ] && [ -n "$check" ]; then
+		echo "cheap gate-first"
+		return
+	fi
+	echo "base role-model"
+}
+
+# Print the batches for a set of ids: one line per rung used, cheapest
+# first, each as "<rung> <reason> <ids>", noting every attempt.
+batches() {
+	# batches <ids>; leaves each finding's own rung and reason in $plan
+	plan="$ctx/.route-plan"
+	: >"$plan"
+	for id in $1; do
+		set -- $(finding_rung "$id")
+		printf '%s\t%s\t%s\n' "$1" "$2" "$id" >>"$plan"
+	done
+	# A lone cheap finding in a round that also has others rides with them.
+	if [ "$(grep -c '^cheap	' "$plan")" -eq 1 ] && grep -qv '^cheap	' "$plan"; then
+		sed 's/^cheap	\([a-z-]*\)	/base	\1-alone	/' "$plan" >"$plan.2"
+		mv "$plan.2" "$plan"
+	fi
+	for rung in cheap base strong; do
+		grep "^$rung	" "$plan" >/dev/null || continue
+		list=$(awk -F '\t' -v r="$rung" '$1 == r { printf "%s%s", (n++ ? " " : ""), $3 }' "$plan")
+		reasons=$(awk -F '\t' -v r="$rung" '$1 == r { print $2 }' "$plan" | sort -u)
+		case "$(printf '%s\n' "$reasons" | wc -l | tr -d ' ')" in
+		1) reason=$reasons ;;
+		*) reason=mixed ;;
+		esac
+		printf '%s %s %s\n' "$rung" "$reason" "$list"
+	done
+}
+
 case "$stage" in
 review)
 	if [ -s "$ctx/shards.txt" ] && [ -f "$ctx/files-kind.txt" ]; then
@@ -196,7 +323,7 @@ review)
 gap)
 	# The highest rung any review unit used, never below the reviewer's own setting.
 	rung=base reason=follows-reviewer
-	if [ -f "$ctx/routes.txt" ] && grep -q '^route review .* rung strong ' "$ctx/routes.txt"; then
+	if [ -n "$strong" ] && [ -f "$ctx/routes.txt" ] && grep -q '^route review .* rung strong ' "$ctx/routes.txt"; then
 		rung=strong
 	fi
 	emit all "$rung" "$(model_for "$rung" "$reviewer")" "$reason"
@@ -209,41 +336,47 @@ edit)
 		echo "route-models: the edit stage needs the open finding ids after --" >&2
 		exit 1
 	}
-	mech='' rest='' nmech=0 nrest=0
+	# Plan first, note afterwards: a note changes what the next read sees.
+	lines=$(batches "$ids")
+	n=$(printf '%s\n' "$lines" | grep -c .)
+	i=0
+	printf '%s\n' "$lines" | while read -r rung reason list; do
+		i=$((i + 1))
+		model=$(model_for "$rung" "$editor")
+		if [ "$n" -eq 1 ]; then unit=all; else unit="batch-$i"; fi
+		for id in $list; do
+			note_attempt "$id" "$rung" "$model" "$(awk -F '\t' -v i="$id" '$3 == i { print $2 }' "$ctx/.route-plan")"
+		done
+		emit "$unit" "$rung" "$model" "$reason" "$list"
+	done
+	rm -f "$ctx/.route-plan"
+	;;
+repair)
+	# After a failed check gate: one rung above the batch that broke it.
+	[ -n "$ids" ] || {
+		echo "route-models: the repair stage needs the batch's finding ids after --" >&2
+		exit 1
+	}
+	top=cheap
 	for id in $ids; do
 		record="$dir/findings/$id"
 		[ -f "$record" ] || {
 			echo "route-models: unknown finding: $id" >&2
 			exit 1
 		}
-		mechanical=0
-		case "$(sed -n 's/^severity: //p' "$record")" in
-		minor | nit) grep -q '^```suggestion$' "$record" && mechanical=1 ;;
+		case "$(last_rung "$record")" in
+		strong) top=strong ;;
+		base) [ "$top" = strong ] || top=base ;;
 		esac
-		if [ "$mechanical" -eq 1 ]; then
-			mech="$mech $id"
-			nmech=$((nmech + 1))
-		else
-			rest="$rest $id"
-			nrest=$((nrest + 1))
-		fi
 	done
-	mech=${mech# }
-	rest=${rest# }
 	if [ "$routing" = fixed ]; then
-		emit all base "$editor" fixed "$ids"
-	elif [ "$round" -ne 1 ]; then
-		# Never route down after round one.
-		emit all base "$editor" role-model "$ids"
-	elif [ "$nrest" -eq 0 ]; then
-		emit all cheap "$CHEAP" mechanical-round-one "$ids"
-	elif [ "$nmech" -ge 2 ]; then
-		# Two batches, the mechanical one first: run them in order, never together.
-		emit batch-1 cheap "$CHEAP" mechanical-round-one "$mech"
-		emit batch-2 base "$editor" role-model "$rest"
+		rung=base reason=fixed
 	else
-		emit all base "$editor" role-model "$ids"
+		rung=$(up "$top") reason=gate-failed
 	fi
+	model=$(model_for "$rung" "$editor")
+	for id in $ids; do note_attempt "$id" "$rung" "$model" "$reason"; done
+	emit all "$rung" "$model" "$reason" "$ids"
 	;;
 arbitrate)
 	if [ -n "$strong" ]; then
