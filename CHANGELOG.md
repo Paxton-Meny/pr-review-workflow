@@ -38,6 +38,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- The scripts make every settings-driven decision and print it: the
+  router says whether the gap pass, the filter, and arbitration run,
+  and how many review samples each group gets; the check baseline is
+  recorded on disk per command, so the gate survives a resume, and a
+  changed check command is baselined again before it gates anything.
 - Scripts read the run's resolved settings themselves, checking the
   record against the hash kept outside the state directory, so a
   changed settings.txt is refused rather than trusted. The agents no
