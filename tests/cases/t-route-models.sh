@@ -13,33 +13,33 @@ ARGS='routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='
 # A small docs-only change drops; the gap pass still floors at the reviewer.
 classify docs-only 120 0
 probes ''
-[ "$(route review $ARGS)" = "route review all rung cheap model sonnet reason docs-only-small" ]
-[ "$(route gap $ARGS)" = "route gap all rung base model inherit reason follows-reviewer" ]
+[ "$(route review $ARGS)" = "route review all rung cheap model sonnet reason docs-only-small samples 1" ]
+[ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit reason follows-reviewer" ]
 
 # The same change with a risk signal stays on the reviewer model.
 probes 'deps'
-[ "$(route review $ARGS)" = "route review all rung base model inherit reason role-model" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit reason role-model samples 1" ]
 
 # Large code climbs when a strong model is set, and says so when none is.
 classify code 1200 950
 probes 'added'
-[ "$(route review $ARGS)" = "route review all rung base model inherit reason strong-wanted-unset" ]
-[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus reason large-code" ]
-[ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus reason follows-reviewer" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit reason strong-wanted-unset samples 1" ]
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus reason large-code samples 1" ]
+[ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus reason follows-reviewer" ]
 
 # Size counts code lines only: 1,200 lines of mostly tests is not large code.
 classify code 1200 300
 probes ''
-[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung base model opus reason role-model" ]
+[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung base model opus reason role-model samples 1" ]
 
 # A sensitive probe climbs even on a small change.
 classify code 90 90
 probes 'sensitive'
-[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus reason risky-probe" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus reason risky-probe samples 1" ]
 
 # Fixed routing never moves, and placeholders from an unconfigured install count as unset.
-[ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit reason fixed" ]
-[ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit reason strong-wanted-unset" ]
+[ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit reason fixed samples 1" ]
+[ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit reason strong-wanted-unset samples 1" ]
 
 # The filter and the verifier always take the verifier model.
 [ "$(route filter $ARGS)" = "route filter all rung base model sonnet reason role-model" ]
@@ -119,21 +119,39 @@ printf '001\tdocs/a.md\tdocs\t40\n002\tdocs/b.md\tdocs\t30\n003\tsrc/auth.py\tco
 printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ctx/shards.txt"
 printf 'sensitive\tsrc/auth.py\nadded\tdocs/b.md\n' >"$ctx/probe-files.txt"
 classify code 250 180
-[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet reason docs-only-small
-route review group-2 rung strong model opus reason risky-probe" ]
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet reason docs-only-small samples 1
+route review group-2 rung strong model opus reason risky-probe samples 1" ]
 [ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus reason follows-reviewer" ]
 printf 'deps\tdocs/a.md\n' >"$ctx/probe-files.txt"
-[ "$(route review $ARGS)" = "route review group-1 rung base model inherit reason role-model
-route review group-2 rung base model inherit reason role-model" ]
+[ "$(route review $ARGS)" = "route review group-1 rung base model inherit reason role-model samples 1
+route review group-2 rung base model inherit reason role-model samples 1" ]
 rm -f "$ctx/shards.txt"
+
+# The gap pass runs after any sharded review; otherwise double_review decides.
+rm -f "$ctx/shards.txt"
+probes ''
+[ "$(route gap $ARGS double=off)" = "route gap all skip reason double-review-off" ]
+[ "$(route gap $ARGS double=risky)" = "route gap all skip reason no-risk-signal" ]
+probes 'automation'
+[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit reason follows-reviewer" ]
+probes ''
+printf 'group 1 lines 9 files 001\n' >"$ctx/shards.txt"
+[ "$(route gap $ARGS double=off)" = "route gap all rung base model inherit reason follows-reviewer" ]
+rm -f "$ctx/shards.txt"
+
+# The filter is skipped when it is off; review lines carry the sample count.
+[ "$(route filter $ARGS filter=false)" = "route filter all skip reason filter-off" ]
+classify code 50 50
+[ "$(route review $ARGS samples=3)" = "route review all rung base model inherit reason role-model samples 3" ]
 
 # Arbitration takes the strong model, else the reviewer's.
 [ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus reason arbitration" ]
 [ "$(route arbitrate routing=auto reviewer=inherit)" = "route arbitrate all rung base model inherit reason no-strong-model" ]
+[ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 37 ]
-[ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet reason docs-only-small" ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 44 ]
+[ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet reason docs-only-small samples 1" ]
 
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.
 for bad in "wat" "review routing=sometimes" "edit $ARGS" "edit $ARGS -- F999"; do
