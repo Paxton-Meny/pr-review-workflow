@@ -151,6 +151,10 @@ auto-approve, the models, ledgers kept, or local standards. The
 [settings reference](https://paxton-meny.github.io/pr-review-workflow/settings.html#where)
 has the full table.
 
+`/pr-review-workflow:status` shows the settings a review started in
+the current clone would use and where each comes from, as of the last
+fetch.
+
 ### Executable contracts
 
 A finding may carry a `Check:` line, the check command narrowed to the
