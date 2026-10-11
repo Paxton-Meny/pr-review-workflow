@@ -132,6 +132,8 @@ rm -f "$ctx/shards.txt"
 probes ''
 [ "$(route gap $ARGS double=off)" = "route gap all skip reason double-review-off" ]
 [ "$(route gap $ARGS double=risky)" = "route gap all skip reason no-risk-signal" ]
+probes 'sensitive'
+[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit reason follows-reviewer" ]
 probes 'automation'
 [ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit reason follows-reviewer" ]
 probes ''
@@ -150,7 +152,7 @@ classify code 50 50
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 44 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 45 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet reason docs-only-small samples 1" ]
 
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.
