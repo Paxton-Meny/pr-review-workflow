@@ -45,8 +45,13 @@ probes 'sensitive'
 [ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
 [ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
 
-# A pinned environment level outranks every override, so the line records it.
+# A pinned environment level outranks every override, so the line and
+# every Route note record it.
 [ "$(CLAUDE_CODE_EFFORT_LEVEL=max route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh pinned max reason risky-probe samples 1" ]
+printf 'id: F015\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F015"
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=low route edit $ARGS round=1 -- F015)" = "route edit all rung base model inherit effort medium pinned low reason role-model ids F015" ]
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=low route repair $ARGS round=1 -- F015)" = "route repair all rung base model inherit effort high pinned low reason gate-failed ids F015" ]
+[ "$(grep -c '^Route: round 1 rung base model inherit effort [a-z]* pinned low reason ' "$dir/findings/F015")" -eq 2 ]
 
 # Fixed routing never moves, and placeholders from an unconfigured install count as unset.
 [ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
@@ -187,7 +192,7 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 59 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 61 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # A definition at a level routing does not use stops every stage before it
