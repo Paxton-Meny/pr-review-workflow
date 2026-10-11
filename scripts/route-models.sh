@@ -48,10 +48,11 @@
 # attempted and is still open climbs one rung above its last attempt,
 # and a repair after a failed check gate climbs one rung above the batch
 # that broke it. Each attempt is noted on the finding's record. The
-# verifier and the filter never change model; arbitration takes the
-# strong model, else the reviewer's. With routing fixed, every role
-# stays on its own setting. The verify stage takes the addressed ids
-# after "--" too, and skips when none follow it.
+# verifier and the filter never change model; arbitration is the
+# verifier on the strong model, else the reviewer's, at high effort.
+# With routing fixed, every role stays on its own setting. The verify
+# stage takes the addressed ids after "--" too, and skips when none
+# follow it.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -71,6 +72,7 @@ RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
 EFFORT_LEVELS='low medium high xhigh'
 ECONOMY_EFFORT_CAP=high
 EFFORT_CAP=xhigh
+ARBITRATION_EFFORT=high
 AGENTS="$(dirname "$0")/../agents"
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
@@ -214,7 +216,6 @@ reviewer_effort=$(role_effort reviewer)
 editor_effort=$(role_effort editor)
 verifier_effort=$(role_effort verifier)
 filter_effort=$(role_effort filter)
-arbiter_effort=$(role_effort arbiter)
 
 highest() {
 	# highest <levels>: the highest of them
@@ -603,7 +604,7 @@ arbitrate)
 		skip fixed-routing
 		exit 0
 	fi
-	effort=$(moved "$arbiter_effort" 0)
+	effort=$(moved "$ARBITRATION_EFFORT" 0)
 	if [ -n "$strong" ]; then
 		emit all strong "$strong" "$effort" arbitration
 	else

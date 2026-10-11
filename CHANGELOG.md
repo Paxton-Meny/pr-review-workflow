@@ -160,13 +160,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   them.
 - Reasoning effort is routed per unit of work, beside the model, so no
   agent inherits whatever level the session runs at. Each starts at
-  its definition's level (the reviewer and the arbiter high, the
-  editor and the verifier medium, the filter low) and moves one level
-  per signal. It goes up for a wide search: over 800 lines of code
-  unless a stronger model takes it, a shard on a seam, a gap pass over
-  seams, each earlier attempt at a finding. It goes up for stakes: a
-  secrets, automation, or sensitive probe on a review, and a blocker,
-  a security finding, or a file the secrets or sensitive probe flagged
+  its definition's level (the reviewer high, the editor and the
+  verifier medium, the filter low) and moves one level per signal. It
+  goes up for a wide search: over 800 lines of code unless a stronger
+  model takes it, a shard on a seam, a gap pass over seams, each
+  earlier attempt at a finding. It goes up for stakes: a secrets,
+  automation, or sensitive probe on a review, and a blocker, a
+  security finding, or a file the secrets or sensitive probe flagged
   on a fix or its verification. It goes down only where a later step
   checks the work: for the editor, a minor or nit fix carried by a
   proven suggestion; for the verifier, a finding an executable Check
@@ -176,9 +176,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   at xhigh, and fixed routing keeps each definition's level. The
   incremental review after a round gets its own route at the
   reviewer's model and level. Route lines and Route notes record the
-  level, and a pinned CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter
-  agent carries the verifier's procedure for the one arbitration pass
-  before a run parks. Needs Claude Code 2.1.292 or later.
+  level, and a pinned CLAUDE_CODE_EFFORT_LEVEL as such. The one
+  arbitration pass before a run parks spawns the verifier at high
+  effort on the strong model, else the reviewer's, so its Arbitration
+  section stays the one copy of that procedure. Needs Claude Code
+  2.1.292 or later.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model
