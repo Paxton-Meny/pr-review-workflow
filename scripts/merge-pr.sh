@@ -65,12 +65,14 @@ UNSTABLE)
 esac
 
 if [ "$approve" = "--approve" ]; then
+	credit=$(sh "$(dirname -- "$0")/attribution.sh" "$dir")
+	[ -z "$credit" ] || credit=$(printf '\n\n%s' "$credit")
 	if [ -n "$self" ] && [ "$author" != "$self" ]; then
 		gh pr review "$pr" --repo "$owner/$repo" --approve \
-			--body "Review converged: no open findings." >/dev/null
+			--body "Review converged: no open findings.$credit" >/dev/null
 	else
 		gh pr comment "$pr" --repo "$owner/$repo" \
-			--body "Review converged: no open findings. Authors cannot approve their own pull requests, so this comment stands in for the approval." >/dev/null
+			--body "Review converged: no open findings. Authors cannot approve their own pull requests, so this comment stands in for the approval.$credit" >/dev/null
 	fi
 fi
 

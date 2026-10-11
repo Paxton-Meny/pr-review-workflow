@@ -9,6 +9,7 @@ export PATH="$REPO_ROOT/tests/stubs:$PATH"
 dir="$SCRATCH/state"
 mkdir -p "$dir"
 printf 'owner acme\nrepo widgets\npr 7\nauthor octocat\nself_login reviewer\n' >"$dir/meta.txt"
+printf '0\n' >"$dir/round.txt"
 
 printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 : >"$stub/pr-review"
@@ -16,14 +17,23 @@ printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$st
 printf 'MERGED\n' >"$stub/pr-view.2"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve | grep -qx 'merge-pr: acme/widgets#7 merged'
 grep -q '^pr review 7 --repo acme/widgets --approve' "$stub/calls.log"
+grep -q 'Reviewed with \[pr-review-workflow\]' "$stub/calls.log" || {
+	echo "a clean run's approval is its first comment and names the plugin" >&2
+	exit 1
+}
 
 rm -f "$stub"/pr-view.1.done "$stub"/pr-view.2.done "$stub/calls.log"
 printf 'owner acme\nrepo widgets\npr 7\nauthor reviewer\nself_login reviewer\n' >"$dir/meta.txt"
 printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 : >"$stub/pr-comment"
 printf 'MERGED\n' >"$stub/pr-view.2"
+printf '1\n' >"$dir/round.txt"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve >/dev/null
 grep -q '^pr comment 7' "$stub/calls.log"
+if grep -q 'Reviewed with' "$stub/calls.log"; then
+	echo "after a posted round the approval must not name the plugin again" >&2
+	exit 1
+fi
 if grep -q '^pr review' "$stub/calls.log"; then
 	echo "own pull request must not be approved" >&2
 	exit 1

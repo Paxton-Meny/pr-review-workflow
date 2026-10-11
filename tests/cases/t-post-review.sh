@@ -1,5 +1,6 @@
 #!/bin/sh
-# post-review: posts placeable findings, demotes the rest, summarizes, bumps round.
+# post-review: summarizes first, naming the plugin once, then posts placeable
+# findings and demotes the rest, bumping the round.
 set -eu
 
 stub="$SCRATCH/stub"
@@ -67,6 +68,12 @@ grep -qx '1' "$dir/round.txt"
 
 grep -q -- '-F start_line=3' "$stub/calls.log"
 grep -q -- '-F line=4' "$stub/calls.log"
+[ "$(grep -n '' "$stub/calls.log" | sed -n 's/^\([0-9]*\):pr comment.*/\1/p' | head -n 1)" -lt \
+	"$(grep -n '' "$stub/calls.log" | sed -n 's/^\([0-9]*\):api .*/\1/p' | head -n 1)" ] || {
+	echo "the round summary must post before the inline findings" >&2
+	exit 1
+}
+grep -qx '<sub>Reviewed with \[pr-review-workflow\](https://github.com/Paxton-Meny/pr-review-workflow).</sub>' "$stub/bodies.log"
 
 out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
 [ "$out" = "post-review: nothing to post, round 1 unchanged" ]
@@ -101,3 +108,29 @@ grep -q "nothing lists this item yet" "$stub/bodies.log" && {
 }
 grep -q "^Fix: done." "$stub/bodies.log"
 grep -q "Quiet gap" "$stub/bodies.log"
+grep -q "^Review round 2:" "$stub/bodies.log"
+[ "$(grep -c 'Reviewed with' "$stub/bodies.log")" -eq 1 ] || {
+	echo "only the run's first comment names the plugin" >&2
+	exit 1
+}
+
+sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'
+=== finding
+category: correctness
+severity: minor
+path: src/app.py
+line: 5
+side: RIGHT
+title: Filtered away
+---
+Evidence.
+Fix: done.
+Resolution: done.
+REC
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F005 placement=summary >/dev/null
+out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
+[ "$out" = "post-review: 0 posted inline, 0 in the summary, round 3" ] || {
+	echo "a round the filter demoted entirely must still post its summary: $out" >&2
+	exit 1
+}
+grep -q "Filtered away" "$stub/bodies.log"

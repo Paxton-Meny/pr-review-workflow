@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A round whose every finding the precision filter demoted now posts
+  its summary comment. Before, nothing posted and the demoted findings
+  never reached the pull request.
 - The run figure is drawn as three labeled lanes, GitHub, scripts,
   and models, with the scripts as the backbone, so who does each
   step is read from position instead of from a color legend.
@@ -32,6 +35,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- The first comment each review posts ends with one line naming and
+  linking the plugin, so readers can see which tool reviewed the pull
+  request. Later comments never repeat it.
 - An escalation ladder for fixes. Every editing attempt is noted on
   the finding's record with its round, rung, model, and reason; a
   finding attempted and still open climbs one rung above its last
@@ -86,6 +92,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- A round's summary comment now posts before its inline findings, so
+  the pull request's conversation opens on the overview.
 - The README leads with a restrained badge row (release, license,
   site), a contents line, and folds the optional conventions-block
   detail behind a summary, so the install path and the figures stay
