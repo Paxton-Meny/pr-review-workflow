@@ -300,8 +300,9 @@ review_rung() {
 }
 
 # The reviewer's effort for one unit of the change. Size climbs the
-# model when a strong one is set and the effort only when none is, so
-# one signal is never paid for twice; stakes climb both.
+# model when a strong one is set and differs from the reviewer's, and
+# the effort otherwise, so one signal is paid for once; stakes climb
+# both.
 review_effort() {
 	# review_effort <kind> <lines> <code_lines> <slugs> [group]
 	steps=0
@@ -310,7 +311,7 @@ review_effort() {
 		[ "${2:-0}" -lt "$SMALL_LINES" ] && ! has_slug "$RISK_SLUGS" "$4" && steps=-1
 		;;
 	esac
-	if { [ -z "$strong" ] && [ "$1" = code ] && [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; } || on_seam "${5:-}"; then
+	if { [ "${strong:-$reviewer}" = "$reviewer" ] && [ "$1" = code ] && [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; } || on_seam "${5:-}"; then
 		steps=$((steps + 1))
 	fi
 	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
