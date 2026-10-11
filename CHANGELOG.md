@@ -111,6 +111,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   recorded in the ledger for that invocation only; a later invocation
   without them clears them. They take effect once the settings
   resolver lands.
+- Claude can start a review on its own once the work on a branch is
+  finished. A hook the plugin ships checks the pull request before
+  the skill loads: a merged or closed one is refused, and a new
+  `self_start` setting (ask, auto; default ask) decides whether you
+  confirm. With auto, a ready pull request starts without a question;
+  a draft, an existing review, failing checks, uncommitted or
+  unpushed work, or an earlier run on this machine still asks, and
+  the question says why. The hook reads `self_start` through the
+  settings resolver, so your own project file or local file can set it
+  per repository; a committed project file and per-run words cannot. A
+  review Claude starts must pass exactly the pull request and
+  `auto_approve=false`, so it never merges without asking and never
+  carries a per-run setting Claude wrote. Typing the command works as
+  before and is never asked about.
 - An escalation ladder for fixes. Every editing attempt is noted on
   the finding's record with its round, rung, model, and reason; a
   finding attempted and still open climbs one rung above its last

@@ -18,6 +18,13 @@
       "description": "Merge automatically once the review loop finds nothing open. When off, the plugin asks before merging.",
       "default": false
     },
+    "self_start": {
+      "type": "string",
+      "options": ["ask", "auto"],
+      "title": "Self-started reviews",
+      "description": "What happens when Claude decides on its own to review a pull request. ask: you confirm first. auto: no confirmation when the pull request is ready (open, not a draft, unreviewed, checks not failing, the clone's work committed and pushed, no earlier run here); anything else still asks. A review Claude started itself never merges without asking you.",
+      "default": "ask"
+    },
     "check_command": {
       "type": "string",
       "title": "Check command",
