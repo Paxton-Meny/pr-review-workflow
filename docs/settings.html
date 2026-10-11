@@ -40,11 +40,12 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 15 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 16 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
-<div class="side-head">MERGING</div>
+<div class="side-head">STARTING AND MERGING</div>
+<a href="#self-start" data-words="self_start start invoke ask auto">Self-started reviews</a>
 <a href="#auto-approve" data-words="auto_approve merge ask">Auto-approve</a>
 </div>
 <div class="side-group">
@@ -85,11 +86,47 @@
 <div class="intro">
 <div class="kicker">Settings reference</div>
 <h1 class="display">What each setting changes</h1>
-<p>Fifteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
+<p>Sixteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
 </div>
 
 <div id="merging">
-<div class="group"><h2>Merging</h2></div>
+<div class="group"><h2>Starting and merging</h2></div>
+<section class="entry" id="self-start" data-key="self_start" data-project="never" data-default="ask" data-options="ask auto">
+<h3 class="display">Self-started reviews</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>self_start</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">ask</dd></div>
+<div><dt>ACCEPTS</dt><dd>ask | auto</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
+</dl>
+<p class="lead">Claude can start a review on its own once the work on a branch is finished. Before the run begins, the plugin checks the pull request, and this setting decides whether you confirm it. A review you start yourself, by typing the command, is never asked about.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Self-started reviews value">
+<button type="button" data-set="ask" aria-pressed="true">ask <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="auto" aria-pressed="false">auto</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="termbox">
+<div data-show="ask"><div>Claude wants to start a review of acme/api#128. The review posts comments to the pull request and pushes fixes to its branch.</div><div class="ask"><span class="fake pri">Yes</span><span class="fake">No</span></div></div>
+<div data-show="auto" hidden><span class="dim">review loop:</span> starting acme/api#128</div>
+</div>
+<p class="note" data-show="ask">You confirm every review Claude starts, and you can stop it before anything is read or posted.</p>
+<p class="note" data-show="auto" hidden>A ready pull request starts without a question. Ready means open and out of draft, with no reviews yet, no failing checks, your clone&#8217;s work committed and pushed, and no earlier run on this machine. Anything else still asks, and says why.</p>
+<p class="note">Either way, a merged or closed pull request is refused. A review Claude starts passes <code>auto_approve=false</code> and no other setting, so it never merges without asking you, whatever Auto-approve says. Set this in your configuration, or for one repository in your own project file or local file; a committed project file cannot set it.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>ask <span class="badge">DEFAULT</span></dt><dd>You want the last word on when a review posts to a pull request.</dd></div>
+<div><dt>auto</dt><dd>You routinely review your own branches before merging and want it to happen when the work is done.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#auto-approve">Auto-approve</a></p>
+</section>
 <section class="entry" id="auto-approve" data-key="auto_approve" data-project="never" data-default="false">
 <h3 class="display">Auto-approve</h3>
 <dl class="spec">
@@ -114,7 +151,7 @@
 <div data-show="on" hidden><span class="dim">merge-pr:</span> acme/api#128 <span class="ok">merged</span></div>
 </div>
 <p class="note" data-show="off">You are asked at the end of every clean run. When nobody is there to answer, the plugin posts a comment saying the review converged and stops; it never merges unattended with this off.</p>
-<p class="note" data-show="on" hidden>The pull request merges as soon as the loop is clean, whether or not anyone is watching.</p>
+<p class="note" data-show="on" hidden>The pull request merges as soon as the loop is clean, whether or not anyone is watching, unless Claude started the review on its own.</p>
 <p class="note">Either way, nothing merges while a finding is open, or over a finding marked won&#8217;t-fix that you have not accepted.</p>
 </div>
 </div>
@@ -868,7 +905,7 @@ sensitive_paths src/auth/** src/payments/**</code></pre>
 <tr><th scope="row">Check command, contract command prefixes</th><td><b>set them after you approve</b></td><td>They run on your machine. The first run that sees them, and every run after they change, shows you the exact commands and asks; an unattended run goes without them.</td></tr>
 <tr><th scope="row">Second review pass, precision filter, cost posture, review samples</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
 <tr><th scope="row">Sensitive paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
-<tr><th scope="row">Auto-approve, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
+<tr><th scope="row">Auto-approve, self-started reviews, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, start reviews on your behalf, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
 </table>
 </div>
 <p class="note">Everything the shared file tried and was refused, and every command waiting for your approval, is listed at the start of the run, so nothing is applied or dropped silently.</p>
@@ -900,7 +937,7 @@ sensitive_paths src/auth/** src/payments/**</code></pre>
 
 <aside class="rail" aria-label="On this page">
 <div class="rail-head">ON THIS PAGE</div>
-<a href="#merging">Merging</a>
+<a href="#merging">Starting and merging</a>
 <a href="#proof">Proof and checks</a>
 <a href="#depth">Review depth</a>
 <a href="#models-group">Models and cost</a>

@@ -1,7 +1,7 @@
 ---
 name: review-pr
 description: "Review a GitHub pull request end to end: post inline findings, edit the branch to address them, re-review until clean, then merge or ask. Invoke with a PR number, owner/repo#n, or URL, from inside a clone of the reviewed repository."
-disable-model-invocation: true
+when_to_use: "Start it yourself only when the branch's work is committed, pushed, and verified, and its pull request is open, out of draft, and unreviewed. Pass the PR number then auto_approve=false; the plugin confirms with the user."
 argument-hint: "<pr number | owner/repo#n | url> [key=value ...]"
 allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh *)
@@ -105,6 +105,7 @@ PRWF_ARGS_END
 ```
 sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh <dir> <<'PRWF_SETTINGS_END'
 auto_approve ${user_config.auto_approve}
+self_start ${user_config.self_start}
 check_command ${user_config.check_command}
 local_standards ${user_config.local_standards}
 double_review ${user_config.double_review}

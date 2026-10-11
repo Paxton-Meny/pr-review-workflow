@@ -26,7 +26,7 @@
 # the source below it gave, never jumping to the default.
 #
 # The shared file is the team's, so it may set less than the others:
-# never auto_approve, the models, routing, keep_ledgers, or
+# never auto_approve, self_start, the models, routing, keep_ledgers, or
 # local_standards; the quality settings only upward (a project may raise
 # the bar, only the user may lower it); and the check command and
 # contract prefixes, which execute, only once the user approved that
@@ -93,7 +93,7 @@ MAX_BYTES=16384
 # What a project's shared file may do with each setting. Every manifest
 # key is in exactly one list; the settings reference page and its test
 # are held to these.
-PROJECT_NEVER='auto_approve reviewer_model editor_model verifier_model model_routing strong_model keep_ledgers local_standards'
+PROJECT_NEVER='auto_approve self_start reviewer_model editor_model verifier_model model_routing strong_model keep_ledgers local_standards'
 PROJECT_RAISE='double_review finding_filter cost_posture review_samples'
 PROJECT_TRUSTED='check_command contract_commands'
 PROJECT_ADDS='sensitive_paths'
@@ -322,6 +322,7 @@ FNR == 1 { for (i = 1; i <= 4; i++) if (FILENAME == ARGV[i]) source = names[i] }
 	}
 	nv = check(k, v)
 	if (err != "") { ignored[++ni] = source " " k ": " err; next }
+	if (source == "run" && k == "self_start") { ignored[++ni] = "run self_start: it decides how a run starts, so set it in your configuration or local file"; next }
 	if (source == "project") {
 		if (k in never) { ignored[++ni] = "project " k ": only you can set this, in your own configuration or local file"; next }
 		if ((k == "check_command" || k == "contract_commands") && exec_trusted != 1) next

@@ -48,6 +48,8 @@ nothing to install beyond itself.
 
 Read this before installing. The plugin reads pull requests, posts review
 comments to them, pushes commits to their branches, and merges when told to.
+Claude may also start a review on its own once a branch's work is
+finished; by default you confirm it first (the `self_start` setting).
 It acts with whatever access your GitHub CLI credentials carry, and fix
 commits are authored as the signed-in account's noreply address, never
 your clone's local git identity. The first comment of each review
@@ -86,6 +88,16 @@ creating state or touching the network. That is the whole tie
 between plugin and repository, so review as many repositories as
 you like, each from its own clone.
 
+Claude can also start a review itself when it finishes the work on a
+branch whose pull request is open. A hook checks the pull request first
+and asks you to confirm, with any reason to hold back, such as an
+existing review, a draft, or unpushed work. Set `self_start` to `auto`
+to skip the question when nothing stands in the way, in your
+configuration or, for one repository, in your own project or local
+file. A review Claude starts passes `auto_approve=false` and nothing
+else, so it never merges without asking you and never carries
+settings you did not choose.
+
 Loading with `--plugin-dir` never shows the settings dialog: run
 `/plugin configure pr-review-workflow` in the session to fill it in,
 or the run uses the defaults and says so.
@@ -110,6 +122,7 @@ pull request, and says when to choose it.
 | Option | Default | Meaning |
 | --- | --- | --- |
 | Auto-approve on convergence | off | Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold. |
+| Self-started reviews | ask | When Claude starts a review on its own: ask (you confirm first) or auto (no question when the pull request is ready). Anything that is not ready still asks. |
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
 | Second review pass | risky | When a gap pass runs after a single-reviewer first review: off, risky (a secrets, automation, or sensitive probe fired), or always. It reads the existing findings and reports only what they miss. A sharded review always ends with one, whatever this is set to: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. |
@@ -147,7 +160,7 @@ sensitive_paths src/auth/** src/payments/**
 A committed project file may do less than your own. Its check command and
 contract prefixes apply only after you approve them, once per change.
 It may only raise the review depth settings. It may never set
-auto-approve, the models, ledgers kept, or local standards. The
+auto-approve, self-started reviews, the models, ledgers kept, or local standards. The
 [settings reference](https://paxton-meny.github.io/pr-review-workflow/settings.html#where)
 has the full table.
 
@@ -255,6 +268,7 @@ every change goes through.
 - `skills/status/`: read-only view of recorded runs and their statistics.
 - `skills/finding-records/`: the finding record format, preloaded into the agents.
 - `agents/`: reviewer, filter, editor, verifier, and arbiter definitions.
+- `hooks/`: the check that runs before Claude starts a review itself.
 - `scripts/`: POSIX sh, one proven step each.
 - `tests/`: offline suite with a stubbed GitHub CLI.
 - `evals/`: `claude plugin eval` cases.

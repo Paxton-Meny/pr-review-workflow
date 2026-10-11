@@ -56,6 +56,12 @@ printf '%s\n' "$out" | grep -qx 'settings: check_command (empty) from run'
 printf '%s\n' "$out" | grep -qx 'settings: ignored run review_samples: above the maximum 3'
 printf '%s\n' "$out" | grep -qx 'settings: ignored run wat: unknown setting'
 
+# How a run starts is never a setting for the run.
+printf 'self_start auto\n' >"$dir/overrides.txt"
+out=$(resolve <"$SCRATCH/user")
+[ "$(value self_start)" = ask ]
+printf '%s\n' "$out" | grep -qx 'settings: ignored run self_start: it decides how a run starts, so set it in your configuration or local file'
+
 # A run setting that cannot be empty is refused.
 printf 'posture\n' >"$dir/overrides.txt"
 out=$(resolve <"$SCRATCH/user")
