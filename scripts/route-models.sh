@@ -21,15 +21,16 @@
 # Effort starts at the level the role's agent definition declares and
 # moves one level for each signal: up for a wide search (large code
 # when no strong model takes it, a shard group on a seam, a gap pass
-# over seams, each earlier attempt at a finding), up for stakes (a secrets, automation, or sensitive probe,
-# a blocker or security finding), down where a later step checks the
-# work (a minor or nit fix carried by a proven suggestion for the
-# editor, an executable Check line or proven suggestion for the
-# verifier) or the review is small docs or config with no risk. A batch
-# or a verified round runs at its highest finding's level. The economy posture caps effort at high, the others
-# at xhigh; max is never routed. Fixed routing keeps every role's own
-# level. A set CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the
-# line records it as pinned.
+# over seams, each earlier attempt at a finding), up for stakes (a
+# secrets, automation, or sensitive probe, a blocker or security
+# finding), down where a later step checks the work (a minor or nit
+# fix carried by a proven suggestion for the editor, an executable
+# Check line or proven suggestion for the verifier) or the review is
+# small docs or config with no risk. A batch or a verified round runs
+# at its highest finding's level. The economy posture caps effort at
+# high, the others at xhigh; max is never routed. Fixed routing keeps
+# every role's own level. A set CLAUDE_CODE_EFFORT_LEVEL outranks every
+# override, so the line and each Route note record it as pinned.
 # A sharded review gets one line per group, judged on that group's own
 # files: it climbs for large or sensitive code when a strong model is
 # set and drops for a small docs-only or config-only group with no risk
