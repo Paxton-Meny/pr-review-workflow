@@ -32,6 +32,7 @@ classify code 1200 950
 probes 'added'
 [ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
+[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung strong model opus effort xhigh reason large-code samples 1" ]
 [ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus effort xhigh reason follows-reviewer" ]
 
 # Size counts code lines only: 1,200 lines of mostly tests is not large code.
@@ -198,7 +199,7 @@ printf 'id: F024\nstatus: addressed\nseverity: blocker\npath: src/a.py\n---\nbod
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 65 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 66 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
