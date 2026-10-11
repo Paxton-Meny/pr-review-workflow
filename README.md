@@ -189,13 +189,13 @@ configured runs on every round.
   session's level. Each agent starts at its definition's level (the
   reviewer and the arbiter high, the editor and the verifier medium,
   the filter low) and moves one level per signal: up for a wide
-  search (large code, a shard on a seam, an earlier failed attempt)
-  or high stakes (a secrets, automation, or sensitive probe, a
-  blocker or security finding), down where a later step checks the
-  work (an editor's minor or nit fix carried by a proven suggestion,
-  a verified finding that a Check line or proven suggestion settles)
-  or for a small docs or config review. A batch or a verified round
-  runs at its highest finding's level. The
+  search (large code when no strong model is set, a shard on a seam,
+  an earlier failed attempt) or high stakes (a secrets, automation,
+  or sensitive probe, a blocker or security finding), down where a
+  later step checks the work (an editor's minor or nit fix carried by
+  a proven suggestion, a verified finding that a Check line or proven
+  suggestion settles) or for a small docs or config review. A batch
+  or a verified round runs at its highest finding's level. The
   economy posture caps it at high, the others at xhigh, and fixed
   routing keeps each agent's own level. Adaptive reasoning already
   spends thought where a step is hard, so these moves stay coarse.

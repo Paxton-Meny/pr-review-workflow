@@ -162,9 +162,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   no agent inherits whatever level the session runs at. Each starts
   at its definition's level (the reviewer and the arbiter high, the
   editor and the verifier medium, the filter low) and moves one level
-  per signal. It goes up for a wide search: over 800 lines of code, a
-  shard on a seam, a gap pass over seams, each earlier attempt at a
-  finding. It goes up for stakes: a secrets, automation, or sensitive
+  per signal. It goes up for a wide search: over 800 lines of code
+  when no strong model is set to take it, a shard on a seam, a gap
+  pass over seams, each earlier attempt at a finding. It goes up for stakes: a secrets, automation, or sensitive
   probe, a blocker or security finding. It goes down only where a
   later step checks the work: for the editor, a minor or nit fix
   carried by a proven suggestion; for the verifier, a finding an
