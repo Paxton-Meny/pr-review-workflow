@@ -125,14 +125,17 @@ pull request, and says when to choose it.
 
 ### Per-project settings
 
-The plugin's settings are per user. A repository can add a committed
-`.claude/pr-review-workflow.conf`, read from the pull request's base
-branch, never from disk, and you can keep an untracked
+The plugin's settings are per user. A repository adds
+`.claude/pr-review-workflow.conf`, committed or not as it prefers:
+committed, it is the team's shared file, read from the pull request's
+base branch and never from disk; kept out of version control, it is
+yours, read from your clone. You can also keep an untracked
 `.claude/pr-review-workflow.local.conf` in your clone. Settings typed
 after the pull request apply to one run:
 `/pr-review-workflow:review-pr 128 posture=quality`. Each source
-overrides the ones before it: defaults, your configuration, the shared
-file, your local file, the run.
+overrides the ones before it: defaults, your configuration, the project
+file, your local file, the run. The plugin never reads Claude Code's
+own settings files.
 
 ```text
 # .claude/pr-review-workflow.conf
@@ -141,7 +144,7 @@ double_review always
 sensitive_paths src/auth/** src/payments/**
 ```
 
-The shared file may do less than your own. Its check command and
+A committed project file may do less than your own. Its check command and
 contract prefixes apply only after you approve them, once per change.
 It may only raise the review depth settings. It may never set
 auto-approve, the models, ledgers kept, or local standards. The
