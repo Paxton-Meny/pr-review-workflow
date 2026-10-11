@@ -167,10 +167,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   finding. It goes up for stakes: a secrets, automation, or sensitive
   probe, a blocker or security finding. It goes down only where a
   later step checks the work: for the editor, a minor or nit fix
-  carried by a proven suggestion; for the verifier, a round whose
-  every finding an executable Check line or a proven suggestion
-  settles; and for a small docs or config review. A batch runs at
-  its highest finding's level. The economy posture caps effort at
+  carried by a proven suggestion; for the verifier, a finding an
+  executable Check line or a proven suggestion settles; and for a
+  small docs or config review. An editing batch or a verified round
+  runs at its highest finding's level. The economy posture caps effort at
   high, the others at xhigh, and fixed routing keeps each
   definition's level. Route lines and Route notes record the level,
   and a pinned CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter agent
