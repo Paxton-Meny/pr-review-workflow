@@ -49,7 +49,7 @@
 # verifier and the filter never change model; arbitration takes the
 # strong model, else the reviewer's. With routing fixed, every role
 # stays on its own setting. The verify stage takes the addressed ids
-# after "--" too.
+# after "--" too, and skips when none follow it.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -74,7 +74,7 @@ AGENTS="$(dirname "$0")/../agents"
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
 posture=balanced check='' prefixes=''
 double=risky filter=true samples=1
-ids=''
+ids='' listed=0
 # The run's resolved settings come first; key=value arguments override
 # them, which is how the tests drive every branch.
 if [ -f "$dir/settings.txt" ]; then
@@ -95,7 +95,7 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	--)
 		shift
-		ids=$*
+		ids=$* listed=1
 		break
 		;;
 	*=*)
@@ -500,10 +500,14 @@ filter)
 	;;
 verify)
 	# One level down when execution or a proven suggestion settles every finding.
-	[ -n "$ids" ] || {
+	[ "$listed" -eq 1 ] || {
 		echo "route-models: the verify stage needs the addressed finding ids after --" >&2
 		exit 1
 	}
+	if [ -z "$ids" ]; then
+		skip nothing-addressed
+		exit 0
+	fi
 	steps=-1
 	for id in $ids; do
 		[ -f "$dir/findings/$id" ] || {

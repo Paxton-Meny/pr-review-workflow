@@ -179,6 +179,7 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(route verify $ARGS 'check=make check' -- F020 F022)" = "route verify all rung base model sonnet effort medium reason role-model" ]
 [ "$(route verify $ARGS -- F021)" = "route verify all rung base model sonnet effort medium reason role-model" ]
 [ "$(route verify routing=fixed -- F020)" = "route verify all rung base model sonnet effort medium reason role-model" ]
+[ "$(route verify $ARGS --)" = "route verify all skip reason nothing-addressed" ]
 
 # Arbitration takes the strong model, else the reviewer's.
 [ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus effort high reason arbitration" ]
@@ -186,7 +187,7 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 58 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 59 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.

@@ -275,7 +275,8 @@ PRWF_SETTINGS_END
    d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier`
       with the route from
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify -- <addressed_ids>`
-      and exactly:
+      and exactly (a `skip` line means the round addressed nothing:
+      spawn no verifier and go on to step e):
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
