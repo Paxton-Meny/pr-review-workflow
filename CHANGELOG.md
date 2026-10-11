@@ -130,18 +130,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   carries a per-run setting Claude wrote. Typing the command works as
   before and is never asked about.
 - An escalation ladder for fixes. Every editing attempt is noted on
-  the finding's record with its round, rung, model, and reason; a
-  finding attempted and still open climbs one rung above its last
-  attempt, and a repair after a failed check gate climbs one rung
+  the finding's record with its round, rung, model, effort, and
+  reason; a finding attempted and still open climbs one rung above its
+  last attempt, and a repair after a failed check gate climbs one rung
   above the batch that broke it. A new `cost_posture` setting
-  (quality, balanced, economy; default balanced) decides how readily
-  a fix starts on the cheap model: proven suggestions only, also
-  fixes whose Check line will execute, or any fix once a check
-  command gates the round. A blocker, a security finding, or a file
-  the secrets or sensitive probe flagged never starts cheap. The
-  contract runner gains a policy-only mode the router uses to tell
-  an executable Check line from one judged by reading, and the
-  statistics count escalations.
+  (quality, balanced, economy; default balanced) decides how readily a
+  fix starts on the cheap model: proven suggestions only, also fixes
+  whose Check line will execute, or any fix once a check command gates
+  the round. A blocker, a security finding, or a file the secrets or
+  sensitive probe flagged never starts cheap. The contract runner
+  gains a policy-only mode the router uses to tell an executable Check
+  line from one judged by reading, and the statistics count
+  escalations.
 - Routing decides per unit of work. A sharded review is routed group
   by group on each group's own files, so a documentation group runs
   on the cheap rung while an authentication group climbs, and the gap
@@ -158,24 +158,26 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   so and the final report repeats it. Each run's statistics line
   gains the count of decisions per rung, and the status report sums
   them.
-- Reasoning effort is routed per unit of work, beside the model, so
-  no agent inherits whatever level the session runs at. Each starts
-  at its definition's level (the reviewer and the arbiter high, the
+- Reasoning effort is routed per unit of work, beside the model, so no
+  agent inherits whatever level the session runs at. Each starts at
+  its definition's level (the reviewer and the arbiter high, the
   editor and the verifier medium, the filter low) and moves one level
   per signal. It goes up for a wide search: over 800 lines of code
-  when no strong model is set to take it, a shard on a seam, a gap
-  pass over seams, each earlier attempt at a finding. It goes up for stakes: a secrets, automation, or sensitive
-  probe, a blocker or security finding. It goes down only where a
-  later step checks the work: for the editor, a minor or nit fix
-  carried by a proven suggestion; for the verifier, a finding an
-  executable Check line or a proven suggestion settles; and for a
-  small docs or config review. An editing batch or a verified round
-  runs at its highest finding's level. The economy posture caps effort at
-  high, the others at xhigh, and fixed routing keeps each
-  definition's level. Route lines and Route notes record the level,
-  and a pinned CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter agent
-  carries the verifier's procedure for the one arbitration pass
-  before a run parks. Needs Claude Code 2.1.292 or later.
+  unless a stronger model takes it, a shard on a seam, a gap pass over
+  seams, each earlier attempt at a finding. It goes up for stakes: a
+  secrets, automation, or sensitive probe on a review, and a blocker,
+  a security finding, or a file the secrets or sensitive probe flagged
+  on a fix or its verification. It goes down only where a later step
+  checks the work: for the editor, a minor or nit fix carried by a
+  proven suggestion; for the verifier, a finding an executable Check
+  line or a proven suggestion settles; and for a small docs or config
+  review. An editing batch or a verified round runs at its highest
+  finding's level. The economy posture caps effort at high, the others
+  at xhigh, and fixed routing keeps each definition's level. Route
+  lines and Route notes record the level, and a pinned
+  CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter agent carries the
+  verifier's procedure for the one arbitration pass before a run
+  parks. Needs Claude Code 2.1.292 or later.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model

@@ -189,9 +189,10 @@ configured runs on every round.
   session's level. Each agent starts at its definition's level (the
   reviewer and the arbiter high, the editor and the verifier medium,
   the filter low) and moves one level per signal: up for a wide
-  search (large code when no strong model is set, a shard on a seam,
-  an earlier failed attempt) or high stakes (a secrets, automation,
-  or sensitive probe, a blocker or security finding), down where a
+  search (large code unless a stronger model takes it, a shard on a
+  seam, an earlier failed attempt) or high stakes (a secrets,
+  automation, or sensitive probe on a review; a blocker, a security
+  finding, or a flagged file on a fix), down where a
   later step checks the work (an editor's minor or nit fix carried by
   a proven suggestion, a verified finding that a Check line or proven
   suggestion settles) or for a small docs or config review. A batch
