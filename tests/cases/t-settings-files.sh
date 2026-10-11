@@ -1,7 +1,7 @@
 #!/bin/sh
 # The shared and personal settings files: read from the right place,
-# limited by the trust line, commands trusted on first use, and every
-# refusal reported.
+# limited by the trust line, commands trusted on first use, an untracked
+# project file treated as the user's own, and every refusal reported.
 set -eu
 
 remote="$SCRATCH/remote.git"
@@ -117,3 +117,46 @@ resolve </dev/null | grep -qx 'settings: project file unavailable, local file pr
 
 # The trust store sits outside state/, where retention never looks.
 [ -f "$data/trust/acme__widgets.trusted" ]
+
+# A project file git does not track is the user's own: read from the
+# clone, free to set anything, and still outranked by the local file.
+mv "$remote.gone" "$remote"
+own_remote="$SCRATCH/own.git"
+git init --quiet --bare "$own_remote"
+own="$SCRATCH/own"
+git clone --quiet "$own_remote" "$own" 2>/dev/null
+git -C "$own" config user.name tester
+git -C "$own" config user.email tester@example.invalid
+git -C "$own" commit --quiet --allow-empty -m root
+git -C "$own" push --quiet origin HEAD:main
+mkdir -p "$own/.claude"
+printf '.claude/pr-review-workflow.conf\n' >>"$own/.git/info/exclude"
+printf 'auto_approve true\ncheck make test\nposture economy\n' >"$own/.claude/pr-review-workflow.conf"
+printf 'owner acme\nrepo own\npr 1\nbase_branch main\nrepo_root %s\n' "$own" >"$dir/meta.txt"
+out=$(resolve </dev/null)
+printf '%s\n' "$out" | grep -qx 'settings: project file yours, local file absent'
+[ "$(value auto_approve)" = true ] && [ "$(source_of auto_approve)" = local ]
+[ "$(value check_command)" = "make test" ]
+! printf '%s\n' "$out" | grep -q 'trust pending'
+printf 'posture quality\n' >"$own/.claude/pr-review-workflow.local.conf"
+resolve </dev/null >/dev/null
+[ "$(value cost_posture)" = quality ]
+rm "$own/.claude/pr-review-workflow.local.conf"
+
+# Tracked in the clone but missing from the base branch: nobody's, refused.
+git -C "$own" add -f .claude/pr-review-workflow.conf
+git -C "$own" commit --quiet -m unpushed
+out=$(resolve </dev/null)
+printf '%s\n' "$out" | grep -qx 'settings: project file refused, local file absent'
+printf '%s\n' "$out" | grep -q 'tracked in your clone but not on the base branch'
+[ "$(value auto_approve)" = false ]
+
+# With no base branch to compare against, a tracked file is not refused.
+printf 'owner acme\nrepo own\npr 1\nrepo_root %s\n' "$own" >"$dir/meta.txt"
+resolve </dev/null | grep -qx 'settings: project file absent, local file absent'
+
+# No script reads Claude Code's own settings files; they can hold credentials.
+if grep -n 'settings\(\.local\)\{0,1\}\.json' "$REPO_ROOT"/scripts/*.sh; then
+	echo "scripts must never read Claude Code settings files" >&2
+	exit 1
+fi
