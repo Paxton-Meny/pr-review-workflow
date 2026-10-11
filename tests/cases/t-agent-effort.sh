@@ -51,3 +51,8 @@ awk '
 		if (n < 7) { print "expected seven delegation prompts, found " n > "/dev/stderr"; bad = 1 }
 		exit bad
 	}' "$REPO_ROOT/skills/review-pr/SKILL.md"
+
+# The incremental review in step 8e has no prompt of its own, so check
+# that it is routed and passes both overrides.
+grep -A4 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q 'with its `model` and'
+grep -A5 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q '`effort`'
