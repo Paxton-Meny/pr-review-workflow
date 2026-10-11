@@ -68,7 +68,7 @@
 <a href="#verifier-model" data-words="verifier_model">Verifier model</a>
 <a href="#model-routing" data-words="model_routing auto fixed">Model routing</a>
 <a href="#strong-model" data-words="strong_model opus arbitration">Strong model</a>
-<a href="#cost-posture" data-words="cost_posture cheap economy quality balanced">Cost posture</a>
+<a href="#cost-posture" data-words="cost_posture cheap economy quality balanced lean lines samples">Cost posture</a>
 </div>
 <div class="side-group">
 <div class="side-head">HOUSEKEEPING</div>
@@ -573,6 +573,7 @@
 <p class="note" data-show="1">One reader, so each finding is one reader&#8217;s view and carries no count.</p>
 <p class="note" data-show="2 3" hidden>When two or three readers raise the same defect, the duplicates merge into the fullest record, and the count says how many raised it.</p>
 <p class="note">The count is context for the precision filter, never a verdict: a finding only one reader raised can still be right.</p>
+<p class="note">Under the quality <a href="#cost-posture">cost posture</a>, a group where a secrets, automation, or sensitive probe fired gets one reader beyond this setting, never more than three.</p>
 </div>
 </div>
 <div class="choose">
@@ -657,7 +658,7 @@
 <span>default <b>empty</b></span>
 </div>
 <div class="setting-d">
-<p>The model auto routing climbs to for changes with over 800 changed lines of code (tests and docs not counted), for changes that touch concurrency, cryptography, authentication or injection surfaces, and for the one <a class="term" href="#g-arbitration">arbitration</a> pass before a run <a class="term" href="#g-park">parks</a>.</p>
+<p>The model auto routing climbs to for large code changes (over 800 changed lines of code under the balanced <a href="#cost-posture">posture</a>, tests and docs not counted; 1,200 under economy, 400 under quality), for changes a secrets, automation, or sensitive probe flagged in any kind of file, and for the one <a class="term" href="#g-arbitration">arbitration</a> pass before a run <a class="term" href="#g-park">parks</a>.</p>
 <p><b>Accepts</b> &#183; empty, or a model name such as <code>opus</code></p>
 <p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
 <p><b>Relates to</b> &#183; Does nothing when routing is <code>fixed</code>. Left empty, climbing stops at the reviewer model.</p>
@@ -669,7 +670,7 @@
 <div class="card scroll">
 <table class="ladder">
 <tr><th scope="col">ROLE</th><th scope="col"><span><svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>AUTO MAY DROP TO</span></th><th scope="col">STARTS ON</th><th scope="col"><span>AUTO MAY CLIMB TO<svg class="ic" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></th></tr>
-<tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a docs-only or config-only change under 300 lines, no risk signal</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>over 800 changed lines of code, tests and docs not counted, or a sensitive surface</td></tr>
+<tr><th scope="row">Reviewer</th><td><span class="pill pill-low">sonnet</span><br>a small docs-only or config-only change with no risk signal: under 300 lines in the balanced <a href="#cost-posture">posture</a>, tests-only too under economy</td><td><span class="pill">reviewer_model</span></td><td><span class="pill pill-high">strong_model</span><br>large code (over 800 changed lines under balanced, tests and docs not counted), or a secrets, automation, or sensitive probe on any kind of file</td></tr>
 <tr><th scope="row">Gap pass</th><td><span class="never">never</span><br>the safety net is never cheapened</td><td><span class="pill">reviewer_model</span><br>or wherever the reviewer was raised to</td><td><span class="pill pill-high">strong_model</span><br>together with the reviewer</td></tr>
 <tr><th scope="row">Editor</th><td><span class="pill pill-low">sonnet</span><br>round one only: the batch of findings that are minor or nit and carry a proven <a class="term" href="#g-suggestion">suggestion</a>, and as the <a href="#cost-posture">cost posture</a> allows, fixes a Check line or the check gate will prove</td><td><span class="pill">editor_model</span></td><td><span class="pill pill-high">strong_model</span><br>one rung above a fix that was attempted and is still open, or that broke the check</td></tr>
 <tr><th scope="row">Precision filter</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
@@ -754,7 +755,18 @@
 <div><dt>ACCEPTS</dt><dd>quality | balanced | economy</dd></div>
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
 </dl>
-<p class="lead">When a round of fixes begins, each open finding starts on a rung of the ladder. This setting decides how readily a fix may start on the cheap model. For models it moves only the starting rung: a fix that fails climbs one rung whatever the posture, and some findings never start cheap at all. Economy also caps every routed reasoning effort at high.</p>
+<p class="lead">Routing decides each unit of a pull request from the change itself: its size, its kinds of file, what the probes found, what each finding carries. Where those facts leave room, this setting is the lean. It never pins a model, so every run still follows the change; it moves the lines at which routing drops, climbs, and spends.</p>
+<div class="card scroll">
+<table class="ladder trust">
+<tr><th scope="col">ROUTING DECIDES</th><th scope="col">ECONOMY</th><th scope="col">BALANCED</th><th scope="col">QUALITY</th></tr>
+<tr><th scope="row">When the reviewer drops to sonnet</th><td>a docs-only, config-only, or tests-only change under 500 lines, no risk signal</td><td>a docs-only or config-only change under 300 lines, no risk signal</td><td>a docs-only or config-only change under 150 lines, no risk signal</td></tr>
+<tr><th scope="row">When the reviewer climbs to the strong model</th><td>over 1,200 changed lines of code, or a stakes probe</td><td>over 800 changed lines of code, or a stakes probe</td><td>over 400 changed lines of code, or a stakes probe</td></tr>
+<tr><th scope="row">How far reasoning effort may climb</th><td>high</td><td>xhigh</td><td>xhigh</td></tr>
+<tr><th scope="row">Which fixes start on the cheap model in round one</th><td>any fix, once a check command gates the round</td><td>a proven suggestion, or a Check line that will execute</td><td>a proven suggestion only</td></tr>
+<tr><th scope="row">Review samples on a group a stakes probe flagged</th><td>the setting</td><td>the setting</td><td>the setting plus one, never above three</td></tr>
+</table>
+</div>
+<p class="note">A stakes probe is a secrets, automation, or sensitive hit, or a <a href="#sensitive-paths">sensitive path</a>; it climbs the reviewer whatever the kind of file. Lines of code leave tests, docs, and configuration uncounted. Fixed routing keeps every model and sample count as set and honors only the effort cap. Below, how the fix rows play out on one round.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">If you set it to</span>
@@ -808,12 +820,12 @@
 <div class="choose">
 <div class="kicker">Choose it when</div>
 <dl class="choose-l">
-<div><dt>quality</dt><dd>Correctness matters more than the model bill, or the project has no check command yet.</dd></div>
+<div><dt>quality</dt><dd>Correctness matters more than the model bill: fewer changes count as small, a smaller change counts as large, a stakes probe earns a second reader, and only a proven suggestion starts cheap.</dd></div>
 <div><dt>balanced <span class="badge">DEFAULT</span></dt><dd>Most projects with a check command. Cheap where a wrong fix is caught by execution, your model everywhere else.</dd></div>
-<div><dt>economy</dt><dd>A check command you trust to catch a wrong fix, and a bill you want down; expect the occasional extra round.</dd></div>
+<div><dt>economy</dt><dd>A bill you want down: more changes count as small, fewer as large, effort stops at high, and any fix starts cheap once a check command you trust gates the round; expect the occasional extra round.</dd></div>
 </dl>
 </div>
-<p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a>, <a href="#contract-commands">Contract command prefixes</a>, <a href="#model-routing">Model routing</a></p>
+<p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a>, <a href="#contract-commands">Contract command prefixes</a>, <a href="#model-routing">Model routing</a>, <a href="#strong-model">Strong model</a>, <a href="#review-samples">Review samples</a></p>
 </section>
 </div>
 
