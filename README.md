@@ -12,6 +12,7 @@ until nothing remains open. Then it merges, or asks you first.
 **Contents:** [Status](#status) &#183;
 [Requirements](#requirements) &#183;
 [What it does](#what-it-does-to-your-repository) &#183;
+[Install](#install) &#183;
 [Usage](#usage) &#183;
 [Settings](#settings) &#183;
 [Development](#development) &#183;
@@ -52,6 +53,21 @@ commits are authored as the signed-in account's noreply address, never
 your clone's local git identity. With the
 check command configured, it also runs that command against pull request
 code (see SECURITY.md).
+
+## Install
+
+From your shell:
+
+```sh
+claude plugin marketplace add Paxton-Meny/pr-review-workflow
+claude plugin install pr-review-workflow
+```
+
+On Claude Code 2.1.275 or later, one command inside a session does both:
+
+```text
+/plugin install pr-review-workflow --marketplace Paxton-Meny/pr-review-workflow
+```
 
 ## Usage
 
@@ -200,10 +216,15 @@ every change goes through.
 ## Project structure
 
 - `.claude-plugin/plugin.json`: manifest and settings.
-- `skills/review-pr/`: the orchestrating skill and the finding record format.
-- `agents/`: reviewer, editor, and verifier definitions.
+- `.claude-plugin/marketplace.json`: the marketplace that lists the plugin.
+- `skills/review-pr/`: the orchestrating skill.
+- `skills/status/`: read-only view of recorded runs and their statistics.
+- `skills/finding-records/`: the finding record format, preloaded into the agents.
+- `agents/`: reviewer, filter, editor, verifier, and arbiter definitions.
 - `scripts/`: POSIX sh, one proven step each.
 - `tests/`: offline suite with a stubbed GitHub CLI.
+- `evals/`: `claude plugin eval` cases.
+- `docs/`: the static project site.
 
 ## License and attribution
 

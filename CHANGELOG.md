@@ -25,6 +25,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   information figure shows the script lines the orchestrating
   session actually sees above the ledger's real directory and all
   four agents. The favicon and social card are redrawn to match.
+- The README has install instructions, matching the site, which now
+  also shows the one-step install for Claude Code 2.1.275 or later.
+  Its project structure lists every skill, agent, and top-level
+  directory.
 
 ### Added
 
