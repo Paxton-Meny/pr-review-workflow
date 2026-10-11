@@ -4,7 +4,7 @@
 #
 # Settings come from the run's resolved settings.txt when there is one;
 # key=value arguments override them. Stages: review, gap, filter, edit,
-# repair, verify, arbitrate. Keys,
+# repair, verify, incremental, arbitrate. Keys,
 # each with its manifest default: routing (auto), reviewer (inherit),
 # editor (inherit), verifier (sonnet), strong (empty), posture
 # (balanced), check (empty), prefixes (empty), round (1). A value that
@@ -592,6 +592,11 @@ repair)
 	effort=$(highest "$efforts")
 	for id in $ids; do note_attempt "$id" "$rung" "$model" "$effort" "$reason"; done
 	emit all "$rung" "$model" "$effort" "$reason" "$ids"
+	;;
+incremental)
+	# The review of files a round changed that no finding names: the
+	# reviewer's own model and level, since nothing has been judged yet.
+	emit all base "$reviewer" "$(moved "$reviewer_effort" 0)" role-model
 	;;
 arbitrate)
 	if [ "$routing" = fixed ]; then

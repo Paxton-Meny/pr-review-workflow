@@ -193,13 +193,16 @@ printf 'id: F024\nstatus: addressed\nseverity: blocker\npath: src/a.py\n---\nbod
 [ "$(route verify $ARGS 'check=make check' -- F020 F024)" = "route verify all rung base model sonnet effort medium reason role-model" ]
 [ "$(route verify $ARGS posture=economy -- F023)" = "route verify all rung base model sonnet effort high reason role-model" ]
 
+# The incremental review after a round keeps the reviewer's model and level.
+[ "$(route incremental routing=auto reviewer=opus strong=sonnet)" = "route incremental all rung base model opus effort high reason role-model" ]
+
 # Arbitration takes the strong model, else the reviewer's.
 [ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus effort high reason arbitration" ]
 [ "$(route arbitrate routing=auto reviewer=inherit)" = "route arbitrate all rung base model inherit effort high reason no-strong-model" ]
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 66 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 67 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the

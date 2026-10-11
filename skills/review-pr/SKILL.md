@@ -282,8 +282,11 @@ PRWF_SETTINGS_END
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
-      `diff-index.txt`, spawn one `pr-review-workflow:reviewer` restricted to that set (the
-      step 5 template), and save any records it returns, followed by
+      `diff-index.txt`, run
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> incremental`,
+      spawn one `pr-review-workflow:reviewer` with its `model` and
+      `effort`, restricted to that set (the step 5 prompt), and save
+      any records it returns, followed by
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
    f. Rerun `count-findings.sh <dir> --list` for the loop condition.

@@ -173,11 +173,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   line or a proven suggestion settles; and for a small docs or config
   review. An editing batch or a verified round runs at its highest
   finding's level. The economy posture caps effort at high, the others
-  at xhigh, and fixed routing keeps each definition's level. Route
-  lines and Route notes record the level, and a pinned
-  CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter agent carries the
-  verifier's procedure for the one arbitration pass before a run
-  parks. Needs Claude Code 2.1.292 or later.
+  at xhigh, and fixed routing keeps each definition's level. The
+  incremental review after a round gets its own route at the
+  reviewer's model and level. Route lines and Route notes record the
+  level, and a pinned CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter
+  agent carries the verifier's procedure for the one arbitration pass
+  before a run parks. Needs Claude Code 2.1.292 or later.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model
