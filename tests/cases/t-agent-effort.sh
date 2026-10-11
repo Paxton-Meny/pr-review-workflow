@@ -52,3 +52,7 @@ grep -A4 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.
 grep -A5 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q '`effort`'
 grep -B9 'Arbitrate the repeatedly reopened findings' "$REPO_ROOT/skills/review-pr/SKILL.md" |
 	grep -q 'spawning `pr-review-workflow:verifier`'
+
+# An arbitration that upholds a reopen changes no status: the finding is
+# already open, and open to open is an illegal transition.
+sed -n '/^## Arbitration$/,/^## /p' "$REPO_ROOT/agents/verifier.md" | grep -q 'change no status'
