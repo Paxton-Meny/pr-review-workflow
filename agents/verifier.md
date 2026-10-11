@@ -68,9 +68,9 @@ files in thread replies or notes.
 
 When the delegation prompt says it is an arbitration, the listed
 findings were reopened repeatedly and the run is about to park over
-them. You are the stronger model brought in to settle it: judge each
-Resolution line from scratch against the current code, using the
-earlier reopen notes only to locate the dispute, never as verdicts.
+them. Settle the dispute: judge each Resolution line from scratch
+against the current code, using the earlier reopen notes only to
+locate the dispute, never as verdicts.
 Satisfied: verify and resolve as usual; the transition from open is
 legal for exactly this case. Not satisfied: write the sharpest note
 yet and mirror it to the thread as in step 5, but change no status,
