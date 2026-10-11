@@ -338,7 +338,7 @@
 </div>
 </div>
 <p class="note" data-show="off" hidden>A single-reviewer change never gets the second read. Cheapest; a miss waits for a human reviewer.</p>
-<p class="note" data-show="risky">The second read happens only when a scripted check flags something that looks like a secret, or a change to automation such as a CI workflow.</p>
+<p class="note" data-show="risky">The second read happens only when a scripted check flags something that looks like a secret, a change to automation such as a CI workflow, or code where defects cost most, such as authentication, cryptography, or concurrency.</p>
 <p class="note" data-show="always" hidden>Every change gets the second read, at roughly double the cost of the first review.</p>
 <p class="note">A sharded change always ends with a gap pass, whatever this is set to: each reviewer saw only part of it, so nothing else can catch a defect that spans two parts.</p>
 </div>
