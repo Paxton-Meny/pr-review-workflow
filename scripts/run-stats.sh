@@ -4,16 +4,19 @@
 #
 # The stats file is the evidence loop: routing thresholds, the gap-pass
 # rule, and the filter earn their tuning from these lines instead of
-# guesses. Every retry of a finding counts once, by what it changed
-# from the attempt before: the model, else only the effort, else
-# nothing. An attempt is a round's last Route note, so a repair after a
-# failed check gate is part of its round, not a retry. A retry another
-# attempt followed failed; a finding's last retry succeeded when the
-# verifier verified it, failed when it is still open, and is left out
-# when it ended wont-fix or arbitration overturned a reopen. This is the
-# evidence for when a stronger model beats more effort, against a plain
-# retry with the verifier's note. Run it before cleanup-state.sh, which
-# removes pr-context.
+# guesses. Every retry of a finding counts once, by what it changed from
+# the attempt before: the model, else only the effort, else nothing; a
+# pair where an older note lacks the effort and the model is unchanged
+# is left out, since the effort is unknown. An attempt is a round's last
+# Route note, so a repair after a failed check gate is part of its
+# round, not a retry. A retry another attempt followed failed; a
+# finding's last retry succeeded when the verifier verified it, failed
+# when the finding is still open or addressed, and is left out when it
+# ended wont-fix or arbitration verified it over a reopen (the
+# Arbitrated note update-finding.sh writes). This is the evidence for
+# when a stronger model beats more effort, against a plain retry with
+# the verifier's note. Run it before cleanup-state.sh, which removes
+# pr-context.
 set -eu
 
 dir=${1:?usage: run-stats.sh <state-dir> <outcome>}
@@ -58,14 +61,17 @@ for f in "$dir/findings"/F*; do
 	set -- $(awk -v status="$(sed -n 's/^status: //p' "$f")" '
 		/^Route: / {
 			if ($3 != round) { k++; round = $3 }
-			m[k] = $7; e[k] = ($10 == "pinned") ? $11 : ($8 == "effort") ? $9 : ""; after = 0
+			m[k] = $7; e[k] = ($10 == "pinned") ? $11 : ($8 == "effort") ? $9 : ""
 		}
-		/^Reopened \(round / { if (k) after = 1 }
+		/^Arbitrated: / { arbitrated = 1 }
 		END {
 			for (i = 2; i <= k; i++) {
-				kind = (m[i] != m[i - 1]) ? "model" : (e[i] != e[i - 1]) ? "effort" : "same"
-				if (i < k || status == "open") n[kind]++
-				else if (status == "verified" && !after) { n[kind]++; v[kind]++ }
+				if (m[i] != m[i - 1]) kind = "model"
+				else if (e[i] == "" || e[i - 1] == "") continue
+				else if (e[i] != e[i - 1]) kind = "effort"
+				else kind = "same"
+				if (i < k || status == "open" || status == "addressed") n[kind]++
+				else if (status == "verified" && !arbitrated) { n[kind]++; v[kind]++ }
 			}
 			printf "%d %d %d %d %d %d\n", n["model"], v["model"], n["effort"], v["effort"], n["same"], v["same"]
 		}' "$f")
