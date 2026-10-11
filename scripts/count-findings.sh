@@ -54,7 +54,7 @@ for f in "$findings"/F*; do
 	esac
 	r=$(sed -n 's/^reopens: //p' "$f")
 	[ "$r" -gt "$max_reopens" ] && max_reopens=$r
-	[ "$r" -gt 2 ] && capped_ids="$capped_ids ${f##*/}"
+	[ "$status" = open ] && [ "$r" -gt 2 ] && capped_ids="$capped_ids ${f##*/}"
 done
 
 echo "open $open addressed $addressed verified $verified wont-fix $wontfix max_reopens $max_reopens"

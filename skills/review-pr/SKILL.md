@@ -290,7 +290,8 @@ PRWF_SETTINGS_END
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
    f. Rerun `count-findings.sh <dir> --list` for the loop condition.
-      When max_reopens exceeds 2, run
+      When the `capped_ids` line lists any finding (open, reopened
+      more than twice), run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate`.
       A `skip` line (fixed routing) means stop the loop and treat it
       as non-convergence. Otherwise arbitrate once first, because

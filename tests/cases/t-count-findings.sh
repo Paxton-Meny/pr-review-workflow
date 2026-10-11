@@ -61,3 +61,10 @@ printf '%s\n' "$out" | grep -qx 'capped_ids F002'
 
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F002 status=verified >/dev/null
 grep -q '^status: verified' "$dir2/findings/F002"
+
+# A finding settled after its reopens is no longer capped: arbitration
+# is only for findings still open.
+out=$(sh "$REPO_ROOT/scripts/count-findings.sh" "$dir2" --list) || true
+printf '%s\n' "$out" | grep -qx 'capped_ids'
+printf '%s\n' "$out" | grep -q 'max_reopens 3'
+
