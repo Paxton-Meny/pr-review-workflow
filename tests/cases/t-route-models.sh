@@ -190,6 +190,20 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 59 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
+# A definition at a level routing does not use stops every stage before it
+# prints a line, rather than routing the bottom level.
+mkdir -p "$SCRATCH/copy"
+cp -R "$REPO_ROOT/scripts" "$REPO_ROOT/agents" "$SCRATCH/copy/"
+sed 's/^effort: high$/effort: max/' "$REPO_ROOT/agents/reviewer.md" >"$SCRATCH/copy/agents/reviewer.md"
+for stage in review "edit $ARGS round=1 -- F001"; do
+	if out=$(sh "$SCRATCH/copy/scripts/route-models.sh" "$dir" $stage 2>"$SCRATCH/err"); then
+		echo "expected refusal of a max definition at: $stage" >&2
+		exit 1
+	fi
+	[ -z "$out" ]
+	grep -q "agents/reviewer.md declares effort 'max'" "$SCRATCH/err"
+done
+
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.
 for bad in "wat" "review routing=sometimes" "edit $ARGS" "edit $ARGS -- F999" "verify $ARGS" "verify $ARGS -- F999"; do
 	if route $bad 2>"$SCRATCH/err"; then

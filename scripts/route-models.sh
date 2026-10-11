@@ -187,8 +187,13 @@ level_at() {
 role_effort() {
 	# role_effort <agent>: the level its definition declares
 	e=$(sed -n '2,/^---$/s/^effort: //p' "$AGENTS/$1.md")
-	level_rank "$e" >/dev/null
-	echo "$e"
+	case " $EFFORT_LEVELS " in
+	*" $e "*) echo "$e" ;;
+	*)
+		echo "route-models: agents/$1.md declares effort '$e', which routing does not use" >&2
+		exit 1
+		;;
+	esac
 }
 
 moved() {
@@ -199,6 +204,14 @@ moved() {
 		level_at $(($(level_rank "$1") + $2))
 	fi
 }
+
+# Every role's own level, read once so a definition the router cannot
+# route stops the run here instead of printing a wrong line.
+reviewer_effort=$(role_effort reviewer)
+editor_effort=$(role_effort editor)
+verifier_effort=$(role_effort verifier)
+filter_effort=$(role_effort filter)
+arbiter_effort=$(role_effort arbiter)
 
 highest() {
 	# highest <levels>: the highest of them
@@ -296,7 +309,7 @@ review_effort() {
 		steps=$((steps + 1))
 	fi
 	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
-	moved "$(role_effort reviewer)" "$steps"
+	moved "$reviewer_effort" "$steps"
 }
 
 on_seam() {
@@ -360,7 +373,7 @@ finding_effort() {
 	steps=$(grep -c '^Route: ' "$record" || true)
 	high_stakes "$record" && steps=$((steps + 1))
 	mechanical "$record" && steps=$((steps - 1))
-	moved "$(role_effort editor)" "$steps"
+	moved "$editor_effort" "$steps"
 }
 
 # A finding's starting rung for this round, and why. Prints "<rung> <reason>".
@@ -485,7 +498,7 @@ gap)
 	if [ -n "$strong" ] && [ -f "$ctx/routes.txt" ] && grep -q '^route review .* rung strong ' "$ctx/routes.txt"; then
 		rung=strong
 	fi
-	base=$(role_effort reviewer)
+	base=$reviewer_effort
 	effort=$(highest "$base $(sed -n 's/^route review .* effort \([a-z]*\) .*/\1/p' "$ctx/routes.txt" 2>/dev/null)")
 	[ -s "$ctx/seams.txt" ] && effort=$(highest "$effort $(moved "$base" 1)")
 	[ "$routing" = fixed ] && effort=$base
@@ -496,7 +509,7 @@ filter)
 		skip filter-off
 		exit 0
 	fi
-	emit all base "$verifier" "$(role_effort filter)" role-model
+	emit all base "$verifier" "$filter_effort" role-model
 	;;
 verify)
 	# One level down when execution or a proven suggestion settles every finding.
@@ -516,7 +529,7 @@ verify)
 		}
 		grep -q '^```suggestion$' "$dir/findings/$id" || contract_runs "$id" || steps=0
 	done
-	emit all base "$verifier" "$(moved "$(role_effort verifier)" "$steps")" role-model
+	emit all base "$verifier" "$(moved "$verifier_effort" "$steps")" role-model
 	;;
 edit)
 	[ -n "$ids" ] || {
@@ -573,7 +586,7 @@ arbitrate)
 		skip fixed-routing
 		exit 0
 	fi
-	effort=$(moved "$(role_effort arbiter)" 0)
+	effort=$(moved "$arbiter_effort" 0)
 	if [ -n "$strong" ]; then
 		emit all strong "$strong" "$effort" arbitration
 	else
