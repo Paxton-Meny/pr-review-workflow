@@ -502,6 +502,7 @@ gap)
 	base=$reviewer_effort
 	effort=$(highest "$base $(sed -n 's/^route review .* effort \([a-z]*\) .*/\1/p' "$ctx/routes.txt" 2>/dev/null)")
 	[ -s "$ctx/seams.txt" ] && effort=$(highest "$effort $(moved "$base" 1)")
+	effort=$(moved "$effort" 0)
 	[ "$routing" = fixed ] && effort=$base
 	emit all "$rung" "$(model_for "$rung" "$reviewer")" "$effort" "$reason"
 	;;
@@ -510,7 +511,7 @@ filter)
 		skip filter-off
 		exit 0
 	fi
-	emit all base "$verifier" "$filter_effort" role-model
+	emit all base "$verifier" "$(moved "$filter_effort" 0)" role-model
 	;;
 verify)
 	# One level down when execution or a proven suggestion settles every finding.

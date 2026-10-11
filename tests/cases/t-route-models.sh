@@ -196,6 +196,18 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 62 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
+# Every emitted level passes the posture's cap, the gap floor and the
+# filter included.
+sed 's/^effort: low$/effort: xhigh/' "$REPO_ROOT/agents/filter.md" >"$SCRATCH/xhigh-filter.md"
+mkdir -p "$SCRATCH/capped"
+cp -R "$REPO_ROOT/scripts" "$REPO_ROOT/agents" "$SCRATCH/capped/"
+cp "$SCRATCH/xhigh-filter.md" "$SCRATCH/capped/agents/filter.md"
+sed 's/^effort: high$/effort: xhigh/' "$REPO_ROOT/agents/reviewer.md" >"$SCRATCH/capped/agents/reviewer.md"
+[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$dir" filter $ARGS posture=economy)" = "route filter all rung base model sonnet effort high reason role-model" ]
+rm -f "$ctx/shards.txt"
+probes 'sensitive'
+[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$dir" gap $ARGS posture=economy double=risky)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
+
 # A definition at a level routing does not use stops every stage before it
 # prints a line, rather than routing the bottom level.
 mkdir -p "$SCRATCH/copy"
