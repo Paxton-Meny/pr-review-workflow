@@ -374,8 +374,8 @@
 </div>
 <div class="tile is-on" data-on="off risky always">
 <svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5M3 17.5l9 5 9-5"/></svg>
-<div class="tile-t">A change over 1,500 lines</div>
-<div class="tile-s">Split into <a class="term" href="#g-shard">shards</a>, one reviewer each.</div>
+<div class="tile-t">A change over the shard limit</div>
+<div class="tile-s">Split into <a class="term" href="#g-shard">shards</a>, one reviewer each: over 1,500 lines under the balanced <a href="#cost-posture">posture</a>.</div>
 <div class="tile-r">
 <div class="yes" data-show="off risky always"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Gap pass runs</div>
 </div>
@@ -761,12 +761,13 @@
 <tr><th scope="col">ROUTING DECIDES</th><th scope="col">ECONOMY</th><th scope="col">BALANCED</th><th scope="col">QUALITY</th></tr>
 <tr><th scope="row">When the reviewer drops to sonnet</th><td>a docs-only, config-only, or tests-only change under 500 lines, no risk signal</td><td>a docs-only or config-only change under 300 lines, no risk signal</td><td>a docs-only or config-only change under 150 lines, no risk signal</td></tr>
 <tr><th scope="row">When the reviewer climbs to the strong model</th><td>over 1,200 changed lines of code, or a stakes probe</td><td>over 800 changed lines of code, or a stakes probe</td><td>over 400 changed lines of code, or a stakes probe</td></tr>
+<tr><th scope="row">When the change splits into shards, each with its own reviewer and a gap pass after</th><td>over 2,250 changed lines</td><td>over 1,500 changed lines</td><td>over 1,000 changed lines</td></tr>
 <tr><th scope="row">How far reasoning effort may climb</th><td>high</td><td>xhigh</td><td>xhigh</td></tr>
 <tr><th scope="row">Which fixes start on the cheap model in round one</th><td>any fix, once a check command gates the round</td><td>a proven suggestion, or a Check line that will execute</td><td>a proven suggestion only</td></tr>
 <tr><th scope="row">Review samples on a group a stakes probe flagged</th><td>the setting</td><td>the setting</td><td>the setting plus one, never above three</td></tr>
 </table>
 </div>
-<p class="note">A stakes probe is a secrets, automation, or sensitive hit, or a <a href="#sensitive-paths">sensitive path</a>; it climbs the reviewer whatever the kind of file. Lines of code leave tests, docs, and configuration uncounted. Fixed routing keeps every model and sample count as set and honors only the effort cap. Below, how the fix rows play out on one round.</p>
+<p class="note">A stakes probe is a secrets, automation, or sensitive hit, or a <a href="#sensitive-paths">sensitive path</a>; it climbs the reviewer whatever the kind of file. Lines of code leave tests, docs, and configuration uncounted. Fixed routing keeps every model and sample count as set; the shard limit and the effort cap still follow the posture. Below, how the fix rows play out on one round.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">If you set it to</span>

@@ -50,7 +50,7 @@ prints one `route` line per unit, and its `model` and `effort` values
 are the overrides to pass on every spawn the line covers, `inherit`
 included: pass both as given. Relay every route line.
 
-Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
+Constants: SIZE_WARN_LINES 4000. The round cap of 4
 lives in the round counter on disk, not here.
 
 Decide once, now, whether this run is attended: a human is present in this
@@ -165,15 +165,17 @@ PRWF_SETTINGS_END
    leaves the failure tail in place as reviewer evidence, since a head
    that already fails the project's own check is material for a
    finding, not grounds to blame the editor later.
-5. Review. Read `additions` plus `deletions` from step 3's output.
-   - At or under SHARD_LINES: spawn one `pr-review-workflow:reviewer` agent.
-   - Over: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/shard-plan.sh <dir> 4 1500`,
-     relaying its one-line result. It clusters files whose changes
-     reference each other, balances the groups, persists the plan so a
-     resumed run shards identically, and records in `seams.txt` every
-     coupling it could not co-locate. Spawn one reviewer per `group`
-     line of `pr-context/shards.txt`, in parallel, restricted to that
-     line's file numbers.
+5. Review. Run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/shard-plan.sh <dir>`,
+   relaying its one-line result. The shard limit follows the cost
+   posture, and the line names it. Over it, the planner clusters files
+   whose changes reference each other, balances the groups, persists
+   the plan so a resumed run shards identically, and records in
+   `seams.txt` every coupling it could not co-locate; under it there
+   is one group and no plan file.
+   - One group: spawn one `pr-review-workflow:reviewer` agent.
+   - More: spawn one reviewer per `group` line of
+     `pr-context/shards.txt`, in parallel, restricted to that line's
+     file numbers.
    When a route line's `samples` is greater than 1, spawn that many
    identical reviewers for its group (or for the single pass) in the
    same parallel batch: duplicate findings are expected and reconciled
