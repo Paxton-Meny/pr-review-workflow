@@ -37,10 +37,11 @@
 # An editing round gives each open finding a starting rung and batches
 # the round by rung, cheapest first. In round one a finding starts cheap
 # when it is mechanical (minor or nit with a proven suggestion), or,
-# under the balanced posture, when a check command is set and its Check
-# line would execute, so a wrong fix is caught by running it; under the
-# economy posture any finding starts cheap once a check command gates
-# the round; under the quality posture only mechanical ones do. A
+# under the balanced posture, when its Check line would execute (by the
+# check command or a contract prefix), so a wrong fix is caught by
+# running it; under the economy posture any finding starts cheap once a
+# check command gates the round; under the quality posture only
+# mechanical ones do. A
 # blocker, a security finding, or a finding on a file where the secrets
 # or sensitive probe fired never starts cheap. A finding that was
 # attempted and is still open climbs one rung above its last attempt,
@@ -361,7 +362,7 @@ mechanical() {
 
 contract_runs() {
 	# contract_runs <id>: its Check line would execute under the run's policy
-	[ -n "$check" ] && grep -q '^Check: ' "$dir/findings/$1" &&
+	grep -q '^Check: ' "$dir/findings/$1" &&
 		sh "$(dirname "$0")/run-contract.sh" --policy "$dir" "$1" "$check" "$prefixes" >/dev/null 2>&1
 }
 
