@@ -182,15 +182,15 @@ PRWF_SETTINGS_END
    competes with the agent's own definition):
    `Review the pull request. State directory: <dir>.` plus, when
    restricted, ` Files <numbers> only.` listing the file numbers.
-   Model override: run
+   Overrides: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> review`
    once before spawning. Unsharded, it prints one line and every
-   reviewer of this step takes its `model`. Sharded, it prints one
-   line per group, judged on that group's own files, and each
-   group's reviewers take their own line's `model`. A group climbs
-   to the strong model for large or sensitive code, drops to sonnet
-   for a small docs-only or config-only group with no risk signal,
-   and otherwise keeps reviewer_model; a reason of
+   reviewer of this step takes its `model` and `effort`. Sharded, it
+   prints one line per group, judged on that group's own files, and
+   each group's reviewers take their own line's `model` and `effort`.
+   A group climbs to the strong model for large or sensitive code,
+   drops to sonnet for a small docs-only or config-only group with no
+   risk signal, and otherwise keeps reviewer_model; a reason of
    `strong-wanted-unset` means the change deserved a stronger model
    and none is configured, which the final report must say.
    Pipe each report verbatim into
@@ -210,7 +210,7 @@ PRWF_SETTINGS_END
    review, since each shard read only its own files and only this pass
    sees a defect spanning them; otherwise the second review pass
    setting decides, with a risk signal from the probes. When it runs,
-   spawn one `pr-review-workflow:reviewer` with the line's `model` (the
+   spawn one `pr-review-workflow:reviewer` with the line's `effort` and `model` (the
    highest rung any review unit used, never below reviewer_model:
    routing can raise the gap pass, never cheapen the safety net) and
    exactly:
@@ -223,7 +223,7 @@ PRWF_SETTINGS_END
 7. When the ledger holds open findings not yet posted, run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter`;
    unless it prints a `skip` line, spawn `pr-review-workflow:filter`
-   with its `model` and exactly:
+   with its `model` and `effort` and exactly:
    `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
    and relay its one-line report. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir>`, then
@@ -254,7 +254,7 @@ PRWF_SETTINGS_END
       sensitive probe flagged. Each attempt is noted on the record.
       For each line in the order printed, one after the other and
       never in parallel, spawn `pr-review-workflow:editor` with that
-      line's `model` and `ids` and exactly:
+      line's `model`, `effort`, and `ids` and exactly:
       `Address the open findings. State directory: <dir>. Open finding ids: <ids from the line>. <round line>.`
       then run step c before starting the next line, so a broken
       check is pinned on the batch that broke it.
@@ -268,12 +268,13 @@ PRWF_SETTINGS_END
       run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> repair round=<n> -- <that batch's ids>`
       (one rung above the batch that broke it) and spawn
-      `pr-review-workflow:editor` once more with its `model` and exactly:
+      `pr-review-workflow:editor` once more with its `model` and
+      `effort` and exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`
       then rerun `run-check.sh <dir> --gate`. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.
    d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier`
-      with the route from
+      with the `model` and `effort` from
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify -- <addressed_ids>`
       and exactly (a `skip` line means the round addressed nothing:
       spawn no verifier and go on to step e):
@@ -294,7 +295,7 @@ PRWF_SETTINGS_END
       rather than the editor: spawn `pr-review-workflow:arbiter` with
       the line's `model` (the strong model when set, else reviewer_model, passed
       explicitly even when it is `inherit` so the arbitration runs on
-      the session model, never the agent's default) and
+      the session model, never the agent's default) and `effort` and
       exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
       using the `capped_ids` line from the count. Rerun
