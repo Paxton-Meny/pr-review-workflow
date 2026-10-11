@@ -46,9 +46,9 @@ value, for the merge gate.
 
 Every model decision below comes from one script,
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> <stage>`. It
-prints one `route` line per unit, and the `model` value on that line is
-the override to pass when spawning, `inherit` included: pass it as
-given. Relay every route line.
+prints one `route` line per unit, and its `model` and `effort` values
+are the overrides to pass on every spawn the line covers, `inherit`
+included: pass both as given. Relay every route line.
 
 Constants: SIZE_WARN_LINES 4000, SHARD_LINES 1500. The round cap of 4
 lives in the round counter on disk, not here.
@@ -273,8 +273,8 @@ PRWF_SETTINGS_END
       then rerun `run-check.sh <dir> --gate`. A second failure is non-convergence (step 9);
       never proceed to verification over a failing check.
    d. Rerun `count-findings.sh <dir> --list`, then spawn `pr-review-workflow:verifier`
-      with the `model` from
-      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify`
+      with the route from
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> verify -- <addressed_ids>`
       and exactly:
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists

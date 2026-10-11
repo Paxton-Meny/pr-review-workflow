@@ -183,6 +183,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Reasoning effort is routed per unit of work, beside the model.
+  Each agent starts at its definition's level and moves one level up
+  for a wide search or high stakes and one level down where a later
+  step checks the work: a large or sensitive shard reviews at xhigh,
+  a fix carried by a proven suggestion runs at low, a finding that
+  was attempted before climbs a level each time, and the verifier
+  drops to low only when execution or a proven suggestion settles
+  every finding it judges (its own level is now medium). The economy
+  posture caps effort at high, route lines and Route notes record
+  the level, and a pinned CLAUDE_CODE_EFFORT_LEVEL is recorded as
+  such. Needs Claude Code 2.1.292 or later.
 - A round's summary comment now posts before its inline findings, so
   the pull request's conversation opens on the overview.
 - The README leads with a restrained badge row (release, license,
