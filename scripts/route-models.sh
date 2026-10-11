@@ -27,14 +27,23 @@
 # fix carried by a proven suggestion for the editor, an executable
 # Check line or proven suggestion for the verifier) or the review is
 # small docs or config with no risk. A batch or a verified round runs
-# at its highest finding's level. The economy posture caps effort at
-# high, the others at xhigh; max is never routed. Fixed routing keeps
-# every role's own level, under the same cap. A set CLAUDE_CODE_EFFORT_LEVEL outranks every
-# override, so the line and each Route note record it as pinned.
+# at its highest finding's level. Max is never routed. Fixed routing
+# keeps every role's own level, under the posture's cap. A set
+# CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the line and
+# each Route note record it as pinned.
+# The cost posture is the lean of every decision the change itself does
+# not settle, never a pinned value: where code counts as large (economy
+# over 1200 changed lines, balanced 800, quality 400), where a change
+# counts as small enough to drop (under 500, 300, 150) and which kinds
+# may (docs-only and config-only; tests-only too under economy), how far
+# effort may climb (economy high, the others xhigh), how readily a fix
+# starts cheap (below), and whether a group a stakes probe flagged earns
+# one review sample beyond the setting (quality only, never above 3).
 # A sharded review gets one line per group, judged on that group's own
-# files: it climbs for large or sensitive code when a strong model is
-# set and drops for a small docs-only or config-only group with no risk
-# signal. The gap pass follows the highest review rung but never drops.
+# files: it climbs for large code, or for a secrets, automation, or
+# sensitive probe whatever the kind, when a strong model is set, and
+# drops for a small group of a droppable kind with no risk signal. The
+# gap pass follows the highest review rung but never drops.
 # An editing round gives each open finding a starting rung and batches
 # the round by rung, cheapest first. In round one a finding starts cheap
 # when it is mechanical (minor or nit with a proven suggestion), or,
@@ -65,14 +74,11 @@ ctx="$dir/pr-context"
 }
 
 CHEAP=sonnet
-LARGE_CODE_LINES=800
-SMALL_LINES=300
 CLIMB_SLUGS='secrets automation sensitive'
 RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
 EFFORT_LEVELS='low medium high xhigh'
-ECONOMY_EFFORT_CAP=high
-EFFORT_CAP=xhigh
 ARBITRATION_EFFORT=high
+MAX_SAMPLES=3
 AGENTS="$(dirname "$0")/../agents"
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
@@ -139,8 +145,13 @@ auto | fixed) ;;
 	exit 1
 	;;
 esac
+# The posture's lean: the large-code line, the small-change line and
+# the kinds that may drop, the effort cap, and the extra sample a
+# stakes group earns.
 case "$posture" in
-quality | balanced | economy) ;;
+economy) large_code_lines=1200 small_lines=500 drop_kinds='docs-only config-only tests-only' effort_cap=high extra_sample=0 ;;
+balanced) large_code_lines=800 small_lines=300 drop_kinds='docs-only config-only' effort_cap=xhigh extra_sample=0 ;;
+quality) large_code_lines=400 small_lines=150 drop_kinds='docs-only config-only' effort_cap=xhigh extra_sample=1 ;;
 *)
 	echo "route-models: posture must be quality, balanced, or economy: $posture" >&2
 	exit 1
@@ -179,7 +190,7 @@ level_rank() {
 
 level_at() {
 	# level_at <rank>, clamped to low and to the posture's cap
-	if [ "$posture" = economy ]; then cap=$(level_rank "$ECONOMY_EFFORT_CAP"); else cap=$(level_rank "$EFFORT_CAP"); fi
+	cap=$(level_rank "$effort_cap")
 	r=$1
 	[ "$r" -lt 0 ] && r=0
 	[ "$r" -gt "$cap" ] && r=$cap
@@ -277,26 +288,36 @@ group_facts() {
 	}'
 }
 
-# The reviewer's rung for one unit of the change, and why.
+large_code() {
+	# large_code <kind> <code_lines>: code over the posture's large-code line
+	[ "$1" = code ] && [ "${2:-0}" -gt "$large_code_lines" ]
+}
+
+small_drop() {
+	# small_drop <kind> <lines> <slugs>: a kind the posture lets drop,
+	# under its small-change line, with no risk signal
+	has_slug "$1" "$drop_kinds" && [ "${2:-0}" -lt "$small_lines" ] && ! has_slug "$RISK_SLUGS" "$3"
+}
+
+# The reviewer's rung for one unit of the change, and why. Stakes climb
+# whatever the kind: a token in a config file or a workflow edit is as
+# risky as one in code.
 review_rung() {
 	# review_rung <kind> <lines> <code_lines> <slugs>; prints "<rung> <reason>"
 	if [ "$routing" = fixed ]; then
 		echo "base fixed"
 		return
 	fi
-	if [ "$1" = code ] && { [ "${3:-0}" -gt "$LARGE_CODE_LINES" ] || has_slug "$CLIMB_SLUGS" "$4"; }; then
-		if [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; then why=large-code; else why=risky-probe; fi
+	why=''
+	if large_code "$1" "$3"; then why=large-code; elif has_slug "$CLIMB_SLUGS" "$4"; then why=risky-probe; fi
+	if [ -n "$why" ]; then
 		if [ -n "$strong" ]; then echo "strong $why"; else echo "base strong-wanted-unset"; fi
 		return
 	fi
-	case "$1" in
-	docs-only | config-only)
-		if [ "${2:-0}" -lt "$SMALL_LINES" ] && ! has_slug "$RISK_SLUGS" "$4"; then
-			echo "cheap $1-small"
-			return
-		fi
-		;;
-	esac
+	if small_drop "$1" "$2" "$4"; then
+		echo "cheap $1-small"
+		return
+	fi
 	echo "base role-model"
 }
 
@@ -307,16 +328,25 @@ review_rung() {
 review_effort() {
 	# review_effort <kind> <lines> <code_lines> <slugs> [group]
 	steps=0
-	case "$1" in
-	docs-only | config-only)
-		[ "${2:-0}" -lt "$SMALL_LINES" ] && ! has_slug "$RISK_SLUGS" "$4" && steps=-1
-		;;
-	esac
-	if { [ "${strong:-$reviewer}" = "$reviewer" ] && [ "$1" = code ] && [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; } || on_seam "${5:-}"; then
+	small_drop "$1" "$2" "$4" && steps=-1
+	if { [ "${strong:-$reviewer}" = "$reviewer" ] && large_code "$1" "$3"; } || on_seam "${5:-}"; then
 		steps=$((steps + 1))
 	fi
 	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
 	moved "$reviewer_effort" "$steps"
+}
+
+# The review samples for one unit: the setting, plus the posture's
+# extra sample where a stakes probe fired, never above the manifest's
+# maximum and never under fixed routing.
+samples_for() {
+	# samples_for <slugs>
+	s=$samples
+	if [ "$routing" = auto ] && has_slug "$CLIMB_SLUGS" "$1"; then
+		s=$((s + extra_sample))
+		[ "$s" -gt "$MAX_SAMPLES" ] && s=$MAX_SAMPLES
+	fi
+	echo "$s"
 }
 
 on_seam() {
@@ -474,12 +504,12 @@ review)
 			gs=${rest#"$gc"}
 			set -- $(review_rung "$gk" "$gl" "$gc" "$gs")
 			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" \
-				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi")" "$2 samples $samples"
+				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi")" "$2 samples $(samples_for "$gs")"
 		done <"$ctx/shards.txt"
 	else
 		set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
 		emit all "$1" "$(model_for "$1" "$reviewer")" \
-			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs")" "$2 samples $samples"
+			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs")" "$2 samples $(samples_for "$slugs")"
 	fi
 	;;
 gap)

@@ -219,6 +219,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The cost posture now leans every routing decision the change itself
+  does not settle, instead of only where a fix starts. Economy counts a
+  change as small enough for the cheap reviewer under 500 lines and
+  lets a tests-only change drop too, counts code as large over 1,200
+  lines, and still caps effort at high. Quality counts small under 150
+  and large over 400, and pays for one review sample beyond the
+  setting on a group a secrets, automation, or sensitive probe
+  flagged, never above three. Balanced keeps 300 and 800. Nothing is
+  pinned: a posture moves the lines routing judges the change against,
+  and fixed routing honors only its effort cap. A stakes probe now
+  climbs the reviewer to the strong model whatever the kind of file,
+  so a token in a configuration file or a workflow edit is routed like
+  one in code.
 - A round's summary comment now posts before its inline findings, so
   the pull request's conversation opens on the overview.
 - The README leads with a restrained badge row (release, license,

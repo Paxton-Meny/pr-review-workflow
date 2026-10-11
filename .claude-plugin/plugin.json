@@ -100,7 +100,7 @@
       "type": "string",
       "options": ["quality", "balanced", "economy"],
       "title": "Cost posture",
-      "description": "How readily auto routing starts a fix on the cheap model. quality: only fixes with a proven suggestion. balanced: also fixes whose Check line will execute, so a wrong fix is caught by running it. economy: any fix once a check command gates the round, and reasoning effort never routes above high. A blocker, a security finding, or a finding on a file a secrets or sensitive probe flagged never starts cheap, and a fix that fails climbs a rung whatever the posture.",
+      "description": "Which way auto routing leans on each pull request where the change itself does not settle a decision. It never pins a model. economy counts more changes as small enough for the cheap reviewer (docs, config, or tests under 500 lines, no risk probe), fewer as large enough for the strong model (over 1200 lines of code), caps reasoning effort at high, and starts any fix cheap once a check command gates the round. quality counts small under 150 lines and large over 400, starts only fixes with a proven suggestion cheap, and adds one review sample where a secrets, automation, or sensitive probe fired. balanced keeps 300 and 800 and also starts fixes cheap whose Check line will execute. A blocker, a security finding, or a finding on a flagged file never starts cheap, and a fix that fails climbs a rung whatever the posture.",
       "default": "balanced"
     },
     "sensitive_paths": {

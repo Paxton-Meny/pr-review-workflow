@@ -87,7 +87,7 @@
       lowered = true;
       reviewerWhy = 'A small docs-only change with no risk signal is mechanical work.';
     } else if (state.change === 'large' || state.change === 'auth') {
-      var reason = state.change === 'large' ? 'Over 800 lines of code.' : 'Touches a sensitive surface.';
+      var reason = state.change === 'large' ? 'Over 800 lines of code, the balanced posture\'s line.' : 'Touches a sensitive surface.';
       reviewer = strong ? 'high' : 'base';
       reviewerWhy = strong
         ? reason + ' Routing climbs to the strong model.'

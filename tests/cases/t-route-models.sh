@@ -201,8 +201,60 @@ printf 'id: F024\nstatus: addressed\nseverity: blocker\npath: src/a.py\n---\nbod
 [ "$(route arbitrate routing=auto reviewer=inherit)" = "route arbitrate all rung base model inherit effort high reason no-strong-model" ]
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
+# The posture leans every decision the change itself does not settle:
+# economy drops more and climbs later, quality drops less and climbs
+# sooner, and balanced keeps the lines above.
+classify docs-only 400 0
+probes ''
+[ "$(route review $ARGS posture=economy)" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+classify docs-only 200 0
+[ "$(route review $ARGS posture=quality)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
+classify tests-only 100 0
+[ "$(route review $ARGS posture=economy)" = "route review all rung cheap model sonnet effort medium reason tests-only-small samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+probes 'test-shrink'
+[ "$(route review $ARGS posture=economy)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+classify code 600 500
+probes ''
+[ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+classify code 1100 1000
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
+[ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+
+# A stakes probe climbs whatever the kind: a token in a config file or
+# a workflow edit is as risky as one in code.
+classify config-only 40 0
+probes 'automation'
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
+classify docs-only 20 0
+probes 'secrets'
+[ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
+
+# Quality pays for one review sample beyond the setting where a stakes
+# probe fired, never above three and never under fixed routing; the
+# other postures keep the setting.
+classify code 90 90
+probes 'sensitive'
+[ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 2" ]
+[ "$(route review routing=auto strong=opus posture=quality samples=3)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 3" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
+[ "$(route review routing=fixed strong=opus posture=quality)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
+probes ''
+[ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
+printf '001\tdocs/a.md\tdocs\t40\n002\tdocs/b.md\tdocs\t30\n003\tsrc/auth.py\tcode\t120\n004\tsrc/util.py\tcode\t60\n' >"$ctx/files-kind.txt"
+printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ctx/shards.txt"
+printf 'sensitive\tsrc/auth.py\n' >"$ctx/probe-files.txt"
+classify code 250 180
+[ "$(route review routing=auto reviewer=inherit strong=opus posture=quality)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
+route review group-2 rung strong model opus effort xhigh reason risky-probe samples 2" ]
+rm -f "$ctx/shards.txt" "$ctx/probe-files.txt"
+
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 67 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 88 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
