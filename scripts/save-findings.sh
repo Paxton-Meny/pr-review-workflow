@@ -15,7 +15,9 @@ mkdir -p "$findings"
 next=1
 for f in "$findings"/F*; do
 	[ -f "$f" ] || continue
-	n=$((${f##*/F} + 0))
+	n=${f##*/F}
+	n=${n#"${n%%[!0]*}"}
+	n=$((${n:-0} + 0))
 	[ "$n" -ge "$next" ] && next=$((n + 1))
 done
 

@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Saving findings into a ledger that already holds F008 or F009 no
+  longer fails: the ids were read as octal by the shell's arithmetic,
+  so every save after the eighth finding stopped the run. Leading
+  zeros are now stripped before the next id is computed.
 - A round whose every finding the precision filter demoted now posts
   its summary comment. Before, nothing posted and the demoted findings
   never reached the pull request.
