@@ -20,6 +20,17 @@ grep -qx 'reopens: 1' "$dir/findings/F001"
 
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed >/dev/null
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=verified >/dev/null
+if grep -q '^Arbitrated: ' "$dir/findings/F001"; then
+	echo "a verification from addressed is not an arbitration" >&2
+	exit 1
+fi
+
+# Only arbitration verifies an open finding, and the record says so.
+printf '=== finding\ncategory: correctness\nseverity: major\npath: b.c\nline: 4\nside: RIGHT\ntitle: Other\n---\nFix: done.\nResolution: done.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F002 status=verified >/dev/null
+grep -qx 'status: verified' "$dir/findings/F002"
+[ "$(grep -c '^Arbitrated: ' "$dir/findings/F002")" -eq 1 ]
 
 if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=open 2>"$SCRATCH/err"; then
 	echo "expected refusal to leave verified" >&2

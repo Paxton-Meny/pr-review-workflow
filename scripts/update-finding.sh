@@ -18,7 +18,7 @@ record="$dir/findings/$id"
 }
 
 current=$(sed -n 's/^status: //p' "$record")
-reopen=0
+reopen=0 arbitrated=0
 new_status=''
 for arg in "$@"; do
 	field=${arg%%=*}
@@ -28,7 +28,8 @@ for arg in "$@"; do
 		# open->verified is the arbitration verdict: a reopened finding
 		# re-judged against code that already changed in an earlier round.
 		case "$current->$value" in
-		'open->addressed' | 'open->wont-fix' | 'addressed->verified' | 'open->verified') ;;
+		'open->addressed' | 'open->wont-fix' | 'addressed->verified') ;;
+		'open->verified') arbitrated=1 ;;
 		'addressed->open') reopen=1 ;;
 		*)
 			echo "update-finding: illegal transition $current to $value on $id" >&2
@@ -75,6 +76,7 @@ if [ "$reopen" -eq 1 ]; then
 	sed "s|^reopens:.*|reopens: $((count + 1))|" "$tmp" >"$tmp.2"
 	mv "$tmp.2" "$tmp"
 fi
+[ "$arbitrated" -eq 1 ] && printf '\nArbitrated: verified from open, over the last reopen.\n' >>"$tmp"
 mv "$tmp" "$record"
 trap - EXIT
 

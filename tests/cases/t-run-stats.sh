@@ -19,7 +19,9 @@ printf 'route review all rung cheap model sonnet effort medium reason docs-only-
 # times, or the same level pinned and unpinned) and were verified.
 # F005's repair belongs to its first round, so it never retried. F006
 # was verified by arbitration over a reopen, and F007 ended wont-fix,
-# so neither last retry counts. F002 holds one old note without effort.
+# so neither last retry counts. F009's last fix broke the check and was
+# never verified: a failed model retry. F010's first note predates
+# effort, so its same-model retry is left out. F002 holds one old note.
 note() { printf 'Route: round %s rung x model %s %s reason r\n' "$@"; }
 finding() { printf 'id: %s\nstatus: %s\nreopens: %s\nplacement: inline\n---\nbody\nResolution: done.\n' "$1" "$2" "${3:-0}" >"$dir/findings/$1"; }
 finding F001 open 1
@@ -33,15 +35,19 @@ finding F004 verified
 finding F005 verified
 { note 1 sonnet 'effort low'; note 1 inherit 'effort medium'; } >>"$dir/findings/F005"
 finding F006 verified
-{ note 1 inherit 'effort medium'; note 2 opus 'effort high'; printf 'Reopened (round 2): still fails.\n'; } >>"$dir/findings/F006"
+{ note 1 inherit 'effort medium'; note 2 opus 'effort high'; printf 'Reopened (round 2): still fails.\nArbitrated: verified from open, over the last reopen.\n'; } >>"$dir/findings/F006"
 finding F007 wont-fix
 { note 1 sonnet 'effort low'; note 2 inherit 'effort medium'; } >>"$dir/findings/F007"
 finding F008 verified
 { note 1 inherit 'effort low pinned high'; note 2 inherit 'effort high'; } >>"$dir/findings/F008"
+finding F009 addressed
+{ note 1 sonnet 'effort low'; note 2 inherit 'effort medium'; } >>"$dir/findings/F009"
+finding F010 verified
+{ printf 'Route: round 1 rung base model inherit reason role-model\n'; note 2 inherit 'effort high'; } >>"$dir/findings/F010"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 8 verified 5 wont-fix 2 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 2 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 8 verified 5 wont-fix 2 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 2 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 10 verified 6 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 10 verified 6 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none' "$root/stats.txt"
 
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]

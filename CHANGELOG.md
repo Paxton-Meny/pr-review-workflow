@@ -190,12 +190,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and every retry of a finding by what it changed from the attempt
   before: the model, only the effort, or nothing. A repair after a
   failed check gate belongs to its round rather than counting as a
-  retry. A retry another attempt followed counts as failed; a
-  finding's last retry succeeds when the verifier verifies it, and is
-  left out when it ended wont-fix or arbitration overturned a reopen.
-  The status skill's report sums all three, so whether a stronger
-  model or more effort fixes a finding more often than a plain retry
-  can be settled from recorded runs.
+  retry, and a retry from a note that predates effort, on the same
+  model, is left out. A retry another attempt followed counts as
+  failed. A finding's last retry succeeds when the verifier verifies
+  it, fails while the finding is open or addressed, and is left out
+  when it ended wont-fix or arbitration verified it; update-finding.sh
+  now marks that verdict with an Arbitrated note. The status skill's
+  report sums all three, so whether a stronger model or more effort
+  fixes a finding more often than a plain retry can be settled from
+  recorded runs.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model
