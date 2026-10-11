@@ -115,3 +115,13 @@ if printf '=== finding\ncategory: correctness\nseverity: minor\npath: a.c\nline:
 	exit 1
 fi
 grep -q "at most one Check line" "$SCRATCH/err"
+
+dirz="$SCRATCH/state-zeros"
+mkdir -p "$dirz/findings"
+printf '0\n' >"$dirz/round.txt"
+for n in 001 002 003 004 005 006 007 008 009; do
+	printf 'id: F%s\n' "$n" >"$dirz/findings/F$n"
+done
+printf '=== finding\ncategory: correctness\nseverity: nit\npath: a.c\nline: 1\nside: RIGHT\ntitle: Tenth\n---\nFix: done.\nResolution: done.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dirz" | grep -qx 'save-findings: 1 findings saved, next id F011'
+grep -qx 'id: F010' "$dirz/findings/F010"
