@@ -342,7 +342,7 @@ last_rung() {
 
 note_attempt() {
 	# note_attempt <id> <rung> <model> <effort> <reason>
-	printf 'Route: round %s rung %s model %s effort %s reason %s\n' "$round" "$2" "$3" "$4" "$5" |
+	printf 'Route: round %s rung %s model %s effort %s%s reason %s\n' "$round" "$2" "$3" "$4" "$pinned" "$5" |
 		sh "$(dirname "$0")/append-note.sh" "$dir" "$1" >/dev/null
 }
 
