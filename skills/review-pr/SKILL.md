@@ -301,8 +301,7 @@ PRWF_SETTINGS_END
       with the line's `model` (the strong model when set, else
       reviewer_model, passed explicitly even when it is `inherit` so
       the arbitration runs on the session model, never the agent's
-      default) and its `effort` (high, where verification runs at
-      medium or lower) and exactly:
+      default) and its `effort` and exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
       using the `capped_ids` line from the count. Rerun
       `count-findings.sh <dir> --list`: if any capped finding is
