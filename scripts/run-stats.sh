@@ -4,11 +4,16 @@
 #
 # The stats file is the evidence loop: routing thresholds, the gap-pass
 # rule, and the filter earn their tuning from these lines instead of
-# guesses. Each finding retried after a failed attempt counts once, by
-# what its last retry changed (the model, else only the effort) and
-# whether it ended verified: the evidence for when a stronger model
-# beats more effort. Run it before cleanup-state.sh, which removes
-# pr-context.
+# guesses. Every retry of a finding counts once, by what it changed
+# from the attempt before: the model, else only the effort, else
+# nothing. An attempt is a round's last Route note, so a repair after a
+# failed check gate is part of its round, not a retry. A retry another
+# attempt followed failed; a finding's last retry succeeded when the
+# verifier verified it, failed when it is still open, and is left out
+# when it ended wont-fix or arbitration overturned a reopen. This is the
+# evidence for when a stronger model beats more effort, against a plain
+# retry with the verifier's note. Run it before cleanup-state.sh, which
+# removes pr-context.
 set -eu
 
 dir=${1:?usage: run-stats.sh <state-dir> <outcome>}
@@ -32,7 +37,8 @@ rounds=0
 [ -f "$dir/rounds.txt" ] && rounds=$(cat "$dir/rounds.txt")
 
 total=0 verified=0 wontfix=0 open=0 reopens=0 demoted=0 contracts=0 samples=1
-model_climbs=0 model_climbs_verified=0 effort_climbs=0 effort_climbs_verified=0
+model_retries=0 model_retries_verified=0 effort_retries=0 effort_retries_verified=0
+same_retries=0 same_retries_verified=0
 for f in "$dir/findings"/F*; do
 	[ -f "$f" ] || continue
 	total=$((total + 1))
@@ -47,16 +53,25 @@ for f in "$dir/findings"/F*; do
 	grep -q '^Check: ' "$f" && contracts=$((contracts + 1))
 	s=$(sed -n 's/^support: [0-9]*\///p' "$f" | head -n 1)
 	[ "${s:-1}" -gt "$samples" ] && samples=$s
-	# What the last retry changed: the model, else only the effort. A
-	# pinned note ran at the pinned level, whatever the route said.
-	climb=$(awk '/^Route: / { n++; pm = m; pe = e; m = $7; e = ($10 == "pinned") ? "pinned-" $11 : ($8 == "effort") ? $9 : "" }
-		END { if (n < 2) print "none"; else if (m != pm) print "model"; else if (e != pe) print "effort"; else print "none" }' "$f")
-	ok=0
-	grep -q '^status: verified$' "$f" && ok=1
-	case "$climb" in
-	model) model_climbs=$((model_climbs + 1)) model_climbs_verified=$((model_climbs_verified + ok)) ;;
-	effort) effort_climbs=$((effort_climbs + 1)) effort_climbs_verified=$((effort_climbs_verified + ok)) ;;
-	esac
+	# Retries by what changed, as "model verified effort verified same
+	# verified". A pinned note ran at its pinned level.
+	set -- $(awk -v status="$(sed -n 's/^status: //p' "$f")" '
+		/^Route: / {
+			if ($3 != round) { k++; round = $3 }
+			m[k] = $7; e[k] = ($10 == "pinned") ? $11 : ($8 == "effort") ? $9 : ""; after = 0
+		}
+		/^Reopened \(round / { if (k) after = 1 }
+		END {
+			for (i = 2; i <= k; i++) {
+				kind = (m[i] != m[i - 1]) ? "model" : (e[i] != e[i - 1]) ? "effort" : "same"
+				if (i < k || status == "open") n[kind]++
+				else if (status == "verified" && !after) { n[kind]++; v[kind]++ }
+			}
+			printf "%d %d %d %d %d %d\n", n["model"], v["model"], n["effort"], v["effort"], n["same"], v["same"]
+		}' "$f")
+	model_retries=$((model_retries + $1)) model_retries_verified=$((model_retries_verified + $2))
+	effort_retries=$((effort_retries + $3)) effort_retries_verified=$((effort_retries_verified + $4))
+	same_retries=$((same_retries + $5)) same_retries_verified=$((same_retries_verified + $6))
 done
 
 kind=none
@@ -92,6 +107,6 @@ if [ -f "$dir/sources.txt" ]; then
 fi
 
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned model_climbs $model_climbs model_climbs_verified $model_climbs_verified effort_climbs $effort_climbs effort_climbs_verified $effort_climbs_verified config $config"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config"
 printf '%s\n' "$line" >>"$root/stats.txt"
 echo "run-stats: $line"

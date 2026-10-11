@@ -12,17 +12,36 @@ printf 'group 1 lines 500 files 001\ngroup 2 lines 400 files 002\n' >"$dir/pr-co
 printf 'a and b split across groups 1 and 2 (shared name: x)\n' >"$dir/pr-context/seams.txt"
 printf 'route review all rung cheap model sonnet effort medium reason docs-only-small\nroute gap all rung base model inherit effort high pinned max reason follows-reviewer\nroute edit all rung strong model opus effort xhigh reason x ids F001\n' >"$dir/pr-context/routes.txt"
 
-# F001's retry changed the model and was verified; F003's changed only
-# the effort and stayed open; F002 was attempted once, so it never retried.
-printf 'id: F001\nstatus: verified\nreopens: 1\nplacement: inline\n---\nbody\nCheck: pytest t\nResolution: done.\nRoute: round 1 rung cheap model sonnet effort low reason mechanical\nRoute: round 2 rung strong model opus effort medium reason escalated\n' >"$dir/findings/F001"
+# Every retry counts once, by what changed from the attempt before.
+# F001 climbed the model twice and then only the effort, and is still
+# open: three failed retries. F003 raised only the effort and was
+# verified. F004 and F008 changed nothing that ran (a pinned level both
+# times, or the same level pinned and unpinned) and were verified.
+# F005's repair belongs to its first round, so it never retried. F006
+# was verified by arbitration over a reopen, and F007 ended wont-fix,
+# so neither last retry counts. F002 holds one old note without effort.
+note() { printf 'Route: round %s rung x model %s %s reason r\n' "$@"; }
+finding() { printf 'id: %s\nstatus: %s\nreopens: %s\nplacement: inline\n---\nbody\nResolution: done.\n' "$1" "$2" "${3:-0}" >"$dir/findings/$1"; }
+finding F001 open 1
+printf 'Check: pytest t\n' >>"$dir/findings/F001"
+{ note 1 sonnet 'effort low'; note 2 inherit 'effort medium'; note 3 opus 'effort high'; note 4 opus 'effort xhigh'; } >>"$dir/findings/F001"
 printf 'id: F002\nstatus: wont-fix\nreopens: 0\nsupport: 1/2\nplacement: summary\n---\nbody\nFilter: thin evidence.\nResolution: done.\nRoute: round 1 rung base model inherit reason role-model\n' >"$dir/findings/F002"
-printf 'id: F003\nstatus: open\nreopens: 0\nplacement: inline\n---\nbody\nResolution: done.\nRoute: round 1 rung base model inherit effort medium reason role-model\nRoute: round 2 rung base model inherit effort high reason strong-wanted-unset\n' >"$dir/findings/F003"
-# F004's retry raised the routed effort under a pinned level, so nothing changed.
-printf 'id: F004\nstatus: verified\nreopens: 1\nplacement: inline\n---\nbody\nResolution: done.\nRoute: round 1 rung base model inherit effort medium pinned low reason role-model\nRoute: round 2 rung base model inherit effort high pinned low reason strong-wanted-unset\n' >"$dir/findings/F004"
+finding F003 verified
+{ note 1 inherit 'effort medium'; note 2 inherit 'effort high'; } >>"$dir/findings/F003"
+finding F004 verified
+{ note 1 inherit 'effort medium pinned low'; note 2 inherit 'effort high pinned low'; } >>"$dir/findings/F004"
+finding F005 verified
+{ note 1 sonnet 'effort low'; note 1 inherit 'effort medium'; } >>"$dir/findings/F005"
+finding F006 verified
+{ note 1 inherit 'effort medium'; note 2 opus 'effort high'; printf 'Reopened (round 2): still fails.\n'; } >>"$dir/findings/F006"
+finding F007 wont-fix
+{ note 1 sonnet 'effort low'; note 2 inherit 'effort medium'; } >>"$dir/findings/F007"
+finding F008 verified
+{ note 1 inherit 'effort low pinned high'; note 2 inherit 'effort high'; } >>"$dir/findings/F008"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 4 verified 2 wont-fix 1 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_climbs 1 model_climbs_verified 1 effort_climbs 1 effort_climbs_verified 0 config none" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 4 verified 2 wont-fix 1 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_climbs 1 model_climbs_verified 1 effort_climbs 1 effort_climbs_verified 0 config none' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 8 verified 5 wont-fix 2 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 2 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 8 verified 5 wont-fix 2 unresolved 1 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 2 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none' "$root/stats.txt"
 
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]
