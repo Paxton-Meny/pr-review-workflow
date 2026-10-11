@@ -190,9 +190,11 @@ configured runs on every round.
   reviewer and the arbiter high, the editor and the verifier medium,
   the filter low) and moves one level per signal: up for a wide
   search (large code, a shard on a seam, an earlier failed attempt)
-  or high stakes (a risk probe, a blocker or security finding), down
-  where a later step checks the work (a proven suggestion, a Check
-  line that executes) or for a small docs or config review. The
+  or high stakes (a secrets, automation, or sensitive probe, a
+  blocker or security finding), down where a later step checks the
+  work (an editor's minor or nit fix carried by a proven suggestion,
+  a verifier round that Check lines or proven suggestions settle) or
+  for a small docs or config review. The
   economy posture caps it at high, the others at xhigh, and fixed
   routing keeps each agent's own level. Adaptive reasoning already
   spends thought where a step is hard, so these moves stay coarse.

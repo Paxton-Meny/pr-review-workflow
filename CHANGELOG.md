@@ -150,19 +150,32 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   least two findings, run one after the other with the check gate
   after each, so a broken check is pinned on the batch that broke it.
 - Model routing is a script, `route-models.sh`, that prints one
-  `route` line per decision with its rung, model, and reason, and
-  keeps them in the ledger. The skill passes the model it names
-  instead of choosing one. Large means over 800 changed lines of
+  `route` line per decision with its rung, model, effort, and
+  reason, and keeps them in the ledger. The skill passes the model
+  and effort it names instead of choosing them. Large means over 800 changed lines of
   code, with tests, docs, and configuration no longer counted. When a
   change calls for a stronger model and none is set, the route says
   so and the final report repeats it. Each run's statistics line
   gains the count of decisions per rung, and the status report sums
   them.
-- Each agent declares its reasoning effort: the reviewer high, the
-  editor medium, the verifier and the filter low, so the narrow
-  checks no longer inherit whatever level the session runs at. An
-  arbiter agent carries the verifier's procedure at high effort for
-  the one arbitration pass before a run parks.
+- Reasoning effort is routed per unit of work, beside the model, so
+  no agent inherits whatever level the session runs at. Each starts
+  at its definition's level (the reviewer and the arbiter high, the
+  editor and the verifier medium, the filter low) and moves one level
+  per signal. It goes up for a wide search: over 800 lines of code, a
+  shard on a seam, a gap pass over seams, each earlier attempt at a
+  finding. It goes up for stakes: a secrets, automation, or sensitive
+  probe, a blocker or security finding. It goes down only where a
+  later step checks the work: for the editor, a minor or nit fix
+  carried by a proven suggestion; for the verifier, a round whose
+  every finding an executable Check line or a proven suggestion
+  settles; and for a small docs or config review. A batch runs at
+  its highest finding's level. The economy posture caps effort at
+  high, the others at xhigh, and fixed routing keeps each
+  definition's level. Route lines and Route notes record the level,
+  and a pinned CLAUDE_CODE_EFFORT_LEVEL as such. An arbiter agent
+  carries the verifier's procedure for the one arbitration pass
+  before a run parks. Needs Claude Code 2.1.292 or later.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model
@@ -183,17 +196,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Reasoning effort is routed per unit of work, beside the model.
-  Each agent starts at its definition's level and moves one level up
-  for a wide search or high stakes and one level down where a later
-  step checks the work: a large or sensitive shard reviews at xhigh,
-  a fix carried by a proven suggestion runs at low, a finding that
-  was attempted before climbs a level each time, and the verifier
-  drops to low only when execution or a proven suggestion settles
-  every finding it judges (its own level is now medium). The economy
-  posture caps effort at high, route lines and Route notes record
-  the level, and a pinned CLAUDE_CODE_EFFORT_LEVEL is recorded as
-  such. Needs Claude Code 2.1.292 or later.
 - A round's summary comment now posts before its inline findings, so
   the pull request's conversation opens on the overview.
 - The README leads with a restrained badge row (release, license,
