@@ -30,7 +30,7 @@ files in thread replies or notes.
 1. Read the record. The Resolution line is the contract; the evidence above
    it is context for reading the line correctly.
 2. When the record has a `Check:` line, run the contract first:
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-contract.sh <state-dir> <id> '${user_config.check_command}' '${user_config.contract_commands}'`.
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-contract.sh <state-dir> <id>`.
    Exit 0 is the strongest possible verification: go straight to
    step 4. Exit 3 means the contract fails against the current code:
    reopen (step 5) quoting the failure tail. Exit 4 means the contract
