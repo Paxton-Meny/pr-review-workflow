@@ -294,12 +294,14 @@ PRWF_SETTINGS_END
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> arbitrate`.
       A `skip` line (fixed routing) means stop the loop and treat it
       as non-convergence. Otherwise arbitrate once first, because
-      repeated reopens sometimes mean the cheap verifier is wrong
-      rather than the editor: spawn `pr-review-workflow:verifier` with
-      the line's `model` (the strong model when set, else reviewer_model, passed
-      explicitly even when it is `inherit` so the arbitration runs on
-      the session model, never the agent's default) and `effort` and
-      exactly:
+      repeated reopens sometimes mean the verifier's verdict is wrong
+      rather than the editor's fix: rerun the verifier's procedure on
+      the arbitration route, spawning `pr-review-workflow:verifier`
+      with the line's `model` (the strong model when set, else
+      reviewer_model, passed explicitly even when it is `inherit` so
+      the arbitration runs on the session model, never the agent's
+      default) and its `effort` (high, where verification runs at
+      medium or lower) and exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
       using the `capped_ids` line from the count. Rerun
       `count-findings.sh <dir> --list`: if any capped finding is
