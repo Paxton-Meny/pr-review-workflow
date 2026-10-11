@@ -13,10 +13,23 @@
 # stages the finding ids follow a lone "--".
 #
 # Every decision is a rung on one ladder: cheap (sonnet), base (the
-# role's own setting), strong (the strong model). Each printed line is
-# label-value, is appended to pr-context/routes.txt, and names the model
-# the orchestrator passes as the override, "inherit" included:
-#   route <stage> <unit> rung <rung> model <model> reason <reason>[ ids ...]
+# role's own setting), strong (the strong model), plus a reasoning
+# effort. Each printed line is label-value, is appended to
+# pr-context/routes.txt, and names the model and effort the
+# orchestrator passes as overrides, "inherit" included:
+#   route <stage> <unit> rung <rung> model <model> effort <level>[ pinned <value>] reason <reason>[ ids ...]
+# Effort starts at the level the role's agent definition declares and
+# moves one level for each signal: up for a wide search (large code, a
+# shard group on a seam, a gap pass over seams, each earlier attempt at
+# a finding), up for stakes (a secrets, automation, or sensitive probe,
+# a blocker or security finding), down where a later step checks the
+# work (a proven suggestion for the editor, an executable Check line or
+# proven suggestion on every finding the verifier judges) or the review
+# is small docs or config with no risk. A batch runs at its highest
+# finding's level. The economy posture caps effort at high, the others
+# at xhigh; max is never routed. Fixed routing keeps every role's own
+# level. A set CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the
+# line records it as pinned.
 # A sharded review gets one line per group, judged on that group's own
 # files: it climbs for large or sensitive code when a strong model is
 # set and drops for a small docs-only or config-only group with no risk
@@ -33,9 +46,10 @@
 # attempted and is still open climbs one rung above its last attempt,
 # and a repair after a failed check gate climbs one rung above the batch
 # that broke it. Each attempt is noted on the finding's record. The
-# verifier and the filter never move; arbitration takes the strong
-# model, else the reviewer's. With routing fixed, every role stays on
-# its own setting.
+# verifier and the filter never change model; arbitration takes the
+# strong model, else the reviewer's. With routing fixed, every role
+# stays on its own setting. The verify stage takes the addressed ids
+# after "--" too.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -52,6 +66,10 @@ LARGE_CODE_LINES=800
 SMALL_LINES=300
 CLIMB_SLUGS='secrets automation sensitive'
 RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
+EFFORT_LEVELS='low medium high xhigh'
+ECONOMY_EFFORT_CAP=high
+EFFORT_CAP=xhigh
+AGENTS="$(dirname "$0")/../agents"
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
 posture=balanced check='' prefixes=''
@@ -125,11 +143,70 @@ quality | balanced | economy) ;;
 	;;
 esac
 
+pinned=${CLAUDE_CODE_EFFORT_LEVEL:+ pinned $CLAUDE_CODE_EFFORT_LEVEL}
+
 emit() {
-	# emit <unit> <rung> <model> <reason> [ids]
-	line="route $stage $1 rung $2 model $3 reason $4${5:+ ids $5}"
+	# emit <unit> <rung> <model> <effort> <reason> [ids]
+	line="route $stage $1 rung $2 model $3 effort $4$pinned reason $5${6:+ ids $6}"
 	printf '%s\n' "$line" >>"$ctx/routes.txt"
 	echo "$line"
+}
+
+skip() {
+	# skip <reason>
+	line="route $stage all skip reason $1"
+	printf '%s\n' "$line" >>"$ctx/routes.txt"
+	echo "$line"
+}
+
+level_rank() {
+	# level_rank <level>: its position in EFFORT_LEVELS, from 0
+	i=0
+	for l in $EFFORT_LEVELS; do
+		[ "$l" = "$1" ] && {
+			echo "$i"
+			return
+		}
+		i=$((i + 1))
+	done
+	echo "route-models: not an effort level: $1" >&2
+	exit 1
+}
+
+level_at() {
+	# level_at <rank>, clamped to low and to the posture's cap
+	if [ "$posture" = economy ]; then cap=$(level_rank "$ECONOMY_EFFORT_CAP"); else cap=$(level_rank "$EFFORT_CAP"); fi
+	r=$1
+	[ "$r" -lt 0 ] && r=0
+	[ "$r" -gt "$cap" ] && r=$cap
+	set -- $EFFORT_LEVELS
+	shift "$r"
+	echo "$1"
+}
+
+role_effort() {
+	# role_effort <agent>: the level its definition declares
+	e=$(sed -n '2,/^---$/s/^effort: //p' "$AGENTS/$1.md")
+	level_rank "$e" >/dev/null
+	echo "$e"
+}
+
+moved() {
+	# moved <base level> <signed steps>: the base unless routing is fixed
+	if [ "$routing" = fixed ]; then
+		echo "$1"
+	else
+		level_at $(($(level_rank "$1") + $2))
+	fi
+}
+
+highest() {
+	# highest <levels>: the highest of them
+	top=low
+	for l in $1; do
+		[ "$(level_rank "$l")" -gt "$(level_rank "$top")" ] && top=$l
+	done
+	echo "$top"
 }
 
 has_slug() {
@@ -206,6 +283,28 @@ review_rung() {
 	echo "base role-model"
 }
 
+# The reviewer's effort for one unit of the change.
+review_effort() {
+	# review_effort <kind> <lines> <code_lines> <slugs> [group]
+	steps=0
+	case "$1" in
+	docs-only | config-only)
+		[ "${2:-0}" -lt "$SMALL_LINES" ] && ! has_slug "$RISK_SLUGS" "$4" && steps=-1
+		;;
+	esac
+	if { [ "$1" = code ] && [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; } || on_seam "${5:-}"; then
+		steps=$((steps + 1))
+	fi
+	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
+	moved "$(role_effort reviewer)" "$steps"
+}
+
+on_seam() {
+	# on_seam <group>: a coupling crosses out of this shard group
+	[ -n "$1" ] && [ -f "$ctx/seams.txt" ] &&
+		sed -n 's/.* split across groups \([0-9]*\) and \([0-9]*\) .*/ \1 \2 /p' "$ctx/seams.txt" | grep -q " $1 "
+}
+
 model_for() {
 	# model_for <rung> <base-model>
 	case "$1" in
@@ -229,9 +328,39 @@ last_rung() {
 }
 
 note_attempt() {
-	# note_attempt <id> <rung> <model> <reason>
-	printf 'Route: round %s rung %s model %s reason %s\n' "$round" "$2" "$3" "$4" |
+	# note_attempt <id> <rung> <model> <effort> <reason>
+	printf 'Route: round %s rung %s model %s effort %s reason %s\n' "$round" "$2" "$3" "$4" "$5" |
 		sh "$(dirname "$0")/append-note.sh" "$dir" "$1" >/dev/null
+}
+
+high_stakes() {
+	# high_stakes <record>: a blocker, a security finding, or a secrets or sensitive file
+	grep -q '^severity: blocker$' "$1" && return 0
+	grep -q '^category: security$' "$1" && return 0
+	path=$(sed -n 's/^path: //p' "$1")
+	[ -f "$ctx/probe-files.txt" ] && grep -Eq "^(secrets|sensitive)	$path\$" "$ctx/probe-files.txt"
+}
+
+mechanical() {
+	# mechanical <record>: a minor or nit finding with a proven suggestion
+	grep -Eq '^severity: (minor|nit)$' "$1" && grep -q '^```suggestion$' "$1"
+}
+
+contract_runs() {
+	# contract_runs <id>: its Check line would execute under the run's policy
+	[ -n "$check" ] && grep -q '^Check: ' "$dir/findings/$1" &&
+		sh "$(dirname "$0")/run-contract.sh" --policy "$dir" "$1" "$check" "$prefixes" >/dev/null 2>&1
+}
+
+# The editor's effort for one finding: up for stakes and for each
+# earlier attempt, down when a proven suggestion carries the fix.
+finding_effort() {
+	# finding_effort <id>
+	record="$dir/findings/$1"
+	steps=$(grep -c '^Route: ' "$record" || true)
+	high_stakes "$record" && steps=$((steps + 1))
+	mechanical "$record" && steps=$((steps - 1))
+	moved "$(role_effort editor)" "$steps"
 }
 
 # A finding's starting rung for this round, and why. Prints "<rung> <reason>".
@@ -263,27 +392,15 @@ finding_rung() {
 		echo "base role-model"
 		return
 	fi
-	sev=$(sed -n 's/^severity: //p' "$record")
-	cat=$(sed -n 's/^category: //p' "$record")
-	path=$(sed -n 's/^path: //p' "$record")
-	high=0
-	[ "$sev" = blocker ] && high=1
-	[ "$cat" = security ] && high=1
-	[ -f "$ctx/probe-files.txt" ] && grep -q "^\(secrets\|sensitive\)	$path\$" "$ctx/probe-files.txt" && high=1
-	if [ "$high" -eq 1 ]; then
+	if high_stakes "$record"; then
 		echo "base stakes-floor"
 		return
 	fi
-	case "$sev" in
-	minor | nit)
-		if grep -q '^```suggestion$' "$record"; then
-			echo "cheap mechanical"
-			return
-		fi
-		;;
-	esac
-	if [ "$posture" != quality ] && [ -n "$check" ] && grep -q '^Check: ' "$record" &&
-		sh "$(dirname "$0")/run-contract.sh" --policy "$dir" "$1" "$check" "$prefixes" >/dev/null 2>&1; then
+	if mechanical "$record"; then
+		echo "cheap mechanical"
+		return
+	fi
+	if [ "$posture" != quality ] && contract_runs "$1"; then
 		echo "cheap contract-first"
 		return
 	fi
@@ -297,12 +414,12 @@ finding_rung() {
 # Print the batches for a set of ids: one line per rung used, cheapest
 # first, each as "<rung> <reason> <ids>", noting every attempt.
 batches() {
-	# batches <ids>; leaves each finding's own rung and reason in $plan
+	# batches <ids>; leaves each finding's own rung, reason, and effort in $plan
 	plan="$ctx/.route-plan"
 	: >"$plan"
 	for id in $1; do
 		set -- $(finding_rung "$id")
-		printf '%s\t%s\t%s\n' "$1" "$2" "$id" >>"$plan"
+		printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$id" "$(finding_effort "$id")" >>"$plan"
 	done
 	# A lone cheap finding in a round that also has others rides with them.
 	if [ "$(grep -c '^cheap	' "$plan")" -eq 1 ] && grep -qv '^cheap	' "$plan"; then
@@ -317,7 +434,8 @@ batches() {
 		1) reason=$reasons ;;
 		*) reason=mixed ;;
 		esac
-		printf '%s %s %s\n' "$rung" "$reason" "$list"
+		effort=$(highest "$(awk -F '\t' -v r="$rung" '$1 == r { print $4 }' "$plan")")
+		printf '%s %s %s %s\n' "$rung" "$reason" "$effort" "$list"
 	done
 }
 
@@ -335,11 +453,13 @@ review)
 			gc=${rest%% *}
 			gs=${rest#"$gc"}
 			set -- $(review_rung "$gk" "$gl" "$gc" "$gs")
-			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" "$2 samples $samples"
+			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" \
+				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi")" "$2 samples $samples"
 		done <"$ctx/shards.txt"
 	else
 		set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
-		emit all "$1" "$(model_for "$1" "$reviewer")" "$2 samples $samples"
+		emit all "$1" "$(model_for "$1" "$reviewer")" \
+			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs")" "$2 samples $samples"
 	fi
 	;;
 gap)
@@ -356,26 +476,43 @@ gap)
 		esac
 	fi
 	if [ -n "${skip_gap:-}" ]; then
-		line="route gap all skip reason $skip_gap"
-		printf '%s\n' "$line" >>"$ctx/routes.txt"
-		echo "$line"
+		skip "$skip_gap"
 		exit 0
 	fi
-	# The highest rung any review unit used, never below the reviewer's own setting.
+	# The highest rung and effort any review unit used, never below the
+	# reviewer's own, and one level up when seams cross the shards.
 	rung=base reason=follows-reviewer
 	if [ -n "$strong" ] && [ -f "$ctx/routes.txt" ] && grep -q '^route review .* rung strong ' "$ctx/routes.txt"; then
 		rung=strong
 	fi
-	emit all "$rung" "$(model_for "$rung" "$reviewer")" "$reason"
+	base=$(role_effort reviewer)
+	effort=$(highest "$base $(sed -n 's/^route review .* effort \([a-z]*\) .*/\1/p' "$ctx/routes.txt" 2>/dev/null)")
+	[ -s "$ctx/seams.txt" ] && effort=$(highest "$effort $(moved "$base" 1)")
+	[ "$routing" = fixed ] && effort=$base
+	emit all "$rung" "$(model_for "$rung" "$reviewer")" "$effort" "$reason"
 	;;
-filter | verify)
-	if [ "$stage" = filter ] && [ "$filter" = false ]; then
-		line="route filter all skip reason filter-off"
-		printf '%s\n' "$line" >>"$ctx/routes.txt"
-		echo "$line"
+filter)
+	if [ "$filter" = false ]; then
+		skip filter-off
 		exit 0
 	fi
-	emit all base "$verifier" role-model
+	emit all base "$verifier" "$(role_effort filter)" role-model
+	;;
+verify)
+	# One level down when execution or a proven suggestion settles every finding.
+	[ -n "$ids" ] || {
+		echo "route-models: the verify stage needs the addressed finding ids after --" >&2
+		exit 1
+	}
+	steps=-1
+	for id in $ids; do
+		[ -f "$dir/findings/$id" ] || {
+			echo "route-models: unknown finding: $id" >&2
+			exit 1
+		}
+		grep -q '^```suggestion$' "$dir/findings/$id" || contract_runs "$id" || steps=0
+	done
+	emit all base "$verifier" "$(moved "$(role_effort verifier)" "$steps")" role-model
 	;;
 edit)
 	[ -n "$ids" ] || {
@@ -386,24 +523,25 @@ edit)
 	lines=$(batches "$ids")
 	n=$(printf '%s\n' "$lines" | grep -c .)
 	i=0
-	printf '%s\n' "$lines" | while read -r rung reason list; do
+	printf '%s\n' "$lines" | while read -r rung reason effort list; do
 		i=$((i + 1))
 		model=$(model_for "$rung" "$editor")
 		if [ "$n" -eq 1 ]; then unit=all; else unit="batch-$i"; fi
 		for id in $list; do
-			note_attempt "$id" "$rung" "$model" "$(awk -F '\t' -v i="$id" '$3 == i { print $2 }' "$ctx/.route-plan")"
+			note_attempt "$id" "$rung" "$model" "$effort" "$(awk -F '\t' -v i="$id" '$3 == i { print $2 }' "$ctx/.route-plan")"
 		done
-		emit "$unit" "$rung" "$model" "$reason" "$list"
+		emit "$unit" "$rung" "$model" "$effort" "$reason" "$list"
 	done
 	rm -f "$ctx/.route-plan"
 	;;
 repair)
-	# After a failed check gate: one rung above the batch that broke it.
+	# After a failed check gate: one rung above the batch that broke it,
+	# at the effort its findings now call for, the failed attempt counted.
 	[ -n "$ids" ] || {
 		echo "route-models: the repair stage needs the batch's finding ids after --" >&2
 		exit 1
 	}
-	top=cheap
+	top=cheap efforts=''
 	for id in $ids; do
 		record="$dir/findings/$id"
 		[ -f "$record" ] || {
@@ -414,6 +552,7 @@ repair)
 		strong) top=strong ;;
 		base) [ "$top" = strong ] || top=base ;;
 		esac
+		efforts="$efforts $(finding_effort "$id")"
 	done
 	if [ "$routing" = fixed ]; then
 		rung=base reason=fixed
@@ -421,20 +560,20 @@ repair)
 		rung=$(up "$top") reason=gate-failed
 	fi
 	model=$(model_for "$rung" "$editor")
-	for id in $ids; do note_attempt "$id" "$rung" "$model" "$reason"; done
-	emit all "$rung" "$model" "$reason" "$ids"
+	effort=$(highest "$efforts")
+	for id in $ids; do note_attempt "$id" "$rung" "$model" "$effort" "$reason"; done
+	emit all "$rung" "$model" "$effort" "$reason" "$ids"
 	;;
 arbitrate)
 	if [ "$routing" = fixed ]; then
-		line="route arbitrate all skip reason fixed-routing"
-		printf '%s\n' "$line" >>"$ctx/routes.txt"
-		echo "$line"
+		skip fixed-routing
 		exit 0
 	fi
+	effort=$(moved "$(role_effort arbiter)" 0)
 	if [ -n "$strong" ]; then
-		emit all strong "$strong" arbitration
+		emit all strong "$strong" "$effort" arbitration
 	else
-		emit all base "$reviewer" no-strong-model
+		emit all base "$reviewer" "$effort" no-strong-model
 	fi
 	;;
 *)

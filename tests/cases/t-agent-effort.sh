@@ -22,7 +22,7 @@ done
 [ "$(field reviewer effort)" = high ]
 [ "$(field arbiter effort)" = high ]
 [ "$(field editor effort)" = medium ]
-[ "$(field verifier effort)" = low ]
+[ "$(field verifier effort)" = medium ]
 [ "$(field filter effort)" = low ]
 
 # The arbiter and the verifier are one procedure: same tools, same turn

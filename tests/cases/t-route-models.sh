@@ -1,6 +1,8 @@
 #!/bin/sh
-# route-models: every rung of the ladder, per stage, with the record kept.
+# route-models: every rung of the ladder and every effort move, per stage,
+# with the record kept.
 set -eu
+unset CLAUDE_CODE_EFFORT_LEVEL
 
 dir="$SCRATCH/state"
 ctx="$dir/pr-context"
@@ -10,67 +12,76 @@ classify() { printf 'classify-change: kind %s files 1 lines %s code_lines %s\n' 
 probes() { printf '%s\n' "$1" >"$ctx/probe-slugs.txt"; }
 ARGS='routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='
 
-# A small docs-only change drops; the gap pass still floors at the reviewer.
+# A small docs-only change drops; the gap pass still floors at the reviewer,
+# and climbs a level when seams cross the shards.
 classify docs-only 120 0
 probes ''
-[ "$(route review $ARGS)" = "route review all rung cheap model sonnet reason docs-only-small samples 1" ]
-[ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit reason follows-reviewer" ]
+[ "$(route review $ARGS)" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
+[ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
+printf 'a.py and b.py split across groups 1 and 2 (shared name: parse)\n' >"$ctx/seams.txt"
+[ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
+[ "$(route gap routing=fixed double=always)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
+rm "$ctx/seams.txt"
 
 # The same change with a risk signal stays on the reviewer model.
 probes 'deps'
-[ "$(route review $ARGS)" = "route review all rung base model inherit reason role-model samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
 
 # Large code climbs when a strong model is set, and says so when none is.
 classify code 1200 950
 probes 'added'
-[ "$(route review $ARGS)" = "route review all rung base model inherit reason strong-wanted-unset samples 1" ]
-[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus reason large-code samples 1" ]
-[ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus reason follows-reviewer" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus effort xhigh reason large-code samples 1" ]
+[ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus effort xhigh reason follows-reviewer" ]
 
 # Size counts code lines only: 1,200 lines of mostly tests is not large code.
 classify code 1200 300
 probes ''
-[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung base model opus reason role-model samples 1" ]
+[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung base model opus effort high reason role-model samples 1" ]
 
-# A sensitive probe climbs even on a small change.
+# A sensitive probe climbs even on a small change; economy caps effort at high.
 classify code 90 90
 probes 'sensitive'
-[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus reason risky-probe samples 1" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
+[ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
+
+# A pinned environment level outranks every override, so the line records it.
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=max route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh pinned max reason risky-probe samples 1" ]
 
 # Fixed routing never moves, and placeholders from an unconfigured install count as unset.
-[ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit reason fixed samples 1" ]
-[ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit reason strong-wanted-unset samples 1" ]
+[ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
+[ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
 
-# The filter and the verifier always take the verifier model.
-[ "$(route filter $ARGS)" = "route filter all rung base model sonnet reason role-model" ]
-[ "$(route verify routing=auto verifier=inherit)" = "route verify all rung base model inherit reason role-model" ]
+# The filter always takes the verifier model at its own level.
+[ "$(route filter $ARGS)" = "route filter all rung base model sonnet effort low reason role-model" ]
 
 # Editing drops only in round one and only when every finding is mechanical.
 printf 'id: F001\nstatus: open\nseverity: nit\n---\nbody\n```suggestion\nx\n```\n' >"$dir/findings/F001"
 printf 'id: F002\nstatus: open\nseverity: minor\n---\nbody\n```suggestion\ny\n```\n' >"$dir/findings/F002"
 printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F003"
-[ "$(route edit $ARGS round=1 -- F001 F002)" = "route edit all rung cheap model sonnet reason mechanical ids F001 F002" ]
-[ "$(route edit $ARGS round=1 -- F001 F003)" = "route edit all rung base model inherit reason mixed ids F001 F003" ]
-[ "$(route edit $ARGS round=2 -- F001 F002)" = "route edit all rung base model inherit reason mixed ids F001 F002" ]
-[ "$(route edit routing=fixed round=1 -- F001)" = "route edit all rung base model inherit reason fixed ids F001" ]
+[ "$(route edit $ARGS round=1 -- F001 F002)" = "route edit all rung cheap model sonnet effort low reason mechanical ids F001 F002" ]
+[ "$(route edit $ARGS round=1 -- F001 F003)" = "route edit all rung base model inherit effort medium reason mixed ids F001 F003" ]
+[ "$(route edit $ARGS round=2 -- F001 F002)" = "route edit all rung base model inherit effort high reason mixed ids F001 F002" ]
+[ "$(route edit routing=fixed round=1 -- F001)" = "route edit all rung base model inherit effort medium reason fixed ids F001" ]
 
 # Each attempt is noted on the record.
-grep -q '^Route: round 1 rung cheap model sonnet reason mechanical$' "$dir/findings/F001"
+grep -q '^Route: round 1 rung cheap model sonnet effort low reason mechanical$' "$dir/findings/F001"
 [ "$(grep -c '^Route: ' "$dir/findings/F001")" -eq 4 ]
 
-# A finding attempted and still open climbs one rung; the top of the ladder holds.
+# A finding attempted and still open climbs one rung and one effort level;
+# the top of the ladder holds.
 printf 'id: F005\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung cheap model sonnet reason contract-first\n' >"$dir/findings/F005"
 printf 'id: F006\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung base model inherit reason role-model\n' >"$dir/findings/F006"
-[ "$(route edit $ARGS round=2 -- F005 F006)" = "route edit all rung base model inherit reason mixed ids F005 F006" ]
-grep -q '^Route: round 2 rung base model inherit reason escalated$' "$dir/findings/F005"
-grep -q '^Route: round 2 rung base model inherit reason strong-wanted-unset$' "$dir/findings/F006"
-[ "$(route edit routing=auto strong=opus round=3 -- F006)" = "route edit all rung strong model opus reason escalated ids F006" ]
-[ "$(route edit routing=auto strong=opus round=4 -- F006)" = "route edit all rung strong model opus reason ladder-top ids F006" ]
+[ "$(route edit $ARGS round=2 -- F005 F006)" = "route edit all rung base model inherit effort high reason mixed ids F005 F006" ]
+grep -q '^Route: round 2 rung base model inherit effort high reason escalated$' "$dir/findings/F005"
+grep -q '^Route: round 2 rung base model inherit effort high reason strong-wanted-unset$' "$dir/findings/F006"
+[ "$(route edit routing=auto strong=opus round=3 -- F006)" = "route edit all rung strong model opus effort xhigh reason escalated ids F006" ]
+[ "$(route edit routing=auto strong=opus round=4 -- F006)" = "route edit all rung strong model opus effort xhigh reason ladder-top ids F006" ]
 
 # A repair after a failed check gate climbs above the batch that broke it.
 printf 'id: F007\nstatus: open\nseverity: minor\n---\nbody\nRoute: round 1 rung cheap model sonnet reason mechanical\n' >"$dir/findings/F007"
-[ "$(route repair $ARGS round=1 -- F007)" = "route repair all rung base model inherit reason gate-failed ids F007" ]
-grep -q '^Route: round 1 rung base model inherit reason gate-failed$' "$dir/findings/F007"
+[ "$(route repair $ARGS round=1 -- F007)" = "route repair all rung base model inherit effort high reason gate-failed ids F007" ]
+grep -q '^Route: round 1 rung base model inherit effort high reason gate-failed$' "$dir/findings/F007"
 
 # Cheap-first: a contract-backed finding starts cheap when its Check line would execute.
 mkdir -p "$dir/worktree"
@@ -80,25 +91,28 @@ fresh() {
 	printf 'id: F010\nstatus: open\nseverity: major\ncategory: correctness\npath: src/c.py\n---\nbody\nResolution: x.\n' >"$dir/findings/F010"
 }
 fresh
-[ "$(route edit $ARGS 'check=make check' round=1 -- F008 F009 F010)" = "route edit all rung base model inherit reason mixed ids F008 F009 F010" ]
+[ "$(route edit $ARGS 'check=make check' round=1 -- F008 F009 F010)" = "route edit all rung base model inherit effort medium reason mixed ids F008 F009 F010" ]
 grep -q 'reason contract-first-alone$' "$dir/findings/F008"
 fresh
-[ "$(route edit $ARGS 'check=make check' 'prefixes=go test' round=1 -- F008 F009 F010)" = "route edit batch-1 rung cheap model sonnet reason contract-first ids F008 F009
-route edit batch-2 rung base model inherit reason role-model ids F010" ]
+[ "$(route edit $ARGS 'check=make check' 'prefixes=go test' round=1 -- F008 F009 F010)" = "route edit batch-1 rung cheap model sonnet effort medium reason contract-first ids F008 F009
+route edit batch-2 rung base model inherit effort medium reason role-model ids F010" ]
 fresh
-[ "$(route edit $ARGS round=1 -- F008 F009)" = "route edit all rung base model inherit reason role-model ids F008 F009" ]
+[ "$(route edit $ARGS round=1 -- F008 F009)" = "route edit all rung base model inherit effort medium reason role-model ids F008 F009" ]
 fresh
-[ "$(route edit $ARGS posture=quality 'check=make check' 'prefixes=go test' round=1 -- F008 F009)" = "route edit all rung base model inherit reason role-model ids F008 F009" ]
+[ "$(route edit $ARGS posture=quality 'check=make check' 'prefixes=go test' round=1 -- F008 F009)" = "route edit all rung base model inherit effort medium reason role-model ids F008 F009" ]
 fresh
-[ "$(route edit $ARGS posture=economy 'check=make check' round=1 -- F008 F010)" = "route edit all rung cheap model sonnet reason mixed ids F008 F010" ]
+[ "$(route edit $ARGS posture=economy 'check=make check' round=1 -- F008 F010)" = "route edit all rung cheap model sonnet effort medium reason mixed ids F008 F010" ]
 grep -q 'reason gate-first$' "$dir/findings/F010"
 
-# Floors: a blocker, a security finding, or a sensitive file never starts cheap.
+# Floors: a blocker, a security finding, or a sensitive file never starts
+# cheap, and each raises the effort a level; a proven suggestion lowers it.
 printf 'id: F011\nstatus: open\nseverity: blocker\ncategory: correctness\npath: src/d.py\n---\nbody\nCheck: make check\n' >"$dir/findings/F011"
 printf 'id: F012\nstatus: open\nseverity: minor\ncategory: security\npath: src/e.py\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F012"
 printf 'id: F013\nstatus: open\nseverity: nit\ncategory: antipatterns\npath: src/auth.py\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F013"
 printf 'sensitive\tsrc/auth.py\n' >"$ctx/probe-files.txt"
-[ "$(route edit $ARGS posture=economy 'check=make check' round=1 -- F011 F012 F013)" = "route edit all rung base model inherit reason stakes-floor ids F011 F012 F013" ]
+[ "$(route edit $ARGS posture=economy 'check=make check' round=1 -- F011 F012 F013)" = "route edit all rung base model inherit effort high reason stakes-floor ids F011 F012 F013" ]
+printf 'id: F012\nstatus: open\nseverity: minor\ncategory: security\npath: src/e.py\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F012"
+[ "$(route edit $ARGS round=1 -- F012)" = "route edit all rung base model inherit effort medium reason stakes-floor ids F012" ]
 if route edit $ARGS posture=cheapest round=1 -- F001 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown posture" >&2
 	exit 1
@@ -110,21 +124,25 @@ printf 'id: F001\nstatus: open\nseverity: nit\n---\nbody\n```suggestion\nx\n```\
 printf 'id: F002\nstatus: open\nseverity: minor\n---\nbody\n```suggestion\ny\n```\n' >"$dir/findings/F002"
 printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F003"
 printf 'id: F004\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F004"
-[ "$(route edit $ARGS round=1 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet reason mechanical ids F001 F002
-route edit batch-2 rung base model inherit reason role-model ids F003 F004" ]
-[ "$(route edit $ARGS round=2 -- F003 F001 F004 F002)" = "route edit all rung base model inherit reason mixed ids F003 F001 F004 F002" ]
+[ "$(route edit $ARGS round=1 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet effort low reason mechanical ids F001 F002
+route edit batch-2 rung base model inherit effort medium reason role-model ids F003 F004" ]
+[ "$(route edit $ARGS round=2 -- F003 F001 F004 F002)" = "route edit all rung base model inherit effort high reason mixed ids F003 F001 F004 F002" ]
 
 # A sharded review is routed group by group, on each group's own files.
 printf '001\tdocs/a.md\tdocs\t40\n002\tdocs/b.md\tdocs\t30\n003\tsrc/auth.py\tcode\t120\n004\tsrc/util.py\tcode\t60\n' >"$ctx/files-kind.txt"
 printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ctx/shards.txt"
 printf 'sensitive\tsrc/auth.py\nadded\tdocs/b.md\n' >"$ctx/probe-files.txt"
 classify code 250 180
-[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet reason docs-only-small samples 1
-route review group-2 rung strong model opus reason risky-probe samples 1" ]
-[ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus reason follows-reviewer" ]
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
+route review group-2 rung strong model opus effort xhigh reason risky-probe samples 1" ]
+[ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus effort xhigh reason follows-reviewer" ]
+printf 'docs/a.md and src/util.py split across groups 1 and 2 (shared name: util)\n' >"$ctx/seams.txt"
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort high reason docs-only-small samples 1
+route review group-2 rung strong model opus effort xhigh reason risky-probe samples 1" ]
+rm "$ctx/seams.txt"
 printf 'deps\tdocs/a.md\n' >"$ctx/probe-files.txt"
-[ "$(route review $ARGS)" = "route review group-1 rung base model inherit reason role-model samples 1
-route review group-2 rung base model inherit reason role-model samples 1" ]
+[ "$(route review $ARGS)" = "route review group-1 rung base model inherit effort high reason role-model samples 1
+route review group-2 rung base model inherit effort high reason role-model samples 1" ]
 rm -f "$ctx/shards.txt"
 
 # The gap pass runs after any sharded review; otherwise double_review decides.
@@ -133,30 +151,40 @@ probes ''
 [ "$(route gap $ARGS double=off)" = "route gap all skip reason double-review-off" ]
 [ "$(route gap $ARGS double=risky)" = "route gap all skip reason no-risk-signal" ]
 probes 'sensitive'
-[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit reason follows-reviewer" ]
+[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
 probes 'automation'
-[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit reason follows-reviewer" ]
+[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
 probes ''
 printf 'group 1 lines 9 files 001\n' >"$ctx/shards.txt"
-[ "$(route gap $ARGS double=off)" = "route gap all rung base model inherit reason follows-reviewer" ]
+[ "$(route gap $ARGS double=off)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
 rm -f "$ctx/shards.txt"
 
 # The filter is skipped when it is off; review lines carry the sample count.
 [ "$(route filter $ARGS filter=false)" = "route filter all skip reason filter-off" ]
 classify code 50 50
-[ "$(route review $ARGS samples=3)" = "route review all rung base model inherit reason role-model samples 3" ]
+[ "$(route review $ARGS samples=3)" = "route review all rung base model inherit effort high reason role-model samples 3" ]
+
+# The verifier drops a level only when every finding it judges is settled by
+# execution or a proven suggestion.
+printf 'id: F020\nstatus: addressed\nseverity: minor\npath: src/a.py\n---\nbody\n```suggestion\nx\n```\n' >"$dir/findings/F020"
+printf 'id: F021\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\nCheck: make check -k a\nResolution: x.\n' >"$dir/findings/F021"
+printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\nResolution: x.\n' >"$dir/findings/F022"
+[ "$(route verify routing=auto verifier=inherit 'check=make check' -- F020 F021)" = "route verify all rung base model inherit effort low reason role-model" ]
+[ "$(route verify $ARGS 'check=make check' -- F020 F022)" = "route verify all rung base model sonnet effort medium reason role-model" ]
+[ "$(route verify $ARGS -- F021)" = "route verify all rung base model sonnet effort medium reason role-model" ]
+[ "$(route verify routing=fixed -- F020)" = "route verify all rung base model sonnet effort medium reason role-model" ]
 
 # Arbitration takes the strong model, else the reviewer's.
-[ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus reason arbitration" ]
-[ "$(route arbitrate routing=auto reviewer=inherit)" = "route arbitrate all rung base model inherit reason no-strong-model" ]
+[ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus effort high reason arbitration" ]
+[ "$(route arbitrate routing=auto reviewer=inherit)" = "route arbitrate all rung base model inherit effort high reason no-strong-model" ]
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 45 ]
-[ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet reason docs-only-small samples 1" ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 55 ]
+[ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.
-for bad in "wat" "review routing=sometimes" "edit $ARGS" "edit $ARGS -- F999"; do
+for bad in "wat" "review routing=sometimes" "edit $ARGS" "edit $ARGS -- F999" "verify $ARGS" "verify $ARGS -- F999"; do
 	if route $bad 2>"$SCRATCH/err"; then
 		echo "expected refusal of: $bad" >&2
 		exit 1

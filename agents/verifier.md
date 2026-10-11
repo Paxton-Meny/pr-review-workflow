@@ -2,7 +2,7 @@
 name: verifier
 description: Verifies that addressed review findings satisfy their Resolution lines, resolving their threads or reopening them with what remains. Returns counts only.
 model: sonnet
-effort: low
+effort: medium
 tools: Read, Grep, Glob, Bash
 maxTurns: 40
 omitClaudeMd: true

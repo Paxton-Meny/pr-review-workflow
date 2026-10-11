@@ -634,7 +634,7 @@
 </div>
 </div>
 <p class="note">Routing decides per unit of work, not per pull request: a sharded review is judged group by group on each group&#8217;s own files, and a first editing round splits into a mechanical batch and the rest when each holds at least two findings. The gap pass takes the highest rung any group used.</p>
-<p class="note">Each role also runs at a fixed reasoning effort set in its agent definition, whatever your session&#8217;s level: the reviewer and the arbiter high, the editor medium, the verifier and the filter low. Finding defects is where thinking pays; checking a fix against a stated contract is a narrow question.</p>
+<p class="note">Each role also gets a reasoning effort, whatever your session&#8217;s level. It starts where the agent definition puts it (the reviewer and the arbiter high, the editor and the verifier medium, the filter low) and moves one level for each signal: up for a wide search, such as large code, a shard on a seam, or a fix that failed before, and up for high stakes; down where a later step checks the work, such as a proven <a class="term" href="#g-suggestion">suggestion</a> or a Check line that executes, and for a small docs or config review. The <a href="#cost-posture">economy posture</a> caps it at high, the others at xhigh. Fixed routing keeps each role&#8217;s own level.</p>
 <h4 class="display" id="model-overrides">Whether those choices can be overridden</h4>
 <div class="card">
 <div class="setting" id="model-routing" data-key="model_routing" data-project="never" data-default="auto" data-options="auto fixed">
@@ -754,7 +754,7 @@
 <div><dt>ACCEPTS</dt><dd>quality | balanced | economy</dd></div>
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
 </dl>
-<p class="lead">When a round of fixes begins, each open finding starts on a rung of the ladder. This setting decides how readily a fix may start on the cheap model. It only moves the starting rung: a fix that fails climbs one rung whatever the posture, and some findings never start cheap at all.</p>
+<p class="lead">When a round of fixes begins, each open finding starts on a rung of the ladder. This setting decides how readily a fix may start on the cheap model. For models it moves only the starting rung: a fix that fails climbs one rung whatever the posture, and some findings never start cheap at all. Economy also caps every routed reasoning effort at high.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">If you set it to</span>

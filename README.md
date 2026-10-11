@@ -40,6 +40,8 @@ the thresholds can be tuned from the stats ledger.
   handles a token itself.
 - A local clone of the repository whose pull request you are reviewing; the
   skill runs from inside it.
+- Claude Code 2.1.292 or later, the first version that lets a skill set
+  each subagent's reasoning effort.
 
 Nothing else. The plugin has no runtime dependencies, no build step, and
 nothing to install beyond itself.
@@ -183,11 +185,20 @@ configured runs on every round.
 
 ### Cost notes
 
-- Each agent runs at a fixed reasoning effort set in its definition,
-  independent of your session's level: the reviewer and the arbiter
-  high, the editor medium, the verifier and the filter low. Finding
-  defects is where thinking pays; checking a fix against a stated
-  contract is a narrow question.
+- Reasoning effort is routed beside the model, independent of your
+  session's level. Each agent starts at its definition's level (the
+  reviewer and the arbiter high, the editor and the verifier medium,
+  the filter low) and moves one level per signal: up for a wide
+  search (large code, a shard on a seam, an earlier failed attempt)
+  or high stakes (a risk probe, a blocker or security finding), down
+  where a later step checks the work (a proven suggestion, a Check
+  line that executes) or for a small docs or config review. The
+  economy posture caps it at high, the others at xhigh, and fixed
+  routing keeps each agent's own level. Adaptive reasoning already
+  spends thought where a step is hard, so these moves stay coarse.
+- `CLAUDE_CODE_EFFORT_LEVEL` outranks every per-spawn effort and so
+  defeats effort routing; route lines record it as `pinned`. The
+  `maxEffortLevel` setting caps every routed level without saying so.
 - Subagent requests cache with a five-minute lifetime on every billing
   method (the main conversation gets an hour on a subscription). The
   `subagentPromptCacheTtl` setting raises it, at a higher write rate.

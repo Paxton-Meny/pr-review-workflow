@@ -91,7 +91,7 @@ instead).
 
 Later steps may append notes below the body: a reopen note stating what
 still fails, a wont-fix justification, or a `Route:` line recording the
-round, rung, model, and reason of each editing attempt, which the
+round, rung, model, effort, and reason of each editing attempt, which the
 router reads to climb after a failed one. Notes accumulate; nothing in
 a body is ever rewritten.
 
