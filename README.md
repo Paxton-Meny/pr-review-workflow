@@ -187,16 +187,16 @@ configured runs on every round.
 
 - Reasoning effort is routed beside the model, independent of your
   session's level. Each agent starts at its definition's level (the
-  reviewer and the arbiter high, the editor and the verifier medium,
-  the filter low) and moves one level per signal: up for a wide
-  search (large code unless a stronger model takes it, a shard on a
-  seam, an earlier failed attempt) or high stakes (a secrets,
-  automation, or sensitive probe on a review; a blocker, a security
-  finding, or a flagged file on a fix), down where a
-  later step checks the work (an editor's minor or nit fix carried by
-  a proven suggestion, a verified finding that a Check line or proven
-  suggestion settles) or for a small docs or config review. A batch
-  or a verified round runs at its highest finding's level. The
+  reviewer high, the editor and the verifier medium, the filter low;
+  arbitration runs the verifier at high) and moves one level per
+  signal: up for a wide search (large code unless a stronger model
+  takes it, a shard on a seam, an earlier failed attempt) or high
+  stakes (a secrets, automation, or sensitive probe on a review; a
+  blocker, a security finding, or a flagged file on a fix), down where
+  a later step checks the work (an editor's minor or nit fix carried
+  by a proven suggestion, a verified finding that a Check line or
+  proven suggestion settles) or for a small docs or config review. A
+  batch or a verified round runs at its highest finding's level. The
   economy posture caps it at high, the others at xhigh, and fixed
   routing keeps each agent's own level. Adaptive reasoning already
   spends thought where a step is hard, so these moves stay coarse.
@@ -282,7 +282,7 @@ every change goes through.
 - `skills/review-pr/`: the orchestrating skill.
 - `skills/status/`: read-only view of recorded runs and their statistics.
 - `skills/finding-records/`: the finding record format, preloaded into the agents.
-- `agents/`: reviewer, filter, editor, verifier, and arbiter definitions.
+- `agents/`: reviewer, filter, editor, and verifier definitions.
 - `hooks/`: the check that runs before Claude starts a review itself.
 - `scripts/`: POSIX sh, one proven step each.
 - `tests/`: offline suite with a stubbed GitHub CLI.

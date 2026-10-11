@@ -295,7 +295,7 @@ PRWF_SETTINGS_END
       A `skip` line (fixed routing) means stop the loop and treat it
       as non-convergence. Otherwise arbitrate once first, because
       repeated reopens sometimes mean the cheap verifier is wrong
-      rather than the editor: spawn `pr-review-workflow:arbiter` with
+      rather than the editor: spawn `pr-review-workflow:verifier` with
       the line's `model` (the strong model when set, else reviewer_model, passed
       explicitly even when it is `inherit` so the arbitration runs on
       the session model, never the agent's default) and `effort` and
