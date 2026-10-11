@@ -186,6 +186,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   effort on the strong model, else the reviewer's, so its Arbitration
   section stays the one copy of that procedure. Needs Claude Code
   2.1.292 or later.
+- Run statistics count route lines per effort level and pinned
+  lines, and each finding retried after a failed attempt by what the
+  retry changed, the model or only the effort, and whether it ended
+  verified. The status skill's report sums both, so the choice
+  between a stronger model and more effort can be settled from
+  recorded runs.
 - A settings reference page on the site: every setting explained in
   plain terms, with a switch on each entry showing what each value
   changes on a pull request, when to choose it, how the five model
