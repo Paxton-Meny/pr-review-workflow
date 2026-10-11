@@ -12,6 +12,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   longer fails: the ids were read as octal by the shell's arithmetic,
   so every save after the eighth finding stopped the run. Leading
   zeros are now stripped before the next id is computed.
+- An arbitration that upholds a reopen no longer fails on an illegal
+  open-to-open transition: the finding is already open, so it gets the
+  note and the thread reply and keeps its status. Only open findings
+  are sent to arbitration, so one verified after three reopens is no
+  longer judged again.
 - A round whose every finding the precision filter demoted now posts
   its summary comment. Before, nothing posted and the demoted findings
   never reached the pull request.
