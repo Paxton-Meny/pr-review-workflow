@@ -82,7 +82,7 @@ function check(k, v,    n) {
 		return n ""
 	}
 	if (opts[k] != "") {
-		if ((" " opts[k] " ") !~ (" " v " ")) { err = "not one of: " opts[k]; return "" }
+		if (v ~ /[ \t]/ || index(" " opts[k] " ", " " v " ") == 0) { err = "not one of: " opts[k]; return "" }
 		return v
 	}
 	if (v == "" && def[k] != "") { err = "cannot be empty"; return "" }
