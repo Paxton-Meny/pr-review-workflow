@@ -145,7 +145,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   plugin shipping an agent called reviewer, editor, verifier, or
   filter can never be picked up by mistake.
 
-## [0.2.0] - 2026-10-03
+## 0.2.0 - 2026-10-03
 
 ### Fixed
 
@@ -314,7 +314,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The skill frontmatter description is quoted, so strict YAML parsers
   accept it, and stray fence markers in agent prose are plain words now.
 - Thread resolution pages past the first hundred review threads.
-## [0.1.0] - 2026-08-30
+
+## 0.1.0 - 2026-08-30
 
 ### Added
 
@@ -344,5 +345,5 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The review-pr skill: the orchestration loop, context discipline, the
   merge gate with the auto-approve setting, and resume from the ledger.
 
-[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/Paxton-Meny/pr-review-workflow/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Paxton-Meny/pr-review-workflow/releases/tag/v0.2.1
