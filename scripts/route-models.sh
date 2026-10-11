@@ -338,7 +338,7 @@ high_stakes() {
 	grep -q '^severity: blocker$' "$1" && return 0
 	grep -q '^category: security$' "$1" && return 0
 	path=$(sed -n 's/^path: //p' "$1")
-	[ -f "$ctx/probe-files.txt" ] && grep -Eq "^(secrets|sensitive)	$path\$" "$ctx/probe-files.txt"
+	[ -f "$ctx/probe-files.txt" ] && grep -Fqx -e "secrets	$path" -e "sensitive	$path" "$ctx/probe-files.txt"
 }
 
 mechanical() {

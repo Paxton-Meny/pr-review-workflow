@@ -117,6 +117,12 @@ if route edit $ARGS posture=cheapest round=1 -- F001 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown posture" >&2
 	exit 1
 fi
+# A flagged path is matched literally, whatever characters it holds.
+for p in 'app/(auth)/login/route.ts' 'src/routes/+page.server.ts' 'pages/api/[id].ts'; do
+	printf 'sensitive\t%s\n' "$p" >"$ctx/probe-files.txt"
+	printf 'id: F014\nstatus: open\nseverity: major\ncategory: correctness\npath: %s\n---\nbody\n' "$p" >"$dir/findings/F014"
+	[ "$(route edit $ARGS posture=economy 'check=make check' round=1 -- F014)" = "route edit all rung base model inherit effort high reason stakes-floor ids F014" ]
+done
 rm -f "$ctx/probe-files.txt"
 
 # A mixed round splits into a mechanical batch first and the rest, when both hold two findings.
@@ -180,7 +186,7 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 55 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 58 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.
