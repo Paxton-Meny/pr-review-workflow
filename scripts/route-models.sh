@@ -19,9 +19,9 @@
 # orchestrator passes as overrides, "inherit" included:
 #   route <stage> <unit> rung <rung> model <model> effort <level>[ pinned <value>] reason <reason>[ ids ...]
 # Effort starts at the level the role's agent definition declares and
-# moves one level for each signal: up for a wide search (large code, a
-# shard group on a seam, a gap pass over seams, each earlier attempt at
-# a finding), up for stakes (a secrets, automation, or sensitive probe,
+# moves one level for each signal: up for a wide search (large code
+# when no strong model takes it, a shard group on a seam, a gap pass
+# over seams, each earlier attempt at a finding), up for stakes (a secrets, automation, or sensitive probe,
 # a blocker or security finding), down where a later step checks the
 # work (a minor or nit fix carried by a proven suggestion for the
 # editor, an executable Check line or proven suggestion for the
@@ -297,7 +297,9 @@ review_rung() {
 	echo "base role-model"
 }
 
-# The reviewer's effort for one unit of the change.
+# The reviewer's effort for one unit of the change. Size climbs the
+# model when a strong one is set and the effort only when none is, so
+# one signal is never paid for twice; stakes climb both.
 review_effort() {
 	# review_effort <kind> <lines> <code_lines> <slugs> [group]
 	steps=0
@@ -306,7 +308,7 @@ review_effort() {
 		[ "${2:-0}" -lt "$SMALL_LINES" ] && ! has_slug "$RISK_SLUGS" "$4" && steps=-1
 		;;
 	esac
-	if { [ "$1" = code ] && [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; } || on_seam "${5:-}"; then
+	if { [ -z "$strong" ] && [ "$1" = code ] && [ "${3:-0}" -gt "$LARGE_CODE_LINES" ]; } || on_seam "${5:-}"; then
 		steps=$((steps + 1))
 	fi
 	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))

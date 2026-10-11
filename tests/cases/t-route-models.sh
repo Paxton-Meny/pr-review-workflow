@@ -31,7 +31,7 @@ probes 'deps'
 classify code 1200 950
 probes 'added'
 [ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
-[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus effort xhigh reason large-code samples 1" ]
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
 [ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus effort xhigh reason follows-reviewer" ]
 
 # Size counts code lines only: 1,200 lines of mostly tests is not large code.
