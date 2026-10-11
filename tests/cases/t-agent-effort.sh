@@ -50,5 +50,5 @@ awk '
 # that it is routed and passes both overrides.
 grep -A4 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q 'with its `model` and'
 grep -A5 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q '`effort`'
-grep -B6 'Arbitrate the repeatedly reopened findings' "$REPO_ROOT/skills/review-pr/SKILL.md" |
-	grep -q 'spawn `pr-review-workflow:verifier`'
+grep -B9 'Arbitrate the repeatedly reopened findings' "$REPO_ROOT/skills/review-pr/SKILL.md" |
+	grep -q 'spawning `pr-review-workflow:verifier`'
