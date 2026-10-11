@@ -1,5 +1,5 @@
 #!/bin/sh
-# Summarize the stats ledger: outcomes, rounds, finding totals, routes.
+# Summarize the stats ledger: outcomes, rounds, finding totals, routes, effort.
 # Usage: sh scripts/stats-report.sh <data-root>
 set -eu
 
@@ -21,6 +21,8 @@ awk '
 	wontfix += v["wont-fix"]; demoted += v["demoted"]
 	contracts += v["contracts"]; seams += v["seams"]
 	cheap += v["cheap"]; base += v["base"]; strong += v["strong"]; wanted += v["strong_wanted"]; esc += v["escalations"]
+	elow += v["effort_low"]; emed += v["effort_medium"]; ehigh += v["effort_high"]; exhigh += v["effort_xhigh"]; pinned += v["pinned"]
+	mc += v["model_climbs"]; mcv += v["model_climbs_verified"]; ec += v["effort_climbs"]; ecv += v["effort_climbs_verified"]
 	if (v["reopens"] + 0 > 0) reopened++
 	delete v
 }
@@ -33,5 +35,9 @@ END {
 		findings, verified, wontfix, demoted, contracts, seams
 	printf "stats-report: routes cheap %d base %d strong %d strong-wanted %d escalations %d\n", \
 		cheap, base, strong, wanted, esc
+	printf "stats-report: effort low %d medium %d high %d xhigh %d pinned %d\n", \
+		elow, emed, ehigh, exhigh, pinned
+	printf "stats-report: retries model %d model-verified %d effort %d effort-verified %d\n", \
+		mc, mcv, ec, ecv
 }
 ' "$stats"
