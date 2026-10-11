@@ -40,7 +40,7 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 14 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 15 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
@@ -56,6 +56,7 @@
 <div class="side-group">
 <div class="side-head">REVIEW DEPTH</div>
 <a href="#double-review" data-words="double_review gap pass">Second review pass</a>
+<a href="#sensitive-paths" data-words="sensitive_paths auth payments risky">Sensitive paths</a>
 <a href="#finding-filter" data-words="finding_filter demote summary">Precision filter</a>
 <a href="#review-samples" data-words="review_samples support cost">Review samples</a>
 </div>
@@ -83,7 +84,7 @@
 <div class="intro">
 <div class="kicker">Settings reference</div>
 <h1 class="display">What each setting changes</h1>
-<p>Fourteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
+<p>Fifteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
 </div>
 
 <div id="merging">
@@ -352,6 +353,63 @@
 </dl>
 </div>
 <p class="works"><b>Works with</b> &#183; <a href="#review-samples">Review samples</a>, <a href="#strong-model">Strong model</a></p>
+</section>
+
+<section class="entry" id="sensitive-paths" data-key="sensitive_paths" data-default="">
+<h3 class="display">Sensitive paths</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>sensitive_paths</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">empty</dd></div>
+<div><dt>ACCEPTS</dt><dd>file patterns, separated by spaces</dd></div>
+</dl>
+<p class="lead">Name the parts of the repository where a defect costs most: authentication, payments, database migrations. A change that touches one is treated as high stakes, even when nothing in the changed lines looks risky to the <a class="term" href="#g-probe">probes</a>.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">For example, set it to</span>
+<div class="seg" role="group" aria-label="Sensitive paths example">
+<button type="button" data-set="empty" aria-pressed="true">empty <span class="badge">DEFAULT</span></button>
+<button type="button" class="mono" data-set="set" aria-pressed="false">src/auth/** migrations/*.sql</button>
+</div>
+</div>
+<div class="unit-body">
+<p class="note">A pull request changes one line in <code>src/auth/session.py</code>, with no keyword the probes look for.</p>
+<div class="rows">
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">The reviewer may climb</div>
+<div class="row-s" data-show="empty">Routed on size and probes alone: the reviewer model.</div>
+<div class="row-s" data-show="set" hidden>Treated like a sensitive surface: the strong model, when one is set.</div>
+</div>
+</div>
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">No fix there starts cheap</div>
+<div class="row-s" data-show="empty">A minor finding with a proven suggestion may start on the cheap model.</div>
+<div class="row-s" data-show="set" hidden>Every fix in the file starts on the editor model at least, whatever the <a href="#cost-posture">cost posture</a>.</div>
+</div>
+</div>
+<div class="row" data-on="set">
+<span class="row-i"><span data-show="set" hidden><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span data-show="empty"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
+<div class="row-b">
+<div class="row-t">The second review pass runs</div>
+<div class="row-s" data-show="empty">Under the risky setting, only when the probes flag a secret, a CI change, or sensitive code.</div>
+<div class="row-s" data-show="set" hidden>Under the risky setting, a declared path counts as a risk signal.</div>
+</div>
+</div>
+</div>
+<p class="note">A <code>*</code> matches any run of characters, slashes included, so <code>src/auth/**</code> and <code>src/auth/*</code> both cover everything under that folder. A project&#8217;s shared settings file adds its patterns to yours; it never removes them.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>empty <span class="badge">DEFAULT</span></dt><dd>The probes&#8217; keyword checks are enough, or nothing in the repository is riskier than the rest.</dd></div>
+<div><dt>patterns</dt><dd>Some directories hold code where a missed defect is expensive and whose changes do not always look dangerous line by line.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#double-review">Second review pass</a>, <a href="#strong-model">Strong model</a>, <a href="#cost-posture">Cost posture</a></p>
 </section>
 
 <section class="entry" id="finding-filter" data-key="finding_filter" data-default="true">
