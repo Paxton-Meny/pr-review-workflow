@@ -29,7 +29,7 @@
 # small docs or config with no risk. A batch or a verified round runs
 # at its highest finding's level. The economy posture caps effort at
 # high, the others at xhigh; max is never routed. Fixed routing keeps
-# every role's own level. A set CLAUDE_CODE_EFFORT_LEVEL outranks every
+# every role's own level, under the same cap. A set CLAUDE_CODE_EFFORT_LEVEL outranks every
 # override, so the line and each Route note record it as pinned.
 # A sharded review gets one line per group, judged on that group's own
 # files: it climbs for large or sensitive code when a strong model is
@@ -199,9 +199,10 @@ role_effort() {
 }
 
 moved() {
-	# moved <base level> <signed steps>: the base unless routing is fixed
+	# moved <base level> <signed steps>: no steps when routing is fixed,
+	# and capped either way
 	if [ "$routing" = fixed ]; then
-		echo "$1"
+		level_at "$(level_rank "$1")"
 	else
 		level_at $(($(level_rank "$1") + $2))
 	fi
@@ -506,7 +507,7 @@ gap)
 	effort=$(highest "$base $(sed -n 's/^route review .* effort \([a-z]*\) .*/\1/p' "$ctx/routes.txt" 2>/dev/null)")
 	[ -s "$ctx/seams.txt" ] && effort=$(highest "$effort $(moved "$base" 1)")
 	effort=$(moved "$effort" 0)
-	[ "$routing" = fixed ] && effort=$base
+	[ "$routing" = fixed ] && effort=$(moved "$base" 0)
 	emit all "$rung" "$(model_for "$rung" "$reviewer")" "$effort" "$reason"
 	;;
 filter)
