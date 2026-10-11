@@ -1,22 +1,42 @@
 #!/bin/sh
 # Plan reviewer shards: cluster coupled files, balance groups, name seams.
-# Usage: sh scripts/shard-plan.sh <state-dir> <max-groups> <shard-lines>
+# Usage: sh scripts/shard-plan.sh <state-dir> [max-groups] [shard-lines]
 #
 # Files whose added lines mention another changed file's name stem are
 # clustered together, clusters are packed into line-balanced groups in
 # diff order, and any coupling that still crosses a group boundary is
 # recorded in seams.txt for the gap pass. The plan persists in
-# shards.txt, so a resumed run shards identically.
+# shards.txt, so a resumed run shards identically. Max-groups defaults
+# to 4. Shard-lines defaults to the run's cost posture (economy 2250,
+# balanced 1500, quality 1000, read from the resolved settings when
+# there are any), so a cheaper run keeps one reviewer, and so skips the
+# gap pass a sharded review always gets, up to a larger change, and a
+# more thorough run puts a second reader on a smaller one. A change
+# under the limit is one group and no shards.txt: it is not a sharded
+# review. The result line names the limit used.
 set -eu
 
-dir=${1:?usage: shard-plan.sh <state-dir> <max-groups> <shard-lines>}
-maxg=${2:?usage: shard-plan.sh <state-dir> <max-groups> <shard-lines>}
-tl=${3:?usage: shard-plan.sh <state-dir> <max-groups> <shard-lines>}
+dir=${1:?usage: shard-plan.sh <state-dir> [max-groups] [shard-lines]}
+maxg=${2:-4}
+tl=${3:-}
 ctx="$dir/pr-context"
 [ -f "$ctx/diff-index.txt" ] && [ -s "$ctx/diff-index.txt" ] || {
 	echo "shard-plan: no diff-index.txt in $ctx, run fetch-pr.sh first" >&2
 	exit 1
 }
+if [ -z "$tl" ]; then
+	posture=balanced
+	[ -f "$dir/settings.txt" ] && posture=$(sh "$(dirname "$0")/setting.sh" "$dir" cost_posture)
+	case "$posture" in
+	economy) tl=2250 ;;
+	balanced) tl=1500 ;;
+	quality) tl=1000 ;;
+	*)
+		echo "shard-plan: posture must be quality, balanced, or economy: $posture" >&2
+		exit 1
+		;;
+	esac
+fi
 case "$maxg$tl" in
 *[!0-9]*)
 	echo "shard-plan: max-groups and shard-lines must be numbers" >&2
@@ -31,7 +51,7 @@ while IFS='	' read -r n _p; do
 	set -- "$@" "$ctx/files/$n.diff"
 done <"$ctx/diff-index.txt"
 
-awk -v idx="$ctx/diff-index.txt" -v cnt="$ctx/files.txt" \
+plan=$(awk -v idx="$ctx/diff-index.txt" -v cnt="$ctx/files.txt" \
 	-v maxg="$maxg" -v tl="$tl" \
 	-v shards="$ctx/shards.txt" -v seams="$ctx/seams.txt" '
 function find(x) { while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x] } return x }
@@ -118,6 +138,10 @@ END {
 					path[i], path[j], fg[i], fg[j], edge[i, j] > seams
 			}
 	if (scount > 0) close(seams)
-	printf "shard-plan: groups %d seams %d\n", gcount, scount
+	printf "%d %d\n", gcount, scount
 }
-' "$@"
+' "$@")
+groups=${plan%% *}
+seams=${plan##* }
+[ "$groups" -gt 1 ] || rm -f "$ctx/shards.txt"
+echo "shard-plan: groups $groups seams $seams limit $tl"

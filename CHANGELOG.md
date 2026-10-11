@@ -232,6 +232,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   climbs the reviewer to the strong model whatever the kind of file,
   so a token in a configuration file or a workflow edit is routed like
   one in code.
+- The shard limit follows the cost posture: a change splits into
+  parallel reviewer shards over 2,250 changed lines under economy,
+  1,500 under balanced, and 1,000 under quality, so economy keeps one
+  reviewer, and skips the gap pass a sharded review always gets, up to
+  a larger change, and quality puts a second reader on a smaller one.
+  The planner reads the limit from the run's settings and names it in
+  its result, a change under the limit leaves no plan file, and the
+  skill no longer holds the number.
 - A round's summary comment now posts before its inline findings, so
   the pull request's conversation opens on the overview.
 - The README leads with a restrained badge row (release, license,
