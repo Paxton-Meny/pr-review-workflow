@@ -23,10 +23,10 @@
 # shard group on a seam, a gap pass over seams, each earlier attempt at
 # a finding), up for stakes (a secrets, automation, or sensitive probe,
 # a blocker or security finding), down where a later step checks the
-# work (a proven suggestion for the editor, an executable Check line or
-# proven suggestion on every finding the verifier judges) or the review
-# is small docs or config with no risk. A batch runs at its highest
-# finding's level. The economy posture caps effort at high, the others
+# work (a minor or nit fix carried by a proven suggestion for the
+# editor, an executable Check line or proven suggestion for the
+# verifier) or the review is small docs or config with no risk. A batch
+# or a verified round runs at its highest finding's level. The economy posture caps effort at high, the others
 # at xhigh; max is never routed. Fixed routing keeps every role's own
 # level. A set CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the
 # line records it as pinned.
@@ -514,7 +514,8 @@ filter)
 	emit all base "$verifier" "$(moved "$filter_effort" 0)" role-model
 	;;
 verify)
-	# One level down when execution or a proven suggestion settles every finding.
+	# Each finding one level down when execution or a proven suggestion
+	# settles it and one up for stakes; the round takes the highest.
 	[ "$listed" -eq 1 ] || {
 		echo "route-models: the verify stage needs the addressed finding ids after --" >&2
 		exit 1
@@ -523,15 +524,19 @@ verify)
 		skip nothing-addressed
 		exit 0
 	fi
-	steps=-1
+	efforts=''
 	for id in $ids; do
-		[ -f "$dir/findings/$id" ] || {
+		record="$dir/findings/$id"
+		[ -f "$record" ] || {
 			echo "route-models: unknown finding: $id" >&2
 			exit 1
 		}
-		grep -q '^```suggestion$' "$dir/findings/$id" || contract_runs "$id" || steps=0
+		steps=0
+		{ grep -q '^```suggestion$' "$record" || contract_runs "$id"; } && steps=-1
+		high_stakes "$record" && steps=$((steps + 1))
+		efforts="$efforts $(moved "$verifier_effort" "$steps")"
 	done
-	emit all base "$verifier" "$(moved "$verifier_effort" "$steps")" role-model
+	emit all base "$verifier" "$(highest "$efforts")" role-model
 	;;
 edit)
 	[ -n "$ids" ] || {

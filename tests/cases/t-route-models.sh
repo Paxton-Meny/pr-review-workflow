@@ -176,7 +176,7 @@ classify code 50 50
 [ "$(route review $ARGS samples=3)" = "route review all rung base model inherit effort high reason role-model samples 3" ]
 
 # The verifier drops a level only when every finding it judges is settled by
-# execution or a proven suggestion.
+# execution or a proven suggestion, and climbs one for a finding's stakes.
 printf 'id: F020\nstatus: addressed\nseverity: minor\npath: src/a.py\n---\nbody\n```suggestion\nx\n```\n' >"$dir/findings/F020"
 printf 'id: F021\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\nCheck: make check -k a\nResolution: x.\n' >"$dir/findings/F021"
 printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\nResolution: x.\n' >"$dir/findings/F022"
@@ -186,6 +186,11 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(route verify $ARGS 'prefixes=make check' -- F021)" = "route verify all rung base model sonnet effort low reason role-model" ]
 [ "$(route verify routing=fixed -- F020)" = "route verify all rung base model sonnet effort medium reason role-model" ]
 [ "$(route verify $ARGS --)" = "route verify all skip reason nothing-addressed" ]
+printf 'id: F023\nstatus: addressed\nseverity: major\ncategory: security\npath: src/a.py\n---\nbody\nResolution: x.\n' >"$dir/findings/F023"
+printf 'id: F024\nstatus: addressed\nseverity: blocker\npath: src/a.py\n---\nbody\nCheck: make check -k a\nResolution: x.\n' >"$dir/findings/F024"
+[ "$(route verify $ARGS -- F020 F023)" = "route verify all rung base model sonnet effort high reason role-model" ]
+[ "$(route verify $ARGS 'check=make check' -- F020 F024)" = "route verify all rung base model sonnet effort medium reason role-model" ]
+[ "$(route verify $ARGS posture=economy -- F023)" = "route verify all rung base model sonnet effort high reason role-model" ]
 
 # Arbitration takes the strong model, else the reviewer's.
 [ "$(route arbitrate routing=auto reviewer=inherit strong=opus)" = "route arbitrate all rung strong model opus effort high reason arbitration" ]
@@ -193,7 +198,7 @@ printf 'id: F022\nstatus: addressed\nseverity: major\npath: src/a.py\n---\nbody\
 [ "$(route arbitrate routing=fixed strong=opus)" = "route arbitrate all skip reason fixed-routing" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 62 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 65 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
