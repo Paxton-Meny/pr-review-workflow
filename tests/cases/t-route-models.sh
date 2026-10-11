@@ -212,6 +212,8 @@ sed 's/^effort: high$/effort: xhigh/' "$REPO_ROOT/agents/reviewer.md" >"$SCRATCH
 rm -f "$ctx/shards.txt"
 probes 'sensitive'
 [ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$dir" gap $ARGS posture=economy double=risky)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
+[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$dir" filter routing=fixed posture=economy)" = "route filter all rung base model sonnet effort high reason role-model" ]
+[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$dir" review routing=fixed posture=economy)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
 
 # A definition at a level routing does not use stops every stage before it
 # prints a line, rather than routing the bottom level.
