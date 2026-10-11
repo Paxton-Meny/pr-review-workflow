@@ -53,6 +53,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- The settings reference explains where settings come from: the five
+  sources and their order, the file format, that the project file
+  may be committed for the team or kept out of version control as
+  your own, what a committed one may set and why, and a team setup
+  that never asks you to commit Claude Code's own settings. Every entry shows what the
+  shared file may do with it, and a test holds those markers to the
+  resolver's own lists.
 - A `sensitive_paths` setting: globs for files where a defect costs
   most. A change touching one counts as a sensitive probe hit, so the
   reviewer may climb to the strong model, no fix there starts cheap,

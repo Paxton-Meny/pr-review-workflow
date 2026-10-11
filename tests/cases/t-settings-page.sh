@@ -90,3 +90,25 @@ if grep -qE 'innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new F
 	exit 1
 fi
 grep -q "'use strict';" "$script"
+
+# What the page says a project's shared file may do matches the resolver.
+resolver="$REPO_ROOT/scripts/resolve-settings.sh"
+list() { sed -n "s/^PROJECT_$1='\(.*\)'\$/\1/p" "$resolver"; }
+: >"$SCRATCH/classes.txt"
+for cls in NEVER RAISE TRUSTED ADDS; do
+	for key in $(list "$cls"); do
+		printf '%s %s\n' "$key" "$(printf '%s' "$cls" | tr 'A-Z' 'a-z')" >>"$SCRATCH/classes.txt"
+	done
+done
+[ "$(awk 'END { print NR }' "$SCRATCH/classes.txt")" -eq "$count" ] || {
+	echo "every manifest setting must be in exactly one of the resolver's PROJECT_ lists" >&2
+	exit 1
+}
+[ "$(cut -d' ' -f1 "$SCRATCH/classes.txt" | sort -u | awk 'END { print NR }')" -eq "$count" ]
+while read -r key cls; do
+	line=$(grep " data-key=\"$key\"" "$page")
+	[ "$(attr "$line" data-project)" = "$cls" ] || {
+		echo "$key: the page says a project file may '$(attr "$line" data-project)', the resolver says '$cls'" >&2
+		exit 1
+	}
+done <"$SCRATCH/classes.txt"

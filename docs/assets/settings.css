@@ -175,6 +175,14 @@ h1{margin:0;font-size:clamp(32px,4.4vw,42px);line-height:1.1;font-weight:700}
 .ladder td:nth-child(3){background:var(--bg)}
 .ladder .pill{margin-bottom:6px}
 .ladder .never{font-size:13.5px;color:var(--soft)}
+pre.file{margin:0;padding:18px 20px;font:13px/1.7 ui-monospace,'SF Mono',Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
+pre.file code{background:none;padding:0;font-size:13px;font-weight:400;white-space:inherit}
+.ladder.trust{min-width:620px}
+.ladder.trust th[scope=row]{white-space:normal;width:32%;font-size:14px;line-height:1.45}
+.ladder.trust td:nth-child(2){width:22%}
+.ladder.trust td{font-size:13.5px;color:var(--muted)}
+.ladder.trust td b{color:var(--ink)}
+.ladder.trust td:nth-child(3){background:none}
 .pill{display:inline-block;font:700 12.5px/1 ui-monospace,'SF Mono',Menlo,Consolas,monospace;background:var(--panel);color:var(--ink);padding:7px 10px;border-radius:999px;white-space:nowrap}
 .pill-low{background:var(--teal-bg);color:var(--teal-ink)}
 .pill-high{background:var(--accent-bg);color:var(--accent-ink)}
