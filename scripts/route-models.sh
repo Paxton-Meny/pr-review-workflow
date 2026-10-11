@@ -55,6 +55,7 @@ RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
 posture=balanced check='' prefixes=''
+double=risky filter=true samples=1
 ids=''
 # The run's resolved settings come first; key=value arguments override
 # them, which is how the tests drive every branch.
@@ -68,6 +69,9 @@ if [ -f "$dir/settings.txt" ]; then
 	posture=$(get cost_posture)
 	check=$(get check_command)
 	prefixes=$(get contract_commands)
+	double=$(get double_review)
+	filter=$(get finding_filter)
+	samples=$(get review_samples)
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -89,6 +93,9 @@ while [ $# -gt 0 ]; do
 		posture) posture=${value:-balanced} ;;
 		check) check=$value ;;
 		prefixes) prefixes=$value ;;
+		double) double=${value:-risky} ;;
+		filter) filter=${value:-true} ;;
+		samples) samples=${value:-1} ;;
 		round) round=${value:-1} ;;
 		*)
 			echo "route-models: unknown key: $key" >&2
@@ -328,14 +335,32 @@ review)
 			gc=${rest%% *}
 			gs=${rest#"$gc"}
 			set -- $(review_rung "$gk" "$gl" "$gc" "$gs")
-			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" "$2"
+			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" "$2 samples $samples"
 		done <"$ctx/shards.txt"
 	else
 		set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
-		emit all "$1" "$(model_for "$1" "$reviewer")" "$2"
+		emit all "$1" "$(model_for "$1" "$reviewer")" "$2 samples $samples"
 	fi
 	;;
 gap)
+	# Whether to run: always after a sharded review, since each shard saw
+	# only its own files; otherwise as double_review says, where risky
+	# means a secrets, automation, or sensitive probe fired.
+	if [ -s "$ctx/shards.txt" ]; then
+		:
+	else
+		case "$double" in
+		always) ;;
+		off) skip_gap=double-review-off ;;
+		*) has_slug "secrets automation sensitive" "$slugs" || skip_gap=no-risk-signal ;;
+		esac
+	fi
+	if [ -n "${skip_gap:-}" ]; then
+		line="route gap all skip reason $skip_gap"
+		printf '%s\n' "$line" >>"$ctx/routes.txt"
+		echo "$line"
+		exit 0
+	fi
 	# The highest rung any review unit used, never below the reviewer's own setting.
 	rung=base reason=follows-reviewer
 	if [ -n "$strong" ] && [ -f "$ctx/routes.txt" ] && grep -q '^route review .* rung strong ' "$ctx/routes.txt"; then
@@ -344,6 +369,12 @@ gap)
 	emit all "$rung" "$(model_for "$rung" "$reviewer")" "$reason"
 	;;
 filter | verify)
+	if [ "$stage" = filter ] && [ "$filter" = false ]; then
+		line="route filter all skip reason filter-off"
+		printf '%s\n' "$line" >>"$ctx/routes.txt"
+		echo "$line"
+		exit 0
+	fi
 	emit all base "$verifier" role-model
 	;;
 edit)
@@ -394,6 +425,12 @@ repair)
 	emit all "$rung" "$model" "$reason" "$ids"
 	;;
 arbitrate)
+	if [ "$routing" = fixed ]; then
+		line="route arbitrate all skip reason fixed-routing"
+		printf '%s\n' "$line" >>"$ctx/routes.txt"
+		echo "$line"
+		exit 0
+	fi
 	if [ -n "$strong" ]; then
 		emit all strong "$strong" arbitration
 	else
