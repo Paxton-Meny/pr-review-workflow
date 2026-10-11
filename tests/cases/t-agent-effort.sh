@@ -56,3 +56,10 @@ grep -B9 'Arbitrate the repeatedly reopened findings' "$REPO_ROOT/skills/review-
 # An arbitration that upholds a reopen changes no status: the finding is
 # already open, and open to open is an illegal transition.
 sed -n '/^## Arbitration$/,/^## /p' "$REPO_ROOT/agents/verifier.md" | grep -q 'change no status'
+
+# The verifier serves both roles, so its Arbitration section makes no
+# claim about which model is running.
+if sed -n '/^## Arbitration$/,/^## /p' "$REPO_ROOT/agents/verifier.md" | grep -qi 'stronger model'; then
+	echo "the verifier's Arbitration section claims a stronger model" >&2
+	exit 1
+fi
