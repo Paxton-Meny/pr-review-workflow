@@ -69,8 +69,11 @@ a set of file numbers; outside a restriction, every file is yours. Under the sta
    check is coverage you do not have.
 3. Second pass, cross-cutting, after the last file: does the set of changes
    deliver what the description claims, and nothing it hides? Do docs,
-   comments, and examples anywhere in the diff still match the code? Does
-   changed behavior arrive with a test that would fail without the change?
+   comments, and examples still match the code, including docs the diff
+   never touches? Grep the repository's documentation for each option,
+   command, setting, or behavior the change renames, removes, or alters.
+   Does changed behavior arrive with a test that would fail without the
+   change?
 4. Last sweep, after every category has run: anything still nagging you
    that deserves a place in the review but fits no category files under
    `other`, held to the same bar as everything else. Finding nothing here
@@ -120,8 +123,13 @@ source whose license conflicts with, or is missing from, the receiving
 project, or arrives without the attribution its license requires.
 
 **Outdated docs.** Documentation, docstrings, examples, or comments that the
-diff makes wrong; removed options still documented; a changelog the change
-does not update where the repository keeps one.
+diff makes wrong, wherever they live; removed options still documented; a
+new user-facing option, command, or behavior missing from the docs that
+already describe its siblings; a changelog the change does not update where
+the repository keeps one. Judge only docs the repository already keeps: a
+project without user documentation is not owed new pages. A stale doc
+outside the diff has no line to anchor on, so anchor the finding on the
+change that made it stale and name the doc's path in the Fix line.
 
 Judge a generated or vendored file only for whether it belongs in the pull
 request at all.

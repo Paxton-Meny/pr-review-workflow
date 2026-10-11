@@ -34,6 +34,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The first comment each review posts ends with one line naming and
   linking the plugin, so readers can see which tool reviewed the pull
   request. Later comments never repeat it.
+- The reviewer checks documentation the diff never touches: it greps
+  the repository's docs for each option, command, or behavior the
+  change alters, and flags a new user-facing option missing from docs
+  that already describe its siblings. A repository without user docs
+  is not owed new pages.
 - An escalation ladder for fixes. Every editing attempt is noted on
   the finding's record with its round, rung, model, and reason; a
   finding attempted and still open climbs one rung above its last
