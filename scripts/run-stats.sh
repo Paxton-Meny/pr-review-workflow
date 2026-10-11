@@ -62,7 +62,15 @@ routes=0 cheap=0 base=0 strong=0 strong_wanted=0 escalations=0
 	escalations=$(grep -c ' reason \(escalated\|gate-failed\|mixed\) ' "$dir/pr-context/routes.txt" || true)
 }
 
+# The highest source any setting came from: run, local, project, or none.
+config=none
+if [ -f "$dir/sources.txt" ]; then
+	for s in project local run; do
+		grep -q " $s\$" "$dir/sources.txt" && config=$s
+	done
+fi
+
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations config $config"
 printf '%s\n' "$line" >>"$root/stats.txt"
 echo "run-stats: $line"

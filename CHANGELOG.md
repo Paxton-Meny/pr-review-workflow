@@ -53,6 +53,25 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   change alters, and flags a new user-facing option missing from docs
   that already describe its siblings. A repository without user docs
   is not owed new pages.
+- Per-project settings. A repository can commit
+  `.claude/pr-review-workflow.conf`, read from the pull request's base
+  branch and never from disk, and you can keep an untracked
+  `.claude/pr-review-workflow.local.conf` in your clone; precedence
+  runs defaults, your configuration, the shared file, your local file,
+  then per-run overrides. The shared file may never set auto-approve,
+  the models, routing, ledgers kept, or local standards; may only
+  raise the second review pass, the precision filter, the cost
+  posture, and review samples; and its check command and contract
+  prefixes apply only after you approve that exact pair, asked once
+  per change on an attended run and ignored on an unattended one.
+  A project file git does not track, because the repository excludes
+  it or it was never added, is yours: read from your clone, free to
+  set anything, and still outranked by your local file. One tracked in
+  your clone but missing from the base branch is refused. A tracked or
+  symlinked local file is refused, an offline run reads the last
+  fetched base, and every refusal is reported. No script reads Claude
+  Code's own settings files. The statistics line records the highest
+  source used.
 - The scripts make every settings-driven decision and print it: the
   router says whether the gap pass, the filter, and arbitration run,
   and how many review samples each group gets; the check baseline is
