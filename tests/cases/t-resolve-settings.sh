@@ -61,6 +61,18 @@ out=$(resolve <"$SCRATCH/user")
 [ "$(value cost_posture)" = economy ]
 printf '%s\n' "$out" | grep -q 'ignored run cost_posture: not one of'
 
+# An option matches exactly, never as a pattern or as several options.
+for bad in 'posture b.lanced' 'posture .*' 'second_review off risky'; do
+	printf '%s\n' "$bad" >"$dir/overrides.txt"
+	out=$(resolve <"$SCRATCH/user")
+	printf '%s\n' "$out" | grep -q 'not one of' || {
+		echo "expected refusal of: $bad" >&2
+		exit 1
+	}
+done
+[ "$(value cost_posture)" = economy ]
+[ "$(value double_review)" = risky ]
+
 # The record is read-only and its hash is kept outside the state directory.
 [ ! -w "$dir/settings.txt" ] || [ "$(id -u)" -eq 0 ]
 [ "$(cat "$data/trust/runs/acme__widgets__7.hash")" = "$(git hash-object "$dir/settings.txt")" ]
