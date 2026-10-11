@@ -7,11 +7,13 @@
 #        sh scripts/resolve-settings.sh <state-dir> --approve <hash>
 #
 # Sources, lowest to highest: the manifest defaults; the user's plugin
-# configuration (stdin, one "key value" line each); the project's shared
-# file .claude/pr-review-workflow.conf, read from origin/<base> and never
-# from disk, so a pull request cannot change how it is reviewed; the
-# user's personal .claude/pr-review-workflow.local.conf, untracked, from
-# the clone; and the per-run overrides init-state recorded. A value
+# configuration (stdin, one "key value" line each); the project file
+# .claude/pr-review-workflow.conf, which is the team's when committed,
+# read from origin/<base> and never from disk so a pull request cannot
+# change how it is reviewed, and the user's own when git does not track
+# it, read from the clone; the user's .claude/pr-review-workflow.local.conf,
+# untracked, from the clone; and the per-run overrides init-state
+# recorded. A value
 # still reading as a literal ${user_config...} placeholder, as on an
 # install with no saved configuration, counts as unset, and so does an
 # empty user value. An invalid value is reported and the key keeps what
@@ -119,6 +121,7 @@ normalise() {
 # The shared file, from the base branch only.
 : >"$work/project"
 shared_state=absent
+base_lacks_it=0
 base=$(sed -n 's/^base_branch //p' "$dir/meta.txt")
 repo_root=$(sed -n 's/^repo_root //p' "$dir/meta.txt")
 if [ -n "$base" ] && [ -n "$repo_root" ] && [ -d "$repo_root" ]; then
@@ -135,35 +138,66 @@ if [ -n "$base" ] && [ -n "$repo_root" ] && [ -d "$repo_root" ]; then
 			normalise "$work/project.raw" "$work/project" project
 			shared_state=$freshness
 		fi
+	else
+		base_lacks_it=1
 	fi
 fi
 
-# The personal file, from the clone (this worktree first, then the main
-# one), never from the pull request's worktree, never a symlink, and
-# never a file the repository tracks.
+# The personal files, from the clone (this worktree first, then the
+# main one), never from the pull request's worktree and never a symlink.
+# A project file git does not track is the user's own, whatever the
+# repository's ignore rules say, and is read before the local file so
+# the local file wins. A tracked project file is the team's and only
+# its base-branch copy above counts; one tracked here but missing from
+# the base is refused, and so is a local file the repository tracks.
 : >"$work/local"
-local_state=absent
+main_root=''
 if [ -n "$repo_root" ] && [ -d "$repo_root" ]; then
 	main_root=$(git -C "$repo_root" worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
-	[ -n "$main_root" ] && [ "$main_root" != "$repo_root" ] || main_root=''
+	[ "$main_root" != "$repo_root" ] || main_root=''
+fi
+personal() {
+	# personal <path relative to the clone> <name for notes>; prints a state
+	[ -n "$repo_root" ] && [ -d "$repo_root" ] || { echo absent; return 0; }
 	for root in "$repo_root" $main_root; do
-		path="$root/$LOCAL"
+		path="$root/$1"
 		[ -e "$path" ] || [ -L "$path" ] || continue
 		if [ -L "$path" ]; then
-			local_state=refused
-			echo "settings: ignored local file: it is a symlink" >>"$work/notes"
-		elif git -C "$root" ls-files --error-unmatch "$LOCAL" >/dev/null 2>&1; then
-			local_state=refused
-			echo "settings: ignored local file: the repository tracks it, so it is not yours alone" >>"$work/notes"
+			echo "settings: ignored $2: it is a symlink" >>"$work/notes"
+			echo refused
+		elif git -C "$root" ls-files --error-unmatch "$1" >/dev/null 2>&1; then
+			echo tracked
 		elif [ "$(wc -c <"$path" | tr -d ' ')" -gt "$MAX_BYTES" ]; then
-			local_state=refused
-			echo "settings: ignored local file: larger than $MAX_BYTES bytes" >>"$work/notes"
+			echo "settings: ignored $2: larger than $MAX_BYTES bytes" >>"$work/notes"
+			echo refused
 		else
-			normalise "$path" "$work/local" local
-			local_state=present
+			normalise "$path" "$work/personal" "$2"
+			cat "$work/personal" >>"$work/local"
+			echo present
 		fi
-		break
+		return 0
 	done
+	echo absent
+}
+case "$(personal "$SHARED" "untracked project file")" in
+present)
+	if [ "$shared_state" = absent ]; then
+		shared_state=yours
+	else
+		echo "settings: read the untracked project file in your clone as yours, over the base branch's" >>"$work/notes"
+	fi
+	;;
+tracked)
+	if [ "$base_lacks_it" -eq 1 ]; then
+		shared_state=refused
+		echo "settings: ignored project file: tracked in your clone but not on the base branch, so it is neither the team's nor yours alone" >>"$work/notes"
+	fi
+	;;
+esac
+local_state=$(personal "$LOCAL" "local file")
+if [ "$local_state" = tracked ]; then
+	local_state=refused
+	echo "settings: ignored local file: the repository tracks it, so it is not yours alone" >>"$work/notes"
 fi
 
 # Trust on first use for the shared file's commands.
