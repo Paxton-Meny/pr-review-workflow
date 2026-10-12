@@ -133,7 +133,7 @@ pull request, and says when to choose it.
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes, code whose changed files reference one another, and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, code whose changed files reference one another, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
 | Sensitive paths | empty | Space-separated globs for files where a defect costs most. A change touching one is treated as high stakes: the reviewer may climb, no fix there starts cheap, and the second review pass runs under risky. A project's shared file adds to this list. |
-| Cost posture | balanced | Which way routing leans where the change itself does not settle a decision; it never pins a model. economy counts more changes as small enough for the cheap reviewer (under 500 lines, tests-only included), fewer as large enough for the strong one (over 1,200 lines of code), splits into shards over 2,250 changed lines, caps effort at high, and starts any fix cheap once a check command gates the round. quality counts small under 150 and large over 400, splits over 1,000, starts only proven-suggestion fixes cheap, and adds one review sample where a stakes probe fired. balanced keeps 300, 800, and 1,500 and also starts fixes cheap whose Check line will execute. High-stakes findings never start cheap; a failed fix tries again one lever up. Fixed routing keeps every model and sample count as set; the shard limit and the effort cap still follow the posture. |
+| Cost posture | balanced | Which way routing leans where the change itself does not settle a decision; it never pins a model. economy counts more changes as small enough for the cheap reviewer (under 500 lines, tests-only included), fewer as large enough for the strong one (over 1,200 lines of code), splits into shards over 2,250 changed lines, and starts any fix cheap once a check command gates the round. quality counts small under 150 and large over 400, splits over 1,000, starts only proven-suggestion fixes cheap, adds one review sample where a stakes probe fired, and is the only posture that lets reasoning effort reach xhigh. balanced keeps 300, 800, and 1,500 and also starts fixes cheap whose Check line will execute. High-stakes findings never start cheap; a failed fix tries again one lever up. Fixed routing keeps every model and sample count as set; the shard limit and the effort cap still follow the posture. |
 | Review samples | 1 | Independent reviewer passes per shard on the first review. Above 1, duplicates merge into the richest record with a support count the filter weighs; recall rises at roughly that multiple of the review cost. For repositories where an escaped defect is expensive. |
 | Precision filter | on | Before findings post, a cheap second context re-reads the cited code and demotes findings the fresh evidence cannot support into the round summary. Nothing is dropped: demoted findings are still addressed, with the doubt recorded in the ledger. |
 | Contract command prefixes | empty | Comma-separated prefixes, beyond the check command itself, that a finding's Check line may start with to be executed during verification. Test runners only, never bare interpreters. |
@@ -197,11 +197,11 @@ configured runs on every round.
   by a proven suggestion, a verified finding that a Check line or
   proven suggestion settles) or for a small docs or config review. A
   batch or a verified round runs at its highest finding's level. The
-  economy posture caps it at high, the others at xhigh; the editor
-  stops at high except under quality, and fixed routing keeps each
-  agent's own level. Adaptive reasoning already spends thought where a
-  step is hard, so these moves stay coarse.
-- The model and the effort are two levers moved by different evidence.
+  cap is high under economy and balanced and xhigh under quality, a
+  signal that climbs the model does not also raise the effort, and
+  fixed routing keeps each agent's own level. Adaptive reasoning
+  already spends thought where a step is hard, so these moves stay
+  coarse.
   The model is the capability ceiling, so it climbs on depth: a
   secrets, automation, or sensitive probe, a declared sensitive path,
   or code whose changed files reference one another (four couplings
@@ -214,9 +214,9 @@ configured runs on every round.
   more, so large code climbs the model when one is set and the effort
   otherwise.
 - A fix that fails tries again one lever up: more effort on the same
-  model while the editor is below its cap (high; xhigh under the
-  quality posture), then the next model at that effort. Anthropic's
-  published coding runs re-ran failures at a higher effort and
+  model while the last attempt ran below the posture's cap (high;
+  xhigh under the quality posture), then the next model at that
+  effort. Anthropic's
   recovered most of them for about half the cost of running everything
   at the higher level, and routing studies find a second model tier
   captures nearly all the gain a cascade offers. The statistics line

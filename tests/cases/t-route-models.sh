@@ -19,7 +19,7 @@ probes ''
 [ "$(route review $ARGS)" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 [ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 printf 'a.py and b.py split across groups 1 and 2 (shared name: parse)\n' >"$ctx/seams.txt"
-[ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
+[ "$(route gap $ARGS double=always)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 [ "$(route gap routing=fixed double=always)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 rm "$ctx/seams.txt"
 
@@ -30,10 +30,10 @@ probes 'deps'
 # Large code climbs when a strong model is set, and says so when none is.
 classify code 1200 950
 probes 'added'
-[ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort high reason strong-wanted-unset samples 1" ]
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
-[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung strong model opus effort xhigh reason large-code samples 1" ]
-[ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus effort xhigh reason follows-reviewer" ]
+[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
+[ "$(route gap routing=auto reviewer=inherit strong=opus double=always)" = "route gap all rung strong model opus effort high reason follows-reviewer" ]
 
 # Size counts code lines only: 1,200 lines of mostly tests is not large code.
 classify code 1200 300
@@ -43,13 +43,13 @@ probes ''
 # A sensitive probe climbs even on a small change; economy caps effort at high.
 classify code 90 90
 probes 'sensitive'
-[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
 [ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
 
 # A pinned environment level outranks every override, so the line and
 # every Route note record it, and a retry under it climbs the model
 # rather than pulling an effort lever that does nothing.
-[ "$(CLAUDE_CODE_EFFORT_LEVEL=max route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh pinned max reason risky-probe samples 1" ]
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=max route review routing=auto strong=opus)" = "route review all rung strong model opus effort high pinned max reason risky-probe samples 1" ]
 printf 'id: F015\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F015"
 [ "$(CLAUDE_CODE_EFFORT_LEVEL=low route edit $ARGS round=1 -- F015)" = "route edit all rung base model inherit effort medium pinned low reason role-model ids F015" ]
 [ "$(CLAUDE_CODE_EFFORT_LEVEL=low route repair $ARGS round=1 -- F015)" = "route repair all rung base model inherit effort medium pinned low reason gate-failed ids F015" ]
@@ -59,7 +59,7 @@ printf 'id: F016\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung 
 
 # Fixed routing never moves, and placeholders from an unconfigured install count as unset.
 [ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
-[ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
+[ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit effort high reason strong-wanted-unset samples 1" ]
 
 # The filter always takes the verifier model at its own level.
 [ "$(route filter $ARGS)" = "route filter all rung base model sonnet effort low reason role-model" ]
@@ -152,11 +152,11 @@ printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ct
 printf 'sensitive\tsrc/auth.py\nadded\tdocs/b.md\n' >"$ctx/probe-files.txt"
 classify code 250 180
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
-route review group-2 rung strong model opus effort xhigh reason risky-probe samples 1" ]
-[ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus effort xhigh reason follows-reviewer" ]
+route review group-2 rung strong model opus effort high reason risky-probe samples 1" ]
+[ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus effort high reason follows-reviewer" ]
 printf 'docs/a.md and src/util.py split across groups 1 and 2 (shared name: util)\n' >"$ctx/seams.txt"
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort high reason docs-only-small samples 1
-route review group-2 rung strong model opus effort xhigh reason risky-probe samples 1" ]
+route review group-2 rung strong model opus effort high reason risky-probe samples 1" ]
 rm "$ctx/seams.txt"
 printf 'deps\tdocs/a.md\n' >"$ctx/probe-files.txt"
 [ "$(route review $ARGS)" = "route review group-1 rung base model inherit effort high reason role-model samples 1
@@ -169,12 +169,12 @@ probes ''
 [ "$(route gap $ARGS double=off)" = "route gap all skip reason double-review-off" ]
 [ "$(route gap $ARGS double=risky)" = "route gap all skip reason no-risk-signal" ]
 probes 'sensitive'
-[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
+[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 probes 'automation'
-[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
+[ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 probes ''
 printf 'group 1 lines 9 files 001\n' >"$ctx/shards.txt"
-[ "$(route gap $ARGS double=off)" = "route gap all rung base model inherit effort xhigh reason follows-reviewer" ]
+[ "$(route gap $ARGS double=off)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 rm -f "$ctx/shards.txt"
 
 # The filter is skipped when it is off; review lines carry the sample count.
@@ -234,8 +234,8 @@ classify code 1100 1000
 # a workflow edit is as risky as one in code.
 classify config-only 40 0
 probes 'automation'
-[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
-[ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort high reason strong-wanted-unset samples 1" ]
 classify docs-only 20 0
 probes 'secrets'
 [ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
@@ -245,9 +245,9 @@ probes 'secrets'
 # other postures keep the setting.
 classify code 90 90
 probes 'sensitive'
-[ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 2" ]
-[ "$(route review routing=auto strong=opus posture=quality samples=3)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 3" ]
-[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 1" ]
+[ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung strong model opus effort high reason risky-probe samples 2" ]
+[ "$(route review routing=auto strong=opus posture=quality samples=3)" = "route review all rung strong model opus effort high reason risky-probe samples 3" ]
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
 [ "$(route review routing=fixed strong=opus posture=quality)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
 probes ''
 [ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
@@ -256,7 +256,7 @@ printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ct
 printf 'sensitive\tsrc/auth.py\n' >"$ctx/probe-files.txt"
 classify code 250 180
 [ "$(route review routing=auto reviewer=inherit strong=opus posture=quality)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
-route review group-2 rung strong model opus effort xhigh reason risky-probe samples 2" ]
+route review group-2 rung strong model opus effort high reason risky-probe samples 2" ]
 rm -f "$ctx/shards.txt" "$ctx/probe-files.txt"
 
 # Depth climbs the model: code whose changed files reference one another
@@ -267,7 +267,7 @@ classify code 90 90
 probes ''
 printf '4\n' >"$ctx/couplings.txt"
 [ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort high reason coupled samples 1" ]
-[ "$(route review $ARGS)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 1" ]
+[ "$(route review $ARGS)" = "route review all rung base model inherit effort high reason strong-wanted-unset samples 1" ]
 [ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
 printf '2\n' >"$ctx/couplings.txt"
 [ "$(route review routing=auto strong=opus)" = "route review all rung base model inherit effort high reason role-model samples 1" ]
@@ -299,8 +299,23 @@ printf 'id: F031\nstatus: open\nseverity: blocker\ncategory: correctness\npath: 
 [ "$(route repair routing=auto strong=opus posture=economy round=1 -- F030)" = "route repair all rung strong model opus effort high reason gate-failed ids F030" ]
 [ "$(route repair routing=fixed round=1 -- F030)" = "route repair all rung base model inherit effort medium reason fixed ids F030" ]
 
+# Effort reaches xhigh only under quality, and a signal is paid for
+# once: a stakes probe a stronger model takes leaves the effort alone,
+# and raises it when no stronger model is set or the strong model is
+# the reviewer's own.
+classify code 90 90
+probes 'sensitive'
+[ "$(route review $ARGS posture=quality)" = "route review all rung base model inherit effort xhigh reason strong-wanted-unset samples 2" ]
+[ "$(route review routing=auto reviewer=opus strong=opus posture=quality)" = "route review all rung strong model opus effort xhigh reason risky-probe samples 2" ]
+[ "$(route review routing=auto reviewer=opus strong=opus)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
+classify code 1200 950
+probes ''
+printf 'a.py and b.py split across groups 1 and 2 (shared name: parse)\n' >"$ctx/seams.txt"
+[ "$(route review routing=auto strong=opus posture=quality)" = "route review all rung strong model opus effort high reason large-code samples 1" ]
+rm -f "$ctx/seams.txt"
+
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 106 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 110 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
