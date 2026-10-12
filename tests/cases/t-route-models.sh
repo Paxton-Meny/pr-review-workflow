@@ -258,7 +258,8 @@ rm -f "$ctx/shards.txt" "$ctx/probe-files.txt"
 
 # Depth climbs the model: code whose changed files reference one another
 # at least the posture's count of times (balanced 4, quality 2, economy
-# 6) takes the strong model, and the effort instead when none is set.
+# 6) takes the strong model, and the effort instead when none is set. A
+# shard group is judged on its own count, not the whole change's.
 classify code 90 90
 probes ''
 printf '4\n' >"$ctx/couplings.txt"
@@ -275,6 +276,10 @@ printf '001\tdocs/a.md\tdocs\t40\n002\tdocs/b.md\tdocs\t30\n003\tsrc/auth.py\tco
 printf 'group 1 lines 70 files 001 002\ngroup 2 lines 180 files 003 004\n' >"$ctx/shards.txt"
 : >"$ctx/probe-files.txt"
 classify code 250 180
+printf '9\ngroup 1 0\ngroup 2 0\n' >"$ctx/couplings.txt"
+[ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
+route review group-2 rung base model inherit effort high reason role-model samples 1" ]
+printf '9\ngroup 1 0\ngroup 2 4\n' >"$ctx/couplings.txt"
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
 route review group-2 rung strong model opus effort high reason coupled samples 1" ]
 rm -f "$ctx/shards.txt" "$ctx/probe-files.txt" "$ctx/couplings.txt"
@@ -292,7 +297,7 @@ printf 'id: F031\nstatus: open\nseverity: blocker\ncategory: correctness\npath: 
 [ "$(route repair routing=fixed round=1 -- F030)" = "route repair all rung base model inherit effort medium reason fixed ids F030" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 104 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 106 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
