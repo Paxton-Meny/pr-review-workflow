@@ -15,6 +15,7 @@ printf 'path: docs/guide.md\n@@ -0,0 +1,1 @@\nR1 +plain words only\n' >"$ctx/fil
 
 out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
 [ "$out" = "shard-plan: groups 2 seams 0 couplings 1 limit 1500" ]
+[ "$(sed -n 1p "$ctx/couplings.txt")" = 1 ]
 grep -q '^group 1 lines 1500 files 001 003$' "$ctx/shards.txt"
 grep -q '^group 2 lines 1500 files 002 004$' "$ctx/shards.txt"
 [ ! -f "$ctx/seams.txt" ]
@@ -50,6 +51,8 @@ printf 'path: src/a.py\n@@ -0,0 +1,1 @@\nR1 +x = 1\n' >"$ctx/files/001.diff"
 out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
 [ "$out" = "shard-plan: groups 1 seams 0 couplings 0 limit 1500" ]
 [ ! -f "$ctx/shards.txt" ]
+[ "$(sed -n 1p "$ctx/couplings.txt")" = 0 ]
+grep -qx 'group 1 0' "$ctx/couplings.txt"
 
 if sh "$REPO_ROOT/scripts/shard-plan.sh" "$SCRATCH/empty" 4 1500 2>"$SCRATCH/err"; then
 	echo "expected failure without a diff index" >&2
