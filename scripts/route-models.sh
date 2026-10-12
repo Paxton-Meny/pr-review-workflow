@@ -18,17 +18,22 @@
 # pr-context/routes.txt, and names the model and effort the
 # orchestrator passes as overrides, "inherit" included:
 #   route <stage> <unit> rung <rung> model <model> effort <level>[ pinned <value>] reason <reason>[ ids ...]
-# Effort starts at the level the role's agent definition declares and
-# moves one level for each signal: up for a wide search (large code
-# when no strong model takes it, a shard group on a seam, a gap pass
-# over seams, each earlier attempt at a finding), up for stakes (a
-# secrets, automation, or sensitive probe, a blocker or security
-# finding), down where a later step checks the work (a minor or nit
-# fix carried by a proven suggestion for the editor, an executable
-# Check line or proven suggestion for the verifier) or the review is
-# small docs or config with no risk. A batch or a verified round runs
-# at its highest finding's level. Max is never routed. Fixed routing
-# keeps every role's own level, under the posture's cap. A set
+# The model and the effort are two levers moved by different evidence.
+# The model is the capability ceiling, so it climbs on depth: a
+# secrets, automation, or sensitive probe, or code whose changed files
+# reference one another at least the posture's count of times. Effort
+# is thoroughness, how much the agent thinks and how many files it
+# opens, so it starts at the level the role's agent definition declares
+# and moves one level for each breadth signal: up for a wide search
+# (large or coupled code when no strong model takes it, a shard group
+# on a seam, a gap pass over seams), up for stakes (a secrets,
+# automation, or sensitive probe, a blocker or security finding), down
+# where a later step checks the work (a minor or nit fix carried by a
+# proven suggestion for the editor, an executable Check line or proven
+# suggestion for the verifier) or the review is small docs or config
+# with no risk. A batch or a verified round runs at its highest
+# finding's level. Max is never routed. Fixed routing keeps every
+# role's own level, under the posture's cap. A set
 # CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the line and
 # each Route note record it as pinned.
 # The cost posture is the lean of every decision the change itself does
@@ -54,9 +59,11 @@
 # mechanical ones do. A
 # blocker, a security finding, or a finding on a file where the secrets
 # or sensitive probe fired never starts cheap. A finding that was
-# attempted and is still open climbs one rung above its last attempt,
-# and a repair after a failed check gate climbs one rung above the batch
-# that broke it. Each attempt is noted on the finding's record. The
+# attempted and is still open tries again one lever up: more effort on
+# the same model while the last attempt ran below the editor's cap
+# (high, xhigh under quality), then one rung above it at that effort;
+# a repair after a failed check gate does the same for the batch that
+# broke it. Each attempt is noted on the finding's record. The
 # verifier and the filter never change model; arbitration is the
 # verifier on the strong model, else the reviewer's, at high effort.
 # With routing fixed, every role stays on its own setting. The verify
@@ -145,13 +152,15 @@ auto | fixed) ;;
 	exit 1
 	;;
 esac
-# The posture's lean: the large-code line, the small-change line and
-# the kinds that may drop, the effort cap, and the extra sample a
-# stakes group earns.
+# The posture's lean: the large-code line, the coupling count that
+# makes a change deep, the small-change line and the kinds that may
+# drop, the effort caps (the editor's lower: on agentic coding the top
+# level buys little for its cost), and the extra sample a stakes group
+# earns.
 case "$posture" in
-economy) large_code_lines=1200 small_lines=500 drop_kinds='docs-only config-only tests-only' effort_cap=high extra_sample=0 ;;
-balanced) large_code_lines=800 small_lines=300 drop_kinds='docs-only config-only' effort_cap=xhigh extra_sample=0 ;;
-quality) large_code_lines=400 small_lines=150 drop_kinds='docs-only config-only' effort_cap=xhigh extra_sample=1 ;;
+economy) large_code_lines=1200 coupled_min=6 small_lines=500 drop_kinds='docs-only config-only tests-only' effort_cap=high editor_cap=high extra_sample=0 ;;
+balanced) large_code_lines=800 coupled_min=4 small_lines=300 drop_kinds='docs-only config-only' effort_cap=xhigh editor_cap=high extra_sample=0 ;;
+quality) large_code_lines=400 coupled_min=2 small_lines=150 drop_kinds='docs-only config-only' effort_cap=xhigh editor_cap=xhigh extra_sample=1 ;;
 *)
 	echo "route-models: posture must be quality, balanced, or economy: $posture" >&2
 	exit 1
@@ -189,8 +198,8 @@ level_rank() {
 }
 
 level_at() {
-	# level_at <rank>, clamped to low and to the posture's cap
-	cap=$(level_rank "$effort_cap")
+	# level_at <rank> [cap], clamped to low and to the cap, the posture's by default
+	cap=$(level_rank "${2:-$effort_cap}")
 	r=$1
 	[ "$r" -lt 0 ] && r=0
 	[ "$r" -gt "$cap" ] && r=$cap
@@ -212,12 +221,12 @@ role_effort() {
 }
 
 moved() {
-	# moved <base level> <signed steps>: no steps when routing is fixed,
-	# and capped either way
+	# moved <base level> <signed steps> [cap]: no steps when routing is
+	# fixed, and capped either way
 	if [ "$routing" = fixed ]; then
-		level_at "$(level_rank "$1")"
+		level_at "$(level_rank "$1")" "${3:-}"
 	else
-		level_at $(($(level_rank "$1") + $2))
+		level_at $(($(level_rank "$1") + $2)) "${3:-}"
 	fi
 }
 
@@ -255,6 +264,8 @@ kind=none lines=0 code_lines=0
 }
 slugs=''
 [ -f "$ctx/probe-slugs.txt" ] && slugs=$(cat "$ctx/probe-slugs.txt")
+couplings=0
+[ -f "$ctx/couplings.txt" ] && couplings=$(cat "$ctx/couplings.txt")
 
 # The facts for one shard group: its kind, lines, code lines, and the
 # probe slugs that fired on its files. Prints "kind lines code_lines slugs".
@@ -293,6 +304,12 @@ large_code() {
 	[ "$1" = code ] && [ "${2:-0}" -gt "$large_code_lines" ]
 }
 
+coupled() {
+	# coupled <kind>: code whose changed files reference one another at
+	# least the posture's count of times, so the judgment spans files
+	[ "$1" = code ] && [ "$couplings" -ge "$coupled_min" ]
+}
+
 small_drop() {
 	# small_drop <kind> <lines> <slugs>: a kind the posture lets drop,
 	# under its small-change line, with no risk signal
@@ -309,7 +326,7 @@ review_rung() {
 		return
 	fi
 	why=''
-	if large_code "$1" "$3"; then why=large-code; elif has_slug "$CLIMB_SLUGS" "$4"; then why=risky-probe; fi
+	if large_code "$1" "$3"; then why=large-code; elif coupled "$1"; then why=coupled; elif has_slug "$CLIMB_SLUGS" "$4"; then why=risky-probe; fi
 	if [ -n "$why" ]; then
 		if [ -n "$strong" ]; then echo "strong $why"; else echo "base strong-wanted-unset"; fi
 		return
@@ -329,7 +346,7 @@ review_effort() {
 	# review_effort <kind> <lines> <code_lines> <slugs> [group]
 	steps=0
 	small_drop "$1" "$2" "$4" && steps=-1
-	if { [ "${strong:-$reviewer}" = "$reviewer" ] && large_code "$1" "$3"; } || on_seam "${5:-}"; then
+	if { [ "${strong:-$reviewer}" = "$reviewer" ] && { large_code "$1" "$3" || coupled "$1"; }; } || on_seam "${5:-}"; then
 		steps=$((steps + 1))
 	fi
 	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
@@ -402,63 +419,72 @@ contract_runs() {
 		sh "$(dirname "$0")/run-contract.sh" --policy "$dir" "$1" "$check" "$prefixes" >/dev/null 2>&1
 }
 
-# The editor's effort for one finding: up for stakes and for each
-# earlier attempt, down when a proven suggestion carries the fix.
-finding_effort() {
-	# finding_effort <id>
-	record="$dir/findings/$1"
-	steps=$(grep -c '^Route: ' "$record" || true)
-	high_stakes "$record" && steps=$((steps + 1))
-	mechanical "$record" && steps=$((steps - 1))
-	moved "$editor_effort" "$steps"
+last_effort() {
+	# last_effort <record>: the effort the latest attempt was routed at,
+	# the editor's own level for a note written before efforts were
+	grep '^Route: ' "$1" | tail -n 1 | sed -n 's/.* effort \([a-z]*\).*/\1/p' | grep . || echo "$editor_effort"
 }
 
-# A finding's starting rung for this round, and why. Prints "<rung> <reason>".
-finding_rung() {
-	# finding_rung <id>
+# The next attempt after a failed one moves one lever. While the last
+# attempt ran below the editor's cap it was the effort: the same model
+# with more care recovers most failures for a fraction of a stronger
+# model's price. At the cap more effort has little headroom left and
+# the model climbs, at the effort already reached. Prints
+# "<rung> <effort> <reason>".
+next_attempt() {
+	# next_attempt <last rung> <last effort>
+	if [ "$(level_rank "$2")" -lt "$(level_rank "$editor_cap")" ]; then
+		echo "$1 $(moved "$2" 1 "$editor_cap") more-effort"
+		return
+	fi
+	e=$(moved "$2" 0 "$editor_cap")
+	next=$(up "$1")
+	if [ "$next" != "$1" ]; then
+		echo "$next $e escalated"
+	elif [ "$1" = base ]; then
+		echo "base $e strong-wanted-unset"
+	else
+		echo "$1 $e ladder-top"
+	fi
+}
+
+# A finding's rung and effort for this round, and why. A first attempt
+# starts at the editor's level, one up for stakes and one down when a
+# proven suggestion carries the fix. Prints "<rung> <reason> <effort>".
+finding_plan() {
+	# finding_plan <id>
 	record="$dir/findings/$1"
 	[ -f "$record" ] || {
 		echo "route-models: unknown finding: $1" >&2
 		exit 1
 	}
 	if [ "$routing" = fixed ]; then
-		echo "base fixed"
+		echo "base fixed $(moved "$editor_effort" 0 "$editor_cap")"
 		return
 	fi
 	last=$(last_rung "$record")
 	if [ -n "$last" ]; then
-		# Attempted before and still open: one rung above the last attempt.
-		next=$(up "$last")
-		if [ "$next" != "$last" ]; then
-			echo "$next escalated"
-		elif [ "$last" = base ]; then
-			echo "base strong-wanted-unset"
-		else
-			echo "$next ladder-top"
-		fi
+		set -- $(next_attempt "$last" "$(last_effort "$record")")
+		echo "$1 $3 $2"
 		return
 	fi
+	steps=0
+	high_stakes "$record" && steps=1
+	mechanical "$record" && steps=$((steps - 1))
+	effort=$(moved "$editor_effort" "$steps" "$editor_cap")
 	if [ "$round" -ne 1 ]; then
-		echo "base role-model"
-		return
+		echo "base role-model $effort"
+	elif high_stakes "$record"; then
+		echo "base stakes-floor $effort"
+	elif mechanical "$record"; then
+		echo "cheap mechanical $effort"
+	elif [ "$posture" != quality ] && contract_runs "$1"; then
+		echo "cheap contract-first $effort"
+	elif [ "$posture" = economy ] && [ -n "$check" ]; then
+		echo "cheap gate-first $effort"
+	else
+		echo "base role-model $effort"
 	fi
-	if high_stakes "$record"; then
-		echo "base stakes-floor"
-		return
-	fi
-	if mechanical "$record"; then
-		echo "cheap mechanical"
-		return
-	fi
-	if [ "$posture" != quality ] && contract_runs "$1"; then
-		echo "cheap contract-first"
-		return
-	fi
-	if [ "$posture" = economy ] && [ -n "$check" ]; then
-		echo "cheap gate-first"
-		return
-	fi
-	echo "base role-model"
 }
 
 # Print the batches for a set of ids: one line per rung used, cheapest
@@ -468,8 +494,8 @@ batches() {
 	plan="$ctx/.route-plan"
 	: >"$plan"
 	for id in $1; do
-		set -- $(finding_rung "$id")
-		printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$id" "$(finding_effort "$id")" >>"$plan"
+		set -- $(finding_plan "$id")
+		printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$id" "$3" >>"$plan"
 	done
 	# A lone cheap finding in a round that also has others rides with them.
 	if [ "$(grep -c '^cheap	' "$plan")" -eq 1 ] && grep -qv '^cheap	' "$plan"; then
@@ -595,8 +621,8 @@ edit)
 	rm -f "$ctx/.route-plan"
 	;;
 repair)
-	# After a failed check gate: one rung above the batch that broke it,
-	# at the effort its findings now call for, the failed attempt counted.
+	# After a failed check gate: the batch that broke it tries again one
+	# lever up, more effort below the editor's cap and a rung above it.
 	[ -n "$ids" ] || {
 		echo "route-models: the repair stage needs the batch's finding ids after --" >&2
 		exit 1
@@ -612,15 +638,15 @@ repair)
 		strong) top=strong ;;
 		base) [ "$top" = strong ] || top=base ;;
 		esac
-		efforts="$efforts $(finding_effort "$id")"
+		efforts="$efforts $(last_effort "$record")"
 	done
 	if [ "$routing" = fixed ]; then
-		rung=base reason=fixed
+		rung=base effort=$(moved "$editor_effort" 0 "$editor_cap") reason=fixed
 	else
-		rung=$(up "$top") reason=gate-failed
+		set -- $(next_attempt "$top" "$(highest "$efforts")")
+		rung=$1 effort=$2 reason=gate-failed
 	fi
 	model=$(model_for "$rung" "$editor")
-	effort=$(highest "$efforts")
 	for id in $ids; do note_attempt "$id" "$rung" "$model" "$effort" "$reason"; done
 	emit all "$rung" "$model" "$effort" "$reason" "$ids"
 	;;

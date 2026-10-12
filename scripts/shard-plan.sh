@@ -44,7 +44,7 @@ case "$maxg$tl" in
 	;;
 esac
 
-rm -f "$ctx/shards.txt" "$ctx/seams.txt"
+rm -f "$ctx/shards.txt" "$ctx/seams.txt" "$ctx/couplings.txt"
 
 set --
 while IFS='	' read -r n _p; do
@@ -129,6 +129,8 @@ END {
 		printf "\n" > shards
 	}
 	close(shards)
+	ccount = 0
+	for (k in edge) ccount++
 	scount = 0
 	for (i = 1; i <= n; i++)
 		for (j = 1; j <= n; j++)
@@ -138,10 +140,11 @@ END {
 					path[i], path[j], fg[i], fg[j], edge[i, j] > seams
 			}
 	if (scount > 0) close(seams)
-	printf "%d %d\n", gcount, scount
+	printf "%d %d %d\n", gcount, scount, ccount
 }
 ' "$@")
-groups=${plan%% *}
-seams=${plan##* }
+set -- $plan
+groups=$1 seams=$2 couplings=$3
 [ "$groups" -gt 1 ] || rm -f "$ctx/shards.txt"
-echo "shard-plan: groups $groups seams $seams limit $tl"
+printf '%s\n' "$couplings" >"$ctx/couplings.txt"
+echo "shard-plan: groups $groups seams $seams couplings $couplings limit $tl"

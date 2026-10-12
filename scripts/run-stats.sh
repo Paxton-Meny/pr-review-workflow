@@ -96,7 +96,7 @@ effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0
 	base=$(grep -c ' rung base ' "$dir/pr-context/routes.txt" || true)
 	strong=$(grep -c ' rung strong ' "$dir/pr-context/routes.txt" || true)
 	strong_wanted=$(grep -c ' reason strong-wanted-unset' "$dir/pr-context/routes.txt" || true)
-	escalations=$(grep -c ' reason \(escalated\|gate-failed\|mixed\) ' "$dir/pr-context/routes.txt" || true)
+	escalations=$(grep -c ' reason \(escalated\|more-effort\|gate-failed\|mixed\) ' "$dir/pr-context/routes.txt" || true)
 	effort_low=$(grep -c ' effort low ' "$dir/pr-context/routes.txt" || true)
 	effort_medium=$(grep -c ' effort medium ' "$dir/pr-context/routes.txt" || true)
 	effort_high=$(grep -c ' effort high ' "$dir/pr-context/routes.txt" || true)

@@ -232,6 +232,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   climbs the reviewer to the strong model whatever the kind of file,
   so a token in a configuration file or a workflow edit is routed like
   one in code.
+- The model and the effort are routed as two levers moved by different
+  evidence. The model climbs on depth: a stakes probe, a sensitive
+  path, or, new, code whose changed files reference one another (6, 4,
+  or 2 couplings under economy, balanced, or quality, counted by the
+  shard planner and kept in the ledger). Effort climbs on breadth: a
+  seam, a gap pass over seams, high stakes, and size when no stronger
+  model takes it. A fix that fails now tries again one lever up
+  instead of two: more effort on the same model while the editor is
+  below its cap, then the next model at that effort, so each retry's
+  statistics name the one lever it pulled. The editor's effort stops
+  at high except under the quality posture, where it may reach xhigh,
+  since on agentic coding the top level buys little for its cost.
 - The shard limit follows the cost posture: a change splits into
   parallel reviewer shards over 2,250 changed lines under economy,
   1,500 under balanced, and 1,000 under quality, so economy keeps one

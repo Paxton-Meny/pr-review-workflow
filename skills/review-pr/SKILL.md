@@ -250,10 +250,12 @@ PRWF_SETTINGS_END
       first: in round 1 a finding starts cheap when it is mechanical
       (minor or nit with a proven fence) or, as the cost posture
       allows, when its Check line will execute or a check command
-      gates the round; a finding attempted before and still open
-      climbs one rung above its last attempt; nothing starts cheap on
-      a blocker, a security finding, or a file the secrets or
-      sensitive probe flagged. Each attempt is noted on the record.
+      gates the round; a finding attempted before and still open tries
+      again one lever up, more effort on the same model until the
+      editor's cap, then one rung above its last attempt; nothing
+      starts cheap on a blocker, a security finding, or a file the
+      secrets or sensitive probe flagged. Each attempt is noted on
+      the record.
       For each line in the order printed, one after the other and
       never in parallel, spawn `pr-review-workflow:editor` with that
       line's `model`, `effort`, and `ids` and exactly:
@@ -269,7 +271,7 @@ PRWF_SETTINGS_END
       Exit 3 means the editor's commits broke the project's own check:
       run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> repair round=<n> -- <that batch's ids>`
-      (one rung above the batch that broke it) and spawn
+      (one lever above the batch that broke it) and spawn
       `pr-review-workflow:editor` once more with its `model` and
       `effort` and exactly:
       `The project check fails after your commits. State directory: <dir>. Read pr-context/check-failure.txt, fix what your edits broke, commit, and push.`

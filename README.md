@@ -190,7 +190,7 @@ configured runs on every round.
   reviewer high, the editor and the verifier medium, the filter low;
   arbitration runs the verifier at high) and moves one level per
   signal: up for a wide search (large code unless a stronger model
-  takes it, a shard on a seam, an earlier failed attempt) or high
+  takes it, a shard on a seam, a gap pass over seams) or high
   stakes (a secrets, automation, or sensitive probe on a review; a
   blocker, a security finding, or a flagged file on a fix), down where
   a later step checks the work (an editor's minor or nit fix carried
@@ -200,6 +200,31 @@ configured runs on every round.
   economy posture caps it at high, the others at xhigh, and fixed
   routing keeps each agent's own level. Adaptive reasoning already
   spends thought where a step is hard, so these moves stay coarse.
+- The model and the effort are two levers moved by different evidence.
+  The model is the capability ceiling, so it climbs on depth: a
+  secrets, automation, or sensitive probe, a declared sensitive path,
+  or code whose changed files reference one another (four couplings
+  under the balanced posture). Effort is thoroughness, how much the
+  agent thinks and how many files it opens, so it climbs on breadth: a
+  shard on a seam, a gap pass over seams, and high stakes. Size is
+  breadth too, but a stronger model at the same effort costs less than
+  the next effort level on a smaller one (xhigh runs about 2.5 times
+  the cost of high on coding in Anthropic's published runs) and finds
+  more, so large code climbs the model when one is set and the effort
+  otherwise.
+- A fix that fails tries again one lever up: more effort on the same
+  model while the editor is below its cap (high; xhigh under the
+  quality posture), then the next model at that effort. Anthropic's
+  published coding runs re-ran failures at a higher effort and
+  recovered most of them for about half the cost of running everything
+  at the higher level, and routing studies find a second model tier
+  captures nearly all the gain a cascade offers. The statistics line
+  records which lever each retry pulled and whether the finding ended
+  verified, so the balance is tuned from recorded runs. Sources:
+  Anthropic, Optimizing for cost and intelligence
+  (platform.claude.com/docs); Snell et al. 2024 (arXiv 2408.03314);
+  Cuadron et al. 2025 (arXiv 2502.08235); Is Escalation Worth It?
+  2026 (arXiv 2605.06350).
 - `CLAUDE_CODE_EFFORT_LEVEL` outranks every per-spawn effort and so
   defeats effort routing; route lines record it as `pinned`. The
   `maxEffortLevel` setting caps every routed level without saying so.
