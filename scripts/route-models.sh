@@ -35,7 +35,8 @@
 # finding's level. Max is never routed. Fixed routing keeps every
 # role's own level, under the posture's cap. A set
 # CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the line and
-# each Route note record it as pinned.
+# each Route note record it as pinned, and a retry under it climbs the
+# model directly.
 # The cost posture is the lean of every decision the change itself does
 # not settle, never a pinned value: where code counts as large (economy
 # over 1200 changed lines, balanced 800, quality 400), where a change
@@ -436,14 +437,15 @@ last_effort() {
 # the effort: the same model with more care recovers most failures for
 # a fraction of a stronger model's price. At the cap more effort has
 # little headroom left and the model climbs, at the effort already
-# reached. Prints "<rung> <effort> <reason>".
+# reached. A pinned CLAUDE_CODE_EFFORT_LEVEL makes the effort lever
+# inert, so the model climbs at once. Prints "<rung> <effort> <reason>".
 next_attempt() {
 	# next_attempt <last rung> <last effort>
 	if [ "$1" = cheap ]; then
 		echo "base $(moved "$2" 0 "$editor_cap") escalated"
 		return
 	fi
-	if [ "$(level_rank "$2")" -lt "$(level_rank "$editor_cap")" ]; then
+	if [ -z "$pinned" ] && [ "$(level_rank "$2")" -lt "$(level_rank "$editor_cap")" ]; then
 		echo "$1 $(moved "$2" 1 "$editor_cap") more-effort"
 		return
 	fi
