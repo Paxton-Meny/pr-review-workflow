@@ -14,7 +14,7 @@ printf 'path: tests/test_retry.py\n@@ -0,0 +1,1 @@\nR1 +from src.retry import ba
 printf 'path: docs/guide.md\n@@ -0,0 +1,1 @@\nR1 +plain words only\n' >"$ctx/files/004.diff"
 
 out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
-[ "$out" = "shard-plan: groups 2 seams 0 limit 1500" ]
+[ "$out" = "shard-plan: groups 2 seams 0 couplings 1 limit 1500" ]
 grep -q '^group 1 lines 1500 files 001 003$' "$ctx/shards.txt"
 grep -q '^group 2 lines 1500 files 002 004$' "$ctx/shards.txt"
 [ ! -f "$ctx/seams.txt" ]
@@ -37,7 +37,7 @@ printf '001\tsrc/a.py\n' >"$ctx/diff-index.txt"
 printf 'src/a.py\t100\t0\n' >"$ctx/files.txt"
 printf 'path: src/a.py\n@@ -0,0 +1,1 @@\nR1 +x = 1\n' >"$ctx/files/001.diff"
 out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
-[ "$out" = "shard-plan: groups 1 seams 0 limit 1500" ]
+[ "$out" = "shard-plan: groups 1 seams 0 couplings 0 limit 1500" ]
 [ ! -f "$ctx/shards.txt" ]
 
 if sh "$REPO_ROOT/scripts/shard-plan.sh" "$SCRATCH/empty" 4 1500 2>"$SCRATCH/err"; then
@@ -65,13 +65,13 @@ printf '001\tsrc/retry.py\n002\tsrc/unrelated.py\n003\ttests/test_retry.py\n004\
 printf 'src/retry.py\t700\t100\nsrc/unrelated.py\t500\t0\ntests/test_retry.py\t300\t0\ndocs/guide.md\t200\t0\n' >"$sctx/files.txt"
 for n in 001 002 003 004; do cp "$ctx/files/001.diff" "$sctx/files/$n.diff"; done
 printf 'path: tests/test_retry.py\n@@ -0,0 +1,1 @@\nR1 +from src.retry import backoff\n' >"$sctx/files/003.diff"
-[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir")" = "shard-plan: groups 2 seams 0 limit 1500" ]
+[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir")" = "shard-plan: groups 2 seams 0 couplings 1 limit 1500" ]
 grep -q '^group 1 lines 1100 files 001 003$' "$sctx/shards.txt"
 printf 'cost_posture economy\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$sdir" >/dev/null
-[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir")" = "shard-plan: groups 1 seams 0 limit 2250" ]
+[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir")" = "shard-plan: groups 1 seams 0 couplings 1 limit 2250" ]
 [ ! -f "$sctx/shards.txt" ]
-[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir" 4 1500)" = "shard-plan: groups 2 seams 0 limit 1500" ]
+[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir" 4 1500)" = "shard-plan: groups 2 seams 0 couplings 1 limit 1500" ]
 printf 'cost_posture quality\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$sdir" >/dev/null
-[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir" 2)" = "shard-plan: groups 2 seams 0 limit 1000" ]
+[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir" 2)" = "shard-plan: groups 2 seams 0 couplings 1 limit 1000" ]
 printf 'cost_posture balanced\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$sdir" >/dev/null
-[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir")" = "shard-plan: groups 2 seams 0 limit 1500" ]
+[ "$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$sdir")" = "shard-plan: groups 2 seams 0 couplings 1 limit 1500" ]
