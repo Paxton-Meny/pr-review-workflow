@@ -236,7 +236,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   evidence. The model climbs on depth: a stakes probe, a sensitive
   path, or, new, code whose changed files reference one another (6, 4,
   or 2 couplings under economy, balanced, or quality, counted by the
-  shard planner and kept in the ledger). Effort climbs on breadth: a
+  shard planner for the run). Effort climbs on breadth: a
   seam, a gap pass over seams, high stakes, and size when no stronger
   model takes it. A fix that fails now tries again one lever up
   instead of two: more effort on the same model while the editor is
