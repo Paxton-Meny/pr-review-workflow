@@ -1,6 +1,10 @@
 #!/bin/sh
 # Decide, as a PreToolUse hook on the Skill tool, whether Claude may start a review it chose to run.
-# Usage: sh scripts/start-gate.sh <self_start from the plugin configuration> <hook-input.json
+# Usage: sh scripts/start-gate.sh [self_start] <hook-input.json
+# The mode comes from the argument, else from CLAUDE_PLUGIN_OPTION_SELF_START,
+# which Claude Code exports to hook processes, else it is ask: a hook that
+# named ${user_config.self_start} failed to run until the user saved the
+# option, default or not.
 set -u
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -70,7 +74,7 @@ if [ "$(git symbolic-ref --short -q HEAD 2>/dev/null)" = "$(fact head_branch)" ]
 fi
 
 [ -z "$holds" ] || decide ask "Claude wants to start a review of $pr, but $holds. $effect"
-mode=${1:-ask}
+mode=${1:-${CLAUDE_PLUGIN_OPTION_SELF_START:-ask}}
 if [ -n "${CLAUDE_PLUGIN_DATA:-}" ]; then
 	resolved_mode=$(printf 'self_start %s\n' "$mode" | sh "$here/resolve-settings.sh" --preview "$CLAUDE_PLUGIN_DATA" 2>/dev/null |
 		sed -n 's/^settings: self_start \([a-z]*\) from .*/\1/p' | tail -n 1)

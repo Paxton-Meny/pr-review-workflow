@@ -8,6 +8,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The start gate runs again on an install that never saved the
+  self_start option. The hook named the option as an argument, and
+  Claude Code refuses to run a hook whose option is unset, default or
+  not, which blocked every review Claude tried to start. The gate now
+  reads the option from the environment Claude Code exports to hook
+  processes, and falls back to ask.
 - Saving findings into a ledger that already holds F008 or F009 no
   longer fails: the ids were read as octal by the shell's arithmetic,
   so every save after the eighth finding stopped the run. Leading

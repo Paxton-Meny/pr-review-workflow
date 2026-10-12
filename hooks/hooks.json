@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "sh",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/start-gate.sh", "${user_config.self_start}"],
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/start-gate.sh"],
             "timeout": 30,
             "onFailure": "block"
           }

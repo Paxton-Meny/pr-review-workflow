@@ -49,7 +49,11 @@ printf 'acme widgets\n' >"$stub/repo-view"
 call auto review-pr '7  auto_approve=false '
 [ ! -s "$SCRATCH/out" ]
 
-call '${user_config.self_start}' pr-review-workflow:review-pr 'acme/widgets#7 auto_approve=false'
+call '' pr-review-workflow:review-pr 'acme/widgets#7 auto_approve=false'
+[ "$(decision)" = ask ]
+CLAUDE_PLUGIN_OPTION_SELF_START=auto call '' pr-review-workflow:review-pr 'acme/widgets#7 auto_approve=false'
+[ ! -s "$SCRATCH/out" ]
+CLAUDE_PLUGIN_OPTION_SELF_START=auto call ask pr-review-workflow:review-pr 'acme/widgets#7 auto_approve=false'
 [ "$(decision)" = ask ]
 
 call auto pr-review-workflow:review-pr ''
@@ -141,5 +145,9 @@ grep -q 'is https://example.invalid/\\"q\\"/widgets.git, not acme/widgets' "$SCR
 [ "$(grep -o 'decide [a-z]*' "$gate" | sort -u | tr '\n' ' ')" = 'decide ask decide deny ' ]
 hooks="$REPO_ROOT/hooks/hooks.json"
 grep -q '"matcher": "Skill"' "$hooks"
-grep -q '"${CLAUDE_PLUGIN_ROOT}/scripts/start-gate.sh", "${user_config.self_start}"' "$hooks"
+grep -q '"${CLAUDE_PLUGIN_ROOT}/scripts/start-gate.sh"]' "$hooks"
+if grep -q 'user_config' "$hooks"; then
+	echo "the hook must not name a plugin option: an unset option stops the hook from running" >&2
+	exit 1
+fi
 grep -q '"onFailure": "block"' "$hooks"
