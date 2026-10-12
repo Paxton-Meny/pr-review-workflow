@@ -5,7 +5,10 @@
 # Files whose added lines mention another changed file's name stem are
 # clustered together, clusters are packed into line-balanced groups in
 # diff order, and any coupling that still crosses a group boundary is
-# recorded in seams.txt for the gap pass. The plan persists in
+# recorded in seams.txt for the gap pass. Each pair of changed files
+# that reference each other counts as one coupling, pairs with a docs
+# file left out: the total, then one "group <g> <n>" line per group,
+# is saved in couplings.txt for route-models.sh. The plan persists in
 # shards.txt, so a resumed run shards identically. Max-groups defaults
 # to 4. Shard-lines defaults to the run's cost posture (economy 2250,
 # balanced 1500, quality 1000, read from the resolved settings when
@@ -13,7 +16,7 @@
 # gap pass a sharded review always gets, up to a larger change, and a
 # more thorough run puts a second reader on a smaller one. A change
 # under the limit is one group and no shards.txt: it is not a sharded
-# review. The result line names the limit used.
+# review. The result line names the couplings and the limit used.
 set -eu
 
 dir=${1:?usage: shard-plan.sh <state-dir> [max-groups] [shard-lines]}
