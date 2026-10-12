@@ -46,10 +46,10 @@
 # starts cheap (below), and whether a group a stakes probe flagged earns
 # one review sample beyond the setting (quality only, never above 3).
 # A sharded review gets one line per group, judged on that group's own
-# files: it climbs for large code, or for a secrets, automation, or
-# sensitive probe whatever the kind, when a strong model is set, and
-# drops for a small group of a droppable kind with no risk signal. The
-# gap pass follows the highest review rung but never drops.
+# files: it climbs for large code, for coupled code, or for a secrets,
+# automation, or sensitive probe whatever the kind, when a strong model
+# is set, and drops for a small group of a droppable kind with no risk
+# signal. The gap pass follows the highest review rung but never drops.
 # An editing round gives each open finding a starting rung and batches
 # the round by rung, cheapest first. In round one a finding starts cheap
 # when it is mechanical (minor or nit with a proven suggestion), or,

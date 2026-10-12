@@ -190,11 +190,12 @@ PRWF_SETTINGS_END
    reviewer of this step takes its `model` and `effort`. Sharded, it
    prints one line per group, judged on that group's own files, and
    each group's reviewers take their own line's `model` and `effort`.
-   A group climbs to the strong model for large code or a stakes probe,
-   drops to sonnet for a small group of a kind the posture lets drop,
-   with no risk signal, and otherwise keeps reviewer_model; a reason of
-   `strong-wanted-unset` means the change deserved a stronger model
-   and none is configured, which the final report must say.
+   A group climbs to the strong model for large code, coupled code, or
+   a stakes probe, drops to sonnet for a small group of a kind the
+   posture lets drop, with no risk signal, and otherwise keeps
+   reviewer_model; a reason of `strong-wanted-unset` means the change
+   deserved a stronger model and none is configured, which the final
+   report must say.
    Pipe each report verbatim into
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
    unless it is exactly `no findings`. Every reviewer returning `no
