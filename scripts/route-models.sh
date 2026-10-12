@@ -344,10 +344,10 @@ review_rung() {
 	echo "base role-model"
 }
 
-# The reviewer's effort for one unit of the change. Size climbs the
-# model when a strong one is set and differs from the reviewer's, and
-# the effort otherwise, so one signal is paid for once; stakes climb
-# both.
+# The reviewer's effort for one unit of the change. Size, coupling,
+# and a stakes probe climb the model when a strong one is set and
+# differs from the reviewer's, and the effort otherwise, so one signal
+# is paid for once; a seam always raises the effort.
 review_effort() {
 	# review_effort <kind> <lines> <code_lines> <slugs> [group] [rung]
 	steps=0
