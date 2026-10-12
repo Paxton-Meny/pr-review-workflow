@@ -8,6 +8,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The skill no longer tells the orchestrator to pass `inherit` as a
+  model override, which the spawn tool rejects: an inherit route now
+  means omitting the model, and arbitration on an inherited reviewer
+  model passes the session model's alias so the verifier does not
+  fall back to its own default. The self-start hint names the exact
+  argument form, so a first attempt is not refused by the gate.
 - The start gate runs again on an install that never saved the
   self_start option. The hook named the option as an argument, and
   Claude Code refuses to run a hook whose option is unset, default or
