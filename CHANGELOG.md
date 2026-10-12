@@ -237,9 +237,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   path, or, new, code whose changed files reference one another (6, 4,
   or 2 couplings under economy, balanced, or quality, counted by the
   shard planner for the run). Effort climbs on breadth: a
-  seam, a gap pass over seams, high stakes, and size when no stronger
-  model takes it. A fix that fails now tries again one lever up
-  instead of two: more effort on the same model while the editor is
+  seam, a gap pass over seams, high stakes, and size or coupling when
+  no stronger model takes it. A fix that fails now tries again one lever
+  up instead of two: more effort on the same model while the editor is
   below its cap, then the next model at that effort, so each retry's
   statistics name the one lever it pulled. A signal is paid for once:
   when a stronger model takes a climb, the signal leaves the effort
