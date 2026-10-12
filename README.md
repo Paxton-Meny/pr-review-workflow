@@ -226,8 +226,9 @@ configured runs on every round.
   Cuadron et al. 2025 (arXiv 2502.08235); Is Escalation Worth It?
   2026 (arXiv 2605.06350).
 - `CLAUDE_CODE_EFFORT_LEVEL` outranks every per-spawn effort and so
-  defeats effort routing; route lines record it as `pinned`. The
-  `maxEffortLevel` setting caps every routed level without saying so.
+  defeats effort routing; route lines record it as `pinned`, and a
+  retry under it climbs the model directly. The `maxEffortLevel`
+  setting caps every routed level without saying so.
 - Subagent requests cache with a five-minute lifetime on every billing
   method (the main conversation gets an hour on a subscription). The
   `subagentPromptCacheTtl` setting raises it, at a higher write rate.

@@ -47,12 +47,15 @@ probes 'sensitive'
 [ "$(route review routing=auto strong=opus posture=economy)" = "route review all rung strong model opus effort high reason risky-probe samples 1" ]
 
 # A pinned environment level outranks every override, so the line and
-# every Route note record it.
+# every Route note record it, and a retry under it climbs the model
+# rather than pulling an effort lever that does nothing.
 [ "$(CLAUDE_CODE_EFFORT_LEVEL=max route review routing=auto strong=opus)" = "route review all rung strong model opus effort xhigh pinned max reason risky-probe samples 1" ]
 printf 'id: F015\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F015"
 [ "$(CLAUDE_CODE_EFFORT_LEVEL=low route edit $ARGS round=1 -- F015)" = "route edit all rung base model inherit effort medium pinned low reason role-model ids F015" ]
-[ "$(CLAUDE_CODE_EFFORT_LEVEL=low route repair $ARGS round=1 -- F015)" = "route repair all rung base model inherit effort high pinned low reason gate-failed ids F015" ]
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=low route repair $ARGS round=1 -- F015)" = "route repair all rung base model inherit effort medium pinned low reason gate-failed ids F015" ]
 [ "$(grep -c '^Route: round 1 rung base model inherit effort [a-z]* pinned low reason ' "$dir/findings/F015")" -eq 2 ]
+printf 'id: F016\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung base model inherit effort medium pinned low reason role-model\n' >"$dir/findings/F016"
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=low route edit routing=auto strong=opus round=2 -- F016)" = "route edit all rung strong model opus effort medium pinned low reason escalated ids F016" ]
 
 # Fixed routing never moves, and placeholders from an unconfigured install count as unset.
 [ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
@@ -297,7 +300,7 @@ printf 'id: F031\nstatus: open\nseverity: blocker\ncategory: correctness\npath: 
 [ "$(route repair routing=fixed round=1 -- F030)" = "route repair all rung base model inherit effort medium reason fixed ids F030" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 105 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 106 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
