@@ -52,7 +52,7 @@ while IFS='	' read -r n _p; do
 done <"$ctx/diff-index.txt"
 
 plan=$(awk -v idx="$ctx/diff-index.txt" -v cnt="$ctx/files.txt" \
-	-v maxg="$maxg" -v tl="$tl" \
+	-v maxg="$maxg" -v tl="$tl" -v kinds="$ctx/files-kind.txt" \
 	-v shards="$ctx/shards.txt" -v seams="$ctx/seams.txt" '
 function find(x) { while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x] } return x }
 function join(a, b,   ra, rb) {
@@ -70,6 +70,10 @@ BEGIN {
 		split(line, a, "\t"); pl[a[1]] = a[2] + a[3]
 	}
 	close(cnt)
+	while ((getline line < kinds) > 0) {
+		split(line, a, "\t"); cls[a[1]] = a[3]
+	}
+	close(kinds)
 	total = 0
 	for (i = 1; i <= n; i++) { fl[i] = pl[path[i]] + 0; total += fl[i] }
 	split("main test tests index util utils init setup mod lib app core base common config types data", sw, " ")
@@ -130,7 +134,11 @@ END {
 	}
 	close(shards)
 	ccount = 0
-	for (k in edge) ccount++
+	for (k in edge) {
+		split(k, e, SUBSEP)
+		if (cls[num[e[1]]] == "docs" || cls[num[e[2]]] == "docs") continue
+		ccount++
+	}
 	scount = 0
 	for (i = 1; i <= n; i++)
 		for (j = 1; j <= n; j++)

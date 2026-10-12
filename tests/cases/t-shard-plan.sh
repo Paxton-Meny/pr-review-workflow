@@ -24,6 +24,15 @@ out2=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
 [ "$out2" = "$out" ]
 [ "$(cat "$ctx/shards.txt")" = "$first" ]
 
+# A docs file naming a changed script clusters with it but is no coupling:
+# the count is a depth signal, and a changelog line is not depth.
+printf 'path: docs/guide.md\n@@ -0,0 +1,1 @@\nR1 +see retry for the backoff\n' >"$ctx/files/004.diff"
+printf '001\tsrc/retry.py\tcode\t1000\n002\tsrc/unrelated.py\tcode\t800\n003\ttests/test_retry.py\ttests\t500\n004\tdocs/guide.md\tdocs\t700\n' >"$ctx/files-kind.txt"
+out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
+printf '%s\n' "$out" | grep -q ' couplings 1 limit 1500$'
+[ "$(sed -n 1p "$ctx/couplings.txt")" = 1 ]
+printf 'path: docs/guide.md\n@@ -0,0 +1,1 @@\nR1 +plain words only\n' >"$ctx/files/004.diff"
+
 printf 'src/retry.py\t2600\t0\nsrc/unrelated.py\t800\t0\ntests/test_retry.py\t2500\t0\ndocs/guide.md\t700\t0\n' >"$ctx/files.txt"
 out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
 printf '%s\n' "$out" | grep -q '^shard-plan: groups '
