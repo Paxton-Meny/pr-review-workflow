@@ -7,6 +7,7 @@ mkdir -p "$stub"
 export GH_STUB_DIR="$stub"
 export PATH="$REPO_ROOT/tests/stubs:$PATH"
 export CLAUDE_PLUGIN_DATA="$SCRATCH/data"
+unset CLAUDE_PLUGIN_OPTION_SELF_START
 gate="$REPO_ROOT/scripts/start-gate.sh"
 
 clone="$SCRATCH/clone"
