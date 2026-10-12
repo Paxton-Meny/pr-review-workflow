@@ -253,7 +253,7 @@ PRWF_SETTINGS_END
       allows, when its Check line will execute or a check command
       gates the round; a finding attempted before and still open tries
       again one lever up, more effort on the same model until the
-      editor's cap, then one rung above its last attempt; nothing
+      posture's cap, then one rung above its last attempt; nothing
       starts cheap on a blocker, a security finding, or a file the
       secrets or sensitive probe flagged. Each attempt is noted on
       the record.

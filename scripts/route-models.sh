@@ -18,7 +18,9 @@
 # pr-context/routes.txt, and names the model and effort the
 # orchestrator passes as overrides, "inherit" included:
 #   route <stage> <unit> rung <rung> model <model> effort <level>[ pinned <value>] reason <reason>[ ids ...]
-# The model and the effort are two levers moved by different evidence.
+# The model and the effort are two levers moved by different evidence,
+# and a signal is paid for once: when a stronger model takes a climb,
+# the signal that caused it leaves the effort alone.
 # The model is the capability ceiling, so it climbs on depth: a
 # secrets, automation, or sensitive probe, or code whose changed files
 # reference one another at least the posture's count of times. Effort
@@ -42,7 +44,7 @@
 # over 1200 changed lines, balanced 800, quality 400), where a change
 # counts as small enough to drop (under 500, 300, 150) and which kinds
 # may (docs-only and config-only; tests-only too under economy), how far
-# effort may climb (economy high, the others xhigh), how readily a fix
+# effort may climb (xhigh under quality, high otherwise), how readily a fix
 # starts cheap (below), and whether a group a stakes probe flagged earns
 # one review sample beyond the setting (quality only, never above 3).
 # A sharded review gets one line per group, judged on that group's own
@@ -62,7 +64,7 @@
 # or sensitive probe fired never starts cheap. A finding that was
 # attempted and is still open tries again one lever up: the base model
 # after a cheap attempt, otherwise more effort on the same model while
-# the last attempt ran below the editor's cap (high, xhigh under
+# the last attempt ran below the posture's cap (high, xhigh under
 # quality), then one rung above it at that effort;
 # a repair after a failed check gate does the same for the batch that
 # broke it. Each attempt is noted on the finding's record. The
@@ -156,13 +158,12 @@ auto | fixed) ;;
 esac
 # The posture's lean: the large-code line, the coupling count that
 # makes a change deep, the small-change line and the kinds that may
-# drop, the effort caps (the editor's lower: on agentic coding the top
-# level buys little for its cost), and the extra sample a stakes group
-# earns.
+# drop, the effort cap (xhigh only under quality: the top level buys
+# little for its cost), and the extra sample a stakes group earns.
 case "$posture" in
-economy) large_code_lines=1200 coupled_min=6 small_lines=500 drop_kinds='docs-only config-only tests-only' effort_cap=high editor_cap=high extra_sample=0 ;;
-balanced) large_code_lines=800 coupled_min=4 small_lines=300 drop_kinds='docs-only config-only' effort_cap=xhigh editor_cap=high extra_sample=0 ;;
-quality) large_code_lines=400 coupled_min=2 small_lines=150 drop_kinds='docs-only config-only' effort_cap=xhigh editor_cap=xhigh extra_sample=1 ;;
+economy) large_code_lines=1200 coupled_min=6 small_lines=500 drop_kinds='docs-only config-only tests-only' effort_cap=high extra_sample=0 ;;
+balanced) large_code_lines=800 coupled_min=4 small_lines=300 drop_kinds='docs-only config-only' effort_cap=high extra_sample=0 ;;
+quality) large_code_lines=400 coupled_min=2 small_lines=150 drop_kinds='docs-only config-only' effort_cap=xhigh extra_sample=1 ;;
 *)
 	echo "route-models: posture must be quality, balanced, or economy: $posture" >&2
 	exit 1
@@ -200,8 +201,8 @@ level_rank() {
 }
 
 level_at() {
-	# level_at <rank> [cap], clamped to low and to the cap, the posture's by default
-	cap=$(level_rank "${2:-$effort_cap}")
+	# level_at <rank>, clamped to low and to the posture's cap
+	cap=$(level_rank "$effort_cap")
 	r=$1
 	[ "$r" -lt 0 ] && r=0
 	[ "$r" -gt "$cap" ] && r=$cap
@@ -223,12 +224,12 @@ role_effort() {
 }
 
 moved() {
-	# moved <base level> <signed steps> [cap]: no steps when routing is
-	# fixed, and capped either way
+	# moved <base level> <signed steps>: no steps when routing is fixed,
+	# and capped either way
 	if [ "$routing" = fixed ]; then
-		level_at "$(level_rank "$1")" "${3:-}"
+		level_at "$(level_rank "$1")"
 	else
-		level_at $(($(level_rank "$1") + $2)) "${3:-}"
+		level_at $(($(level_rank "$1") + $2))
 	fi
 }
 
@@ -348,13 +349,16 @@ review_rung() {
 # the effort otherwise, so one signal is paid for once; stakes climb
 # both.
 review_effort() {
-	# review_effort <kind> <lines> <code_lines> <slugs> [group]
+	# review_effort <kind> <lines> <code_lines> <slugs> [group] [rung]
 	steps=0
 	small_drop "$1" "$2" "$4" && steps=-1
-	if { [ "${strong:-$reviewer}" = "$reviewer" ] && { large_code "$1" "$3" || coupled "$1" "${5:-}"; }; } || on_seam "${5:-}"; then
+	if [ "${6:-}" != strong ] || [ "$strong" = "$reviewer" ]; then
+		if large_code "$1" "$3" || coupled "$1" "${5:-}"; then steps=$((steps + 1)); fi
+		has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
+	fi
+	if on_seam "${5:-}"; then
 		steps=$((steps + 1))
 	fi
-	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
 	moved "$reviewer_effort" "$steps"
 }
 
@@ -433,7 +437,7 @@ last_effort() {
 # The next attempt after a failed one moves one lever. A cheap attempt
 # climbs to the base model: the cheap rung is a round-one bet, and once
 # it has lost, more care on that model spends a round the ladder needs.
-# Otherwise, while the last attempt ran below the editor's cap it was
+# Otherwise, while the last attempt ran below the posture's cap it was
 # the effort: the same model with more care recovers most failures for
 # a fraction of a stronger model's price. At the cap more effort has
 # little headroom left and the model climbs, at the effort already
@@ -442,14 +446,14 @@ last_effort() {
 next_attempt() {
 	# next_attempt <last rung> <last effort>
 	if [ "$1" = cheap ]; then
-		echo "base $(moved "$2" 0 "$editor_cap") escalated"
+		echo "base $(moved "$2" 0) escalated"
 		return
 	fi
-	if [ -z "$pinned" ] && [ "$(level_rank "$2")" -lt "$(level_rank "$editor_cap")" ]; then
-		echo "$1 $(moved "$2" 1 "$editor_cap") more-effort"
+	if [ -z "$pinned" ] && [ "$(level_rank "$2")" -lt "$(level_rank "$effort_cap")" ]; then
+		echo "$1 $(moved "$2" 1) more-effort"
 		return
 	fi
-	e=$(moved "$2" 0 "$editor_cap")
+	e=$(moved "$2" 0)
 	next=$(up "$1")
 	if [ "$next" != "$1" ]; then
 		echo "$next $e escalated"
@@ -471,7 +475,7 @@ finding_plan() {
 		exit 1
 	}
 	if [ "$routing" = fixed ]; then
-		echo "base fixed $(moved "$editor_effort" 0 "$editor_cap")"
+		echo "base fixed $(moved "$editor_effort" 0)"
 		return
 	fi
 	last=$(last_rung "$record")
@@ -483,7 +487,7 @@ finding_plan() {
 	steps=0
 	high_stakes "$record" && steps=1
 	mechanical "$record" && steps=$((steps - 1))
-	effort=$(moved "$editor_effort" "$steps" "$editor_cap")
+	effort=$(moved "$editor_effort" "$steps")
 	if [ "$round" -ne 1 ]; then
 		echo "base role-model $effort"
 	elif high_stakes "$record"; then
@@ -542,12 +546,12 @@ review)
 			gs=${rest#"$gc"}
 			set -- $(review_rung "$gk" "$gl" "$gc" "$gs" "$gi")
 			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" \
-				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi")" "$2 samples $(samples_for "$gs")"
+				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi" "$1")" "$2 samples $(samples_for "$gs")"
 		done <"$ctx/shards.txt"
 	else
 		set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
 		emit all "$1" "$(model_for "$1" "$reviewer")" \
-			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs")" "$2 samples $(samples_for "$slugs")"
+			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs" "" "$1")" "$2 samples $(samples_for "$slugs")"
 	fi
 	;;
 gap)
@@ -634,7 +638,7 @@ edit)
 	;;
 repair)
 	# After a failed check gate: the batch that broke it tries again one
-	# lever up, more effort below the editor's cap and a rung above it.
+	# lever up, more effort below the posture's cap and a rung above it.
 	[ -n "$ids" ] || {
 		echo "route-models: the repair stage needs the batch's finding ids after --" >&2
 		exit 1
@@ -653,7 +657,7 @@ repair)
 		efforts="$efforts $(last_effort "$record")"
 	done
 	if [ "$routing" = fixed ]; then
-		rung=base effort=$(moved "$editor_effort" 0 "$editor_cap") reason=fixed
+		rung=base effort=$(moved "$editor_effort" 0) reason=fixed
 	else
 		set -- $(next_attempt "$top" "$(highest "$efforts")")
 		rung=$1 effort=$2 reason=gate-failed

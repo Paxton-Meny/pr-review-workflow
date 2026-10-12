@@ -241,8 +241,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   model takes it. A fix that fails now tries again one lever up
   instead of two: more effort on the same model while the editor is
   below its cap, then the next model at that effort, so each retry's
-  statistics name the one lever it pulled. The editor's effort stops
-  at high except under the quality posture, where it may reach xhigh,
+  statistics name the one lever it pulled. A signal is paid for once:
+  when a stronger model takes a climb, the signal leaves the effort
+  alone, and effort reaches xhigh only under the quality posture,
   since on agentic coding the top level buys little for its cost.
 - The shard limit follows the cost posture: a change splits into
   parallel reviewer shards over 2,250 changed lines under economy,
