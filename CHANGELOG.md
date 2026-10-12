@@ -219,6 +219,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The editor's thread reply names the fixing commit by sha and subject,
+  so the reference still finds the commit after a rebase rewrites the
+  sha.
 - The cost posture now leans every routing decision the change itself
   does not settle, instead of only where a fix starts. Economy counts a
   change as small enough for the cheap reviewer under 500 lines and
