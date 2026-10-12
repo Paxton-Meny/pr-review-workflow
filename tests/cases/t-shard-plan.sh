@@ -18,6 +18,8 @@ out=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)
 grep -q '^group 1 lines 1500 files 001 003$' "$ctx/shards.txt"
 grep -q '^group 2 lines 1500 files 002 004$' "$ctx/shards.txt"
 [ ! -f "$ctx/seams.txt" ]
+grep -qx 'group 1 1' "$ctx/couplings.txt"
+grep -qx 'group 2 0' "$ctx/couplings.txt"
 
 first=$(cat "$ctx/shards.txt")
 out2=$(sh "$REPO_ROOT/scripts/shard-plan.sh" "$dir" 4 1500)

@@ -53,7 +53,7 @@ done <"$ctx/diff-index.txt"
 
 plan=$(awk -v idx="$ctx/diff-index.txt" -v cnt="$ctx/files.txt" \
 	-v maxg="$maxg" -v tl="$tl" -v kinds="$ctx/files-kind.txt" \
-	-v shards="$ctx/shards.txt" -v seams="$ctx/seams.txt" '
+	-v shards="$ctx/shards.txt" -v seams="$ctx/seams.txt" -v couplings="$ctx/couplings.txt" '
 function find(x) { while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x] } return x }
 function join(a, b,   ra, rb) {
 	ra = find(a); rb = find(b)
@@ -138,7 +138,12 @@ END {
 		split(k, e, SUBSEP)
 		if (cls[num[e[1]]] == "docs" || cls[num[e[2]]] == "docs") continue
 		ccount++
+		gcouple[fg[e[1]]]++
+		if (fg[e[2]] != fg[e[1]]) gcouple[fg[e[2]]]++
 	}
+	printf "%d\n", ccount > couplings
+	for (gi = 1; gi <= gcount; gi++) printf "group %d %d\n", gi, gcouple[gi] + 0 > couplings
+	close(couplings)
 	scount = 0
 	for (i = 1; i <= n; i++)
 		for (j = 1; j <= n; j++)
@@ -154,5 +159,4 @@ END {
 set -- $plan
 groups=$1 seams=$2 couplings=$3
 [ "$groups" -gt 1 ] || rm -f "$ctx/shards.txt"
-printf '%s\n' "$couplings" >"$ctx/couplings.txt"
 echo "shard-plan: groups $groups seams $seams couplings $couplings limit $tl"

@@ -265,7 +265,7 @@ kind=none lines=0 code_lines=0
 slugs=''
 [ -f "$ctx/probe-slugs.txt" ] && slugs=$(cat "$ctx/probe-slugs.txt")
 couplings=0
-[ -f "$ctx/couplings.txt" ] && couplings=$(cat "$ctx/couplings.txt")
+[ -f "$ctx/couplings.txt" ] && couplings=$(sed -n 1p "$ctx/couplings.txt")
 
 # The facts for one shard group: its kind, lines, code lines, and the
 # probe slugs that fired on its files. Prints "kind lines code_lines slugs".
@@ -305,9 +305,12 @@ large_code() {
 }
 
 coupled() {
-	# coupled <kind>: code whose changed files reference one another at
-	# least the posture's count of times, so the judgment spans files
-	[ "$1" = code ] && [ "$couplings" -ge "$coupled_min" ]
+	# coupled <kind> [group]: code whose changed files reference one
+	# another at least the posture's count of times, so the judgment
+	# spans files; a shard group counts the couplings on its own files
+	c=$couplings
+	[ -n "${2:-}" ] && [ -f "$ctx/couplings.txt" ] && c=$(sed -n "s/^group $2 //p" "$ctx/couplings.txt")
+	[ "$1" = code ] && [ "${c:-0}" -ge "$coupled_min" ]
 }
 
 small_drop() {
@@ -320,13 +323,13 @@ small_drop() {
 # whatever the kind: a token in a config file or a workflow edit is as
 # risky as one in code.
 review_rung() {
-	# review_rung <kind> <lines> <code_lines> <slugs>; prints "<rung> <reason>"
+	# review_rung <kind> <lines> <code_lines> <slugs> [group]; prints "<rung> <reason>"
 	if [ "$routing" = fixed ]; then
 		echo "base fixed"
 		return
 	fi
 	why=''
-	if large_code "$1" "$3"; then why=large-code; elif coupled "$1"; then why=coupled; elif has_slug "$CLIMB_SLUGS" "$4"; then why=risky-probe; fi
+	if large_code "$1" "$3"; then why=large-code; elif coupled "$1" "${5:-}"; then why=coupled; elif has_slug "$CLIMB_SLUGS" "$4"; then why=risky-probe; fi
 	if [ -n "$why" ]; then
 		if [ -n "$strong" ]; then echo "strong $why"; else echo "base strong-wanted-unset"; fi
 		return
@@ -346,7 +349,7 @@ review_effort() {
 	# review_effort <kind> <lines> <code_lines> <slugs> [group]
 	steps=0
 	small_drop "$1" "$2" "$4" && steps=-1
-	if { [ "${strong:-$reviewer}" = "$reviewer" ] && { large_code "$1" "$3" || coupled "$1"; }; } || on_seam "${5:-}"; then
+	if { [ "${strong:-$reviewer}" = "$reviewer" ] && { large_code "$1" "$3" || coupled "$1" "${5:-}"; }; } || on_seam "${5:-}"; then
 		steps=$((steps + 1))
 	fi
 	has_slug "$CLIMB_SLUGS" "$4" && steps=$((steps + 1))
@@ -528,7 +531,7 @@ review)
 			rest=${rest#* }
 			gc=${rest%% *}
 			gs=${rest#"$gc"}
-			set -- $(review_rung "$gk" "$gl" "$gc" "$gs")
+			set -- $(review_rung "$gk" "$gl" "$gc" "$gs" "$gi")
 			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" \
 				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi")" "$2 samples $(samples_for "$gs")"
 		done <"$ctx/shards.txt"
