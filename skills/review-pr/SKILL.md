@@ -1,7 +1,7 @@
 ---
 name: review-pr
 description: "Review a GitHub pull request end to end: post inline findings, edit the branch to address them, re-review until clean, then merge or ask. Invoke with a PR number, owner/repo#n, or URL, from inside a clone of the reviewed repository."
-when_to_use: "Start it yourself only when the branch's work is committed, pushed, and verified, and its pull request is open, out of draft, and unreviewed. Pass the PR number then auto_approve=false; the plugin confirms with the user."
+when_to_use: "Start it yourself only when the branch's work is committed, pushed, and verified, and its pull request is open, out of draft, and unreviewed. Pass exactly the pull request and then auto_approve=false, nothing else; the plugin confirms with the user."
 argument-hint: "<pr number | owner/repo#n | url> [key=value ...]"
 allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh *)
@@ -47,8 +47,11 @@ value, for the merge gate.
 Every model decision below comes from one script,
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> <stage>`. It
 prints one `route` line per unit, and its `model` and `effort` values
-are the overrides to pass on every spawn the line covers, `inherit`
-included: pass both as given. Relay every route line.
+are the overrides to pass on every spawn the line covers. A model
+of `inherit` means no model override: omit the model, and the
+agent runs on the session model (the spawn tool does not accept
+`inherit` as a value). Pass every other model, and every effort,
+as given. Relay every route line.
 
 Constants: SIZE_WARN_LINES 4000. The round cap of 4
 lives in the round counter on disk, not here.
@@ -304,9 +307,10 @@ PRWF_SETTINGS_END
       rather than the editor's fix: rerun the verifier's procedure on
       the arbitration route, spawning `pr-review-workflow:verifier`
       with the line's `model` (the strong model when set, else
-      reviewer_model, passed explicitly even when it is `inherit` so
-      the arbitration runs on the session model, never the agent's
-      default) and its `effort` and exactly:
+      reviewer_model; when that is `inherit`, pass the session
+      model's own alias, since omitting the model would leave the
+      verifier on its definition's default rather than the session
+      model) and its `effort` and exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
       using the `capped_ids` line from the count. Rerun
       `count-findings.sh <dir> --list`: if any capped finding is
