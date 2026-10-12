@@ -48,3 +48,7 @@ if sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "did not resolve" "$SCRATCH/err"
+
+# The editor's reply carries the commit subject beside the sha, since a
+# rebase rewrites the sha and the subject is what still finds the commit.
+grep -q "printf 'Addressed in %s (%s).\\\\n' <short-sha> \"<subject>\"" "$REPO_ROOT/agents/editor.md"

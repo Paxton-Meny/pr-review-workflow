@@ -82,8 +82,10 @@ Resolution line together.
 
 1. Push once: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/push-branch.sh <state-dir>`.
 2. For each finding you fixed, in id order:
-   - when it has a `comment_id`, reply with the commit that fixed it:
-     `printf 'Addressed in %s.\n' <short-sha> | sh ${CLAUDE_PLUGIN_ROOT}/scripts/reply-thread.sh <state-dir> <comment_id>`
+   - when it has a `comment_id`, reply with the commit that fixed it,
+     sha and subject both, since a later rebase rewrites the sha and
+     the subject is what still finds the commit:
+     `printf 'Addressed in %s (%s).\n' <short-sha> "<subject>" | sh ${CLAUDE_PLUGIN_ROOT}/scripts/reply-thread.sh <state-dir> <comment_id>`
    - mark it: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=addressed commit=<short-sha>`
 3. Never resolve threads; verification does that.
 
