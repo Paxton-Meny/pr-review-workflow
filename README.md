@@ -189,8 +189,8 @@ configured runs on every round.
   session's level. Each agent starts at its definition's level (the
   reviewer high, the editor and the verifier medium, the filter low;
   arbitration runs the verifier at high) and moves one level per
-  signal: up for a wide search (large code unless a stronger model
-  takes it, a shard on a seam, a gap pass over seams) or high
+  signal: up for a wide search (large or coupled code unless a stronger
+  model takes it, a shard on a seam, a gap pass over seams) or high
   stakes (a secrets, automation, or sensitive probe on a review; a
   blocker, a security finding, or a flagged file on a fix), down where
   a later step checks the work (an editor's minor or nit fix carried
@@ -211,8 +211,8 @@ configured runs on every round.
   breadth too, but a stronger model at the same effort costs less than
   the next effort level on a smaller one (xhigh runs about 2.5 times
   the cost of high on coding in Anthropic's published runs) and finds
-  more, so large code climbs the model when one is set and the effort
-  otherwise.
+  more, so large or coupled code climbs the model when one is set and
+  the effort otherwise.
 - A fix that fails tries again one lever up: more effort on the same
   model while the last attempt ran below the posture's cap (high;
   xhigh under the quality posture), then the next model at that
