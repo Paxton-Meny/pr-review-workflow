@@ -128,7 +128,7 @@ pull request, and says when to choose it.
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
 | Second review pass | risky | When a gap pass runs after a single-reviewer first review: off, risky (a secrets, automation, or sensitive probe fired), or always. It reads the existing findings and reports only what they miss. A sharded review always ends with one, whatever this is set to: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. |
-| Ledgers kept per repository | 20 | Finished finding ledgers retained per repository after each merge; older ones are pruned, and runs still holding a worktree never are. |
+| Ledgers kept per repository | 20 | Finished finding ledgers retained per repository; older ones are pruned at the start of each review and after each merge, and a run whose pull request is still open never is. |
 | Reviewer / editor / verifier model | inherit / inherit / sonnet | Model per role. The first review deserves your strongest model; verification passes are cheap by design. |
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes, code whose changed files reference one another, and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, code whose changed files reference one another, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
@@ -278,6 +278,10 @@ Per-PR state lives under the plugin's data directory, outside every
 repository: the finding ledger, fetched context, and a detached review
 worktree. Re-invoking the skill on the same pull request resumes from the
 ledger. Your own checkout is never touched.
+A held run keeps only its ledger: the worktree and fetched context go
+when you choose to hold, and come back on resume. Every review starts
+by reaping runs, in any repository, whose pull request closed since,
+then pruning finished ledgers past the kept count.
 State is keyed by repository and pull request, so every worktree of a
 clone shares it, and local rule files are found from a linked worktree
 by looking in the main one. Run one review per pull request at a time.

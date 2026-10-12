@@ -16,7 +16,8 @@
 # Arbitrated note update-finding.sh writes). This is the evidence for
 # when a stronger model beats more effort, against a plain retry with
 # the verifier's note. Run it before cleanup-state.sh, which removes
-# pr-context.
+# pr-context. The outcome is also written to outcome.txt in the state
+# directory, where sweep-state.sh and list-runs.sh read it.
 set -eu
 
 dir=${1:?usage: run-stats.sh <state-dir> <outcome>}
@@ -117,4 +118,7 @@ fi
 root=$(CDPATH= cd -- "$dir/.." && pwd)
 line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config"
 printf '%s\n' "$line" >>"$root/stats.txt"
+# The outcome marks the ledger for sweep-state.sh and list-runs.sh: held,
+# parked, and review-only runs stay live without a worktree.
+printf '%s\n' "$outcome" >"$dir/outcome.txt"
 echo "run-stats: $line"

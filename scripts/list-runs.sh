@@ -44,6 +44,9 @@ if [ -d "$root" ]; then
 		done
 		live=no
 		[ -d "$dir/worktree" ] && live=yes
+		case "$(cat "$dir/outcome.txt" 2>/dev/null)" in
+		held | parked | review-only) live=yes ;;
+		esac
 		echo "run $owner/$repo#$pr rounds $rounds open $open addressed $addressed verified $verified wont-fix $wontfix resumable $live"
 		count=$((count + 1))
 	done

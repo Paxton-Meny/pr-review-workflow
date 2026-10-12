@@ -1,5 +1,7 @@
 #!/bin/sh
 # Remove the worktree and fetched context, keeping the ledger as the record.
+# Runs after a merge and on a hold: a held run resumes from the ledger,
+# fetching and checking out again, so it keeps nothing it can recreate.
 # Usage: sh scripts/cleanup-state.sh <state-dir>
 set -eu
 

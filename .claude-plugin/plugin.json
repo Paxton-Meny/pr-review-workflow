@@ -34,7 +34,7 @@
     "keep_ledgers": {
       "type": "number",
       "title": "Ledgers kept per repository",
-      "description": "After a merge, the sweep keeps this many finished finding ledgers per repository as the audit record and prunes older ones. Runs still holding a worktree are never pruned.",
+      "description": "At the start of each review and after each merge, the sweep keeps this many finished finding ledgers per repository as the audit record and prunes older ones. A run whose pull request is still open is never pruned.",
       "default": 20,
       "min": 1
     },
