@@ -841,7 +841,7 @@
 <div><dt>ACCEPTS</dt><dd>a whole number, 1 or more</dd></div>
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
-<p class="lead">Each reviewed pull request leaves a <a class="term" href="#g-ledger">ledger</a> on your machine: its findings, their notes, and how each one ended. After every merge the plugin tidies up, keeping the most recent ledgers for that repository as your audit record and deleting older ones.</p>
+<p class="lead">Each reviewed pull request leaves a <a class="term" href="#g-ledger">ledger</a> on your machine: its findings, their notes, and how each one ended. At the start of every review and after every merge the plugin tidies up: it reaps runs whose pull request has closed, in any repository, then keeps the most recent finished ledgers of each repository as your audit record and deletes older ones.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">For example, set it to</span>
@@ -857,23 +857,23 @@
 <span class="row-i"><span data-show="5 20 100"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
 <div class="row-b">
 <div class="row-t">Kept</div>
-<div class="row-s" data-show="5" hidden>The 5 most recently finished ledgers for the repository that just merged.</div>
-<div class="row-s" data-show="20">The 20 most recently finished ledgers for the repository that just merged.</div>
-<div class="row-s" data-show="100" hidden>The 100 most recently finished ledgers for the repository that just merged.</div>
+<div class="row-s" data-show="5" hidden>The 5 most recently finished ledgers of each repository.</div>
+<div class="row-s" data-show="20">The 20 most recently finished ledgers of each repository.</div>
+<div class="row-s" data-show="100" hidden>The 100 most recently finished ledgers of each repository.</div>
 </div>
 </div>
 <div class="row" data-on="">
 <span class="row-i"><span data-show="5 20 100"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></span></span>
 <div class="row-b">
 <div class="row-t">Deleted</div>
-<div class="row-s" data-show="5 20 100">Finished ledgers of that repository older than those.</div>
+<div class="row-s" data-show="5 20 100">Finished ledgers of a repository older than those.</div>
 </div>
 </div>
 <div class="row is-on" data-on="5 20 100">
 <span class="row-i"><span data-show="5 20 100"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
 <div class="row-b">
 <div class="row-t">Never touched</div>
-<div class="row-s" data-show="5 20 100">A run that still has its working copy, because it is paused or <a class="term" href="#g-park">parked</a> and can resume. Ledgers of other repositories. The statistics file that records one line per finished run.</div>
+<div class="row-s" data-show="5 20 100">A run whose pull request is still open, because it is in progress, held, or <a class="term" href="#g-park">parked</a> and can resume. The run being reviewed right now. The statistics file that records one line per finished run.</div>
 </div>
 </div>
 </div>

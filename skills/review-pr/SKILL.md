@@ -151,6 +151,11 @@ PRWF_SETTINGS_END
    on every invocation including a resume, since a resumed session may
    have a different tool.
 
+   Then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh <dir>`, relaying
+   its line: it reaps any recorded run, in any repository, whose pull
+   request closed since, and prunes finished ledgers past keep_ledgers.
+   The current run is never touched.
+
    If `<dir>/findings/` already has records, this is a resume: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
    report the counts, and continue at the step they imply. Open findings:
@@ -345,8 +350,11 @@ PRWF_SETTINGS_END
     - auto_approve false, attended: ask the user (merge now, or hold).
       Merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>`.
       Hold: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> held`,
-      report the state directory and stop; the pull request stays
-      open with its review trail.
+      then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
+      which drops the worktree and fetched context and keeps the
+      ledger (a resumed run fetches and checks out again); report
+      the state directory and stop; the pull request stays open with
+      its review trail.
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
@@ -355,8 +363,8 @@ PRWF_SETTINGS_END
     while the context it summarizes still exists, then
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
     then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh <dir>`,
-    which also reaps sibling runs whose pull requests closed outside
-    this tool. Relay the three one-line results,
+    which also reaps runs, in any repository, whose pull requests
+    closed outside this tool. Relay the three one-line results,
     and report: rounds run, findings by category and outcome, and the
     merge result, in a few lines.
 

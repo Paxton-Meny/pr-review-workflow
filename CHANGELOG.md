@@ -241,6 +241,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Every review now starts with the sweep that used to run only after
+  a merge, and the sweep covers every repository: a run whose pull
+  request merged or closed outside this tool loses its worktree and
+  fetched context at the next review anywhere, instead of waiting for
+  a merge by this tool in the same repository. Finished ledgers are
+  still kept per repository, up to the configured count.
+- Holding a converged pull request drops the run's worktree and
+  fetched context, keeping only the ledger, since a resumed run
+  fetches and checks out again. The run's outcome is recorded in
+  the ledger, so a held, parked, or review-only run stays resumable
+  without a worktree, and the status skill lists it as such.
 - The editor's thread reply names the fixing commit by sha and subject,
   so the reference still finds the commit after a rebase rewrites the
   sha.

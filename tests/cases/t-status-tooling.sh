@@ -25,12 +25,23 @@ printf 'id: F002\nstatus: open\nreopens: 0\n---\nbody\n' >"$d1/findings/F002"
 d2="$data/state/x__y__3"
 mkdir -p "$d2/worktree"
 printf 'owner x\nrepo y\npr 3\n' >"$d2/meta.txt"
+# A held run has dropped its worktree but still resumes; a closed one does not.
+d3="$data/state/x__y__4"
+mkdir -p "$d3/findings"
+printf 'owner x\nrepo y\npr 4\n' >"$d3/meta.txt"
+printf 'held\n' >"$d3/outcome.txt"
+d4="$data/state/x__y__5"
+mkdir -p "$d4/findings"
+printf 'owner x\nrepo y\npr 5\n' >"$d4/meta.txt"
+printf 'closed\n' >"$d4/outcome.txt"
 
 cd "$SCRATCH"
 out=$(sh "$REPO_ROOT/scripts/list-runs.sh" "$data" all)
 printf '%s\n' "$out" | grep -qx 'run o/r#7 rounds 2 open 1 addressed 0 verified 1 wont-fix 0 resumable no'
 printf '%s\n' "$out" | grep -qx 'run x/y#3 rounds 0 open 0 addressed 0 verified 0 wont-fix 0 resumable yes'
-printf '%s\n' "$out" | grep -qx 'list-runs: 2 runs'
+printf '%s\n' "$out" | grep -qx 'run x/y#4 rounds 0 open 0 addressed 0 verified 0 wont-fix 0 resumable yes'
+printf '%s\n' "$out" | grep -qx 'run x/y#5 rounds 0 open 0 addressed 0 verified 0 wont-fix 0 resumable no'
+printf '%s\n' "$out" | grep -qx 'list-runs: 4 runs'
 
 out=$(sh "$REPO_ROOT/scripts/list-runs.sh" "$data" o/r)
 printf '%s\n' "$out" | grep -qx 'list-runs: 1 runs for o/r'
@@ -41,5 +52,5 @@ git init -q "$clone"
 git -C "$clone" remote add origin https://github.com/x/y.git
 cd "$clone"
 out=$(sh "$REPO_ROOT/scripts/list-runs.sh" "$data")
-printf '%s\n' "$out" | grep -qx 'list-runs: 1 runs for x/y'
+printf '%s\n' "$out" | grep -qx 'list-runs: 3 runs for x/y'
 printf '%s\n' "$out" | grep -q 'resumable yes'
