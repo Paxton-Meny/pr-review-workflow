@@ -59,9 +59,10 @@
 # mechanical ones do. A
 # blocker, a security finding, or a finding on a file where the secrets
 # or sensitive probe fired never starts cheap. A finding that was
-# attempted and is still open tries again one lever up: more effort on
-# the same model while the last attempt ran below the editor's cap
-# (high, xhigh under quality), then one rung above it at that effort;
+# attempted and is still open tries again one lever up: the base model
+# after a cheap attempt, otherwise more effort on the same model while
+# the last attempt ran below the editor's cap (high, xhigh under
+# quality), then one rung above it at that effort;
 # a repair after a failed check gate does the same for the batch that
 # broke it. Each attempt is noted on the finding's record. The
 # verifier and the filter never change model; arbitration is the
@@ -428,14 +429,20 @@ last_effort() {
 	grep '^Route: ' "$1" | tail -n 1 | sed -n 's/.* effort \([a-z]*\).*/\1/p' | grep . || echo "$editor_effort"
 }
 
-# The next attempt after a failed one moves one lever. While the last
-# attempt ran below the editor's cap it was the effort: the same model
-# with more care recovers most failures for a fraction of a stronger
-# model's price. At the cap more effort has little headroom left and
-# the model climbs, at the effort already reached. Prints
-# "<rung> <effort> <reason>".
+# The next attempt after a failed one moves one lever. A cheap attempt
+# climbs to the base model: the cheap rung is a round-one bet, and once
+# it has lost, more care on that model spends a round the ladder needs.
+# Otherwise, while the last attempt ran below the editor's cap it was
+# the effort: the same model with more care recovers most failures for
+# a fraction of a stronger model's price. At the cap more effort has
+# little headroom left and the model climbs, at the effort already
+# reached. Prints "<rung> <effort> <reason>".
 next_attempt() {
 	# next_attempt <last rung> <last effort>
+	if [ "$1" = cheap ]; then
+		echo "base $(moved "$2" 0 "$editor_cap") escalated"
+		return
+	fi
 	if [ "$(level_rank "$2")" -lt "$(level_rank "$editor_cap")" ]; then
 		echo "$1 $(moved "$2" 1 "$editor_cap") more-effort"
 		return

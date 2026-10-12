@@ -74,22 +74,23 @@ printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n``
 grep -q '^Route: round 1 rung cheap model sonnet effort low reason mechanical$' "$dir/findings/F001"
 [ "$(grep -c '^Route: ' "$dir/findings/F001")" -eq 4 ]
 
-# A finding attempted and still open moves one lever: more effort on the
-# same model while the editor has headroom, then one rung up at that
-# effort, until the top of the ladder holds.
+# A finding attempted and still open moves one lever: the base model
+# after a cheap attempt, otherwise more effort on the same model while
+# the editor has headroom, then one rung up at that effort, until the
+# top of the ladder holds.
 printf 'id: F005\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung cheap model sonnet reason contract-first\n' >"$dir/findings/F005"
 printf 'id: F006\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung base model inherit reason role-model\n' >"$dir/findings/F006"
 [ "$(route edit $ARGS round=2 -- F005 F006)" = "route edit all rung base model inherit effort high reason mixed ids F005 F006" ]
-grep -q '^Route: round 2 rung base model inherit effort high reason more-effort-alone$' "$dir/findings/F005"
+grep -q '^Route: round 2 rung base model inherit effort high reason escalated$' "$dir/findings/F005"
 grep -q '^Route: round 2 rung base model inherit effort high reason more-effort$' "$dir/findings/F006"
 [ "$(route edit routing=auto strong=opus round=3 -- F006)" = "route edit all rung strong model opus effort high reason escalated ids F006" ]
 [ "$(route edit routing=auto strong=opus round=4 -- F006)" = "route edit all rung strong model opus effort high reason ladder-top ids F006" ]
 
 # A repair after a failed check gate moves the batch that broke it one
-# lever up as well: here more effort, since the cheap attempt ran below the cap.
+# lever up as well: here the base model, since the cheap attempt lost its bet.
 printf 'id: F007\nstatus: open\nseverity: minor\n---\nbody\nRoute: round 1 rung cheap model sonnet reason mechanical\n' >"$dir/findings/F007"
-[ "$(route repair $ARGS round=1 -- F007)" = "route repair all rung cheap model sonnet effort high reason gate-failed ids F007" ]
-grep -q '^Route: round 1 rung cheap model sonnet effort high reason gate-failed$' "$dir/findings/F007"
+[ "$(route repair $ARGS round=1 -- F007)" = "route repair all rung base model inherit effort medium reason gate-failed ids F007" ]
+grep -q '^Route: round 1 rung base model inherit effort medium reason gate-failed$' "$dir/findings/F007"
 
 # Cheap-first: a contract-backed finding starts cheap when its Check line would execute.
 mkdir -p "$dir/worktree"
@@ -140,8 +141,7 @@ printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n``
 printf 'id: F004\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F004"
 [ "$(route edit $ARGS round=1 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet effort low reason mechanical ids F001 F002
 route edit batch-2 rung base model inherit effort medium reason role-model ids F003 F004" ]
-[ "$(route edit $ARGS round=2 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet effort medium reason more-effort ids F001 F002
-route edit batch-2 rung base model inherit effort high reason more-effort ids F003 F004" ]
+[ "$(route edit $ARGS round=2 -- F003 F001 F004 F002)" = "route edit all rung base model inherit effort high reason mixed ids F003 F001 F004 F002" ]
 
 # A sharded review is routed group by group, on each group's own files.
 printf '001\tdocs/a.md\tdocs\t40\n002\tdocs/b.md\tdocs\t30\n003\tsrc/auth.py\tcode\t120\n004\tsrc/util.py\tcode\t60\n' >"$ctx/files-kind.txt"
@@ -297,7 +297,7 @@ printf 'id: F031\nstatus: open\nseverity: blocker\ncategory: correctness\npath: 
 [ "$(route repair routing=fixed round=1 -- F030)" = "route repair all rung base model inherit effort medium reason fixed ids F030" ]
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 106 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 105 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the
