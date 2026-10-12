@@ -216,12 +216,13 @@ configured runs on every round.
 - A fix that fails tries again one lever up: more effort on the same
   model while the last attempt ran below the posture's cap (high;
   xhigh under the quality posture), then the next model at that
-  effort. Anthropic's
-  recovered most of them for about half the cost of running everything
-  at the higher level, and routing studies find a second model tier
-  captures nearly all the gain a cascade offers. The statistics line
-  records which lever each retry pulled and whether the finding ended
-  verified, so the balance is tuned from recorded runs. Sources:
+  effort. Anthropic's published coding runs re-ran failures at a
+  higher effort and recovered most of them for about half the cost of
+  running everything at the higher level, and routing studies find a
+  second model tier captures nearly all the gain a cascade offers. The
+  statistics line records which lever each retry pulled and whether
+  the finding ended verified, so the balance is tuned from recorded
+  runs. Sources:
   Anthropic, Optimizing for cost and intelligence
   (platform.claude.com/docs); Snell et al. 2024 (arXiv 2408.03314);
   Cuadron et al. 2025 (arXiv 2502.08235); Is Escalation Worth It?
