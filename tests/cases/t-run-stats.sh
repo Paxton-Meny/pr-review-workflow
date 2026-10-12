@@ -10,7 +10,7 @@ printf '2\n' >"$dir/rounds.txt"
 printf 'classify-change: kind code files 3 lines 900\n' >"$dir/pr-context/class.txt"
 printf 'group 1 lines 500 files 001\ngroup 2 lines 400 files 002\n' >"$dir/pr-context/shards.txt"
 printf 'a and b split across groups 1 and 2 (shared name: x)\n' >"$dir/pr-context/seams.txt"
-printf 'route review all rung cheap model sonnet effort medium reason docs-only-small\nroute gap all rung base model inherit effort high pinned max reason follows-reviewer\nroute edit all rung strong model opus effort xhigh reason x ids F001\n' >"$dir/pr-context/routes.txt"
+printf 'route review all rung cheap model sonnet effort medium reason docs-only-small\nroute gap all rung base model inherit effort high pinned max reason follows-reviewer\nroute edit all rung strong model opus effort xhigh reason x ids F001\nroute edit all rung base model inherit effort high reason more-effort ids F003\n' >"$dir/pr-context/routes.txt"
 
 # Every retry counts once, by what changed from the attempt before.
 # F001 climbed the model twice and then only the effort, and is still
@@ -46,8 +46,8 @@ finding F010 verified
 { printf 'Route: round 1 rung base model inherit reason role-model\n'; note 2 inherit 'effort high'; } >>"$dir/findings/F010"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 10 verified 6 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 10 verified 6 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 3 cheap 1 base 1 strong 1 strong_wanted 0 escalations 0 effort_low 0 effort_medium 1 effort_high 1 effort_xhigh 1 pinned 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 10 verified 6 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 4 cheap 1 base 2 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 2 effort_xhigh 1 pinned 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 10 verified 6 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 4 cheap 1 base 2 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 2 effort_xhigh 1 pinned 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 2 same_retries_verified 2 config none' "$root/stats.txt"
 
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]
