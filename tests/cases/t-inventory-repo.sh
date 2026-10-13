@@ -110,6 +110,17 @@ git commit --quiet --allow-empty -m move
 out=$(inventory "$data" 2)
 printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 2 max 2'
 
+# A tracked file whose extension holds a command substitution is only data.
+printf 'x = 1\n' >'evil.$(touch pwned)'
+printf 'x = 1\n' >'evil2.`touch pwned2`'
+git add -A
+git commit --quiet -m evil
+out=$(inventory "$data")
+[ ! -e "$clone/pwned" ]
+[ ! -e "$clone/pwned2" ]
+printf '%s\n' "$out" | grep -qx 'inventory: tier medium'
+printf '%s\n' "$out" | grep -q '^inventory: languages py '
+
 # Refusals: a bad cap, no clone.
 if inventory "$data" 0 2>/dev/null; then
 	echo "expected refusal of a zero cap" >&2
