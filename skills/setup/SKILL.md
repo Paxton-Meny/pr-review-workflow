@@ -68,6 +68,7 @@ contract_commands ${user_config.contract_commands}
 cost_posture ${user_config.cost_posture}
 sensitive_paths ${user_config.sensitive_paths}
 strong_model ${user_config.strong_model}
+self_start ${user_config.self_start}
 PRWF_SETTINGS_END
 ```
 
@@ -142,10 +143,10 @@ PRWF_SETTINGS_END
      shows `from user`. The file holds only what differs here.
    - Revising: start from the existing lines, change only the keys
      decided above, and keep every other line and comment.
-   - Never write auto_approve, a model, routing, the strong model, or
-     ledgers kept. They belong in the plugin configuration dialog; a
-     shared file is refused them, and a personal file would quietly
-     split this repository from the user's other ones.
+   - Never write auto_approve, self_start, a model, routing, the strong
+     model, or ledgers kept. They belong in the plugin configuration
+     dialog; a shared file is refused them, and a personal file would
+     quietly split this repository from the user's other ones.
 
 7. The question, when a human is present: show the composed file and,
    when one was saved, the proposal's lines after its `proposal:`
