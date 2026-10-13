@@ -41,6 +41,8 @@ for, stated in a line or two each:
 Keep it under about thirty lines. Do not duplicate CONTRIBUTING or the
 README; name them where detail lives. Prune lines the code no longer backs,
 in the same change that invalidates them: a wrong map is worse than none.
+`/pr-review-workflow:setup` drafts a first block from a verified survey of
+the repository and writes it here only when asked to at its confirmation.
 
 ## How the agents use it
 
