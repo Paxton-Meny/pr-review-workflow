@@ -3,7 +3,36 @@
 # Writes class.txt (the summary line) and files-kind.txt (one line per
 # file: number, path, class, changed lines) under pr-context/.
 # Usage: sh scripts/classify-change.sh <state-dir>
+#        sh scripts/classify-change.sh --classify < paths
+# --classify reads one path per line and prints "<class>\t<path>", the
+# same classes the diff mode uses, so other scripts share this one home.
 set -eu
+
+class_of() {
+	case "$1" in
+	*/test/* | test/* | */tests/* | tests/* | */__tests__/* | __tests__/* | */spec/* | spec/*)
+		class=tests
+		return
+		;;
+	esac
+	base=${1##*/}
+	case "$base" in
+	test_*.* | *_test.* | *.test.* | *.spec.* | *_spec.* | conftest.py) class=tests ;;
+	requirements*.txt | constraints*.txt) class=config ;;
+	*.md | *.rst | *.adoc | *.txt | LICENSE* | NOTICE* | AUTHORS*) class=docs ;;
+	*.json | *.yml | *.yaml | *.toml | *.ini | *.cfg | .gitignore | .gitattributes | .editorconfig) class=config ;;
+	*) class=code ;;
+	esac
+}
+
+if [ "${1:-}" = --classify ]; then
+	while IFS= read -r path; do
+		[ -n "$path" ] || continue
+		class_of "$path"
+		printf '%s\t%s\n' "$class" "$path"
+	done
+	exit 0
+fi
 
 dir=${1:?usage: classify-change.sh <state-dir>}
 ctx="$dir/pr-context"
@@ -12,39 +41,12 @@ ctx="$dir/pr-context"
 	exit 1
 }
 
-class_of() {
-	case "$1" in
-	*/test/* | test/* | */tests/* | tests/* | */__tests__/* | __tests__/* | */spec/* | spec/*)
-		echo tests
-		return
-		;;
-	esac
-	base=${1##*/}
-	case "$base" in
-	test_*.* | *_test.* | *.test.* | *.spec.* | *_spec.* | conftest.py)
-		echo tests
-		;;
-	requirements*.txt | constraints*.txt)
-		echo config
-		;;
-	*.md | *.rst | *.adoc | *.txt | LICENSE* | NOTICE* | AUTHORS*)
-		echo docs
-		;;
-	*.json | *.yml | *.yaml | *.toml | *.ini | *.cfg | .gitignore | .gitattributes | .editorconfig)
-		echo config
-		;;
-	*)
-		echo code
-		;;
-	esac
-}
-
 docs=0 tests=0 config=0 code=0 files=0 lines=0 code_lines=0
 table=$(mktemp "$ctx/.class.XXXXXX")
 while IFS='	' read -r num path; do
 	[ -n "$path" ] || continue
 	files=$((files + 1))
-	class=$(class_of "$path")
+	class_of "$path"
 	counts=$(awk -F '\t' -v p="$path" '$1 == p { print $2 + $3; exit }' "$ctx/files.txt" 2>/dev/null || true)
 	counts=${counts:-0}
 	case $class in

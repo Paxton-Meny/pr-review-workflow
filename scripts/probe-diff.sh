@@ -1,7 +1,27 @@
 #!/bin/sh
 # Run deterministic probes over the fetched diff into probes.txt.
 # Usage: sh scripts/probe-diff.sh <state-dir>
+#        sh scripts/probe-diff.sh --pattern sensitive|secrets|automation
+# --pattern prints the named probe's regex, so other scripts grep with
+# the same one instead of carrying a copy.
 set -eu
+
+AUTOMATION_RE='uses:|pull_request_target|continue-on-error|--no-verify|curl[^|]*\|[[:space:]]*(ba|z)?sh|wget[^|]*\|[[:space:]]*(ba|z)?sh|chmod[[:space:]]+(-r[[:space:]]+)?777'
+SECRETS_RE='akia[0-9a-z]{16}|-----begin [a-z ]*private key|gh[pousr]_[0-9a-z]{30,}|sk-[0-9a-z_-]{20,}|xox[abprs]-|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token)[[:space:]]*[:=][[:space:]]*.{8,}'
+SENSITIVE_RE='mutex|semaphore|atomic_|threading\.|goroutine|synchronized|pthread_|crypt|cipher|hmac|jwt|oauth|argon2|eval\(|exec\(|pickle\.loads|yaml\.load|deserializ|os\.system|subprocess\.'
+
+if [ "${1:-}" = --pattern ]; then
+	case "${2:-}" in
+	sensitive) printf '%s\n' "$SENSITIVE_RE" ;;
+	secrets) printf '%s\n' "$SECRETS_RE" ;;
+	automation) printf '%s\n' "$AUTOMATION_RE" ;;
+	*)
+		echo "probe-diff: --pattern takes sensitive, secrets, or automation" >&2
+		exit 1
+		;;
+	esac
+	exit 0
+fi
 
 dir=${1:?usage: probe-diff.sh <state-dir>}
 ctx="$dir/pr-context"
@@ -44,11 +64,11 @@ probe "Added files" "$(awk '/^--- \/dev\/null$/ { want = 1; next } want && /^\+\
 probe "Deleted files" "$(awk '/^--- a\// { p = $0; sub(/^--- a\//, "", p); prev = p; next } /^\+\+\+ \/dev\/null$/ { print prev } { prev = "" }' "$ctx/diff.patch" | head -n 50)" deleted
 probe "Dependency manifests or lockfiles changed" "$(cut -f1 "$ctx/files.txt" 2>/dev/null | grep -iE '(^|/)(package(-lock)?\.json|yarn\.lock|pnpm-lock\.yaml|cargo\.(toml|lock)|pyproject\.toml|poetry\.lock|uv\.lock|requirements[^/]*\.txt|go\.(mod|sum)|gemfile(\.lock)?|composer\.(json|lock)|.*\.lockb?)$' || true)" deps
 probe "Added import lines" "$(lead_paths ':[[:space:]]*(import |from [a-z0-9_.]+ import |require\(|use [a-z]|#include|using [a-z])' | sort -u | head -n 40)" imports
-probe "Risky automation lines added" "$(lead 'uses:|pull_request_target|continue-on-error|--no-verify|curl[^|]*\|[[:space:]]*(ba|z)?sh|wget[^|]*\|[[:space:]]*(ba|z)?sh|chmod[[:space:]]+(-r[[:space:]]+)?777')" automation
-probe "Possible secrets in added lines (locations only, content withheld)" "$(lead_paths 'akia[0-9a-z]{16}|-----begin [a-z ]*private key|gh[pousr]_[0-9a-z]{30,}|sk-[0-9a-z_-]{20,}|xox[abprs]-|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token)[[:space:]]*[:=][[:space:]]*.{8,}')" secrets
+probe "Risky automation lines added" "$(lead "$AUTOMATION_RE")" automation
+probe "Possible secrets in added lines (locations only, content withheld)" "$(lead_paths "$SECRETS_RE")" secrets
 probe "Debug leftovers in added lines" "$(lead 'console\.(log|debug)\(|debugger;|pdb\.set_trace|breakpoint\(\)|binding\.pry|dbg!\(|var_dump\(|print_r\(')" debug
 probe "Work markers added" "$(lead '(^|[^a-z])(todo|fixme|hack|xxx)([^a-z]|$)')" markers
-probe "Sensitive surfaces in added lines (concurrency, crypto, auth, injection)" "$(lead 'mutex|semaphore|atomic_|threading\.|goroutine|synchronized|pthread_|crypt|cipher|hmac|jwt|oauth|argon2|eval\(|exec\(|pickle\.loads|yaml\.load|deserializ|os\.system|subprocess\.')" sensitive
+probe "Sensitive surfaces in added lines (concurrency, crypto, auth, injection)" "$(lead "$SENSITIVE_RE")" sensitive
 probe "Test files shrink (more deleted than added, assertions may be weakening)" "$(awk -F '\t' '{
 	b = $1; sub(/.*\//, "", b)
 	t = ($1 ~ /(^|\/)(test|tests|__tests__|spec)\//) || (b ~ /^test_/) || (b ~ /_test\./) || (b ~ /\.test\./) || (b ~ /\.spec\./) || (b ~ /_spec\./) || (b == "conftest.py")

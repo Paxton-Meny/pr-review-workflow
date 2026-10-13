@@ -44,3 +44,7 @@ if sh "$REPO_ROOT/scripts/classify-change.sh" "$SCRATCH/empty" 2>"$SCRATCH/err";
 	exit 1
 fi
 grep -q "no diff-index.txt" "$SCRATCH/err"
+
+# --classify shares the classes with any script that feeds it paths.
+out=$(printf 'src/app.py\ntests/test_app.py\nREADME.md\nconfig.yaml\n\npkg/util.spec.ts\n' | sh "$REPO_ROOT/scripts/classify-change.sh" --classify)
+[ "$out" = "$(printf 'code\tsrc/app.py\ntests\ttests/test_app.py\ndocs\tREADME.md\nconfig\tconfig.yaml\ntests\tpkg/util.spec.ts')" ]
