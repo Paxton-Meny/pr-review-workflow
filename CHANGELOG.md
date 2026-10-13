@@ -8,6 +8,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Setup infers where migrations live by reading the clone: content
+  markers, file names, and the configuration that names a location,
+  across Django, Alembic, Rails, Laravel, Ecto, Knex, TypeORM, goose,
+  golang-migrate, Flyway, Liquibase, sqitch, Diesel, and Prisma, and for
+  .NET and SQL Server, EF Core, FluentMigrator, DbUp, and SSDT schema
+  projects. Cartographers may claim a migrations directory a document
+  names. Directories the patterns in force miss are advised as extra
+  `migration_paths` patterns, and a directory only named like
+  migrations that the patterns catch is a recommendation to narrow
+  them. Migrations leave the sensitive-names list, since their own
+  setting already routes them as sensitive.
+- Setup finds a .NET solution below the root, the usual Blazor layout,
+  and offers `dotnet test <solution>` with `dotnet test` as a prefix.
+- The schema probe reads EF Core `MigrationBuilder`, FluentMigrator,
+  and T-SQL `sp_rename` operations, and tags a regenerated EF model
+  snapshot as a snapshot rather than an edit to a shipped migration.
 - Migration awareness. A new `migration_paths` setting names where a
   repository keeps database migrations, defaulting to the common
   layouts (`*[Mm]igrations/* *[Mm]igration/* *db/migrate/*
@@ -22,6 +38,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Inferred tooling waits for a person. Setup lists every inferred check
+  command and contract prefix on its own line in its question, says it
+  runs the project's code and may create or migrate a test database,
+  and writes live only the commands confirmed by name.
+- Migration and database tooling is never offered or run, through one
+  matcher, `scripts/migration-tool.sh`: the survey prints such a
+  candidate as skipped, verification drops such a check claim, and
+  `run-contract.sh` refuses it. The matcher now also knows `dotnet ef`,
+  the Package Manager Console verbs, `sqlpackage`, `sqlcmd`,
+  RoundhousE, and the `psql`, `mysql`, `sqlite3`, and `mongosh`
+  clients.
+- The merge checklist asks whether the model snapshot, as well as the
+  numbering or parent, is still the latest.
 - A pull request that changes migrations never merges without a
   person, auto-approve included. `merge-pr.sh` refuses with exit 4 and
   lists the migrations, and the skill asks the user to confirm what

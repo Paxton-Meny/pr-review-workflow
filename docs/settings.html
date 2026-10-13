@@ -471,7 +471,7 @@
 <div class="setting"><div class="setting-k"><h5>Read, never run</h5></div><div class="setting-d"><p>No agent or script runs migration tooling, a dry run or check mode included, or connects to a database. A finding&#8217;s <a class="term" href="#g-check-line">Check line</a> naming migration tooling is judged by reading instead.</p></div></div>
 <div class="setting"><div class="setting-k"><h5>A person decides the merge</h5></div><div class="setting-d"><p>Even with <a href="#auto-approve">auto-approve</a> on, the run stops and asks you to confirm what one pull request cannot show: no newer migrations on the base branch that this branch lacks, no other open pull request adding migrations in the same directories, code teammates run still working against the new schema while it deploys, and no shipped migration edited. Unattended, it <a class="term" href="#g-park">parks</a> with that checklist.</p></div></div>
 </div>
-<p class="note">A <code>*</code> matches any run of characters, slashes included. Your value replaces the default, so include the default patterns you still want; a project&#8217;s shared settings file adds its patterns to whichever list is in force.</p>
+<p class="note">A <code>*</code> matches any run of characters, slashes included. Your value replaces the default, so include the default patterns you still want; a project&#8217;s shared settings file adds its patterns to whichever list is in force. <code>/pr-review-workflow:setup</code> finds where migrations live by reading the clone, EF Core, FluentMigrator, DbUp, and SSDT schema projects included, and adds any directory these patterns miss.</p>
 <div class="choose">
 <div class="kicker">Choose it when</div>
 <dl class="choose-l">
