@@ -364,8 +364,8 @@ PRWF_SETTINGS_END
       out), and the review reads only this pull request. Attended: relay
       its lines and ask the user to confirm, by their own checks, that
       1) the base branch has no newer migrations in those directories
-      that this branch lacks, and the numbering or parent is still the
-      latest; 2) no other open pull request adds migrations there;
+      that this branch lacks, and the numbering, parent, or model
+      snapshot is still the latest; 2) no other open pull request adds migrations there;
       3) code teammates run still works against the new schema, and old
       code keeps working while it deploys; 4) no migration that already
       shipped was edited. Then ask merge or hold. Merge: rerun the same
