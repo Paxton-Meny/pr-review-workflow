@@ -22,6 +22,8 @@ printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $keys user 0 p
 grep -qx 'check_command' "$dir/settings.txt"
 [ "$(source_of verifier_model)" = default ]
 printf '%s\n' "$out" | grep -qx 'settings: for this run auto_approve false'
+[ "$(value migration_paths)" = '*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*' ]
+[ "$(printf 'migrations db/schema/*\n' | resolve >/dev/null && value migration_paths)" = 'db/schema/*' ]
 
 # User values win over defaults; empty user values count as unset.
 cat >"$SCRATCH/user" <<'END'
