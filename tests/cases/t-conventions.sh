@@ -2,8 +2,8 @@
 # checkout-pr extracts the conventions block from the base branch only.
 set -eu
 
-mkdir -p "$SCRATCH/acme"
-remote="$SCRATCH/acme/widgets.git"
+mkdir -p "$SCRATCH/Paxton-Meny"
+remote="$SCRATCH/Paxton-Meny/widgets.git"
 git init --quiet --bare "$remote"
 clone="$SCRATCH/clone"
 git clone --quiet "$remote" "$clone" 2>/dev/null
@@ -24,7 +24,7 @@ git -C "$clone" checkout --quiet main
 
 dir="$SCRATCH/state"
 mkdir -p "$dir/pr-context"
-printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nbase_branch main\nhead_sha %s\ncross_repo false\n' "$sha" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_branch feat-thing\nbase_branch main\nhead_sha %s\ncross_repo false\n' "$sha" >"$dir/meta.txt"
 
 cd "$clone"
 out=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir")
