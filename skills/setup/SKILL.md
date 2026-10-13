@@ -161,13 +161,20 @@ PRWF_SETTINGS_END
    `<!-- review-conventions:end -->` markers (append to the file, or
    create it). Apply the answer; the block is written only on that
    explicit yes, with the Edit or Write tool, replacing an existing
-   marked block and touching nothing else in the file. A check
-   command of origin `cartography` stays a comment unless the answer
-   confirms it. When nobody can answer: turn each `check_command` and
-   `contract_commands` line into a comment (`# check_command ...`),
-   since those execute, write without asking, leave the proposal in
-   the survey directory, and quote its lines in the report, so the
-   transcript alone carries the drafted block.
+   marked block and touching nothing else in the file. Every check
+   command and contract prefix not given as a `key=value` word is
+   inferred tooling: list each one on its own line in the question
+   with its origin, say that it runs the project's code on this
+   machine during every review and that a test suite may create or
+   migrate a test database, and write it live only when the answer
+   confirms that command by name; otherwise write it as a comment
+   (`# check_command ...`). Show every `survey: skipped` line with
+   them, so the user sees which candidates were never offered and why.
+   When nobody can answer: turn each `check_command` and
+   `contract_commands` line into a comment, since those execute, write
+   without asking, leave the proposal in the survey directory, and
+   quote its lines in the report, so the transcript alone carries the
+   drafted block.
 
 8. Write it exactly as below, with `--replace` only when revising, and
    relay its lines. The writer calls the team audience `shared`: pass
