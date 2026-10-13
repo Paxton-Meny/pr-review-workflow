@@ -160,7 +160,8 @@ PRWF_SETTINGS_END
    confirms it. When nobody can answer: turn each `check_command` and
    `contract_commands` line into a comment (`# check_command ...`),
    since those execute, write without asking, leave the proposal in
-   the survey directory, and say so in the report.
+   the survey directory, and quote its lines in the report, so the
+   transcript alone carries the drafted block.
 
 8. Write it exactly as below, with `--replace` only when revising, and
    relay its lines. A refusal names the entry a file of that audience
