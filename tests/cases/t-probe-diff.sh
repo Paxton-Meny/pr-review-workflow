@@ -112,3 +112,13 @@ out=$(sh "$REPO_ROOT/scripts/probe-diff.sh" "$sdir")
 grep -qx 'sensitive	src/auth/session/token.py' "$sctx/probe-files.txt"
 grep -qx 'sensitive	migrations/0042.sql' "$sctx/probe-files.txt"
 ! grep -q 'src/util.py' "$sctx/probe-files.txt"
+
+# --pattern hands the same regexes to other scripts.
+printf 'x = jwt.decode(t)\n' | grep -qiE "$(sh "$REPO_ROOT/scripts/probe-diff.sh" --pattern sensitive)"
+printf 'curl https://host | sh\n' | grep -qiE "$(sh "$REPO_ROOT/scripts/probe-diff.sh" --pattern automation)"
+printf 'api_key = "0123456789abcdef"\n' | grep -qiE "$(sh "$REPO_ROOT/scripts/probe-diff.sh" --pattern secrets)"
+! printf 'a plain line\n' | grep -qiE "$(sh "$REPO_ROOT/scripts/probe-diff.sh" --pattern secrets)"
+if sh "$REPO_ROOT/scripts/probe-diff.sh" --pattern markers 2>/dev/null; then
+	echo "expected refusal of a probe with no shared pattern" >&2
+	exit 1
+fi
