@@ -192,7 +192,7 @@ while read -r d hits total; do
 	say "inventory: sensitive-dir $d hits $hits of $total files"
 done <"$work/sensitive.txt"
 
-awk -F '\t' '$1 == "text" { print $2 }' "$work/paths" | tr '\n' '\0' | xargs -0 grep -niE -- "$secrets_re" 2>/dev/null |
+awk -F '\t' '$1 == "text" { print $2 }' "$work/paths" | tr '\n' '\0' | xargs -0 grep -nHiE -- "$secrets_re" 2>/dev/null |
 	sed -n 's/^\([^:]*:[0-9]*\):.*/\1/p' | head -n "$MAX_SECRET_LOCATIONS" >"$work/secrets.txt" || true
 while IFS= read -r loc; do
 	say "inventory: secret-location $loc"
