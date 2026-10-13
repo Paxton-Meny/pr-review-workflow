@@ -130,6 +130,10 @@ PRWF_SETTINGS_END
      only when a check command is set.
    - Sensitive paths: the `advice: sensitive_paths` line when there is
      one, else every `survey: sensitive` line, space-separated.
+   - Migration paths: the `advice: migration_paths` line whose value is
+     not `recommend`, when there is one. Without one, the patterns in
+     force already cover every `survey: migrations` directory; write
+     nothing.
    - Local standards, `personal` and `local` only: the `survey:
      standards` lines, space-separated, when the preview shows
      `local_standards (empty)`.
@@ -184,11 +188,14 @@ PRWF_SETTINGS_END
    `kept`, `given`, `conventions`, `cartography`), each `auto` advice
    and why that key was left to routing, the writer's `next:` line,
    the reading done (partitions read, claims kept and dropped) or why
-   none was, and where the proposal sits. Add one sentence each when
+   none was, where the proposal sits, and each migration directory
+   found with its evidence and whether the patterns cover it. Add one
+   sentence each when
    it applies: the preview said `user 0` (the plugin configuration
    never loaded; `/plugin configure pr-review-workflow` sets the
    baseline this file builds on); an `advice: strong_model recommend`
-   line (quote it); the survey said `base unknown`
+   line (quote it); an `advice: migration_paths recommend` line (quote
+   it); the survey said `base unknown`
    (`git remote set-head origin -a` records the default branch the
    shared file and the conventions block are read from); the survey
    said `conventions block absent` and no block was written (the
