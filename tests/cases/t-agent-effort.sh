@@ -8,7 +8,7 @@ field() {
 	sed -n '2,/^---$/p' "$REPO_ROOT/agents/$1.md" | sed -n "s/^$2: //p"
 }
 
-for agent in reviewer editor verifier filter; do
+for agent in reviewer editor verifier filter cartographer assembler; do
 	effort=$(field "$agent" effort)
 	case "$effort" in
 	low | medium | high | xhigh | max) ;;
@@ -23,6 +23,8 @@ done
 [ "$(field editor effort)" = medium ]
 [ "$(field verifier effort)" = medium ]
 [ "$(field filter effort)" = low ]
+[ "$(field cartographer effort)" = medium ]
+[ "$(field assembler effort)" = high ]
 
 [ ! -e "$REPO_ROOT/agents/arbiter.md" ]
 grep -q '^## Arbitration$' "$REPO_ROOT/agents/verifier.md"
