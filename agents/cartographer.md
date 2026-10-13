@@ -51,11 +51,15 @@ who has never seen the repository.
 - `rules`: a stated rule from a docs or rules file, tied to that file.
   Nested CLAUDE.md or AGENTS.md files earn one claim each saying what
   they govern.
-- `sensitive`: authentication, payments, cryptography, migrations, or
-  permission code, tied to its directory.
+- `sensitive`: authentication, payments, cryptography, or permission
+  code, tied to its directory.
+- `migrations`: a directory that holds database migrations or a schema
+  project, as the code or a document shows, tied to that directory
+  (`dir/`).
 - `check`: the command the project itself names for running its checks,
   tied to the manifest or document that names it. Omit it when the
-  partition shows none; never invent one.
+  partition shows none; never invent one, and never record a command
+  that runs migrations or reaches a database.
 
 Prefer fewer, surer claims. A statement that needs a hedge is not a
 claim.

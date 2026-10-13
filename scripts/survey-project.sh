@@ -15,10 +15,14 @@
 # scripts/ gate, a package manifest's test script, a language
 # toolchain's test command, a CI run line), test runner prefixes a
 # Check line could start with, directories whose names suggest a defect
-# costs most, and markdown files at the root that git ignores whose
-# names say they hold rules (laws, standards, conventions, guidelines,
-# policies), which is where untracked rules files live. The last line
-# counts each kind. Nothing is fetched and nothing written.
+# costs most, directories that hold database migrations with the
+# evidence for each, directories named like migrations that hold none,
+# and markdown files at the root that git ignores whose names say they
+# hold rules (laws, standards, conventions, guidelines, policies), which
+# is where untracked rules files live. A candidate command that names
+# migration or database tooling is never offered; it prints as skipped.
+# The last line counts each kind. Nothing is fetched, nothing written,
+# and nothing in the clone is run: migrations are found by reading.
 #
 # conventions prints the review-conventions block from the base
 # branch's CLAUDE.md, nothing else, and exits 3 when there is none.
@@ -61,7 +65,10 @@ END_MARK='<!-- review-conventions:end -->'
 MAX_EXISTING_LINES=60
 MAX_SENSITIVE=12
 MAX_CI_LINES_PER_WORKFLOW=3
-SENSITIVE_NAMES='auth|authn|authz|oauth|oidc|sso|login|session|sessions|identity|password|passwords|credential|credentials|secret|secrets|token|tokens|crypto|kms|vault|payment|payments|billing|checkout|invoice|invoices|wallet|ledger|migration|migrations|permission|permissions|acl|rbac|policy|policies|security|admin'
+MAX_MIGRATION_DIRS=20
+MAX_SLN_DEPTH=3
+MIGRATION_RE='class [A-Za-z0-9_]+\(migrations\.Migration\)|^down_revision[^=]*=|ActiveRecord::Migration|use Ecto\.Migration|implements MigrationInterface|exports\.up[[:space:]]*=|extends Migration|-- \+goose Up|databaseChangeLog|\[Migration\(|MigrationBuilder'
+SENSITIVE_NAMES='auth|authn|authz|oauth|oidc|sso|login|session|sessions|identity|password|passwords|credential|credentials|secret|secrets|token|tokens|crypto|kms|vault|payment|payments|billing|checkout|invoice|invoices|wallet|ledger|permission|permissions|acl|rbac|policy|policies|security|admin'
 SKIP_DIRS='test|tests|spec|specs|__tests__|fixtures|fixture|testdata|mocks|docs|doc|examples|example|node_modules|vendor|third_party|dist|build'
 RULEBOOK_NAMES='laws|rules|standards|conventions|guidelines?|polic(y|ies)|principles|requirements'
 
@@ -155,12 +162,29 @@ fi
 
 : >"$work/checks"
 : >"$work/prefixes"
+: >"$work/skipped"
+tooling() {
+	rc=0
+	sh "$(dirname -- "$0")/migration-tool.sh" "$2" || rc=$?
+	case "$rc" in
+	0) return 1 ;;
+	3)
+		grep -qxF -- "$2" "$work/skipped" && return 0
+		printf '%s\n' "$2" >>"$work/skipped"
+		echo "survey: skipped $1 $2 (migration or database tooling)"
+		return 0
+		;;
+	*) exit 1 ;;
+	esac
+}
 check() {
+	tooling "$1" "$2" && return 0
 	grep -qxF -- "$2" "$work/checks" && return 0
 	printf '%s\n' "$2" >>"$work/checks"
 	echo "survey: check $1 $2"
 }
 prefix() {
+	tooling "$1" "$2" && return 0
 	grep -qxF -- "$2" "$work/checks" && return 0
 	grep -qxF -- "$2" "$work/prefixes" && return 0
 	printf '%s\n' "$2" >>"$work/prefixes"
@@ -225,6 +249,13 @@ fi
 [ -f pubspec.yaml ] && check pubspec.yaml 'dart test'
 if ls ./*.sln >/dev/null 2>&1 || ls ./*.csproj >/dev/null 2>&1; then
 	check dotnet 'dotnet test'
+	prefix dotnet 'dotnet test'
+else
+	git ls-files 2>/dev/null | awk -F/ -v max="$MAX_SLN_DEPTH" '/\.sln$/ && !/ / && NF - 1 <= max' >"$work/sln"
+	if [ "$(grep -c '' "$work/sln" || true)" -eq 1 ]; then
+		check dotnet "dotnet test $(cat "$work/sln")"
+		prefix dotnet 'dotnet test'
+	fi
 fi
 
 for wf in .github/workflows/*.yml .github/workflows/*.yaml; do
@@ -255,6 +286,79 @@ while IFS= read -r d; do
 	echo "survey: sensitive $d/**"
 done <"$work/sensitive"
 
+git ls-files 2>/dev/null >"$work/tracked"
+grep -E '\.(py|rb|php|ex|exs|js|mjs|cjs|ts|cs|sql|xml|ya?ml)$' "$work/tracked" | tr '\n' '\0' |
+	xargs -0 grep -HoE -m 1 -- "$MIGRATION_RE" 2>/dev/null | awk '{
+	i = index($0, ":"); path = substr($0, 1, i - 1); m = substr($0, i + 1)
+	d = path; if (d ~ /\//) sub(/\/[^\/]*$/, "", d); else d = "."
+	if (m ~ /migrations\.Migration/) f = "django"
+	else if (m ~ /down_revision/) f = "alembic"
+	else if (m ~ /ActiveRecord/) f = "rails"
+	else if (m ~ /Ecto/) f = "ecto"
+	else if (m ~ /MigrationInterface/) f = "typeorm"
+	else if (m ~ /exports\.up/) f = "knex"
+	else if (m ~ /goose/) f = "goose"
+	else if (m ~ /databaseChangeLog/) f = "liquibase"
+	else if (m ~ /MigrationBuilder/) f = "ef-core"
+	else if (m ~ /\[Migration\(/) f = "ef-core-or-fluentmigrator"
+	else f = "laravel"
+	print d "\t" f
+}' >"$work/mig-evidence" || true
+awk '{
+	n = split($0, part, "/"); base = part[n]
+	d = $0; if (d ~ /\//) sub(/\/[^\/]*$/, "", d); else d = "."
+	up = d; if (up ~ /\//) sub(/\/[^\/]*$/, "", up); else up = "."
+	if (base ~ /\.up\.sql$/) print d "\tgolang-migrate"
+	else if (base == "up.sql") print up "\tdiesel"
+	else if (base ~ /^V[0-9][0-9_.]*__.*\.sql$/) print d "\tflyway"
+	else if ($0 ~ /(^|\/)prisma\/migrations\/[^\/]+\/migration\.sql$/) print up "\tprisma"
+	else if (base ~ /\.sqlproj$/) print d "\tssdt"
+	else if (base == "sqitch.plan") { p = (d == "." ? "" : d "/"); print p "deploy\tsqitch"; print p "revert\tsqitch"; print p "verify\tsqitch" }
+}' "$work/tracked" >>"$work/mig-evidence"
+grep -E '(^|/)alembic\.ini$' "$work/tracked" | while IFS= read -r ini; do
+	loc=$(sed -n 's/^[[:space:]]*script_location[[:space:]]*=[[:space:]]*//p' "$ini" | tr -d '\r' | sed 's/^%(here)s\///' | head -n 1)
+	[ -n "$loc" ] || continue
+	case "$ini" in */*) loc="${ini%/*}/$loc" ;; esac
+	printf '%s/versions\talembic\n' "${loc%/}"
+done >>"$work/mig-evidence"
+grep -E '(^|/)flyway\.(conf|toml)$' "$work/tracked" | while IFS= read -r conf; do
+	grep -oE 'filesystem:[^,"[:space:]]+' "$conf" | sed 's/^filesystem://; s/\/$//' | while IFS= read -r loc; do
+		printf '%s\tflyway\n' "$loc"
+	done
+done >>"$work/mig-evidence"
+grep -E '\.csproj$' "$work/tracked" | while IFS= read -r proj; do
+	grep -qiE 'Include="dbup' "$proj" || continue
+	pdir=.
+	case "$proj" in */*) pdir=${proj%/*} ;; esac
+	awk -v pre="$pdir/" '/\.sql$/ && (pre == "./" || index($0, pre) == 1) { d = $0; sub(/\/[^\/]*$/, "", d); print d "\tdbup" }' "$work/tracked"
+done >>"$work/mig-evidence"
+awk -F '\t' -v max="$MAX_MIGRATION_DIRS" -v tracked="$work/tracked" '
+BEGIN { while ((getline t < tracked) > 0) { n = split(t, part, "/"); p = ""; for (i = 1; i < n; i++) { p = (p == "" ? part[i] : p "/" part[i]); has[p] = 1 } } }
+$1 != "." && $1 != "" && ($1 in has) && !($1 in seen) { seen[$1] = 1; if (++count <= max) print $1 " " $2 }
+' "$work/mig-evidence" >"$work/migrations"
+while IFS= read -r line; do
+	echo "survey: migrations $line"
+done <"$work/migrations"
+awk -v ev="$work/migrations" '
+BEGIN { while ((getline e < ev) > 0) { split(e, f, " "); dirs[f[1]] = 1 } }
+{
+	n = split($0, part, "/"); p = ""
+	for (i = 1; i < n; i++) {
+		p = (p == "" ? part[i] : p "/" part[i])
+		if (tolower(part[i]) ~ /^(migrations?|migrate)$/ && !(p in named)) named[p] = 1
+	}
+}
+END {
+	for (p in named) {
+		covered = 0
+		for (d in dirs) if (d == p || index(d, p "/") == 1 || index(p, d "/") == 1) covered = 1
+		if (!covered) print p
+	}
+}' "$work/tracked" | sort >"$work/migration-named"
+while IFS= read -r d; do
+	echo "survey: migration-named $d"
+done <"$work/migration-named"
+
 main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
 [ -n "$main_root" ] && [ "$main_root" != "$clone" ] || main_root=''
 : >"$work/standards"
@@ -269,4 +373,4 @@ for root in "$clone" $main_root; do
 done
 
 count() { grep -c '' "$1" || true; }
-echo "survey: found check $(count "$work/checks") prefix $(count "$work/prefixes") sensitive $(count "$work/sensitive") standards $(count "$work/standards")"
+echo "survey: found check $(count "$work/checks") prefix $(count "$work/prefixes") sensitive $(count "$work/sensitive") migrations $(count "$work/migrations") standards $(count "$work/standards")"

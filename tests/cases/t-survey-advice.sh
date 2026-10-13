@@ -90,6 +90,33 @@ printf '%s\n' "$out" | grep -qx 'advice: check_command sh scripts/verify.sh beca
 out=$(printf 'survey: check makefile make check\n' | advise "$dir")
 ! printf '%s\n' "$out" | grep -q 'check_command'
 
+# Migration directories the patterns in force already cover need no
+# advice; uncovered ones are added for a project file and spelled out in
+# full for a local one; a directory only named like migrations that the
+# patterns catch is a recommendation, never a value.
+printf '3 migrations db/changes/** | schema changes go here\n' >"$dir/digest.txt"
+cat >"$SCRATCH/migration-lines" <<'L'
+settings: migration_paths *[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/* from default
+survey: migrations src/App/Data/Migrations ef-core
+survey: migrations db/Schema ssdt
+survey: migration-named docs/migration
+L
+out=$(advise "$dir" team <"$SCRATCH/migration-lines")
+printf '%s\n' "$out" | grep -qxF 'advice: migration_paths db/changes/* db/Schema/* because db/changes (the map), db/Schema (ssdt) hold migrations the patterns in force miss; a project file adds them to the list'
+printf '%s\n' "$out" | grep -qxF 'advice: migration_paths recommend because docs/migration match the migration patterns but hold no migrations, so changes there would wait for a person at merge; narrow the patterns in /plugin configure, since a project file can only add to them'
+if printf '%s\n' "$out" | grep -q 'Data/Migrations'; then
+	echo "a directory the default patterns cover needs no advice" >&2
+	exit 1
+fi
+out=$(advise "$dir" local <"$SCRATCH/migration-lines")
+printf '%s\n' "$out" | grep -qxF 'advice: migration_paths *[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/* db/changes/* db/Schema/* because db/changes (the map), db/Schema (ssdt) hold migrations the patterns in force miss; a local file replaces the list, so it repeats the patterns in force'
+rm "$dir/digest.txt"
+out=$(printf 'settings: migration_paths *[Mm]igrations/* from default\nsurvey: migrations app/migrations django\n' | advise "$dir" team)
+if printf '%s\n' "$out" | grep -q 'migration_paths'; then
+	echo "covered migrations and no misnamed directory give no migration advice" >&2
+	exit 1
+fi
+
 # Refusals.
 if advise "$dir" everyone </dev/null 2>/dev/null; then
 	echo "expected refusal of an unknown audience" >&2
