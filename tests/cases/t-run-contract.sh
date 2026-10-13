@@ -75,7 +75,8 @@ grep -q "unknown finding" "$SCRATCH/err"
 printf '#!/bin/sh\n: >ran\nexit 0\n' >"$dir/worktree/check.sh"
 for line in 'sh check.sh migrate' 'sh check.sh manage.py makemigrations --check' \
 	'sh check.sh db:migrate' 'sh check.sh .venv/bin/alembic upgrade head' \
-	'sh check.sh npx prisma db push' 'sh check.sh knex migrate:latest' 'sh check.sh flyway validate'; do
+	'sh check.sh npx prisma db push' 'sh check.sh knex migrate:latest' 'sh check.sh flyway validate' \
+	'sh check.sh dotnet ef database update' 'sh check.sh sqlcmd -S . -i deploy.sql'; do
 	mkrec "Check: $line"
 	rc=0
 	out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F001 'sh check.sh') || rc=$?
