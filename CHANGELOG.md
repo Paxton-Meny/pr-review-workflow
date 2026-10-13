@@ -76,6 +76,44 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `/pr-review-workflow:setup` writes a repository's settings file from
+  what the clone and its history already state, asking at most twice,
+  and works on a repository the plugin has never seen. A survey script
+  reads the check command from the Makefile, package manifest,
+  toolchain files, or CI workflow, the test runner prefixes a Check
+  line could start with, directories whose names mark them sensitive,
+  the ignored files at the root whose names mark them as rules, how
+  many people commit, and whether a conventions block exists. An
+  inventory script classifies every tracked file, finds every
+  CLAUDE.md and AGENTS.md at any depth, the docs, and the directories
+  whose code matches the sensitive probe, sizes the repository into a
+  tier, and plans the reading: nothing on a small repository, up to
+  four, eight, or sixteen partitions otherwise, docs first, each with
+  a file and line budget, with an upfront estimate. A history script
+  reads the last hundred merged pull requests in one `gh` call and
+  reports sizes by author; an advice script turns inventory and
+  history into pin-or-auto decisions with explicit thresholds, so a
+  developer whose sizes vary widely keeps per-run routing while
+  sensitive code or fork contributors turn the second review pass on.
+  Cheap parallel cartographer agents read the partitions and file
+  typed claims through a validating script; a verification script
+  drops every claim the tree cannot confirm; an assembler agent drafts
+  the conventions block from the verified digest, and a proposal
+  script refuses any path the digest does not back. The router gained
+  a `survey` stage for those spawns. The skill decides the audience
+  (team, personal, or local) and a profile (standard, careful, or
+  economy) unless told, composes only the lines that differ, shows the
+  file beside the drafted block, and writes the block into CLAUDE.md
+  only on an explicit yes. Unattended, it reads at most four partitions
+  and comments out the lines that would execute. The resolver gained
+  `--lint`, which judges a file as the shared or a personal source
+  before it exists anywhere and names every entry it would refuse, so
+  a committed file never carries a line the review would ignore. A
+  writer script lints, places the file atomically, refuses a shared
+  file on an ignored path and a personal one on a tracked path, and
+  excludes a personal file from git. The classify, probe, and survey
+  scripts expose their file classes, probe patterns, and directory
+  lists so the inventory shares them instead of carrying copies.
 - The first comment each review posts ends with one line naming and
   linking the plugin, so readers can see which tool reviewed the pull
   request. Later comments never repeat it.
