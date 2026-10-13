@@ -121,6 +121,23 @@ out=$(inventory "$data")
 printf '%s\n' "$out" | grep -qx 'inventory: tier medium'
 printf '%s\n' "$out" | grep -q '^inventory: languages py '
 
+# One text file holding a secret still reports path:line and no content.
+solo_remote="$SCRATCH/Paxton-Meny/solo.git"
+git init --quiet --bare "$solo_remote"
+solo="$SCRATCH/solo"
+git clone --quiet "$solo_remote" "$solo" 2>/dev/null
+git -C "$solo" config user.name tester
+git -C "$solo" config user.email tester@example.invalid
+printf 'api_key = "0123456789abcdef"\n' >"$solo/settings.py"
+git -C "$solo" add -A
+git -C "$solo" commit --quiet -m solo
+git -C "$solo" push --quiet origin HEAD:main
+cd "$solo"
+out=$(inventory "$data")
+printf '%s\n' "$out" | grep -qx 'inventory: secret-location settings.py:1'
+! printf '%s\n' "$out" | grep -q '0123456789abcdef'
+cd "$clone"
+
 # Refusals: a bad cap, no clone.
 if inventory "$data" 0 2>/dev/null; then
 	echo "expected refusal of a zero cap" >&2
