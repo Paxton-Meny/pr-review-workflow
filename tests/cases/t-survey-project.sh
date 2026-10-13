@@ -71,7 +71,7 @@ printf '%s\n' "$out" | grep -qxF 'survey: sensitive src/payments/**'
 printf '%s\n' "$out" | grep -qx 'survey: standards RULES.md'
 ! printf '%s\n' "$out" | grep -q 'survey: standards CLAUDE.md'
 ! printf '%s\n' "$out" | grep -q 'survey: standards NOTES.md'
-printf '%s\n' "$out" | grep -qx 'survey: found check 2 prefix 2 sensitive 2 standards 1'
+printf '%s\n' "$out" | grep -qx 'survey: found check 2 prefix 2 sensitive 2 migrations 0 standards 1'
 
 # The conventions mode prints the block alone, from the base branch.
 printf 'changed locally\n' >"$clone/CLAUDE.md"
@@ -102,7 +102,7 @@ printf '%s\n' "$out" | grep -qx 'survey: origin Paxton-Meny/solo base main'
 printf '%s\n' "$out" | grep -qx 'survey: audience personal suggested'
 printf '%s\n' "$out" | grep -qx 'survey: project file absent, local file absent'
 printf '%s\n' "$out" | grep -qx 'survey: conventions block absent'
-printf '%s\n' "$out" | grep -qx 'survey: found check 0 prefix 0 sensitive 0 standards 0'
+printf '%s\n' "$out" | grep -qx 'survey: found check 0 prefix 0 sensitive 0 migrations 0 standards 0'
 if sh "$REPO_ROOT/scripts/survey-project.sh" conventions 2>/dev/null; then
 	echo "conventions must fail without a block" >&2
 	exit 1
@@ -132,3 +132,46 @@ if sh "$REPO_ROOT/scripts/survey-project.sh" lists rulebook 2>/dev/null; then
 	echo "expected refusal of an unknown list" >&2
 	exit 1
 fi
+
+# Migrations are found by reading tracked files: content markers, file
+# names, and the configuration that names a location, including the .NET
+# and SQL Server layouts. A directory only named like migrations is
+# reported apart, migration and database tooling is never offered as a
+# check, and a solution below the root yields its dotnet test command.
+cd "$solo"
+mkdir -p src/App/Data/Migrations db/Schema/dbo/Tables tools/Upgrader/Scripts docs/migration schema/versions .github/workflows
+printf 'public partial class AddEmail : Migration\n{\n    protected override void Up(MigrationBuilder migrationBuilder) { }\n}\n' >src/App/Data/Migrations/20261013120000_AddEmail.cs
+printf '<Project />\n' >src/App.sln
+printf '<Project Sdk="Microsoft.Build.Sql" />\n' >db/Schema/Schema.sqlproj
+printf 'CREATE TABLE dbo.Users (Id INT NOT NULL);\n' >db/Schema/dbo/Tables/Users.sql
+printf '<Project><ItemGroup><PackageReference Include="dbup-sqlserver" Version="5.0.0" /></ItemGroup></Project>\n' >tools/Upgrader/Upgrader.csproj
+printf 'ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;\n' >tools/Upgrader/Scripts/0001_email.sql
+printf 'How to upgrade.\n' >docs/migration/guide.md
+printf '[alembic]\nscript_location = %%(here)s/schema\n' >alembic.ini
+printf 'revision = "ab12"\ndown_revision = None\n' >schema/versions/ab12_init.py
+printf 'jobs:\n  db:\n    steps:\n      - run: alembic check\n      - run: flyway check\n' >.github/workflows/db.yml
+git add -A
+git commit --quiet -m migrations
+out=$(sh "$REPO_ROOT/scripts/survey-project.sh" facts)
+printf '%s\n' "$out" | grep '^survey: migration' >"$SCRATCH/migrations"
+cat >"$SCRATCH/migrations-want" <<'END'
+survey: migrations schema/versions alembic
+survey: migrations src/App/Data/Migrations ef-core
+survey: migrations db/Schema ssdt
+survey: migrations tools/Upgrader/Scripts dbup
+survey: migration-named docs/migration
+END
+cmp "$SCRATCH/migrations-want" "$SCRATCH/migrations"
+printf '%s\n' "$out" | grep -qx 'survey: skipped ci:db.yml alembic check (migration or database tooling)'
+printf '%s\n' "$out" | grep -qx 'survey: skipped ci:db.yml flyway check (migration or database tooling)'
+if printf '%s\n' "$out" | grep -E '^survey: (check|prefix) ' | grep -qE 'alembic|flyway'; then
+	echo "migration or database tooling must never be offered as a check" >&2
+	exit 1
+fi
+printf '%s\n' "$out" | grep -qx 'survey: check dotnet dotnet test src/App.sln'
+printf '%s\n' "$out" | grep -qx 'survey: prefix dotnet dotnet test'
+if printf '%s\n' "$out" | grep -q '^survey: sensitive .*[Mm]igration'; then
+	echo "migrations have their own setting, not sensitive paths" >&2
+	exit 1
+fi
+printf '%s\n' "$out" | grep -qx 'survey: found check 1 prefix 1 sensitive 0 migrations 4 standards 0'

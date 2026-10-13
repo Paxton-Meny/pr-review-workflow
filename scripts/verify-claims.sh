@@ -4,12 +4,13 @@
 # Usage: sh scripts/verify-claims.sh <survey-dir> < survey lines
 #
 # A path claim stands when its ref is a tracked file, or a tracked
-# directory written as dir/ or dir/**. A check claim stands when its
-# command equals a check candidate the survey printed (the "survey:
-# check" lines on stdin), or is "sh <tracked script>", or starts with a
-# toolchain whose manifest the clone holds; a command holding a shell
-# metacharacter never stands. Writes digest.txt, one "<id> <kind> <ref>
-# | <statement>" per kept claim with the first statement kept where two
+# directory written as dir/ or dir/**; a migrations claim stands only
+# as such a directory. A check claim stands when its command equals a
+# check candidate the survey printed (the "survey: check" lines on
+# stdin), or is "sh <tracked script>", or starts with a toolchain whose
+# manifest the clone holds; a command holding a shell metacharacter, or
+# naming migration or database tooling, never stands. Writes
+# digest.txt, one "<id> <kind> <ref> | <statement>" per kept claim with the first statement kept where two
 # records cite the same kind and ref, prints one "verify: dropped <id>
 # <kind> <ref>" line per drop, and ends with
 # "verify: records N claims N kept N dropped N".
@@ -47,9 +48,22 @@ for pair in $TOOLCHAINS; do
 	done
 done
 sort -u "$work/manifests" -o "$work/manifests"
+: >"$work/tooling"
+for record in "$dir/records"/*.txt; do
+	[ -f "$record" ] || continue
+	sed -n 's/^check \(.*\) | .*/\1/p' "$record"
+done | while IFS= read -r cmd; do
+	rc=0
+	sh "$(dirname -- "$0")/migration-tool.sh" "$cmd" || rc=$?
+	case "$rc" in
+	0) ;;
+	3) printf '%s\n' "$cmd" >>"$work/tooling" ;;
+	*) exit 1 ;;
+	esac
+done
 
 ls "$dir/records" | grep -E '^[0-9]+\.txt$' | sort -n >"$work/ids"
-awk -v tracked="$work/tracked" -v checks="$work/checks" -v manifests="$work/manifests" -v metachars="$METACHARS" -v records="$dir/records" '
+awk -v tracked="$work/tracked" -v checks="$work/checks" -v manifests="$work/manifests" -v tooling="$work/tooling" -v metachars="$METACHARS" -v records="$dir/records" '
 function tracked_dir(d,    i) { for (i = 1; i <= nt; i++) if (index(t[i], d) == 1) return 1; return 0 }
 function check_ok(cmd,    first, second) {
 	if (cmd ~ metachars) return 0
@@ -62,6 +76,7 @@ BEGIN {
 	while ((getline line < tracked) > 0) { t[++nt] = line; file[line] = 1 }
 	while ((getline line < checks) > 0) candidate[line] = 1
 	while ((getline line < manifests) > 0) manifest[line] = 1
+	while ((getline line < tooling) > 0) flagged[line] = 1
 }
 {
 	id = $0; sub(/\.txt$/, "", id)
@@ -74,7 +89,9 @@ BEGIN {
 		statement = line; sub(/^[^|]*\| /, "", statement)
 		claims++
 		ok = 0
+		if (kind == "check" && (ref in flagged)) { dropped++; printf "verify: dropped %s %s %s (migration or database tooling)\n", id, kind, ref; continue }
 		if (kind == "check") ok = check_ok(ref)
+		else if (kind == "migrations" && ref !~ /\/(\*\*)?$/) ok = 0
 		else if (ref in file) ok = 1
 		else if (ref ~ /\/\*\*$/) { d = ref; sub(/\*\*$/, "", d); ok = tracked_dir(d) }
 		else if (ref ~ /\/$/) ok = tracked_dir(ref)

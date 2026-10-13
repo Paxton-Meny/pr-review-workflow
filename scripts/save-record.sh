@@ -7,8 +7,9 @@
 #        END
 #
 # A record has sections headed "## layout", "## tests", "## idioms",
-# "## oddities", "## rules", "## sensitive", and "## check", in any
-# order, each holding claims of the form "<kind> <ref> | <statement>"
+# "## oddities", "## rules", "## sensitive", "## migrations", and
+# "## check", in any order, each holding claims of the form
+# "<kind> <ref> | <statement>"
 # whose kind is the section's name and whose ref is a repository path
 # (a directory ending in / or /**, or a file) or, under check, a
 # command. At most 80 lines of at most 240 characters; no absolute
@@ -32,7 +33,7 @@ esac
 }
 MAX_LINES=80
 MAX_CHARS=240
-SECTIONS='layout tests idioms oddities rules sensitive check'
+SECTIONS='layout tests idioms oddities rules sensitive check migrations'
 
 mkdir -p "$dir/records"
 tmp=$(mktemp "$dir/records/.record.XXXXXX")

@@ -111,6 +111,33 @@ grep -qx '2 rules README.md | the readme states the rules' "$dir/digest.txt"
 out=$(verify "$dir" </dev/null)
 grep -qx '1 check make check | the Makefile gate' "$dir/digest.txt"
 
+# A migrations claim stands only as a tracked directory, and a check
+# naming migration or database tooling never stands, whatever backs it.
+mkdir -p "$clone/db/changes"
+printf 'ALTER TABLE users ADD email TEXT;\n' >"$clone/db/changes/0001.sql"
+git -C "$clone" add -A
+git -C "$clone" commit --quiet -m changes
+printf 'partition 3\n' >"$dir/partitions/3.txt"
+record "$dir" 3 >/dev/null <<'R'
+## migrations
+migrations db/changes/ | schema changes go here
+migrations db/missing/ | no such directory
+migrations db/changes/0001.sql | a file, not a directory
+## check
+check sqlcmd -i check.sql | runs a script against the server
+check make migrate | a Makefile target that migrates
+R
+out=$(printf 'survey: check makefile make check\n' | verify "$dir")
+grep -qx '3 migrations db/changes/ | schema changes go here' "$dir/digest.txt"
+printf '%s\n' "$out" | grep -qx 'verify: dropped 3 migrations db/missing/'
+printf '%s\n' "$out" | grep -qx 'verify: dropped 3 migrations db/changes/0001.sql'
+printf '%s\n' "$out" | grep -qx 'verify: dropped 3 check sqlcmd -i check.sql (migration or database tooling)'
+printf '%s\n' "$out" | grep -qx 'verify: dropped 3 check make migrate (migration or database tooling)'
+if grep -qE '^3 check ' "$dir/digest.txt"; then
+	echo "a check naming migration tooling must never stand" >&2
+	exit 1
+fi
+
 # A proposal may name only paths the digest backs.
 out=$(proposal "$dir" <<'P'
 - `src/auth/` holds authentication; `src/` the rest.
