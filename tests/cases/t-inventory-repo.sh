@@ -69,7 +69,7 @@ printf '%s\n' "$out" | grep -qx 'inventory: codeowners .github/CODEOWNERS rules 
 printf '%s\n' "$out" | grep -qx 'inventory: sensitive-dir src/auth hits 3 of 15 files'
 [ "$(printf '%s\n' "$out" | grep -c '^inventory: sensitive-dir ')" -eq 1 ]
 printf '%s\n' "$out" | grep -qx 'inventory: secret-location src/core/settings.py:1'
-! printf '%s\n' "$out" | grep -q '0123456789abcdef'
+if printf '%s\n' "$out" | grep -q '0123456789abcdef'; then echo "unexpected: secret content in inventory output" >&2; exit 1; fi
 printf '%s\n' "$out" | grep -qx 'inventory: churn commits 2 authors 2 since 1 year'
 printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 4 max 4'
 printf '%s\n' "$out" | grep -q '^inventory: partition 1 lines [0-9]* files 6 docs 6 sensitive no$'
@@ -91,7 +91,7 @@ grep -l '^test tests/auth/test_login.py 1$' "$survey"/partitions/*.txt >/dev/nul
 grep -l '^sensitive yes$' "$survey"/partitions/*.txt >/dev/null
 [ "$(grep -c '^partition ' "$survey/partitions.txt")" -eq 4 ]
 grep -q 'units docs$' "$survey/partitions.txt"
-! grep -q 'vendor' "$survey/files.txt"
+if grep -q 'vendor' "$survey/files.txt"; then echo "unexpected: vendored files listed" >&2; exit 1; fi
 grep -q '^code	0	logo.png$' "$survey/files.txt"
 [ "$(cat "$survey/head.txt")" = "$(git rev-parse HEAD)" ]
 [ ! -e "$survey/.inventory."* ] 2>/dev/null || [ -z "$(ls -d "$survey"/.inventory.* 2>/dev/null)" ]
@@ -135,7 +135,7 @@ git -C "$solo" push --quiet origin HEAD:main
 cd "$solo"
 out=$(inventory "$data")
 printf '%s\n' "$out" | grep -qx 'inventory: secret-location settings.py:1'
-! printf '%s\n' "$out" | grep -q '0123456789abcdef'
+if printf '%s\n' "$out" | grep -q '0123456789abcdef'; then echo "unexpected: secret content in inventory output" >&2; exit 1; fi
 cd "$clone"
 
 # A few thousand tracked files plan quickly and keep the partition file budget.
@@ -151,7 +151,7 @@ git -C "$big" commit --quiet -m big
 git -C "$big" push --quiet origin HEAD:main
 cd "$big"
 out=$(inventory "$data")
-! printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 0 max 0'
+if printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 0 max 0'; then echo "unexpected: empty plan" >&2; exit 1; fi
 printf '%s\n' "$out" | grep -q '^inventory: plan partitions [1-9]'
 cd "$clone"
 
