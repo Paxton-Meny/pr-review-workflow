@@ -8,6 +8,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A run whose spawn tool has no effort parameter no longer drops the
+  routed effort silently. The orchestrator records once per
+  invocation whether the tool takes one (`route-models.sh <dir>
+  spawn-effort applied|unapplied`). Unapplied, every route line and
+  Route note names the level the agent runs at, its definition's, as
+  `unapplied <level>`. A retry climbs the model instead of pulling an
+  effort lever that does nothing, and the final report says efforts
+  were not applied. Run statistics gain an `unapplied` count, and
+  retries read unapplied attempts at the level that ran, so a run
+  like this no longer shows effort climbs that never happened.
 - The skill no longer tells the orchestrator to pass `inherit` as a
   model override, which the spawn tool rejects: an inherit route now
   means omitting the model, and arbitration on an inherited reviewer

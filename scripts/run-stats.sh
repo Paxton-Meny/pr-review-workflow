@@ -57,11 +57,12 @@ for f in "$dir/findings"/F*; do
 	s=$(sed -n 's/^support: [0-9]*\///p' "$f" | head -n 1)
 	[ "${s:-1}" -gt "$samples" ] && samples=$s
 	# Retries by what changed, as "model verified effort verified same
-	# verified". A pinned note ran at its pinned level.
+	# verified". A pinned note ran at its pinned level, and an unapplied
+	# note at the editor's own level, whatever either routed.
 	set -- $(awk -v status="$(sed -n 's/^status: //p' "$f")" '
 		/^Route: / {
 			if ($3 != round) { k++; round = $3 }
-			m[k] = $7; e[k] = ($10 == "pinned") ? $11 : ($8 == "effort") ? $9 : ""
+			m[k] = $7; e[k] = ($10 == "pinned" || $10 == "unapplied") ? $11 : ($8 == "effort") ? $9 : ""
 		}
 		/^Arbitrated: / { arbitrated = 1 }
 		END {
@@ -89,7 +90,7 @@ seams=0
 [ -f "$dir/pr-context/seams.txt" ] && seams=$(grep -c . "$dir/pr-context/seams.txt")
 
 routes=0 cheap=0 base=0 strong=0 strong_wanted=0 escalations=0
-effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0
+effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0 unapplied=0
 [ -f "$dir/pr-context/routes.txt" ] && {
 	routes=$(grep -c '^route ' "$dir/pr-context/routes.txt" || true)
 	cheap=$(grep -c ' rung cheap ' "$dir/pr-context/routes.txt" || true)
@@ -102,6 +103,7 @@ effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0
 	effort_high=$(grep -c ' effort high ' "$dir/pr-context/routes.txt" || true)
 	effort_xhigh=$(grep -c ' effort xhigh ' "$dir/pr-context/routes.txt" || true)
 	pinned=$(grep -c ' pinned ' "$dir/pr-context/routes.txt" || true)
+	unapplied=$(grep -c ' unapplied ' "$dir/pr-context/routes.txt" || true)
 }
 
 # The highest source any setting came from: run, local, project, or none.
@@ -113,6 +115,6 @@ if [ -f "$dir/sources.txt" ]; then
 fi
 
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config"
 printf '%s\n' "$line" >>"$root/stats.txt"
 echo "run-stats: $line"
