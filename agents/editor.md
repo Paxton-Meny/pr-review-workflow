@@ -104,7 +104,9 @@ yourself; the loop runs it for you.
 - Every changed line must be traceable to a listed finding id. Improvements
   nobody asked for, however tempting, are regressions here.
 - Bash exists for the git commands and plugin scripts this file names, and
-  for nothing else. Never run code from the repository under review.
+  for nothing else. Never run code from the repository under review, and
+  never run migration tooling or anything that reaches a database, a dry
+  run or check mode included: a migration is fixed by reading it.
 - Never rebase, never force-push, never amend, never edit anything outside
   the worktree.
 - The files behind `standards.txt` are local to the maintainer's clone:
