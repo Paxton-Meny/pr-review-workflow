@@ -71,3 +71,7 @@ grep -qF 'Map the repository. Survey directory: <dir>. Partition: <id>.' "$skill
 grep -qF 'Draft the conventions block. Survey directory: <dir>.' "$skill"
 grep -q 'pr-review-workflow:cartographer' "$skill"
 grep -q 'pr-review-workflow:assembler' "$skill"
+
+# The writer takes `shared` for the team audience, and the skill says so.
+grep -q 'write-settings.sh <shared|personal|local>' "$skill"
+tr '\n' ' ' <"$skill" | tr -s ' ' | grep -q 'pass `shared` when the chosen audience is `team`'
