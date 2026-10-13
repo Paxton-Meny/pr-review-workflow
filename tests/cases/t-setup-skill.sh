@@ -26,7 +26,7 @@ while read -r path; do
 done <"$SCRATCH/allowed"
 # The resolver is allowed only in preview, which writes nothing.
 grep -q 'Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh --preview \*)' "$skill"
-! grep -q 'resolve-settings.sh \*' "$skill"
+if grep -q 'resolve-settings.sh \*' "$skill"; then echo "the skill allows the bare resolver wildcard" >&2; exit 1; fi
 
 # The preview block feeds every manifest setting, each from user_config.
 sed -n 's/^    "\([a-z_]*\)": {$/\1/p' "$manifest" | sort >"$SCRATCH/keys"
@@ -66,7 +66,7 @@ field() { sed -n '2,/^---$/p' "$REPO_ROOT/agents/$1.md" | sed -n "s/^$2: //p"; }
 [ "$(field cartographer maxTurns)" = 40 ]
 [ "$(field assembler maxTurns)" = 20 ]
 grep -q 'scripts/save-record.sh' "$REPO_ROOT/agents/cartographer.md"
-! grep -q 'save-record' "$skill"
+if grep -q 'save-record' "$skill"; then echo "the skill names save-record" >&2; exit 1; fi
 grep -qF 'Map the repository. Survey directory: <dir>. Partition: <id>.' "$skill"
 grep -qF 'Draft the conventions block. Survey directory: <dir>.' "$skill"
 grep -q 'pr-review-workflow:cartographer' "$skill"
