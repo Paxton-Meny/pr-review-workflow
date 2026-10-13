@@ -93,8 +93,12 @@ a set of file numbers; outside a restriction, every file is yours. Under the sta
 off-by-ones, unhandled error paths, broken edge cases, race conditions,
 callers of a changed signature left unchanged, tests that no longer assert
 the new behavior, resources not released on every path including the
-failing ones, and new code that is never actually wired in: registrations,
-exports, routes, and entry points left stale.
+failing ones, new code that is never actually wired in: registrations,
+exports, routes, and entry points left stale, and a schema or data
+migration that breaks code or databases other developers already run:
+destructive or renaming DDL without an expand-then-contract step,
+`NOT NULL` without a default or backfill, an edit to a migration that
+already shipped, a missing down step where the project keeps them.
 
 **Security.** Injection through shell, SQL, or paths; unvalidated external
 input; secrets or tokens in code, config, or logs; permissions widened;
@@ -104,8 +108,10 @@ workflow acting on untrusted events); unbounded growth that exhausts
 memory or disk.
 
 **Performance.** Work moved onto a hot path, quadratic behavior over inputs
-that grow, queries or I/O inside loops, unbounded caches or buffers. Claim a
-cost only when you can point at why it grows.
+that grow, queries or I/O inside loops, unbounded caches or buffers, a
+migration that rewrites or locks a table that grows or builds an index
+non-concurrently where the engine offers it. Claim a cost only when you
+can point at why it grows.
 
 **Best practices.** The change fits the codebase it lands in: naming,
 error-handling idiom, and structure match the surrounding code; the public
