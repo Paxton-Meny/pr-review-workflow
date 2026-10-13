@@ -123,7 +123,7 @@ pull request, and says when to choose it.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| Auto-approve on convergence | off | Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold. |
+| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold. |
 | Self-started reviews | ask | When Claude starts a review on its own: ask (you confirm first) or auto (no question when the pull request is ready). Anything that is not ready still asks. |
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
@@ -133,7 +133,7 @@ pull request, and says when to choose it.
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes, code whose changed files reference one another, and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, code whose changed files reference one another, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
 | Sensitive paths | empty | Space-separated globs for files where a defect costs most. A change touching one is treated as high stakes: the reviewer may climb, no fix there starts cheap, and the second review pass runs under risky. A project's shared file adds to this list. |
-| Migration paths | common layouts | Space-separated globs for database migration files (default `*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*`). A change touching one is treated as high stakes and judged for harm to databases and code teammates already run. Your value replaces the default; a project's shared file adds to it. |
+| Migration paths | common layouts | Space-separated globs for database migration files (default `*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*`). A change touching one is treated as high stakes, judged for harm to databases and code teammates already run, and never merged without a person; see Migration safety. Your value replaces the default; a project's shared file adds to it. |
 | Cost posture | balanced | Which way routing leans where the change itself does not settle a decision; it never pins a model. economy counts more changes as small enough for the cheap reviewer (under 500 lines, tests-only included), fewer as large enough for the strong one (over 1,200 lines of code), splits into shards over 2,250 changed lines, and starts any fix cheap once a check command gates the round. quality counts small under 150 and large over 400, splits over 1,000, starts only proven-suggestion fixes cheap, adds one review sample where a stakes probe fired, and is the only posture that lets reasoning effort reach xhigh. balanced keeps 300, 800, and 1,500 and also starts fixes cheap whose Check line will execute. High-stakes findings never start cheap; a failed fix tries again one lever up. Fixed routing keeps every model and sample count as set; the shard limit and the effort cap still follow the posture. |
 | Review samples | 1 | Independent reviewer passes per shard on the first review. Above 1, duplicates merge into the richest record with a support count the filter weighs; recall rises at roughly that multiple of the review cost. For repositories where an escaped defect is expensive. |
 | Precision filter | on | Before findings post, a cheap second context re-reads the cited code and demotes findings the fresh evidence cannot support into the round summary. Nothing is dropped: demoted findings are still addressed, with the doubt recorded in the ledger. |
@@ -208,6 +208,27 @@ metacharacters. With no check command configured, nothing ever
 executes, exactly as before. Running a narrowed test executes no more
 of the pull request's code than the check command you already
 configured runs on every round.
+
+### Migration safety
+
+Migrations are read, never run. No agent or script executes migration
+tooling, a dry run or check mode included, or connects to a database,
+and a Check line naming migration tooling is judged by reading
+instead. Your own check command is yours to keep database-free.
+
+A pull request touching a migration path gets the high-stakes review
+and is judged for harm to databases and code other developers already
+run: destructive or renaming changes without an expand-then-contract
+step, new required columns without a default or backfill, edits to
+migrations that already shipped, and table rewrites or locks.
+
+What one pull request cannot show is left to you. Before any merge
+that changes migrations, even with auto-approve on, the review stops
+and asks you to confirm that the base branch has no newer migrations
+this branch lacks, that no other open pull request adds migrations in
+the same directories, that code teammates run still works against the
+new schema while it deploys, and that no shipped migration was edited.
+Unattended, it parks with that checklist in a status comment.
 
 ### Cost notes
 
@@ -322,6 +343,8 @@ by looking in the main one. Run one review per pull request at a time.
 - Pull requests past the GitHub API diff limits are parked as too large.
 - Unattended runs never merge unless auto-approve is on; they park with a
   status comment instead.
+- Migration conflicts with the base branch or other open pull requests
+  are not detected; the merge gate hands them to you as a checklist.
 
 ## Development
 

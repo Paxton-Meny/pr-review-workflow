@@ -359,6 +359,20 @@ PRWF_SETTINGS_END
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
+    - merge-pr exit 4: nothing merged, because the pull request changes
+      migration files (or the forge listed too few files to rule them
+      out), and the review reads only this pull request. Attended: relay
+      its lines and ask the user to confirm, by their own checks, that
+      1) the base branch has no newer migrations in those directories
+      that this branch lacks, and the numbering or parent is still the
+      latest; 2) no other open pull request adds migrations there;
+      3) code teammates run still works against the new schema, and old
+      code keeps working while it deploys; 4) no migration that already
+      shipped was edited. Then ask merge or hold. Merge: rerun the same
+      merge-pr command with `--migrations-checked` added; hold as above.
+      Unattended: park (step 9) with its lines and the four checks in
+      the status comment. Never add `--migrations-checked` without the
+      user's answer in this run.
 12. After a merge:
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> merged` first,
     while the context it summarizes still exists, then
