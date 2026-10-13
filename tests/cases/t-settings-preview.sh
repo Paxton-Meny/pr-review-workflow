@@ -14,7 +14,7 @@ printf 'double_review always\ncheck_command make check\n' >"$clone/.claude/pr-re
 git -C "$clone" add -A
 git -C "$clone" commit --quiet -m shared
 git -C "$clone" push --quiet origin HEAD:main
-git -C "$clone" remote set-url origin https://github.com/acme/widgets.git
+git -C "$clone" remote set-url origin https://github.com/Paxton-Meny/widgets.git
 git -C "$clone" update-ref refs/remotes/origin/main HEAD
 git -C "$clone" symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main
 printf 'cost_posture economy\n' >"$clone/.claude/pr-review-workflow.local.conf"
@@ -32,7 +32,11 @@ printf '%s\n' "$out" | grep -q '^settings: trust pending [0-9a-f]* check_command
 # Nothing was written: no state, no pending approval, no run hash.
 [ ! -e "$data" ]
 
-# With origin/HEAD unset, the shared file is unavailable, not an error.
+# With origin/HEAD unset, origin/main stands in as the base; with neither,
+# the shared file is unavailable, not an error.
 git -C "$clone" symbolic-ref --delete refs/remotes/origin/HEAD
+out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --preview "$data" </dev/null)
+printf '%s\n' "$out" | grep -qx 'settings: project file as-of-last-fetch, local file present'
+git -C "$clone" update-ref -d refs/remotes/origin/main
 out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --preview "$data" </dev/null)
 printf '%s\n' "$out" | grep -qx 'settings: project file absent, local file present'
