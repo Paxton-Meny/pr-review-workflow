@@ -1,17 +1,26 @@
 #!/bin/sh
 # Merge the pull request by rebase after proving it is mergeable.
-# Usage: sh scripts/merge-pr.sh <state-dir> [--approve]
+# Usage: sh scripts/merge-pr.sh <state-dir> [--approve] [--migrations-checked]
+# Exit 4: refused, writing nothing, because the pull request changes
+# migration files (one "migration <path>" line each) or the forge listed
+# fewer files than changed, unless --migrations-checked says a person
+# has verified the migrations outside the pull request.
 set -eu
 
-dir=${1:?usage: merge-pr.sh <state-dir> [--approve]}
-approve=${2:-}
-case "$approve" in
-'' | --approve) ;;
-*)
-	echo "merge-pr: unknown argument: $approve" >&2
-	exit 1
-	;;
-esac
+dir=${1:?usage: merge-pr.sh <state-dir> [--approve] [--migrations-checked]}
+shift
+approve=''
+checked=0
+for arg in "$@"; do
+	case "$arg" in
+	--approve) approve=--approve ;;
+	--migrations-checked) checked=1 ;;
+	*)
+		echo "merge-pr: unknown argument: $arg" >&2
+		exit 1
+		;;
+	esac
+done
 [ -f "$dir/meta.txt" ] || {
 	echo "merge-pr: no meta.txt in $dir" >&2
 	exit 1
@@ -26,8 +35,8 @@ attempts=5
 settle=${MERGE_PR_SETTLE_SECONDS:-3}
 while :; do
 	status=$(gh pr view "$pr" --repo "$owner/$repo" \
-		--json state,isDraft,mergeable,mergeStateStatus \
-		--jq '"state \(.state)\ndraft \(.isDraft)\nmergeable \(.mergeable)\nmerge_state \(.mergeStateStatus)"')
+		--json state,isDraft,mergeable,mergeStateStatus,changedFiles,files \
+		--jq '"state \(.state)\ndraft \(.isDraft)\nmergeable \(.mergeable)\nmerge_state \(.mergeStateStatus)\nchanged \(.changedFiles)", (.files[] | "file \(.path)")')
 	mergeable=$(printf '%s\n' "$status" | sed -n 's/^mergeable //p')
 	[ "$mergeable" = "UNKNOWN" ] || break
 	attempts=$((attempts - 1))
@@ -63,6 +72,21 @@ UNSTABLE)
 	exit 1
 	;;
 esac
+
+if [ "$checked" -eq 0 ]; then
+	changed=$(printf '%s\n' "$status" | sed -n 's/^changed //p')
+	listed=$(printf '%s\n' "$status" | grep -c '^file ' || true)
+	if [ -n "$changed" ] && [ "$listed" -lt "$changed" ]; then
+		echo "merge-pr: only $listed of $changed changed files listed, so migrations cannot be ruled out; a person decides"
+		exit 4
+	fi
+	migrations=$(printf '%s\n' "$status" | sed -n 's/^file //p' | sh "$(dirname -- "$0")/match-paths.sh" "$dir" migration_paths)
+	if [ -n "$migrations" ]; then
+		echo "merge-pr: migrations changed, a person decides"
+		printf '%s\n' "$migrations" | sed 's/^/migration /'
+		exit 4
+	fi
+fi
 
 if [ "$approve" = "--approve" ]; then
 	credit=$(sh "$(dirname -- "$0")/attribution.sh" "$dir")
