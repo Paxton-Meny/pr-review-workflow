@@ -231,6 +231,13 @@ configured runs on every round.
   defeats effort routing; route lines record it as `pinned`, and a
   retry under it climbs the model directly. The `maxEffortLevel`
   setting caps every routed level without saying so.
+- Some sessions give Claude a spawn tool with no effort parameter.
+  The run records that once per invocation, omits the effort, and
+  route lines name the level each agent actually runs at (its
+  definition's) as `unapplied`. A retry then climbs the model
+  directly, the final report says routed efforts were not applied,
+  and the statistics count those lines and read those attempts at
+  the level that ran.
 - Subagent requests cache with a five-minute lifetime on every billing
   method (the main conversation gets an hour on a subscription). The
   `subagentPromptCacheTtl` setting raises it, at a higher write rate.

@@ -1,6 +1,7 @@
 #!/bin/sh
 # Decide which model each role runs on, one line per unit of work.
 # Usage: sh scripts/route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]
+#        sh scripts/route-models.sh <state-dir> spawn-effort applied|unapplied
 #
 # Settings come from the run's resolved settings.txt when there is one;
 # key=value arguments override them. Stages: review, gap, filter, edit,
@@ -17,7 +18,7 @@
 # effort. Each printed line is label-value, is appended to
 # pr-context/routes.txt, and names the model and effort the
 # orchestrator passes as overrides, "inherit" included:
-#   route <stage> <unit> rung <rung> model <model> effort <level>[ pinned <value>] reason <reason>[ ids ...]
+#   route <stage> <unit> rung <rung> model <model> effort <level>[ pinned|unapplied <value>] reason <reason>[ ids ...]
 # The model and the effort are two levers moved by different evidence,
 # and a signal is paid for once: when a stronger model takes a climb,
 # the signal that caused it leaves the effort alone.
@@ -39,6 +40,11 @@
 # CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the line and
 # each Route note record it as pinned, and a retry under it climbs the
 # model directly.
+# The spawn-effort stage records, once per invocation, whether the
+# orchestrator's spawn tool takes an effort override. When it does not,
+# each agent runs at its definition's level whatever the line routes,
+# so the line and each Route note record that level as unapplied, and
+# a retry climbs the model directly, as under a pinned level.
 # The cost posture is the lean of every decision the change itself does
 # not settle, never a pinned value: where code counts as large (economy
 # over 1200 changed lines, balanced 800, quality 400), where a change
@@ -78,6 +84,22 @@ set -eu
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
 stage=${2:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
 shift 2
+if [ "$stage" = spawn-effort ]; then
+	[ -d "$dir" ] || {
+		echo "route-models: no ledger at $dir, run init-state.sh first" >&2
+		exit 1
+	}
+	case "${1:-}" in
+	applied) echo "route-models: spawn effort applied" ;;
+	unapplied) echo "route-models: spawn effort unapplied, each agent runs at its definition's level" ;;
+	*)
+		echo "route-models: spawn-effort takes applied or unapplied: ${1:-}" >&2
+		exit 1
+		;;
+	esac
+	printf '%s\n' "$1" >"$dir/spawn-effort.txt"
+	exit 0
+fi
 ctx="$dir/pr-context"
 [ -d "$ctx" ] || {
 	echo "route-models: no pr-context in $dir, run fetch-pr.sh first" >&2
@@ -174,7 +196,7 @@ pinned=${CLAUDE_CODE_EFFORT_LEVEL:+ pinned $CLAUDE_CODE_EFFORT_LEVEL}
 
 emit() {
 	# emit <unit> <rung> <model> <effort> <reason> [ids]
-	line="route $stage $1 rung $2 model $3 effort $4$pinned reason $5${6:+ ids $6}"
+	line="route $stage $1 rung $2 model $3 effort $4$held reason $5${6:+ ids $6}"
 	printf '%s\n' "$line" >>"$ctx/routes.txt"
 	echo "$line"
 }
@@ -239,6 +261,18 @@ reviewer_effort=$(role_effort reviewer)
 editor_effort=$(role_effort editor)
 verifier_effort=$(role_effort verifier)
 filter_effort=$(role_effort filter)
+
+# A pinned level outranks the spawn tool; otherwise a spawn tool with
+# no effort override leaves the stage's agent at its own level.
+held=$pinned
+if [ -z "$held" ] && [ "$(cat "$dir/spawn-effort.txt" 2>/dev/null)" = unapplied ]; then
+	case "$stage" in
+	review | gap | incremental) held=" unapplied $reviewer_effort" ;;
+	edit | repair) held=" unapplied $editor_effort" ;;
+	verify | arbitrate) held=" unapplied $verifier_effort" ;;
+	filter) held=" unapplied $filter_effort" ;;
+	esac
+fi
 
 highest() {
 	# highest <levels>: the highest of them
@@ -405,7 +439,7 @@ last_rung() {
 
 note_attempt() {
 	# note_attempt <id> <rung> <model> <effort> <reason>
-	printf 'Route: round %s rung %s model %s effort %s%s reason %s\n' "$round" "$2" "$3" "$4" "$pinned" "$5" |
+	printf 'Route: round %s rung %s model %s effort %s%s reason %s\n' "$round" "$2" "$3" "$4" "$held" "$5" |
 		sh "$(dirname "$0")/append-note.sh" "$dir" "$1" >/dev/null
 }
 
@@ -441,15 +475,16 @@ last_effort() {
 # the effort: the same model with more care recovers most failures for
 # a fraction of a stronger model's price. At the cap more effort has
 # little headroom left and the model climbs, at the effort already
-# reached. A pinned CLAUDE_CODE_EFFORT_LEVEL makes the effort lever
-# inert, so the model climbs at once. Prints "<rung> <effort> <reason>".
+# reached. A pinned CLAUDE_CODE_EFFORT_LEVEL or an unapplied effort
+# makes the effort lever inert, so the model climbs at once. Prints
+# "<rung> <effort> <reason>".
 next_attempt() {
 	# next_attempt <last rung> <last effort>
 	if [ "$1" = cheap ]; then
 		echo "base $(moved "$2" 0) escalated"
 		return
 	fi
-	if [ -z "$pinned" ] && [ "$(level_rank "$2")" -lt "$(level_rank "$effort_cap")" ]; then
+	if [ -z "$held" ] && [ "$(level_rank "$2")" -lt "$(level_rank "$effort_cap")" ]; then
 		echo "$1 $(moved "$2" 1) more-effort"
 		return
 	fi
