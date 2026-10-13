@@ -165,12 +165,14 @@ PRWF_SETTINGS_END
    transcript alone carries the drafted block.
 
 8. Write it exactly as below, with `--replace` only when revising, and
-   relay its lines. A refusal names the entry a file of that audience
+   relay its lines. The writer calls the team audience `shared`: pass
+   `shared` when the chosen audience is `team`, and the chosen word
+   otherwise. A refusal names the entry a file of that audience
    cannot set: fix that line and write once more. A second refusal
    stops the run with its lines.
 
 ```
-sh ${CLAUDE_PLUGIN_ROOT}/scripts/write-settings.sh <audience> [--replace] <<'PRWF_SETTINGS_END'
+sh ${CLAUDE_PLUGIN_ROOT}/scripts/write-settings.sh <shared|personal|local> [--replace] <<'PRWF_SETTINGS_END'
 <the file>
 PRWF_SETTINGS_END
 ```
