@@ -46,6 +46,12 @@ awk '
 		exit bad
 	}' "$REPO_ROOT/skills/review-pr/SKILL.md"
 
+# A spawn tool without an effort parameter is recorded on every
+# invocation, before any route line, and reported at the end.
+grep -q 'route-models.sh <dir> spawn-effort applied' "$REPO_ROOT/skills/review-pr/SKILL.md"
+sed -n '/^2\. /,/^3\. /p' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q 'whether the spawn tool takes an effort'
+grep -q 'routed efforts were not applied' "$REPO_ROOT/skills/review-pr/SKILL.md"
+
 # The incremental review in step 8e has no prompt of its own, so check
 # that it is routed and passes both overrides.
 grep -A4 'route-models.sh <dir> incremental' "$REPO_ROOT/skills/review-pr/SKILL.md" | grep -q 'with its `model` and'

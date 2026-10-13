@@ -53,6 +53,15 @@ agent runs on the session model (the spawn tool does not accept
 `inherit` as a value). Pass every other model, and every effort,
 as given. Relay every route line.
 
+The spawn tool may have no effort parameter. Look at its schema, not
+at what you expect, and record the answer once per invocation (step
+2) with
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> spawn-effort applied`
+when it takes one, or `spawn-effort unapplied` when it does not, and
+relay the line. Unapplied, omit the effort on every spawn: each agent
+runs at its definition's level, which every later route line names as
+`unapplied <level>`. Never choose an effort yourself in either case.
+
 Constants: SIZE_WARN_LINES 4000. The round cap of 4
 lives in the round counter on disk, not here.
 
@@ -137,6 +146,10 @@ PRWF_SETTINGS_END
    and resolve again with the block above; on no, carry on without
    them. Unattended, carry on without them; the final report says
    they were not applied and why.
+
+   Then record whether the spawn tool takes an effort (see Settings),
+   on every invocation including a resume, since a resumed session may
+   have a different tool.
 
    If `<dir>/findings/` already has records, this is a resume: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
@@ -356,7 +369,9 @@ the tuning process greps for. Those lines are the material for growing the
 reviewer's criteria deliberately, and a report that drops them is how they
 get lost. When any route line carried the reason `strong-wanted-unset`,
 the report also says that the change called for a stronger model and
-that the strong model setting is empty.
+that the strong model setting is empty. When the spawn effort was
+unapplied, the report says that routed efforts were not applied and
+each agent ran at its definition's level.
 
 ## Boundaries
 

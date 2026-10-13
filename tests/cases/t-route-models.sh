@@ -57,6 +57,36 @@ printf 'id: F015\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F0
 printf 'id: F016\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung base model inherit effort medium pinned low reason role-model\n' >"$dir/findings/F016"
 [ "$(CLAUDE_CODE_EFFORT_LEVEL=low route edit routing=auto strong=opus round=2 -- F016)" = "route edit all rung strong model opus effort medium pinned low reason escalated ids F016" ]
 
+# A spawn tool with no effort override leaves each agent at its own
+# level: the line and every Route note name that level as unapplied, a
+# retry climbs the model, and a pinned level still outranks it. The
+# record needs only the ledger, since a fresh run makes it before fetching.
+if sh "$REPO_ROOT/scripts/route-models.sh" "$SCRATCH/ledger" spawn-effort unapplied 2>"$SCRATCH/err"; then
+	echo "expected failure without a ledger" >&2
+	exit 1
+fi
+grep -q "no ledger" "$SCRATCH/err"
+mkdir -p "$SCRATCH/ledger"
+[ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$SCRATCH/ledger" spawn-effort unapplied)" = "route-models: spawn effort unapplied, each agent runs at its definition's level" ]
+[ "$(cat "$SCRATCH/ledger/spawn-effort.txt")" = unapplied ]
+if route spawn-effort maybe 2>"$SCRATCH/err"; then
+	echo "expected refusal of an unknown spawn-effort value" >&2
+	exit 1
+fi
+grep -q "takes applied or unapplied" "$SCRATCH/err"
+route spawn-effort unapplied >/dev/null
+[ "$(route review routing=auto strong=opus)" = "route review all rung strong model opus effort high unapplied high reason risky-probe samples 1" ]
+[ "$(route filter $ARGS)" = "route filter all rung base model sonnet effort low unapplied low reason role-model" ]
+printf 'id: F017\nstatus: open\nseverity: blocker\n---\nbody\n' >"$dir/findings/F017"
+[ "$(route edit $ARGS round=1 -- F017)" = "route edit all rung base model inherit effort high unapplied medium reason stakes-floor ids F017" ]
+grep -qx 'Route: round 1 rung base model inherit effort high unapplied medium reason stakes-floor' "$dir/findings/F017"
+printf 'id: F018\nstatus: open\nseverity: major\n---\nbody\nRoute: round 1 rung base model inherit effort medium unapplied medium reason role-model\n' >"$dir/findings/F018"
+[ "$(route edit routing=auto strong=opus round=2 -- F018)" = "route edit all rung strong model opus effort medium unapplied medium reason escalated ids F018" ]
+[ "$(CLAUDE_CODE_EFFORT_LEVEL=low route filter $ARGS)" = "route filter all rung base model sonnet effort low pinned low reason role-model" ]
+[ "$(route spawn-effort applied)" = "route-models: spawn effort applied" ]
+[ "$(route filter $ARGS)" = "route filter all rung base model sonnet effort low reason role-model" ]
+rm "$dir/spawn-effort.txt"
+
 # Fixed routing never moves, and placeholders from an unconfigured install count as unset.
 [ "$(route review routing=fixed reviewer=inherit strong=opus)" = "route review all rung base model inherit effort high reason fixed samples 1" ]
 [ "$(route review 'routing=${user_config.model_routing}' 'strong=${user_config.strong_model}')" = "route review all rung base model inherit effort high reason strong-wanted-unset samples 1" ]
@@ -315,7 +345,7 @@ printf 'a.py and b.py split across groups 1 and 2 (shared name: parse)\n' >"$ctx
 rm -f "$ctx/seams.txt"
 
 # Every decision was recorded, in order.
-[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 110 ]
+[ "$(grep -c '^route ' "$ctx/routes.txt")" -eq 116 ]
 [ "$(sed -n '1p' "$ctx/routes.txt")" = "route review all rung cheap model sonnet effort medium reason docs-only-small samples 1" ]
 
 # Every emitted level passes the posture's cap, the gap floor and the

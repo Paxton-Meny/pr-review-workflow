@@ -21,7 +21,7 @@ awk '
 	wontfix += v["wont-fix"]; demoted += v["demoted"]
 	contracts += v["contracts"]; seams += v["seams"]
 	cheap += v["cheap"]; base += v["base"]; strong += v["strong"]; wanted += v["strong_wanted"]; esc += v["escalations"]
-	elow += v["effort_low"]; emed += v["effort_medium"]; ehigh += v["effort_high"]; exhigh += v["effort_xhigh"]; pinned += v["pinned"]
+	elow += v["effort_low"]; emed += v["effort_medium"]; ehigh += v["effort_high"]; exhigh += v["effort_xhigh"]; pinned += v["pinned"]; unapplied += v["unapplied"]
 	mr += v["model_retries"]; mrv += v["model_retries_verified"]; er += v["effort_retries"]; erv += v["effort_retries_verified"]
 	sr += v["same_retries"]; srv += v["same_retries_verified"]
 	if (v["reopens"] + 0 > 0) reopened++
@@ -36,8 +36,8 @@ END {
 		findings, verified, wontfix, demoted, contracts, seams
 	printf "stats-report: routes cheap %d base %d strong %d strong-wanted %d escalations %d\n", \
 		cheap, base, strong, wanted, esc
-	printf "stats-report: effort low %d medium %d high %d xhigh %d pinned %d\n", \
-		elow, emed, ehigh, exhigh, pinned
+	printf "stats-report: effort low %d medium %d high %d xhigh %d pinned %d unapplied %d\n", \
+		elow, emed, ehigh, exhigh, pinned, unapplied
 	printf "stats-report: retries model %d model-verified %d effort %d effort-verified %d same %d same-verified %d\n", \
 		mr, mrv, er, erv, sr, srv
 }
