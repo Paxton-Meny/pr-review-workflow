@@ -16,7 +16,7 @@ awk '
 /^    "[a-z_]+": \{/ {
 	key = $1; gsub(/[":]/, "", key); def = ""; opts = ""; lo = ""; hi = ""; next
 }
-/^      "default":/ { def = $2; gsub(/[",]/, "", def) }
+/^      "default":/ { def = $0; sub(/^[^:]*: */, "", def); sub(/,$/, "", def); gsub(/"/, "", def) }
 /^      "options":/ {
 	opts = $0; sub(/^[^\[]*\[/, "", opts); sub(/\].*$/, "", opts); gsub(/[",]/, "", opts)
 }

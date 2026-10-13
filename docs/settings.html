@@ -40,7 +40,7 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 16 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 17 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
@@ -58,6 +58,7 @@
 <div class="side-head">REVIEW DEPTH</div>
 <a href="#double-review" data-words="double_review gap pass">Second review pass</a>
 <a href="#sensitive-paths" data-words="sensitive_paths auth payments risky">Sensitive paths</a>
+<a href="#migration-paths" data-words="migration_paths database schema migrations">Migration paths</a>
 <a href="#finding-filter" data-words="finding_filter demote summary">Precision filter</a>
 <a href="#review-samples" data-words="review_samples support cost">Review samples</a>
 </div>
@@ -454,6 +455,30 @@
 </dl>
 </div>
 <p class="works"><b>Works with</b> &#183; <a href="#double-review">Second review pass</a>, <a href="#strong-model">Strong model</a>, <a href="#cost-posture">Cost posture</a></p>
+</section>
+
+<section class="entry" id="migration-paths" data-key="migration_paths" data-project="adds" data-default="*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*">
+<h3 class="display">Migration paths</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>migration_paths</dd></div>
+<div><dt>DEFAULT</dt><dd class="def mono">*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*</dd></div>
+<div><dt>ACCEPTS</dt><dd>file patterns, separated by spaces</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">adds to yours</a></dd></div>
+</dl>
+<p class="lead">Tell the plugin where the database migrations live. A migration can break databases and code other developers already run,, so a change that touches one is handled with extra care.</p>
+<div class="card">
+<div class="setting"><div class="setting-k"><h5>Reviewed as high stakes</h5></div><div class="setting-d"><p>Treated like a <a href="#sensitive-paths">sensitive path</a>. The reviewer also judges it for destructive or renaming changes without an expand-then-contract step, new required columns without a default or backfill, edits to migrations that already shipped, and table rewrites or locks.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>Read, never run</h5></div><div class="setting-d"><p>No agent or script runs migration tooling, a dry run or check mode included, or connects to a database. A finding&#8217;s <a class="term" href="#g-check-line">Check line</a> naming migration tooling is judged by reading instead.</p></div></div>
+</div>
+<p class="note">A <code>*</code> matches any run of characters, slashes included. Your value replaces the default, so include the default patterns you still want; a project&#8217;s shared settings file adds its patterns to whichever list is in force.</p>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>the default <span class="badge">DEFAULT</span></dt><dd>Migrations live in a folder named migrations or migration, in <code>db/migrate</code>, or in <code>alembic/versions</code>.</dd></div>
+<div><dt>your own patterns</dt><dd>Migrations live somewhere else, or a folder the default matches holds something that is not a migration.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#sensitive-paths">Sensitive paths</a></p>
 </section>
 
 <section class="entry" id="finding-filter" data-key="finding_filter" data-project="raise" data-default="true">
@@ -918,7 +943,7 @@ sensitive_paths src/auth/** src/payments/**</code></pre>
 <tr><th scope="col">SETTINGS</th><th scope="col">THE SHARED FILE MAY</th><th scope="col">WHY</th></tr>
 <tr><th scope="row">Check command, contract command prefixes</th><td><b>set them after you approve</b></td><td>They run on your machine. The first run that sees them, and every run after they change, shows you the exact commands and asks; an unattended run goes without them.</td></tr>
 <tr><th scope="row">Second review pass, precision filter, cost posture, review samples</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
-<tr><th scope="row">Sensitive paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
+<tr><th scope="row">Sensitive paths, migration paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
 <tr><th scope="row">Auto-approve, self-started reviews, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, start reviews on your behalf, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
 </table>
 </div>

@@ -109,6 +109,13 @@
       "description": "Space-separated globs, relative to the repository, for files where a defect costs most (authentication, payments, migrations). A change touching one is treated like a change the sensitive probe flagged: the reviewer may climb to the strong model, no fix there starts on the cheap model, and the second review pass runs under the risky setting. A project's shared file adds to this list rather than replacing it.",
       "required": false
     },
+    "migration_paths": {
+      "type": "string",
+      "title": "Migration paths",
+      "description": "Space-separated globs, relative to the repository, for database migration files; * also matches across directories. A change touching one is treated like a sensitive path, and the reviewer judges it for harm to databases and code other developers already run. Migrations are only ever read, never run. Your value replaces the default; a project's shared file adds to it.",
+      "default": "*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*",
+      "required": false
+    },
     "strong_model": {
       "type": "string",
       "title": "Strong model",
