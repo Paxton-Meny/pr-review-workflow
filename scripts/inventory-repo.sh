@@ -104,15 +104,17 @@ FILENAME == ARGV[1] { lines[$2] = $1; next }
 { print $1 "\t" (($2 in lines) ? lines[$2] : 0) "\t" $2 }
 ' "$work/wc" "$work/classes" | sort -t '	' -k3 >"$work/files.txt"
 
-eval "$(awk -F '\t' '
+awk -F '\t' -v langs_file="$work/langs" '
 { n[$1]++; l[$1] += $2; files++; lines += $2 }
 $1 == "code" && $2 > 0 { ext = $3; sub(/.*\//, "", ext); if (index(ext, ".")) { sub(/.*\./, "", ext); el[tolower(ext)] += $2 } }
 END {
-	printf "files=%d code=%d tests=%d docs=%d config=%d lines=%d code_lines=%d\n", files, n["code"], n["tests"], n["docs"], n["config"], lines, l["code"]
-	langs = ""
-	for (e in el) langs = langs sprintf("%d %s\n", el[e], e)
-	printf "langs=\"%s\"\n", langs
-}' "$work/files.txt")"
+	printf "%d %d %d %d %d %d %d\n", files, n["code"], n["tests"], n["docs"], n["config"], lines, l["code"]
+	for (e in el) printf "%d %s\n", el[e], e > langs_file
+	close(langs_file)
+}' "$work/files.txt" >"$work/counts"
+: >>"$work/langs"
+read -r files code tests docs config lines code_lines <"$work/counts"
+langs=$(cat "$work/langs")
 languages=$(printf '%s' "$langs" | sort -rn | head -n 6 | awk '{ printf "%s%s %d", (NR > 1 ? " " : ""), $2, $1 }')
 
 if [ "$code_lines" -lt "$SMALL_CODE_LINES" ] && [ "$files" -lt "$SMALL_FILES" ]; then
