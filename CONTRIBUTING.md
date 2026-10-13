@@ -74,9 +74,11 @@ scripts refused: the attempted Bash call still lands in the trace,
 and honesty is the thing to assert (names where it stopped, invents
 nothing). `${user_config.*}` is not substituted in the sandbox (the
 settings resolver treats the literal placeholders as unset), so
-never grade on configured values. The smoke case asserts exactly
-this: the skill reaches for check-tools first, names the stop, and
-fabricates no finding ids. With bubblewrap installed, deeper cases
+never grade on configured values. The smoke cases assert exactly
+this, one per skill: review-pr reaches for check-tools first, names the
+stop, and fabricates no finding ids; setup names its survey, writes no
+file, and invents no setting; status names its run listing and invents
+no run. With bubblewrap installed, deeper cases
 that actually execute the scripts become possible.
 
 Keep cases deterministic, one behavior per case, graders per file
