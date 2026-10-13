@@ -170,6 +170,31 @@ has the full table.
 the current clone would use and where each comes from, as of the last
 fetch.
 
+`/pr-review-workflow:setup` writes the file for you from what the clone
+and its history already state, and works on a repository this plugin
+has never seen. Scripts inventory the tracked files, every CLAUDE.md
+and AGENTS.md at any depth, the docs, the directories whose code
+matches the sensitive probe, and the check command from the Makefile,
+package manifest, toolchain, or CI workflow; one `gh` call reads the
+last hundred merged pull requests for their sizes by author. The
+repository's size sets how much a model reads: nothing on a small one,
+up to four, eight, or sixteen cheap parallel readers on a medium,
+large, or huge one, each over a planned slice with docs first, and the
+estimate is shown before any of them spawn on a large one. A script
+drops every claim the tree cannot confirm before the map is drafted.
+The history decides what to pin and what to leave to per-run routing:
+a developer whose pull requests vary twenty-fold in size gets no depth
+setting pinned, while sensitive code or many fork contributors turn
+the second review pass on for everyone. It decides whether the file is
+the team's or yours unless you say (`team`, `personal`, or `local`),
+applies a profile (`standard`, `careful`, or `economy`, which only your
+own file may carry), lints the file as the source it will become so a
+committed file never holds a line the resolver would refuse, shows it
+once beside the drafted conventions block, and writes the file. The
+block reaches CLAUDE.md only when you say so at that question. Pass
+`key=value` words to pin anything it would otherwise decide. It touches
+no pull request; the one network call lists merged pull requests.
+
 ### Executable contracts
 
 A finding may carry a `Check:` line, the check command narrowed to the
@@ -320,8 +345,10 @@ every change goes through.
 - `.claude-plugin/marketplace.json`: the marketplace that lists the plugin.
 - `skills/review-pr/`: the orchestrating skill.
 - `skills/status/`: read-only view of recorded runs and their statistics.
+- `skills/setup/`: writes a repository's settings file from what the clone states.
 - `skills/finding-records/`: the finding record format, preloaded into the agents.
-- `agents/`: reviewer, filter, editor, and verifier definitions.
+- `agents/`: reviewer, filter, editor, and verifier definitions, plus the
+  cartographer and assembler that setup spawns to map a repository.
 - `hooks/`: the check that runs before Claude starts a review itself.
 - `scripts/`: POSIX sh, one proven step each.
 - `tests/`: offline suite with a stubbed GitHub CLI.
