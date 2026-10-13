@@ -138,6 +138,19 @@ if grep -qE '^3 check ' "$dir/digest.txt"; then
 	exit 1
 fi
 
+# A statement that itself contains " | " is cut at the first separator, so
+# tooling is still dropped even when a toolchain manifest would back it.
+printf 'x\n' >"$clone/app.sln"
+git -C "$clone" add -A
+git -C "$clone" commit --quiet -m sln
+printf 'partition 4\n' >"$dir/partitions/4.txt"
+record "$dir" 4 >/dev/null <<'R'
+## check
+check dotnet ef database update | applies it | cheap
+R
+out=$(printf 'survey: check makefile make check\n' | verify "$dir")
+printf '%s\n' "$out" | grep -qx 'verify: dropped 4 check dotnet ef database update (migration or database tooling)'
+
 # A proposal may name only paths the digest backs.
 out=$(proposal "$dir" <<'P'
 - `src/auth/` holds authentication; `src/` the rest.
