@@ -6,6 +6,37 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Migration awareness. A new `migration_paths` setting names where a
+  repository keeps database migrations, defaulting to the common
+  layouts (`*[Mm]igrations/* *[Mm]igration/* *db/migrate/*
+  *alembic/versions/*`); a project's shared file adds to it. The
+  probes list each changed migration as added, modified, or deleted,
+  treat it as a sensitive path for routing, and point at schema
+  operations in its added lines. The reviewer judges migrations for
+  harm to databases and code other developers already run, and for
+  table rewrites and locks.
+- `scripts/match-paths.sh`, the one matcher for path-glob settings,
+  shared by the sensitive and migration probes and the merge gate.
+
+### Changed
+
+- A pull request that changes migrations never merges without a
+  person, auto-approve included. `merge-pr.sh` refuses with exit 4 and
+  lists the migrations, and the skill asks the user to confirm what
+  one pull request cannot show: no newer migrations on the base
+  branch, no other open pull request adding migrations in the same
+  directories, code teammates run still working against the new
+  schema, and no shipped migration edited. Only their answer adds
+  `--migrations-checked`; an unattended run parks with that
+  checklist. A forge file list shorter than the changed-file count is
+  refused the same way, since it cannot rule migrations out.
+- Migrations are read, never run. The editor and verifier never run
+  migration tooling or anything that reaches a database, and
+  `run-contract.sh` judges a Check line naming migration tooling by
+  reading, even under an allowed prefix.
+
 ### Fixed
 
 - A run whose spawn tool has no effort parameter no longer drops the
