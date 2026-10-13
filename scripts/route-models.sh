@@ -5,7 +5,8 @@
 #
 # Settings come from the run's resolved settings.txt when there is one;
 # key=value arguments override them. Stages: review, gap, filter, edit,
-# repair, verify, incremental, arbitrate. Keys,
+# repair, verify, incremental, arbitrate, and survey, which takes a
+# survey directory holding partitions.txt instead of a run's state. Keys,
 # each with its manifest default: routing (auto), reviewer (inherit),
 # editor (inherit), verifier (sonnet), strong (empty), posture
 # (balanced), check (empty), prefixes (empty), round (1). A value that
@@ -100,11 +101,19 @@ if [ "$stage" = spawn-effort ]; then
 	printf '%s\n' "$1" >"$dir/spawn-effort.txt"
 	exit 0
 fi
-ctx="$dir/pr-context"
-[ -d "$ctx" ] || {
-	echo "route-models: no pr-context in $dir, run fetch-pr.sh first" >&2
-	exit 1
-}
+if [ "$stage" = survey ]; then
+	ctx=$dir
+	[ -f "$dir/partitions.txt" ] || {
+		echo "route-models: no partitions.txt in $dir, run inventory-repo.sh first" >&2
+		exit 1
+	}
+else
+	ctx="$dir/pr-context"
+	[ -d "$ctx" ] || {
+		echo "route-models: no pr-context in $dir, run fetch-pr.sh first" >&2
+		exit 1
+	}
+fi
 
 CHEAP=sonnet
 CLIMB_SLUGS='secrets automation sensitive'
@@ -261,6 +270,8 @@ reviewer_effort=$(role_effort reviewer)
 editor_effort=$(role_effort editor)
 verifier_effort=$(role_effort verifier)
 filter_effort=$(role_effort filter)
+cartographer_effort=$(role_effort cartographer)
+assembler_effort=$(role_effort assembler)
 
 # A pinned level outranks the spawn tool; otherwise a spawn tool with
 # no effort override leaves the stage's agent at its own level.
@@ -700,6 +711,21 @@ repair)
 	model=$(model_for "$rung" "$editor")
 	for id in $ids; do note_attempt "$id" "$rung" "$model" "$effort" "$reason"; done
 	emit all "$rung" "$model" "$effort" "$reason" "$ids"
+	;;
+survey)
+	# Setup's reading of a repository: one cheap cartographer per planned
+	# partition, a level up where the partition holds sensitive code, and
+	# one assembler on the session model to draft the map.
+	if ! grep -q '^partition ' "$dir/partitions.txt"; then
+		skip no-partitions
+		exit 0
+	fi
+	while read -r _p pid _l _n _f _m _d _k _s sens _rest; do
+		steps=0
+		[ "$sens" = yes ] && steps=1
+		emit "cartographer-$pid" cheap "$CHEAP" "$(moved "$cartographer_effort" "$steps")" partition-read
+	done <"$dir/partitions.txt"
+	emit assembler base inherit "$(moved "$assembler_effort" 0)" synthesis
 	;;
 incremental)
 	# The review of files a round changed that no finding names: the

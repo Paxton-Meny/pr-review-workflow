@@ -376,6 +376,28 @@ for stage in review "edit $ARGS round=1 -- F001"; do
 	grep -q "agents/reviewer.md declares effort 'max'" "$SCRATCH/err"
 done
 
+# The survey stage reads a survey directory: a cheap cartographer per
+# partition, a level up for a sensitive one, an assembler on the session
+# model, the economy cap applied, fixed routing at the definitions' levels,
+# and a skip when nothing was planned.
+survey="$SCRATCH/survey"
+mkdir -p "$survey"
+printf 'partition 1 lines 9 files 6 docs 6 sensitive no units docs\npartition 2 lines 2400 files 40 docs 0 sensitive yes units src/auth src/api\n' >"$survey/partitions.txt"
+out=$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey $ARGS)
+[ "$out" = "$(printf 'route survey cartographer-1 rung cheap model sonnet effort medium reason partition-read\nroute survey cartographer-2 rung cheap model sonnet effort high reason partition-read\nroute survey assembler rung base model inherit effort high reason synthesis')" ]
+[ "$(grep -c '^route survey ' "$survey/routes.txt")" -eq 3 ]
+[ ! -e "$survey/pr-context" ]
+sed 's/^effort: medium$/effort: high/' "$REPO_ROOT/agents/cartographer.md" >"$SCRATCH/capped/agents/cartographer.md"
+[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$survey" survey $ARGS posture=economy | sed -n '2p')" = "route survey cartographer-2 rung cheap model sonnet effort high reason partition-read" ]
+[ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey routing=fixed | sed -n '2p')" = "route survey cartographer-2 rung cheap model sonnet effort medium reason partition-read" ]
+: >"$survey/partitions.txt"
+[ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey $ARGS)" = "route survey all skip reason no-partitions" ]
+if sh "$REPO_ROOT/scripts/route-models.sh" "$SCRATCH/nosurvey" survey 2>"$SCRATCH/err"; then
+	echo "expected refusal without partitions.txt" >&2
+	exit 1
+fi
+grep -q "no partitions.txt" "$SCRATCH/err"
+
 # Refusals: an unknown stage, a bad routing value, an edit without ids, an unknown finding.
 for bad in "wat" "review routing=sometimes" "edit $ARGS" "edit $ARGS -- F999" "verify $ARGS" "verify $ARGS -- F999"; do
 	if route $bad 2>"$SCRATCH/err"; then
