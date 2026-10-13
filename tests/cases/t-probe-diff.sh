@@ -190,3 +190,38 @@ awk '/^## Schema operations/ { on = 1; next } on && NF == 0 { exit } on' "$mctx/
 printf 'app/migrations/0003_drop_email.py:2\nsql/migration/V4__drop.sql:1\n' >"$SCRATCH/schema-want"
 cmp "$SCRATCH/schema-want" "$SCRATCH/schema"
 grep -qx 'schema	sql/migration/V4__drop.sql' "$mctx/probe-files.txt"
+
+# EF Core and SQL Server: MigrationBuilder and sp_rename operations are
+# schema leads, and a regenerated model snapshot is tagged as one rather
+# than read as an edit to a shipped migration.
+edir="$SCRATCH/data/state/${fixture_owner}__widgets__10"
+ectx="$edir/pr-context"
+mkdir -p "$ectx"
+printf 'owner %s\nrepo widgets\npr 10\n' "$fixture_owner" >"$edir/meta.txt"
+: | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$edir" >/dev/null
+printf 'src/App/Data/Migrations/20261013120000_DropEmail.cs\t2\t0\nsrc/App/Data/Migrations/AppDbContextModelSnapshot.cs\t1\t1\ndb/migration/V5__rename.sql\t1\t0\n' >"$ectx/files.txt"
+cat > "$ectx/diff.patch" <<'PATCH'
+diff --git a/src/App/Data/Migrations/20261013120000_DropEmail.cs b/src/App/Data/Migrations/20261013120000_DropEmail.cs
+--- /dev/null
++++ b/src/App/Data/Migrations/20261013120000_DropEmail.cs
+@@ -0,0 +1,2 @@
++protected override void Up(MigrationBuilder migrationBuilder)
++    => migrationBuilder.DropColumn(name: "Email", table: "Users");
+diff --git a/src/App/Data/Migrations/AppDbContextModelSnapshot.cs b/src/App/Data/Migrations/AppDbContextModelSnapshot.cs
+--- a/src/App/Data/Migrations/AppDbContextModelSnapshot.cs
++++ b/src/App/Data/Migrations/AppDbContextModelSnapshot.cs
+@@ -9 +9 @@
+-                    b.Property<string>("Email");
++                    b.Property<string>("Name");
+diff --git a/db/migration/V5__rename.sql b/db/migration/V5__rename.sql
+--- /dev/null
++++ b/db/migration/V5__rename.sql
+@@ -0,0 +1 @@
++EXEC sp_rename 'dbo.Users.Name', 'FullName', 'COLUMN';
+PATCH
+sh "$REPO_ROOT/scripts/probe-diff.sh" "$edir" >/dev/null
+grep -qx 'src/App/Data/Migrations/20261013120000_DropEmail.cs (added)' "$ectx/probes.txt"
+grep -qx 'src/App/Data/Migrations/AppDbContextModelSnapshot.cs (snapshot)' "$ectx/probes.txt"
+awk '/^## Schema operations/ { on = 1; next } on && NF == 0 { exit } on' "$ectx/probes.txt" >"$SCRATCH/schema"
+printf 'src/App/Data/Migrations/20261013120000_DropEmail.cs:2\ndb/migration/V5__rename.sql:1\n' >"$SCRATCH/schema-want"
+cmp "$SCRATCH/schema-want" "$SCRATCH/schema"

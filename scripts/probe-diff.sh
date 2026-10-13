@@ -9,7 +9,7 @@ set -eu
 AUTOMATION_RE='uses:|pull_request_target|continue-on-error|--no-verify|curl[^|]*\|[[:space:]]*(ba|z)?sh|wget[^|]*\|[[:space:]]*(ba|z)?sh|chmod[[:space:]]+(-r[[:space:]]+)?777'
 SECRETS_RE='akia[0-9a-z]{16}|-----begin [a-z ]*private key|gh[pousr]_[0-9a-z]{30,}|sk-[0-9a-z_-]{20,}|xox[abprs]-|(password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token)[[:space:]]*[:=][[:space:]]*.{8,}'
 SENSITIVE_RE='mutex|semaphore|atomic_|threading\.|goroutine|synchronized|pthread_|crypt|cipher|hmac|jwt|oauth|argon2|eval\(|exec\(|pickle\.loads|yaml\.load|deserializ|os\.system|subprocess\.'
-SCHEMA_RE='drop[[:space:]]+(table|column|index|constraint)|rename[[:space:]]+(column|to)|alter[[:space:]]+(table|column)|not[[:space:]]+null|truncate|create[[:space:]]+(unique[[:space:]]+)?index|removefield|renamefield|alterfield|deletemodel|renamemodel|runsql|runpython|op\.(drop_|alter_column|rename_table|execute)|(remove|rename|change)_column|drop_table|change_column_null'
+SCHEMA_RE='drop[[:space:]]+(table|column|index|constraint)|rename[[:space:]]+(column|to)|alter[[:space:]]+(table|column)|not[[:space:]]+null|truncate|create[[:space:]]+(unique[[:space:]]+)?index|removefield|renamefield|alterfield|deletemodel|renamemodel|runsql|runpython|op\.(drop_|alter_column|rename_table|execute)|(remove|rename|change)_column|drop_table|change_column_null|sp_rename|(drop|rename|alter)column|(drop|rename)table|dropindex|(delete|rename)\.(column|table)|alter\.column'
 
 if [ "${1:-}" = --pattern ]; then
 	case "${2:-}" in
@@ -83,9 +83,15 @@ if [ -f "$dir/settings.txt" ]; then
 	declared=$(cut -f1 "$ctx/files.txt" 2>/dev/null | sh "$(dirname "$0")/match-paths.sh" "$dir" sensitive_paths)
 	migrations=$(cut -f1 "$ctx/files.txt" 2>/dev/null | sh "$(dirname "$0")/match-paths.sh" "$dir" migration_paths)
 	probe "Declared sensitive paths changed" "$declared" sensitive
-	probe "Migration files changed (a modified or deleted one may already have run on teammates' databases)" "$(printf '%s\n' "$migrations" | while IFS= read -r p; do
+	probe "Migration files changed (a modified or deleted one may already have run on teammates' databases; a snapshot is regenerated with every migration)" "$(printf '%s\n' "$migrations" | while IFS= read -r p; do
 		[ -n "$p" ] || continue
-		if printf '%s\n' "$added_paths" | grep -qxF -- "$p"; then
+		case "${p##*/}" in
+		*ModelSnapshot.cs | *.Designer.cs) state=snapshot ;;
+		*) state='' ;;
+		esac
+		if [ -n "$state" ]; then
+			:
+		elif printf '%s\n' "$added_paths" | grep -qxF -- "$p"; then
 			state=added
 		elif printf '%s\n' "$deleted_paths" | grep -qxF -- "$p"; then
 			state=deleted
