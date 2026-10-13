@@ -4,9 +4,9 @@
 set -eu
 
 data="$SCRATCH/data"
-dir="$data/state/acme__widgets__7"
+dir="$data/state/Paxton-Meny__widgets__7"
 mkdir -p "$dir"
-printf 'owner acme\nrepo widgets\npr 7\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\n' >"$dir/meta.txt"
 resolve() { sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir"; }
 value() { sed -n "s/^$1 //p" "$dir/settings.txt"; }
 source_of() { sed -n "s/^$1 //p" "$dir/sources.txt"; }
@@ -82,7 +82,7 @@ done
 
 # The record is read-only and its hash is kept outside the state directory.
 [ ! -w "$dir/settings.txt" ] || [ "$(id -u)" -eq 0 ]
-[ "$(cat "$data/trust/runs/acme__widgets__7.hash")" = "$(git hash-object "$dir/settings.txt")" ]
+[ "$(cat "$data/trust/runs/Paxton-Meny__widgets__7.hash")" = "$(git hash-object "$dir/settings.txt")" ]
 
 # Resolving again replaces the read-only files cleanly.
 : >"$dir/overrides.txt"

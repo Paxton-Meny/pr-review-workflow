@@ -7,9 +7,9 @@ mkdir -p "$stub"
 export GH_STUB_DIR="$stub"
 export PATH="$REPO_ROOT/tests/stubs:$PATH"
 
-dir="$SCRATCH/data/state/acme__widgets__7"
+dir="$SCRATCH/data/state/Paxton-Meny__widgets__7"
 mkdir -p "$dir"
-printf 'owner acme\nrepo widgets\npr 7\nhead_sha abc123\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_sha abc123\n' >"$dir/meta.txt"
 
 cp "$REPO_ROOT/tests/fixtures/two-files.patch" "$stub/pr-diff"
 printf 'title Add things\nadditions 4\ndeletions 2\nchanged_files 2\nlabels bug,ready\n' >"$stub/pr-view.1"

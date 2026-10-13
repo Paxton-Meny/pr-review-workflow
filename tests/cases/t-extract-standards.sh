@@ -13,7 +13,7 @@ ln -s "$SCRATCH/outside.md" "$clone/LINKED_RULES.md"
 
 dir="$SCRATCH/state"
 mkdir -p "$dir/pr-context"
-printf 'owner acme\nrepo widgets\npr 7\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
 
 out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" 'HOUSE_RULES.md' '*_RULES.md')
 [ "$out" = "extract-standards: 2 files, 5 lines" ]
@@ -53,7 +53,7 @@ out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" state 'HOUSE_RULES.md')
 
 git -C "$clone" -c user.name=t -c user.email=t@example.invalid commit -qm Root --allow-empty
 git -C "$clone" worktree add -q "$SCRATCH/linked" -b linked
-printf 'owner acme\nrepo widgets\npr 7\nrepo_root %s\n' "$SCRATCH/linked" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nrepo_root %s\n' "$SCRATCH/linked" >"$dir/meta.txt"
 out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" 'HOUSE_RULES.md' '*_RULES.md')
 [ "$out" = "extract-standards: 2 files, 5 lines" ]
 grep -qx 'Rule one.' "$dir/pr-context/standards.txt"
