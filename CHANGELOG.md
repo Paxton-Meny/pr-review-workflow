@@ -6,6 +6,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-13
+
 ### Added
 
 - Setup infers where migrations live by reading the clone: content
@@ -35,107 +37,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   table rewrites and locks.
 - `scripts/match-paths.sh`, the one matcher for path-glob settings,
   shared by the sensitive and migration probes and the merge gate.
-
-### Changed
-
-- Inferred tooling waits for a person. Setup lists every inferred check
-  command and contract prefix on its own line in its question, says it
-  runs the project's code and may create or migrate a test database,
-  and writes live only the commands confirmed by name.
-- Migration and database tooling is never offered or run, through one
-  matcher, `scripts/migration-tool.sh`: the survey prints such a
-  candidate as skipped, verification drops such a check claim, and
-  `run-contract.sh` refuses it. The matcher now also knows `dotnet ef`,
-  the Package Manager Console verbs, `sqlpackage`, `sqlcmd`,
-  RoundhousE, and the `psql`, `mysql`, `sqlite3`, and `mongosh`
-  clients.
-- The merge checklist asks whether the model snapshot, as well as the
-  numbering or parent, is still the latest.
-- A pull request that changes migrations never merges without a
-  person, auto-approve included. `merge-pr.sh` refuses with exit 4 and
-  lists the migrations, and the skill asks the user to confirm what
-  one pull request cannot show: no newer migrations on the base
-  branch, no other open pull request adding migrations in the same
-  directories, code teammates run still working against the new
-  schema, and no shipped migration edited. Only their answer adds
-  `--migrations-checked`; an unattended run parks with that
-  checklist. A forge file list shorter than the changed-file count is
-  refused the same way, since it cannot rule migrations out.
-- Migrations are read, never run. The editor and verifier never run
-  migration tooling or anything that reaches a database, and
-  `run-contract.sh` judges a Check line naming migration tooling by
-  reading, even under an allowed prefix.
-
-### Fixed
-
-- A run whose spawn tool has no effort parameter no longer drops the
-  routed effort silently. The orchestrator records once per
-  invocation whether the tool takes one (`route-models.sh <dir>
-  spawn-effort applied|unapplied`). Unapplied, every route line and
-  Route note names the level the agent runs at, its definition's, as
-  `unapplied <level>`. A retry climbs the model instead of pulling an
-  effort lever that does nothing, and the final report says efforts
-  were not applied. Run statistics gain an `unapplied` count, and
-  retries read unapplied attempts at the level that ran, so a run
-  like this no longer shows effort climbs that never happened.
-- The skill no longer tells the orchestrator to pass `inherit` as a
-  model override, which the spawn tool rejects: an inherit route now
-  means omitting the model, and arbitration on an inherited reviewer
-  model passes the session model's alias so the verifier does not
-  fall back to its own default. The self-start hint names the exact
-  argument form, so a first attempt is not refused by the gate.
-- The start gate runs again on an install that never saved the
-  self_start option. The hook named the option as an argument, and
-  Claude Code refuses to run a hook whose option is unset, default or
-  not, which blocked every review Claude tried to start. The gate now
-  reads the option from the environment Claude Code exports to hook
-  processes, and falls back to ask.
-- Saving findings into a ledger that already holds F008 or F009 no
-  longer fails: the ids were read as octal by the shell's arithmetic,
-  so every save after the eighth finding stopped the run. Leading
-  zeros are now stripped before the next id is computed.
-- An arbitration that upholds a reopen no longer fails on an illegal
-  open-to-open transition: the finding is already open, so it gets the
-  note and the thread reply and keeps its status. Only open findings
-  are sent to arbitration, so one verified after three reopens is no
-  longer judged again.
-- A round whose every finding the precision filter demoted now posts
-  its summary comment. Before, nothing posted and the demoted findings
-  never reached the pull request.
-- A check command or contract prefix containing a single quote no
-  longer breaks the shell commands it was pasted into: settings reach
-  the scripts through the resolved record, and `${user_config}` now
-  appears only in the one quoted heredoc that feeds the resolver.
-- The base branch is fetched with an explicit refspec, so a clone made
-  with --single-branch still reads the conventions block from a
-  pull request's non-default base instead of silently skipping it.
-- The invocation text reaches the first script on stdin through a
-  quoted heredoc, never pasted into a shell command, so quotes and
-  command substitutions typed after the pull request stay inert.
-- The run figure is drawn as three labeled lanes, GitHub, scripts,
-  and models, with the scripts as the backbone, so who does each
-  step is read from position instead of from a color legend.
-- The origin rule reads in order now, condition before consequence,
-  says plainly that it is the only tie between plugin and
-  repository, and the site shows the check as a small two-row
-  graphic.
-- The hero now follows one finding from review to merge, the same
-  F003 example the findings section uses, and the fully labeled
-  loop figure moved to its own full-width card in the run section:
-  at hero scale its labels were unreadable.
-- The loop figure reads left to right, first review in and merged
-  out, with its stations outside the ring, the reopen path passing
-  the round counter, and the round budget in the center. The
-  information figure shows the script lines the orchestrating
-  session actually sees above the ledger's real directory and all
-  four agents. The favicon and social card are redrawn to match.
-- The README has install instructions, matching the site, which now
-  also shows the one-step install for Claude Code 2.1.275 or later.
-  Its project structure lists every skill, agent, and top-level
-  directory.
-
-### Added
-
 - `/pr-review-workflow:setup` writes a repository's settings file from
   what the clone and its history already state, asking at most twice,
   and works on a repository the plugin has never seen. A survey script
@@ -336,9 +237,39 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and resumability, and summarizes the stats ledger
   (stats-report.sh: outcomes, a rounds histogram, finding totals),
   reading local state only.
+- A commercial licensing section on the site and in the README:
+  what needs a commercial license and how to start the
+  conversation, so the dual-licensing model has an operable path.
 
 ### Changed
 
+- Inferred tooling waits for a person. Setup lists every inferred check
+  command and contract prefix on its own line in its question, says it
+  runs the project's code and may create or migrate a test database,
+  and writes live only the commands confirmed by name.
+- Migration and database tooling is never offered or run, through one
+  matcher, `scripts/migration-tool.sh`: the survey prints such a
+  candidate as skipped, verification drops such a check claim, and
+  `run-contract.sh` refuses it. The matcher now also knows `dotnet ef`,
+  the Package Manager Console verbs, `sqlpackage`, `sqlcmd`,
+  RoundhousE, and the `psql`, `mysql`, `sqlite3`, and `mongosh`
+  clients.
+- The merge checklist asks whether the model snapshot, as well as the
+  numbering or parent, is still the latest.
+- A pull request that changes migrations never merges without a
+  person, auto-approve included. `merge-pr.sh` refuses with exit 4 and
+  lists the migrations, and the skill asks the user to confirm what
+  one pull request cannot show: no newer migrations on the base
+  branch, no other open pull request adding migrations in the same
+  directories, code teammates run still working against the new
+  schema, and no shipped migration edited. Only their answer adds
+  `--migrations-checked`; an unattended run parks with that
+  checklist. A forge file list shorter than the changed-file count is
+  refused the same way, since it cannot rule migrations out.
+- Migrations are read, never run. The editor and verifier never run
+  migration tooling or anything that reaches a database, and
+  `run-contract.sh` judges a Check line naming migration tooling by
+  reading, even under an allowed prefix.
 - Every review now starts with the sweep that used to run only after
   a merge, and the sweep covers every repository: a run whose pull
   request merged or closed outside this tool loses its worktree and
@@ -406,16 +337,75 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A run whose spawn tool has no effort parameter no longer drops the
+  routed effort silently. The orchestrator records once per
+  invocation whether the tool takes one (`route-models.sh <dir>
+  spawn-effort applied|unapplied`). Unapplied, every route line and
+  Route note names the level the agent runs at, its definition's, as
+  `unapplied <level>`. A retry climbs the model instead of pulling an
+  effort lever that does nothing, and the final report says efforts
+  were not applied. Run statistics gain an `unapplied` count, and
+  retries read unapplied attempts at the level that ran, so a run
+  like this no longer shows effort climbs that never happened.
+- The skill no longer tells the orchestrator to pass `inherit` as a
+  model override, which the spawn tool rejects: an inherit route now
+  means omitting the model, and arbitration on an inherited reviewer
+  model passes the session model's alias so the verifier does not
+  fall back to its own default. The self-start hint names the exact
+  argument form, so a first attempt is not refused by the gate.
+- The start gate runs again on an install that never saved the
+  self_start option. The hook named the option as an argument, and
+  Claude Code refuses to run a hook whose option is unset, default or
+  not, which blocked every review Claude tried to start. The gate now
+  reads the option from the environment Claude Code exports to hook
+  processes, and falls back to ask.
+- Saving findings into a ledger that already holds F008 or F009 no
+  longer fails: the ids were read as octal by the shell's arithmetic,
+  so every save after the eighth finding stopped the run. Leading
+  zeros are now stripped before the next id is computed.
+- An arbitration that upholds a reopen no longer fails on an illegal
+  open-to-open transition: the finding is already open, so it gets the
+  note and the thread reply and keeps its status. Only open findings
+  are sent to arbitration, so one verified after three reopens is no
+  longer judged again.
+- A round whose every finding the precision filter demoted now posts
+  its summary comment. Before, nothing posted and the demoted findings
+  never reached the pull request.
+- A check command or contract prefix containing a single quote no
+  longer breaks the shell commands it was pasted into: settings reach
+  the scripts through the resolved record, and `${user_config}` now
+  appears only in the one quoted heredoc that feeds the resolver.
+- The base branch is fetched with an explicit refspec, so a clone made
+  with --single-branch still reads the conventions block from a
+  pull request's non-default base instead of silently skipping it.
+- The invocation text reaches the first script on stdin through a
+  quoted heredoc, never pasted into a shell command, so quotes and
+  command substitutions typed after the pull request stay inert.
+- The run figure is drawn as three labeled lanes, GitHub, scripts,
+  and models, with the scripts as the backbone, so who does each
+  step is read from position instead of from a color legend.
+- The origin rule reads in order now, condition before consequence,
+  says plainly that it is the only tie between plugin and
+  repository, and the site shows the check as a small two-row
+  graphic.
+- The hero now follows one finding from review to merge, the same
+  F003 example the findings section uses, and the fully labeled
+  loop figure moved to its own full-width card in the run section:
+  at hero scale its labels were unreadable.
+- The loop figure reads left to right, first review in and merged
+  out, with its stations outside the ring, the reopen path passing
+  the round counter, and the round budget in the center. The
+  information figure shows the script lines the orchestrating
+  session actually sees above the ledger's real directory and all
+  four agents. The favicon and social card are redrawn to match.
+- The README has install instructions, matching the site, which now
+  also shows the one-step install for Claude Code 2.1.275 or later.
+  Its project structure lists every skill, agent, and top-level
+  directory.
 - The repository is now the marketplace the README always claimed:
   a marketplace manifest lists the plugin at the repository root,
   so the documented install commands work. They could not have
   before, because the manifest did not exist.
-
-### Added
-
-- A commercial licensing section on the site and in the README:
-  what needs a commercial license and how to start the
-  conversation, so the dual-licensing model has an operable path.
 
 ## [0.2.1] - 2026-10-04
 
@@ -652,5 +642,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The review-pr skill: the orchestration loop, context discipline, the
   merge gate with the auto-approve setting, and resume from the ledger.
 
-[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Paxton-Meny/pr-review-workflow/releases/tag/v0.2.1
