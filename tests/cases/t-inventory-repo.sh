@@ -138,6 +138,23 @@ printf '%s\n' "$out" | grep -qx 'inventory: secret-location settings.py:1'
 ! printf '%s\n' "$out" | grep -q '0123456789abcdef'
 cd "$clone"
 
+# A few thousand tracked files plan quickly and keep the partition file budget.
+big_remote="$SCRATCH/Paxton-Meny/big.git"
+git init --quiet --bare "$big_remote"
+big="$SCRATCH/big"
+git clone --quiet "$big_remote" "$big" 2>/dev/null
+git -C "$big" config user.name tester
+git -C "$big" config user.email tester@example.invalid
+awk -v root="$big" 'BEGIN { for (i = 1; i <= 4000; i++) { d = sprintf("%s/src/d%d", root, i % 8); system("mkdir -p " d); f = sprintf("%s/f%d.py", d, i); printf "x = %d\ny = 2\n", i > f; close(f) } }'
+git -C "$big" add -A
+git -C "$big" commit --quiet -m big
+git -C "$big" push --quiet origin HEAD:main
+cd "$big"
+out=$(inventory "$data")
+! printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 0 max 0'
+printf '%s\n' "$out" | grep -q '^inventory: plan partitions [1-9]'
+cd "$clone"
+
 # Refusals: a bad cap, no clone.
 if inventory "$data" 0 2>/dev/null; then
 	echo "expected refusal of a zero cap" >&2
