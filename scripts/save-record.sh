@@ -36,7 +36,7 @@ SECTIONS='layout tests idioms oddities rules sensitive check'
 
 mkdir -p "$dir/records"
 tmp=$(mktemp "$dir/records/.record.XXXXXX")
-trap 'rm -f "$tmp"' EXIT
+trap 'rm -f "$tmp" "$tmp.line"' EXIT
 tr -d '\r' >"$tmp"
 
 awk -v id="$id" -v max_lines="$MAX_LINES" -v max_chars="$MAX_CHARS" -v sections="$SECTIONS" '
