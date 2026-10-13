@@ -195,10 +195,11 @@ path as usual.
   test or target (for example the check command plus one test path or
   selector). It must start with the project's own check command or a
   configured prefix and contain no shell metacharacters, or it will not
-  run and the verifier falls back to reading. An executable contract is
-  the strongest Resolution there is; a Check line that only rebuilds
-  everything the check command already runs adds nothing, so write one
-  only when it narrows.
+  run and the verifier falls back to reading. A Check line naming
+  migration tooling never runs either: migrations are judged by reading.
+  An executable contract is the strongest Resolution there is; a Check
+  line that only rebuilds everything the check command already runs adds
+  nothing, so write one only when it narrows.
 - One defect, one finding. The same defect repeated across a file is one
   finding anchored at its first occurrence, with the other locations listed
   in the body and covered by the Resolution line.

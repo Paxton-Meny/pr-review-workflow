@@ -13,7 +13,9 @@
 # A Check line executes only when it starts with the configured check
 # command or one of the comma-separated extra prefixes, and contains no
 # shell metacharacters. Reviewer-authored text never widens what can run
-# beyond commands the user already chose to trust.
+# beyond commands the user already chose to trust. A Check line naming
+# migration tooling never runs, even under an allowed prefix: migrations
+# are judged by reading, and no contract may touch a database.
 set -eu
 
 policy=0
@@ -49,6 +51,32 @@ if [ -z "$cmd" ]; then
 fi
 if printf '%s' "$cmd" | grep -q '[;&|$<>`\\]'; then
 	echo "run-contract: $id verdict not-executable reason metacharacters"
+	exit 4
+fi
+names_migration_tool() {
+	set -f
+	prev=''
+	for word in $1; do
+		name=${word##*/}
+		case "$name" in
+		migrate | migrate:* | migration | migration:* | makemigrations | db:* | alembic | flyway | liquibase | sqitch | goose | dbmate)
+			set +f
+			return 0
+			;;
+		db)
+			[ "$prev" != prisma ] || {
+				set +f
+				return 0
+			}
+			;;
+		esac
+		prev=$name
+	done
+	set +f
+	return 1
+}
+if names_migration_tool "$cmd"; then
+	echo "run-contract: $id verdict not-executable reason migration-tooling"
 	exit 4
 fi
 
