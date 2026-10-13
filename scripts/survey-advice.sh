@@ -12,14 +12,14 @@
 # routing decide, or "recommend" for a model setting that belongs in
 # the plugin configuration, never in a file. Stakes outrank variance:
 # a repository with sensitive code or many fork contributors gets the
-# second review pass whatever its size spread. Directories the survey or
-# the verified map shows holding migrations that the migration paths in
-# force do not cover are advised as extra patterns (the whole list for a
-# local file, which replaces it), and directories only named like
-# migrations that the patterns catch are a recommendation to narrow
-# them in the plugin configuration, since a project file cannot. The economy posture is
-# never advised for a team file, which cannot lower a setting. The last
-# line counts the advice given.
+# second review pass whatever its size spread. Directories the survey
+# or the verified map shows holding migrations that the migration
+# paths in force do not cover are advised as extra patterns (the whole
+# list for a local file, which replaces it), and directories only
+# named like migrations that the patterns catch are a recommendation
+# to narrow them in the plugin configuration, since a project file
+# cannot. The economy posture is never advised for a team file, which
+# cannot lower a setting. The last line counts the advice given.
 set -eu
 
 dir=${1:?usage: survey-advice.sh <survey-dir> [team|personal|local]}
