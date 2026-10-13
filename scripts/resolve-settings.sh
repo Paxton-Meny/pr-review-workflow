@@ -86,7 +86,7 @@ elif [ "${1:-}" = --preview ]; then
 	p_repo=${trimmed##*/}
 	rest=${trimmed%/*}
 	p_owner=${rest##*[:/]}
-	p_base=$(git -C "$clone" symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||') || p_base=''
+	p_base=$(sh "$(dirname -- "$0")/origin-base.sh" "$clone" 2>/dev/null) || p_base=''
 	dir=$(mktemp -d)
 	trap 'rm -rf "$dir"' EXIT
 	printf 'owner %s\nrepo %s\nbase_branch %s\nrepo_root %s\n' "$p_owner" "$p_repo" "$p_base" "$clone" >"$dir/meta.txt"
