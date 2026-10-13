@@ -19,7 +19,7 @@ dir=${1:?usage: save-proposal.sh <survey-dir>}
 MAX_LINES=30
 
 tmp=$(mktemp "$dir/.proposal.XXXXXX")
-trap 'rm -f "$tmp"' EXIT
+trap 'rm -f "$tmp" "$tmp.line"' EXIT
 tr -d '\r' >"$tmp"
 
 awk -v max_lines="$MAX_LINES" -v digest="$dir/digest.txt" '
