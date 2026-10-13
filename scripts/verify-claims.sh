@@ -51,7 +51,14 @@ sort -u "$work/manifests" -o "$work/manifests"
 : >"$work/tooling"
 for record in "$dir/records"/*.txt; do
 	[ -f "$record" ] || continue
-	sed -n 's/^check \(.*\) | .*/\1/p' "$record"
+	while IFS= read -r line; do
+		case "$line" in
+		"check "*" | "*)
+			cmd=${line#check }
+			printf '%s\n' "${cmd%% | *}"
+			;;
+		esac
+	done <"$record"
 done | while IFS= read -r cmd; do
 	rc=0
 	sh "$(dirname -- "$0")/migration-tool.sh" "$cmd" || rc=$?
