@@ -191,7 +191,10 @@ the team's or yours unless you say (`team`, `personal`, or `local`),
 applies a profile (`standard`, `careful`, or `economy`, which only your
 own file may carry), lints the file as the source it will become so a
 committed file never holds a line the resolver would refuse, shows it
-once beside the drafted conventions block, and writes the file. The
+once beside the drafted conventions block, and writes the file. Every
+inferred check command and contract prefix is listed on its own in
+that question, and only the ones you confirm by name are written live;
+the rest stay comments. The
 block reaches CLAUDE.md only when you say so at that question. Pass
 `key=value` words to pin anything it would otherwise decide. It touches
 no pull request; the one network call lists merged pull requests.
@@ -229,6 +232,16 @@ this branch lacks, that no other open pull request adds migrations in
 the same directories, that code teammates run still works against the
 new schema while it deploys, and that no shipped migration was edited.
 Unattended, it parks with that checklist in a status comment.
+
+Setup finds where migrations live by reading the clone: Django,
+Alembic, Rails, Laravel, Ecto, Knex, TypeORM, goose, golang-migrate,
+Flyway, Liquibase, sqitch, Diesel, and Prisma migrations, and for .NET
+and SQL Server, EF Core, FluentMigrator, and DbUp migrations and SSDT
+schema projects. It adds any directory the patterns miss, and
+recommends narrowing the patterns when they catch a directory that only
+shares the name, such as a migration guide under `docs/`. It never
+offers migration or database tooling (`dotnet ef`, `sqlcmd`,
+`sqlpackage`, `alembic`, and the like) as a check command.
 
 ### Cost notes
 
