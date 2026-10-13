@@ -57,7 +57,9 @@ commits are authored as the signed-in account's noreply address, never
 your clone's local git identity. The first comment of each review
 ends with one line naming and linking this plugin. With the
 check command configured, it also runs that command against pull request
-code (see SECURITY.md).
+code (see SECURITY.md). It never runs migrations or connects to a
+database, and a pull request that changes migration files always waits
+for a person before it merges.
 
 ## Install
 
