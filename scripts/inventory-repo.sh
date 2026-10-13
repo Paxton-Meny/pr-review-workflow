@@ -210,8 +210,9 @@ mkdir -p "$work/partitions"
 awk -F '\t' -v cap="$cap" -v out="$work/partitions" -v plan="$work/partitions.txt" -v inv="$out" \
 	-v root="$clone" -v docbudget="$DOC_BUDGET_LINES" -v filebudget="$FILE_BUDGET" -v linebudget="$LINE_BUDGET" \
 	-v tpl="$TOKENS_PER_LINE" -v tpa="$TOKENS_PER_AGENT" \
-	-v docs_list="$work/docs.txt" -v rules_list="$work/rules.txt" -v sens_list="$work/sensitive.txt" -v churn_list="$work/churn" '
+	-v sorted_file="$work/sorted" -v docs_list="$work/docs.txt" -v rules_list="$work/rules.txt" -v sens_list="$work/sensitive.txt" -v churn_list="$work/churn" '
 function unit(p,    n, a) { n = split(p, a, "/"); if (n == 1) return "."; if (n == 2) return a[1]; return a[1] "/" a[2] }
+function sortcmd(keys) { return "LC_ALL=C sort -t \"$(printf \"\\t\")\" " keys " >\"" sorted_file "\"" }
 function say(s) { print s; print s >> inv }
 BEGIN {
 	while ((getline line < docs_list) > 0) { split(line, f, " "); isdoc[f[1]] = 1; docl[f[1]] = f[2]; docorder[++nd] = f[1] }
@@ -241,8 +242,11 @@ END {
 	plines[id] = dl; pfiles[id] = dcount; pdocs[id] = dcount; psens[id] = "no"; punits[id] = "docs"
 	read_lines = dl
 	nu = 0
-	for (u in ulines) if (nf[u] > 0) order[++nu] = u
-	for (i = 1; i <= nu; i++) for (j = i + 1; j <= nu; j++) if (ulines[order[j]] > ulines[order[i]]) { t = order[i]; order[i] = order[j]; order[j] = t }
+	cmd = sortcmd("-k1,1nr -k2,2")
+	for (u in ulines) if (nf[u] > 0) printf "%d\t%s\n", ulines[u], u | cmd
+	close(cmd)
+	while ((getline line < sorted_file) > 0) { split(line, f, "\t"); order[++nu] = f[2] }
+	close(sorted_file)
 	bins = cap - 1
 	if (bins < 1) bins = 1
 	if (nu < bins) bins = nu
@@ -261,20 +265,18 @@ END {
 		s = "no"
 		for (k = 1; k <= nunits; k++) if (units[k] in sens) s = "yes"
 		printf "root %s\npartition %d\nbudget files %d lines %d\nsensitive %s\n", root, id, filebudget, linebudget, s > file
-		m = 0
+		cmd = sortcmd("-k1,1n -k2,2nr -k3,3nr -k4,4")
 		for (k = 1; k <= nunits; k++) {
 			u = units[k]
-			for (n = 1; n <= nf[u]; n++) { m++; cp[m] = fpath[u, n]; cl[m] = flines[u, n]; cc[m] = fclass[u, n]; cu[m] = u; ck[m] = (cp[m] in churn) ? churn[cp[m]] : 0 }
-		}
-		for (i = 1; i <= m; i++) for (j = i + 1; j <= m; j++) {
-			swap = 0
-			if (cc[j] == "tests" && cc[i] != "tests") swap = 1
-			else if (cc[j] == cc[i]) {
-				if (ck[j] > ck[i]) swap = 1
-				else if (ck[j] == ck[i] && cl[j] > cl[i]) swap = 1
+			for (n = 1; n <= nf[u]; n++) {
+				pth = fpath[u, n]
+				printf "%d\t%d\t%d\t%s\t%s\t%s\n", (fclass[u, n] == "tests" ? 0 : 1), ((pth in churn) ? churn[pth] : 0), flines[u, n], pth, u, fclass[u, n] | cmd
 			}
-			if (swap) { t = cp[i]; cp[i] = cp[j]; cp[j] = t; t = cl[i]; cl[i] = cl[j]; cl[j] = t; t = cc[i]; cc[i] = cc[j]; cc[j] = t; t = cu[i]; cu[i] = cu[j]; cu[j] = t; t = ck[i]; ck[i] = ck[j]; ck[j] = t }
 		}
+		close(cmd)
+		m = 0
+		while ((getline line < sorted_file) > 0) { split(line, f, "\t"); m++; cl[m] = f[3]; cp[m] = f[4]; cu[m] = f[5]; cc[m] = f[6] }
+		close(sorted_file)
 		pl = 0; pf = 0
 		delete testseen
 		for (i = 1; i <= m; i++) {
