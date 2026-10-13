@@ -6,11 +6,19 @@
 #        END
 #        sh scripts/resolve-settings.sh <state-dir> --approve <hash>
 #        sh scripts/resolve-settings.sh --preview <data-root> <<'END' ... END
+#        sh scripts/resolve-settings.sh --lint shared|personal <file>
 #
 # --preview resolves for the clone the command runs in, against the
 # base its origin/HEAD names, as of the last fetch: it fetches nothing,
 # writes nothing, records no pending approval, and prints every
 # setting with its source.
+#
+# --lint reads one settings file before it is put in place, as the
+# shared file (what a team's committed file may set, judged against
+# the defaults) or as a personal one, prints every entry it would
+# refuse and the commands teammates would be asked to approve, then
+# one summary line, and exits 1 when anything would be refused. It
+# reads no clone and writes nothing.
 #
 # Sources, lowest to highest: the manifest defaults; the user's plugin
 # configuration (stdin, one "key value" line each); the project file
@@ -42,7 +50,27 @@
 set -eu
 
 preview=0
-if [ "${1:-}" = --preview ]; then
+lint=0
+if [ "${1:-}" = --lint ]; then
+	lint=1
+	lint_as=${2:?usage: resolve-settings.sh --lint shared|personal <file>}
+	lint_file=${3:?usage: resolve-settings.sh --lint shared|personal <file>}
+	case "$lint_as" in
+	shared | personal) ;;
+	*)
+		echo "resolve-settings: lint as shared or personal, not $lint_as" >&2
+		exit 1
+		;;
+	esac
+	[ -f "$lint_file" ] && [ ! -L "$lint_file" ] || {
+		echo "resolve-settings: no such file to lint: $lint_file" >&2
+		exit 1
+	}
+	dir=$(mktemp -d)
+	trap 'rm -rf "$dir"' EXIT
+	data_root=$dir
+	printf 'owner lint\nrepo lint\n' >"$dir/meta.txt"
+elif [ "${1:-}" = --preview ]; then
 	preview=1
 	data_root=${2:?usage: resolve-settings.sh --preview <data-root>}
 	clone=$(git rev-parse --show-toplevel 2>/dev/null) || {
@@ -106,7 +134,7 @@ manifest="$here/../.claude-plugin/plugin.json"
 }
 
 work=$(mktemp -d "$dir/.settings.XXXXXX")
-if [ "$preview" -eq 1 ]; then
+if [ "$preview" -eq 1 ] || [ "$lint" -eq 1 ]; then
 	trap 'rm -rf "$dir"' EXIT
 else
 	trap 'rm -rf "$work"' EXIT
@@ -135,7 +163,11 @@ awk '
 }
 
 # Each source as "key value" lines; the user's arrive on stdin.
-tr -d '\r' >"$work/user"
+if [ "$lint" -eq 1 ]; then
+	: >"$work/user"
+else
+	tr -d '\r' >"$work/user"
+fi
 : >"$work/run"
 [ -f "$dir/overrides.txt" ] && tr -d '\r' <"$dir/overrides.txt" >"$work/run"
 : >"$work/notes"
@@ -249,6 +281,17 @@ if [ "$local_state" = tracked ]; then
 	echo "settings: ignored local file: the repository tracks it, so it is not yours alone" >>"$work/notes"
 fi
 
+# The file under lint stands in for the source it is meant to become.
+if [ "$lint" -eq 1 ]; then
+	if [ "$(wc -c <"$lint_file" | tr -d ' ')" -gt "$MAX_BYTES" ]; then
+		echo "settings: ignored $lint_as file: larger than $MAX_BYTES bytes" >>"$work/notes"
+	elif [ "$lint_as" = shared ]; then
+		normalise "$lint_file" "$work/project" project
+	else
+		normalise "$lint_file" "$work/local" local
+	fi
+fi
+
 # Trust on first use for the shared file's commands.
 exec_trusted=1
 exec_hash=''
@@ -257,7 +300,7 @@ if [ -s "$work/exec" ]; then
 	exec_hash=$(git hash-object --stdin <"$work/exec")
 	if ! { [ -f "$trusted" ] && grep -qx "$exec_hash" "$trusted"; }; then
 		exec_trusted=0
-		if [ "$preview" -eq 0 ]; then
+		if [ "$preview" -eq 0 ] && [ "$lint" -eq 0 ]; then
 			mkdir -p "$data_root/trust"
 			printf '%s\n' "$exec_hash" >"$pending"
 		fi
@@ -354,6 +397,20 @@ END {
 	for (i = 1; i <= ni; i++) print "settings: ignored " ignored[i]
 }
 ' "$work/user" "$work/project" "$work/local" "$work/run" >"$work/report"
+if [ "$lint" -eq 1 ]; then
+	cat "$work/notes" >>"$work/report"
+	grep -E '^settings: (ignored|trust pending) ' "$work/report" || true
+	while read -r key source; do
+		[ "$source" != default ] || continue
+		value=$(sed -n "s/^$key\$/(empty)/p; s/^$key //p" "$work/settings" | head -n 1)
+		printf 'settings: %s %s from %s\n' "$key" "$value" "$source"
+	done <"$work/sources"
+	refused=$(grep -c '^settings: ignored ' "$work/report" || true)
+	set_count=$(grep -vc ' default$' "$work/sources" || true)
+	echo "settings: lint $lint_as file $set_count set, $refused refused"
+	[ "$refused" -eq 0 ] && exit 0
+	exit 1
+fi
 printf 'settings: project file %s, local file %s\n' "$shared_state" "$local_state" >>"$work/report"
 cat "$work/notes" >>"$work/report"
 
