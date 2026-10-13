@@ -2,8 +2,8 @@
 # prove-suggestions: proves an applying fence, withdraws failing or invalid ones.
 set -eu
 
-remote="$SCRATCH/acme/widgets.git"
-mkdir -p "$SCRATCH/acme"
+remote="$SCRATCH/Paxton-Meny/widgets.git"
+mkdir -p "$SCRATCH/Paxton-Meny"
 git init --quiet --bare "$remote"
 clone="$SCRATCH/clone"
 git clone --quiet "$remote" "$clone" 2>/dev/null
@@ -18,7 +18,7 @@ sha=$(git -C "$clone" rev-parse HEAD)
 dir="$SCRATCH/state"
 mkdir -p "$dir"
 printf '0\n' >"$dir/round.txt"
-printf 'owner acme\nrepo widgets\npr 7\nhead_branch main\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$sha" "$clone" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_branch main\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$sha" "$clone" >"$dir/meta.txt"
 git -C "$clone" worktree add --quiet --detach "$dir/worktree" "$sha"
 
 sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'

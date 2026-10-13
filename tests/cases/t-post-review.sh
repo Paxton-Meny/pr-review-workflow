@@ -10,7 +10,7 @@ export PATH="$REPO_ROOT/tests/stubs:$PATH"
 
 dir="$SCRATCH/state"
 mkdir -p "$dir/pr-context"
-printf 'owner acme\nrepo widgets\npr 7\nhead_sha abc123\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_sha abc123\n' >"$dir/meta.txt"
 printf '0\n' >"$dir/round.txt"
 printf 'src/app.py\tRIGHT\t2\nsrc/app.py\tRIGHT\t3\nsrc/app.py\tRIGHT\t4\n' >"$dir/pr-context/commentable.txt"
 
@@ -52,8 +52,8 @@ Resolution: the doc drops the flag.
 REC
 
 printf '{"id": 9001}\n' | tr -d '{}" ' >/dev/null
-printf '9001\n' >"$stub/api-repos_acme_widgets_pulls_7_comments.1"
-printf '9002\n' >"$stub/api-repos_acme_widgets_pulls_7_comments.2"
+printf '9001\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments.1"
+printf '9002\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments.2"
 : >"$stub/pr-comment"
 
 out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
@@ -100,7 +100,7 @@ Fix: done.
 Resolution: done.
 Criteria note: nothing lists this item yet.
 REC
-printf '9003\n' >"$stub/api-repos_acme_widgets_pulls_7_comments.3"
+printf '9003\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments.3"
 sh "$REPO_ROOT/scripts/post-review.sh" "$dir" >/dev/null
 grep -q "nothing lists this item yet" "$stub/bodies.log" && {
 	echo "criteria notes must not reach the pull request" >&2

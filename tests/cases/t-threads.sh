@@ -9,9 +9,9 @@ export PATH="$REPO_ROOT/tests/stubs:$PATH"
 
 dir="$SCRATCH/state"
 mkdir -p "$dir"
-printf 'owner acme\nrepo widgets\npr 7\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\n' >"$dir/meta.txt"
 
-printf '5555\n' >"$stub/api-repos_acme_widgets_pulls_7_comments_9001_replies"
+printf '5555\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments_9001_replies"
 printf 'Addressed in abc123.\n' | sh "$REPO_ROOT/scripts/reply-thread.sh" "$dir" 9001 \
 	| grep -qx 'reply-thread: replied to 9001 as 5555'
 

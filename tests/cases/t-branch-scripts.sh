@@ -21,7 +21,7 @@ git -C "$clone" checkout --quiet main
 
 dir="$SCRATCH/state"
 mkdir -p "$dir"
-printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\n' "$sha" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\n' "$sha" >"$dir/meta.txt"
 
 cd "$clone"
 git remote set-url origin "$remote"
@@ -29,12 +29,12 @@ if sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected refusal when origin does not match owner/repo" >&2
 	exit 1
 fi
-grep -q "not acme/widgets" "$SCRATCH/err"
+grep -q "not Paxton-Meny/widgets" "$SCRATCH/err"
 
-git remote set-url origin "$SCRATCH/acme/widgets.git"
+git remote set-url origin "$SCRATCH/Paxton-Meny/widgets.git"
 mv "$remote" "$SCRATCH/widgets.git"
-mkdir -p "$SCRATCH/acme"
-mv "$SCRATCH/widgets.git" "$SCRATCH/acme/widgets.git"
+mkdir -p "$SCRATCH/Paxton-Meny"
+mv "$SCRATCH/widgets.git" "$SCRATCH/Paxton-Meny/widgets.git"
 
 wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" | head -n 1)
 [ "$wt" = "$dir/worktree" ]
@@ -50,7 +50,7 @@ printf 'three\n' >>"$wt/file.txt"
 git -C "$wt" commit --quiet -am "Address F001"
 sh "$REPO_ROOT/scripts/push-branch.sh" "$dir" | grep -q "^push-branch: feat-thing at "
 new_sha=$(git -C "$wt" rev-parse HEAD)
-[ "$(git -C "$SCRATCH/acme/widgets.git" rev-parse refs/heads/feat-thing)" = "$new_sha" ]
+[ "$(git -C "$SCRATCH/Paxton-Meny/widgets.git" rev-parse refs/heads/feat-thing)" = "$new_sha" ]
 grep -qx "head_sha $new_sha" "$dir/meta.txt"
 grep -qx "prev_head $sha" "$dir/meta.txt"
 
@@ -59,13 +59,13 @@ sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" | grep -q "ledger kept"
 [ -f "$dir/meta.txt" ]
 git -C "$clone" worktree list | grep -qv "$dir/worktree"
 
-printf 'owner acme\nrepo widgets\npr 8\nhead_branch other\nhead_sha abc\ncross_repo true\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 8\nhead_branch other\nhead_sha abc\ncross_repo true\n' >"$dir/meta.txt"
 rc=0
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 2 ]
 grep -q "fork this pull request comes from is gone" "$SCRATCH/err"
 
-printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$new_sha" "$clone" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$new_sha" "$clone" >"$dir/meta.txt"
 wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" | head -n 1)
 git -C "$wt" config user.name tester
 git -C "$wt" config user.email tester@example.invalid
@@ -77,11 +77,11 @@ grep -q "keeping unpushed commits" "$SCRATCH/err"
 [ "$(git -C "$wt" rev-parse HEAD)" = "$ahead_sha" ]
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" >/dev/null
 
-git remote set-url origin "$SCRATCH/acme/widgets-evil.git"
-printf 'owner acme\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\n' "$new_sha" >"$dir/meta.txt"
+git remote set-url origin "$SCRATCH/Paxton-Meny/widgets-evil.git"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\n' "$new_sha" >"$dir/meta.txt"
 if sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected refusal of a suffixed lookalike origin" >&2
 	exit 1
 fi
-grep -q "not acme/widgets" "$SCRATCH/err"
+grep -q "not Paxton-Meny/widgets" "$SCRATCH/err"
 

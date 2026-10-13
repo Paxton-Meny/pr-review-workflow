@@ -8,22 +8,22 @@ export GH_STUB_DIR="$stub"
 export PATH="$REPO_ROOT/tests/stubs:$PATH"
 dir="$SCRATCH/state"
 mkdir -p "$dir"
-printf 'owner acme\nrepo widgets\npr 7\nauthor octocat\nself_login reviewer\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nauthor other_user\nself_login Paxton-Meny\n' >"$dir/meta.txt"
 printf '0\n' >"$dir/round.txt"
 
 printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 : >"$stub/pr-review"
 : >"$stub/pr-merge"
 printf 'MERGED\n' >"$stub/pr-view.2"
-sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve | grep -qx 'merge-pr: acme/widgets#7 merged'
-grep -q '^pr review 7 --repo acme/widgets --approve' "$stub/calls.log"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve | grep -qx 'merge-pr: Paxton-Meny/widgets#7 merged'
+grep -q '^pr review 7 --repo Paxton-Meny/widgets --approve' "$stub/calls.log"
 grep -q 'Reviewed with \[pr-review-workflow\]' "$stub/calls.log" || {
 	echo "a clean run's approval is its first comment and names the plugin" >&2
 	exit 1
 }
 
 rm -f "$stub"/pr-view.1.done "$stub"/pr-view.2.done "$stub/calls.log"
-printf 'owner acme\nrepo widgets\npr 7\nauthor reviewer\nself_login reviewer\n' >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nauthor Paxton-Meny\nself_login Paxton-Meny\n' >"$dir/meta.txt"
 printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 : >"$stub/pr-comment"
 printf 'MERGED\n' >"$stub/pr-view.2"

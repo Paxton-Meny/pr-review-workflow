@@ -2,8 +2,8 @@
 # Fork pull requests: fetch and push against the fork, review-only gating.
 set -eu
 
-mkdir -p "$SCRATCH/acme"
-base="$SCRATCH/acme/widgets.git"
+mkdir -p "$SCRATCH/Paxton-Meny"
+base="$SCRATCH/Paxton-Meny/widgets.git"
 fork="$SCRATCH/fork.git"
 git init --quiet --bare "$base"
 git init --quiet --bare "$fork"
@@ -31,7 +31,7 @@ sha=$(git -C "$work" rev-parse HEAD)
 dir="$SCRATCH/state"
 mkdir -p "$dir"
 meta() {
-	printf 'owner acme\nrepo widgets\npr 9\nhead_branch feat-fork\nhead_sha %s\ncross_repo true\nmaintainer_can_modify %s\nhead_repo_url %s\nrepo_root %s\n' \
+	printf 'owner Paxton-Meny\nrepo widgets\npr 9\nhead_branch feat-fork\nhead_sha %s\ncross_repo true\nmaintainer_can_modify %s\nhead_repo_url %s\nrepo_root %s\n' \
 		"$sha" "$1" "$2" "$clone" >"$dir/meta.txt"
 }
 
@@ -67,7 +67,7 @@ sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 2 ]
 grep -q "fork this pull request comes from is gone" "$SCRATCH/err"
 
-git -C "$clone" remote set-url origin "git@github.com:acme/widgets"
-printf 'owner acme\nrepo widgets\npr 9\nhead_branch feat-fork\nhead_sha x\ncross_repo true\nmaintainer_can_modify true\nhead_repo_url https://github.com/other/widgets.git\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
+git -C "$clone" remote set-url origin "git@github.com:Paxton-Meny/widgets"
+printf 'owner Paxton-Meny\nrepo widgets\npr 9\nhead_branch feat-fork\nhead_sha x\ncross_repo true\nmaintainer_can_modify true\nhead_repo_url https://github.com/other_owner/widgets.git\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" 2>/dev/null || true
-grep -qx 'head_repo_url git@github.com:other/widgets.git' "$dir/meta.txt"
+grep -qx 'head_repo_url git@github.com:other_owner/widgets.git' "$dir/meta.txt"

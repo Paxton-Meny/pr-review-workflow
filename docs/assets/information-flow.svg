@@ -41,7 +41,7 @@
 <path class="ar dash" d="M430 172V124" marker-end="url(#nfa)"/>
 <g filter="url(#nfsh)"><rect class="c" x="230" y="174" width="400" height="188" rx="10"/></g>
 <path class="panel" d="M230.5 184a9.5 9.5 0 0 1 9.5-9.5h380a9.5 9.5 0 0 1 9.5 9.5v17.5h-399z"/><path class="hl" d="M230 201.5H630"/>
-<text class="mono dir" x="244" y="192">state/acme__api__128/</text><text class="end" x="616" y="192">the ledger, on disk</text>
+<text class="mono dir" x="244" y="192">state/Paxton-Meny__api__128/</text><text class="end" x="616" y="192">the ledger, on disk</text>
 <rect class="sq" x="246" y="217" width="9" height="9" rx="2.5" fill="var(--rule)"/><text class="mono nm" x="264" y="226">meta.txt</text><text x="364" y="226">who, which branches, which head</text>
 <rect class="sq" x="246" y="247" width="9" height="9" rx="2.5" fill="var(--teal)"/><text class="mono nm" x="264" y="256">pr-context/</text><text x="364" y="256">annotated diffs, probes, your rules</text>
 <rect class="sq" x="246" y="277" width="9" height="9" rx="2.5" fill="var(--coral)"/><text class="mono nm" x="264" y="286">findings/</text><text x="364" y="286">F001 to F005: Fix, Resolution, notes</text>
