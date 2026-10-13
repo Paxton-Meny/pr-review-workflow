@@ -132,7 +132,7 @@ GitHub</a>
 <a class="btn btn-ink" href="#install">Install in two commands</a>
 <a class="btn btn-ghost" href="#run">See how a run flows</a>
 </div>
-<p class="meta">v0.2.1 &nbsp;&#183;&nbsp; PolyForm Noncommercial &nbsp;&#183;&nbsp; proven live on its own pull requests</p>
+<p class="meta">v0.3.0 &nbsp;&#183;&nbsp; PolyForm Noncommercial &nbsp;&#183;&nbsp; proven live on its own pull requests</p>
 </div>
 <div class="hero-art">
 <img src="assets/hero-trail.svg" width="460" alt="Animated: one finding, start to finish, on pull request 128. The review flags line 42 of src/retry.py and writes a testable Resolution; one commit fixes it; the check command runs and passes, so the finding moves from open to addressed to verified; the pull request merges only after the gate asks.">
@@ -219,7 +219,8 @@ to the caller, and the retry test asserts it.</code></pre>
 <div class="tablebox">
 <table>
 <tr><th>Option</th><th>Default</th><th>Meaning</th></tr>
-<tr><td><a href="settings.html#auto-approve">Auto-approve</a></td><td>off</td><td>Merge without asking once the loop is clean. When off, you get a prompt: merge now or hold.</td></tr>
+<tr><td><a href="settings.html#auto-approve">Auto-approve</a></td><td>off</td><td>Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold.</td></tr>
+<tr><td><a href="settings.html#self-start">Self-started reviews</a></td><td>ask</td><td>When Claude starts a review on its own: ask first, or auto when the pull request is ready.</td></tr>
 <tr><td><a href="settings.html#check-command">Check command</a></td><td>empty</td><td>The reviewed repository's own check. It proves suggestions, gates every editing round, and anchors executable contracts.</td></tr>
 <tr><td><a href="settings.html#local-standards">Local standards files</a></td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
 <tr><td><a href="settings.html#double-review">Second review pass</a></td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
@@ -228,6 +229,7 @@ to the caller, and the retry test asserts it.</code></pre>
 <tr><td><a href="settings.html#model-routing">Model routing</a></td><td>auto</td><td>Cheaper models where the work is provably mechanical; one strong arbitration pass before any park. The gap pass never routes down.</td></tr>
 <tr><td><a href="settings.html#strong-model">Strong model</a></td><td>empty</td><td>auto routing climbs to it for large, coupled, or sensitive code changes and arbitration; empty caps routing at the reviewer model.</td></tr>
 <tr><td><a href="settings.html#sensitive-paths">Sensitive paths</a></td><td>empty</td><td>Globs for files where a defect costs most; a change touching one is treated as high stakes whatever its lines look like.</td></tr>
+<tr><td><a href="settings.html#migration-paths">Migration paths</a></td><td>common layouts</td><td>Globs for database migration files; a change touching one is reviewed as high stakes, read but never run, and never merged without a person.</td></tr>
 <tr><td><a href="settings.html#cost-posture">Cost posture</a></td><td>balanced</td><td>Which way routing leans where the change does not settle a decision: economy drops to the cheap model sooner and climbs later, quality the reverse and adds a review sample where stakes are high. Never a pinned model; high stakes never start cheap.</td></tr>
 <tr><td><a href="settings.html#contract-commands">Contract command prefixes</a></td><td>empty</td><td>Extra prefixes a finding's Check line may start with; verification runs allowed Check lines instead of judging prose.</td></tr>
 <tr><td><a href="settings.html#finding-filter">Precision filter</a></td><td>on</td><td>A cheap pass re-reads each finding's code before posting; unsupported findings demote to the summary, never dropped.</td></tr>
