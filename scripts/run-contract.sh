@@ -53,32 +53,16 @@ if printf '%s' "$cmd" | grep -q '[;&|$<>`\\]'; then
 	echo "run-contract: $id verdict not-executable reason metacharacters"
 	exit 4
 fi
-names_migration_tool() {
-	set -f
-	prev=''
-	for word in $1; do
-		name=${word##*/}
-		case "$name" in
-		migrate | migrate:* | migration | migration:* | makemigrations | db:* | alembic | flyway | liquibase | sqitch | goose | dbmate)
-			set +f
-			return 0
-			;;
-		db)
-			[ "$prev" != prisma ] || {
-				set +f
-				return 0
-			}
-			;;
-		esac
-		prev=$name
-	done
-	set +f
-	return 1
-}
-if names_migration_tool "$cmd"; then
+tooling=0
+sh "$(dirname "$0")/migration-tool.sh" "$cmd" || tooling=$?
+case "$tooling" in
+0) ;;
+3)
 	echo "run-contract: $id verdict not-executable reason migration-tooling"
 	exit 4
-fi
+	;;
+*) exit 1 ;;
+esac
 
 allowed=0
 if [ -n "$check" ]; then
