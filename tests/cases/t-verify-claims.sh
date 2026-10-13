@@ -64,7 +64,10 @@ nope x | y' 'layout src/ | before any header' '## layout
 tests src/ | kind under the wrong section' '## layout
 layout /etc/passwd | absolute' '## layout
 layout ../up | parent' '## layout
-layout src/ no separator' '## rules
+layout src/ no separator' '## idioms
+idioms src/ | copy from ../other' '## layout
+layout src/ | see /home/alice/work/x' '## check
+check cat /home/alice/x | reads a machine path' '## rules
 rules README.md | <!-- review-conventions:begin -->'; do
 	if printf '%s\n' "$bad" | record "$dir" 1 >/dev/null 2>"$SCRATCH/err"; then
 		echo "expected refusal of: $bad" >&2
