@@ -59,6 +59,8 @@ BEGIN { n = split(sections, s, " "); for (i = 1; i <= n; i++) known[s[i]] = 1 }
 	statement = $0; sub(/^[^|]*\| /, "", statement)
 	if (ref == "" || statement == "") fail("empty ref or statement")
 	if (section != "check" && (ref ~ /^\// || ref ~ /(^|\/)\.\.(\/|$)/ || ref ~ /[ \t]/)) fail("ref must be a relative repository path: " ref)
+	if (statement ~ /(^|[ \t(`=\042\047])\/[A-Za-z0-9_.-]+\// || statement ~ /(^|[\/ \t])\.\.\//) fail("a statement must not hold an absolute path or a parent reference")
+	if (section == "check" && (ref ~ /(^|[ \t(`=\042\047])\/[A-Za-z0-9_.-]+\// || ref ~ /(^|[\/ \t])\.\.\//)) fail("a check command must not hold an absolute path or a parent reference")
 	claims++
 }
 END { if (NR == 0) fail("empty record"); printf "record: %s lines %d claims %d\n", id, NR, claims }
