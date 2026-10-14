@@ -66,6 +66,19 @@ fi
 # Nothing was written anywhere near the files.
 [ "$(ls "$SCRATCH" | grep -vx log)" = "$(printf 'bad.conf\nshared.conf')" ]
 
+# The overlap check is raise-only for a project, and has an alias.
+printf 'overlap_check off\n' >"$SCRATCH/overlap.conf"
+if out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared overlap.conf); then
+	echo "a shared file lowering overlap_check must fail the lint" >&2
+	exit 1
+fi
+printf '%s\n' "$out" | grep -qx 'settings: ignored project overlap_check: would lower near to off; a project may only raise it'
+printf 'overlap judged\n' >"$SCRATCH/overlap.conf"
+out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared overlap.conf)
+printf '%s\n' "$out" | grep -qx 'settings: overlap_check judged from project'
+out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint personal overlap.conf)
+printf '%s\n' "$out" | grep -qx 'settings: overlap_check judged from local'
+
 # A shared file may name the merge method.
 printf 'merge_method squash\n' >"$SCRATCH/method.conf"
 out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared method.conf)

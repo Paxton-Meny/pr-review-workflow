@@ -43,6 +43,7 @@ contract_commands ${user_config.contract_commands}
 cost_posture ${user_config.cost_posture}
 sensitive_paths ${user_config.sensitive_paths}
 migration_paths ${user_config.migration_paths}
+overlap_check ${user_config.overlap_check}
 strong_model ${user_config.strong_model}
 PRWF_SETTINGS_END
 ```
