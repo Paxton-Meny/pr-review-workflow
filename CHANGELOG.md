@@ -39,7 +39,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   function, are named with draft, same-author, and linked marks, and
   the user is asked whether to continue. Before any merge, commits that
   landed on the base since the review are compared the same way in the
-  merge base's coordinates; disjoint changes to shared files merge,
+  merge base's coordinates, or from the base the review started on
+  once the branch was brought up to date; only code and test files
+  count; disjoint changes to shared files merge,
   near or same ones refuse with exit 6 and a person decides, or the
   run parks. Under judged, a new comparer agent reads the touching
   hunks first and classifies them; an independent verdict on that
