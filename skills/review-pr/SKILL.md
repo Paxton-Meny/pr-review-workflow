@@ -359,7 +359,8 @@ PRWF_SETTINGS_END
        its line. It waits only when the repository reports checks for
        the head, and the wait budget lives on disk. Exit 5: run it
        again. Exit 6: the budget is spent; attended, ask whether to
-       wait once more (run it again) or hold (as step 12 holds);
+       wait once more (run it with `--extend`, which gives the head a
+       fresh budget) or hold (as step 12 holds);
        unattended, park (step 9) naming the pending checks. Exit 0:
        step 12.
     b. Exit 3 means a check failed. With ci_checks wait: post one
