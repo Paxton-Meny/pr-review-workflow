@@ -44,6 +44,16 @@ deleted file mode 100644
 @@ -1,2 +0,0 @@
 -one
 -two
+diff --git a/db/q.sql b/db/q.sql
+--- a/db/q.sql
++++ b/db/q.sql
+@@ -3,4 +3,4 @@ -- header
+ keep
+--- note
++++ pp
+-gone
++kept
+ tail
 PATCH
 
 sh "$REPO_ROOT/scripts/hunk-ranges.sh" "$SCRATCH/multi.patch" >"$SCRATCH/got"
@@ -53,6 +63,7 @@ printf 'src/app.py\t40\t40\t42\t43\tclass Thing:\n' >>"$SCRATCH/want"
 printf 'new/name.go\t7\t7\t7\t7\tfunc (s *S) Bar() {\n' >>"$SCRATCH/want"
 printf 'docs/new.md\t0\t0\t1\t2\t\n' >>"$SCRATCH/want"
 printf 'gone.txt\t1\t2\t0\t0\t\n' >>"$SCRATCH/want"
+printf 'db/q.sql\t4\t5\t4\t5\t-- header\n' >>"$SCRATCH/want"
 cmp -s "$SCRATCH/got" "$SCRATCH/want" || {
 	echo "hunk ranges differ from the expected lines:" >&2
 	diff "$SCRATCH/want" "$SCRATCH/got" >&2 || true
@@ -60,7 +71,7 @@ cmp -s "$SCRATCH/got" "$SCRATCH/want" || {
 }
 
 # Stdin works the same, and an empty diff prints nothing.
-[ "$(sh "$REPO_ROOT/scripts/hunk-ranges.sh" <"$SCRATCH/multi.patch" | wc -l)" -eq 6 ]
+[ "$(sh "$REPO_ROOT/scripts/hunk-ranges.sh" <"$SCRATCH/multi.patch" | wc -l)" -eq 7 ]
 [ -z "$(: | sh "$REPO_ROOT/scripts/hunk-ranges.sh")" ]
 
 if sh "$REPO_ROOT/scripts/hunk-ranges.sh" "$SCRATCH/missing.patch" 2>"$SCRATCH/err"; then
