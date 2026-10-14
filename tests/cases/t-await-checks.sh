@@ -108,6 +108,21 @@ if grep -q 'assert' "$digest"; then
 	exit 1
 fi
 
+# Empty fields stay in place: a check without a workflow keeps its
+# description, and a run with no title keeps its summary.
+checks "fail	lint	https://ci.example.invalid/builds/9		Lint failed"
+printf '57\tlint\t\tonly a summary\n' >"$stub/api-repos_o_r_commits_abc123_check-runs"
+printf '' >"$stub/api-repos_o_r_check-runs_57_annotations"
+rc=0
+out=$(await) || rc=$?
+[ "$rc" -eq 3 ]
+grep -qx 'description Lint failed' "$digest"
+grep -qx 'summary only a summary' "$digest"
+if grep -q '^title' "$digest"; then
+	echo "an empty title must not shift the summary into it" >&2
+	exit 1
+fi
+
 # No checks: with no workflows on the base the status grace passes and
 # the run goes on; with workflows the schedule grace keeps it pending.
 : >"$stub/pr-checks"
