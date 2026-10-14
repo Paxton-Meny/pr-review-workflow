@@ -371,7 +371,8 @@ PRWF_SETTINGS_END
        after the repairs, naming them. Otherwise run
        `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> ci-repair repeat=<n>`
        with 1 when the line says `signature repeat`, else 0, and spawn
-       `pr-review-workflow:editor` with its `model` and `effort` and
+       `pr-review-workflow:editor` (first reading `head_sha` from
+       `<dir>/meta.txt` as <ci base>) with its `model` and `effort` and
        exactly:
        `The pull request's checks fail. State directory: <dir>. Read pr-context/ci-failure.txt, find the cause, fix it, commit, and push. <ci round line>.`
        plus, on a repeat, exactly:
@@ -380,8 +381,8 @@ PRWF_SETTINGS_END
        `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`; exit 3
        takes the step 8c repair once, and a second failure parks. Then,
        when the facts line says `review_repairs true`, run
-       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir> --all`: it lists
-       every file the repair changed, finding paths included, so follow
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir> --all <ci base>`: it lists
+       every file the repair and any gate repair changed, finding paths included, so follow
        step 8e for them; no new commit means no review; new findings run step 8 under its round cap, and a
        converged step 8 returns here. Loop to a.
 12. Merge gate. First
