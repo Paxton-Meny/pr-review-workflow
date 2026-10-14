@@ -14,8 +14,9 @@
 # shared files), and summary.txt, for a person or the comparer to read.
 # Prints one line, plus one "drift" line per near or same file:
 #   base-drift: <n> commits landed, <k> files shared, level <level>
-# Exit 0 when the level is none or disjoint, 5 when it is near or same
-# or the base cannot be read, 1 on a broken ledger.
+# Exit 0 when the level is none or disjoint, 5 when it is near or same,
+# the base cannot be read, or it was read from an earlier fetch, and 1 on a
+# broken ledger.
 set -eu
 
 dir=${1:?usage: base-drift.sh <state-dir>}
@@ -74,8 +75,19 @@ out="$work/drift.txt"
 finish() {
 	# finish <level> <shared> [<extra lines>]
 	printf 'level %s files %s\n' "$1" "$2" >>"$out"
+	summary="base-drift: $landed commits landed, $2 files shared, level $1$freshness"
+	# A base read from an earlier fetch cannot show whether it moved, so
+	# a quiet level there is refused without recording a drift.
+	if [ -n "$freshness" ]; then
+		case "$1" in
+		none | disjoint)
+			echo "$summary"
+			exit 5
+			;;
+		esac
+	fi
 	mv "$out" "$ctx/drift.txt"
-	echo "base-drift: $landed commits landed, $2 files shared, level $1$freshness"
+	echo "$summary"
 	[ -z "${3:-}" ] || printf '%s\n' "$3"
 	case "$1" in
 	near | same) exit 5 ;;
