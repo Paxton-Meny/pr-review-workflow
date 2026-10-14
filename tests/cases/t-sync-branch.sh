@@ -79,7 +79,9 @@ grep -qx "head_sha $new" "$dir/meta.txt"
 grep -qx "prev_head $head" "$dir/meta.txt"
 [ ! -s "$dir/pr-context/sync-changed.txt" ]
 grep -qx "update rebase $head $new" "$dir/sync.txt"
-[ "$(sync)" = "sync-branch: current" ] || true
+printf 'mergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view"
+[ "$(sync)" = "sync-branch: current" ]
+[ "$(grep -c '^update ' "$dir/sync.txt")" -eq 1 ]
 
 # A clean update under squash merging merges the base in: a merge
 # commit, a plain push, the old head still in the history.
