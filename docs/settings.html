@@ -40,7 +40,7 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 23 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 24 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
@@ -65,6 +65,7 @@
 <a href="#double-review" data-words="double_review gap pass">Second review pass</a>
 <a href="#sensitive-paths" data-words="sensitive_paths auth payments risky">Sensitive paths</a>
 <a href="#migration-paths" data-words="migration_paths database schema migrations">Migration paths</a>
+<a href="#overlap-check" data-words="overlap_check overlap duplicate drift base moved other pull requests comparer">Overlap check</a>
 <a href="#finding-filter" data-words="finding_filter demote summary">Precision filter</a>
 <a href="#review-samples" data-words="review_samples support cost">Review samples</a>
 </div>
@@ -704,6 +705,70 @@
 </dl>
 </div>
 <p class="works"><b>Works with</b> &#183; <a href="#sensitive-paths">Sensitive paths</a>, <a href="#auto-approve">Auto-approve</a></p>
+</section>
+
+<section class="entry" id="overlap-check" data-key="overlap_check" data-project="raise" data-default="near" data-options="off near judged">
+<h3 class="display">Overlap check</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>overlap_check</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">near</dd></div>
+<div><dt>ACCEPTS</dt><dd>off | near | judged</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
+</dl>
+<p class="lead">The review reads one pull request. When someone else fixes the same thing on another branch and it lands first, the forge still calls this branch mergeable if the lines differ, and a rebase merge lands a combination nobody reviewed. This setting decides whether the plugin looks beside the pull request, and how closely.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Overlap check value">
+<button type="button" data-set="off" aria-pressed="false">off</button>
+<button type="button" data-set="near" aria-pressed="true">near <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="judged" aria-pressed="false">judged</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="grid3">
+<div class="tile is-on" data-on="off near judged">
+<svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+<div class="tile-t">A teammate edits the same file elsewhere</div>
+<div class="tile-s">Their hunks are more than twelve lines from yours and in another function.</div>
+<div class="tile-r">
+<div class="no" data-show="off near judged"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>Nothing said, merge goes ahead</div>
+</div>
+</div>
+<div class="tile is-on" data-on="near judged">
+<svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/></svg>
+<div class="tile-t">Their hunks sit beside yours</div>
+<div class="tile-s">Within twelve lines, or inside the same function, on a branch still open or already landed.</div>
+<div class="tile-r">
+<div class="no" data-show="off" hidden><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>Nothing said</div>
+<div class="yes" data-show="near"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Named at the start; the merge waits for you</div>
+<div class="yes" data-show="judged" hidden><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Read by the comparer first; independent merges, the rest wait for you</div>
+</div>
+</div>
+<div class="tile is-on" data-on="off near judged">
+<svg class="ic" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/></svg>
+<div class="tile-t">Their fix is in another file</div>
+<div class="tile-s">The caller on their branch, the callee on yours. No file is shared.</div>
+<div class="tile-r">
+<div class="no" data-show="off near judged"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>Not seen; left to you</div>
+</div>
+</div>
+</div>
+<p class="note" data-show="off" hidden>No open pull request is listed and nothing that landed on the base is compared. The merge relies on the forge alone, which only refuses when the same lines conflict.</p>
+<p class="note" data-show="near">At the start, one listing call finds the open pull requests on the same base that share files, and the five sharing the most are compared hunk by hunk; the ones that touch this change are named with their author, whether they are drafts, whether they are yours, and whether either description names the other, and you choose whether to go on. Before any merge, the commits that landed on the base since the review are compared the same way, exactly, and a close one stops the merge until you answer; unattended, the run <a class="term" href="#g-park">parks</a>.</p>
+<p class="note" data-show="judged" hidden>Everything under near, plus one cheap agent, the comparer, reads the two sets of hunks before you are asked and says whether they are independent, complementary, duplicate, or contradictory. An independent verdict lets the merge go ahead on its own; any other verdict reaches you with its one-sentence reason. A verdict stands only for the base it judged, and never decides anything by itself.</p>
+<p class="note">Two people changing the same file in different places is ordinary and never fires. Lockfiles and generated output never count. Nothing here edits, closes, retargets, or merges on a verdict, and the editor never sees any of it.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>off</dt><dd>You work alone on the repository, or the base branch requires every branch to be up to date before it merges and you review the rebase yourself.</dd></div>
+<div><dt>near <span class="badge">DEFAULT</span></dt><dd>A team shares files. One listing call per review, and a question only when hunks actually sit beside each other.</dd></div>
+<div><dt>judged</dt><dd>Hunks sit beside each other often enough that the question itself is the cost. A cheap read answers the easy ones.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#auto-approve">Auto-approve</a>, <a href="#migration-paths">Migration paths</a>, <a href="#verifier-model">Verifier model</a></p>
 </section>
 
 <section class="entry" id="finding-filter" data-key="finding_filter" data-project="raise" data-default="true">

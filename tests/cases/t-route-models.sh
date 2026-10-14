@@ -417,6 +417,40 @@ if sh "$REPO_ROOT/scripts/route-models.sh" "$SCRATCH/nope" review 2>"$SCRATCH/er
 fi
 grep -q "no pr-context" "$SCRATCH/err"
 
+# The compare stage: only under judged, the verifier's model at the
+# comparer's own level, climbing to the reviewer's model one level up
+# when a shared file is a stakes file, and left to the person when the
+# bundle is too large to read cheaply.
+bundle="$ctx/overlap/base"
+mkdir -p "$bundle"
+printf 'label base\nbase abc\nnear\tsrc/app.py\t10-12\t20-20\t\nlevel near files 1 near 1 same 0\n' >"$bundle/summary.txt"
+printf 'path: src/app.py\nR10 +x\n' >"$bundle/ours.diff"
+printf '+++ b/src/app.py\n@@ -20 +20 @@\n+y\n' >"$bundle/theirs.diff"
+probes ''
+: >"$ctx/probe-files.txt"
+[ "$(route compare $ARGS -- base)" = "route compare all skip reason overlap-check-near" ]
+[ "$(route compare $ARGS overlap=off -- base)" = "route compare all skip reason overlap-check-off" ]
+[ "$(route compare $ARGS overlap=judged -- base)" = "route compare base rung base model sonnet effort low reason role-model" ]
+[ "$(route compare $ARGS overlap=judged verifier=haiku -- base)" = "route compare base rung base model haiku effort low reason role-model" ]
+printf 'sensitive\tsrc/app.py\n' >"$ctx/probe-files.txt"
+[ "$(route compare $ARGS overlap=judged -- base)" = "route compare base rung base model inherit effort medium reason stakes-file" ]
+[ "$(route compare routing=auto reviewer=opus overlap=judged -- base)" = "route compare base rung base model opus effort medium reason stakes-file" ]
+[ "$(route compare routing=fixed reviewer=opus overlap=judged -- base)" = "route compare base rung base model opus effort low reason stakes-file" ]
+: >"$ctx/probe-files.txt"
+awk 'BEGIN { for (i = 1; i <= 401; i++) print "+line " i }' >"$bundle/theirs.diff"
+[ "$(route compare $ARGS overlap=judged -- base)" = "route compare all skip reason too-large" ]
+if route compare $ARGS overlap=judged 2>"$SCRATCH/err"; then
+	echo "compare needs a label" >&2
+	exit 1
+fi
+grep -q 'needs the bundle label' "$SCRATCH/err"
+if route compare $ARGS overlap=judged -- pr-99 2>"$SCRATCH/err"; then
+	echo "compare needs an existing bundle" >&2
+	exit 1
+fi
+grep -q 'no overlap bundle pr-99' "$SCRATCH/err"
+grep -q '^route compare base rung base model sonnet effort low reason role-model$' "$ctx/routes.txt"
+
 # A repair of failing checks never starts cheap: the editor's rung one
 # level up in effort for a fresh failure, and one lever up from the
 # last repair when the same failure followed it, more effort below the

@@ -12,7 +12,9 @@ author="${fixture_login}_author"
 dir="$SCRATCH/data/state/${fixture_owner}__widgets__7"
 mkdir -p "$dir/pr-context"
 printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\n' "$fixture_owner" "$author" "$fixture_login" >"$dir/meta.txt"
-: | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+# This ledger has no clone, so the overlap check is off until the drift
+# section below builds one.
+printf 'overlap_check off\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
 printf '0\n' >"$dir/round.txt"
 method() {
 	# method <name> [delete_branch_on_merge]
@@ -197,3 +199,128 @@ if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve --checked 2>"$SCRATCH/er
 	exit 1
 fi
 grep -q "unknown argument: --checked" "$SCRATCH/err"
+
+# Base drift. With a clone in the ledger and the overlap check on, commits
+# landing on the base since the review are compared against the reviewed
+# hunks before anything is written: disjoint ones merge, near ones refuse
+# with exit 6 until a person decides or the comparer judged that very
+# base independent, and off skips the check. Migrations are asked about
+# first, so a drift question never hides one.
+remote="$SCRATCH/remote.git"
+git init --quiet --bare "$remote"
+seed="$SCRATCH/seed"
+git clone --quiet "$remote" "$seed" 2>/dev/null
+git -C "$seed" config user.name tester
+git -C "$seed" config user.email tester@example.invalid
+mkdir -p "$seed/src"
+awk 'BEGIN { print "def alpha():"; for (i = 2; i <= 20; i++) print "    a" i " = " i; print "def beta():"; for (i = 22; i <= 40; i++) print "    b" i " = " i }' >"$seed/src/app.py"
+git -C "$seed" add .
+git -C "$seed" commit --quiet -m base
+git -C "$seed" push --quiet origin HEAD:main
+git -C "$seed" checkout --quiet -b feature
+sed -i 's/^    a10 = 10$/    a10 = 100/' "$seed/src/app.py"
+git -C "$seed" commit --quiet -am feature
+git -C "$seed" push --quiet origin feature
+head=$(git -C "$seed" rev-parse HEAD)
+git -C "$seed" checkout --quiet main
+clone="$SCRATCH/clone"
+git clone --quiet "$remote" "$clone" 2>/dev/null
+git -C "$clone" fetch --quiet origin feature
+printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nbase_branch main\nhead_branch feature\nhead_sha %s\nrepo_root %s\n' "$fixture_owner" "$fixture_login" "$fixture_login" "$head" "$clone" >"$dir/meta.txt"
+mkdir -p "$dir/pr-context"
+method rebase
+: >"$stub/pr-list"
+git -C "$clone" diff "origin/main...$head" >"$dir/pr-context/diff.patch"
+printf 'src/app.py\t1\t1\n' >"$dir/pr-context/files.txt"
+sh "$REPO_ROOT/scripts/split-diff.sh" "$dir" >/dev/null
+: | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+land() {
+	git -C "$seed" commit --quiet -am "$1"
+	git -C "$seed" push --quiet origin main
+}
+clean='state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 1\nfile src/app.py\n'
+
+# Nothing landed: merges as before.
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
+
+# A disjoint landing merges too.
+sed -i 's/^    b35 = 35$/    b35 = 350/' "$seed/src/app.py"
+land far
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
+
+# A near landing refuses before any write, with the drift lines.
+sed -i 's/^    a15 = 15$/    a15 = 150/' "$seed/src/app.py"
+land near
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
+[ "$rc" -eq 6 ]
+printf '%s\n' "$out" | sed -n 1p | grep -qx 'merge-pr: base moved under the review and touches the reviewed hunks, a person decides'
+printf '%s\n' "$out" | grep -qx 'base-drift: 2 commits landed, 1 files shared, level near'
+printf '%s\n' "$out" | grep -qx 'drift near src/app.py ours 10-10 theirs 15-15 in def alpha():'
+if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+	echo "a drift refusal must write nothing to the pull request" >&2
+	exit 1
+fi
+
+# A person's decision merges it.
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --overlap-checked | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
+grep -q '^pr merge 7' "$stub/calls.log"
+
+# So does an independent verdict, but only on the base it judged.
+printf 'verdict base independent: alpha gains an unrelated constant five lines below.\n' |
+	sh "$REPO_ROOT/scripts/save-verdict.sh" "$dir" base | grep -qx 'save-verdict: base independent'
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir")
+printf '%s\n' "$out" | grep -qx 'merge-pr: base moved under the review; the comparer judged the overlap independent, continuing'
+printf '%s\n' "$out" | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
+sed -i 's/^    a12 = 12$/    a12 = 120/' "$seed/src/app.py"
+land nearer
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 6 ]
+! printf '%s\n' "$out" | grep -q '^verdict '
+if grep -q '^pr merge' "$stub/calls.log"; then
+	echo "a verdict on an older base must not carry a merge" >&2
+	exit 1
+fi
+# A verdict other than independent is relayed and still asks.
+printf 'verdict base duplicate: both set a12.\n' | sh "$REPO_ROOT/scripts/save-verdict.sh" "$dir" base >/dev/null
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 6 ]
+printf '%s\n' "$out" | grep -qx 'verdict duplicate: both set a12.'
+
+# Migrations are asked about before drift.
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 2\nfile src/app.py\nfile db/migrate/001_x.rb\n' >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 4 ]
+
+# Off skips the check entirely.
+printf 'overlap_check off\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+rm -f "$stub"/pr-view.* "$stub/calls.log" "$dir/pr-context/drift.txt"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
+[ ! -f "$dir/pr-context/drift.txt" ] || {
+	echo "off must not run the drift check" >&2
+	exit 1
+}

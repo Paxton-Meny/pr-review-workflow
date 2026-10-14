@@ -5,14 +5,15 @@
 #
 # Settings come from the run's resolved settings.txt when there is one;
 # key=value arguments override them. Stages: review, gap, filter, edit,
-# repair, verify, incremental, arbitrate, and survey, which takes a
-# survey directory holding partitions.txt instead of a run's state. Keys,
-# each with its manifest default: routing (auto), reviewer (inherit),
-# editor (inherit), verifier (sonnet), strong (empty), posture
-# (balanced), check (empty), prefixes (empty), round (1). A value that
-# is still a literal ${user_config...} placeholder, as on an install with
-# no saved configuration, counts as unset. For the edit and repair
-# stages the finding ids follow a lone "--".
+# repair, verify, incremental, arbitrate, compare, and survey, which
+# takes a survey directory holding partitions.txt instead of a run's
+# state. Keys, each with its manifest default: routing (auto), reviewer
+# (inherit), editor (inherit), verifier (sonnet), strong (empty),
+# posture (balanced), check (empty), prefixes (empty), overlap (near),
+# round (1). A value that is still a literal ${user_config...}
+# placeholder, as on an install with no saved configuration, counts as
+# unset. For the edit and repair stages the finding ids follow a lone
+# "--"; for compare, the overlap bundle's label does.
 #
 # Every decision is a rung on one ladder: cheap (sonnet), base (the
 # role's own setting), strong (the strong model), plus a reasoning
@@ -127,11 +128,12 @@ RISK_SLUGS='secrets automation deps debug test-shrink sensitive'
 EFFORT_LEVELS='low medium high xhigh'
 ARBITRATION_EFFORT=high
 MAX_SAMPLES=3
+COMPARE_MAX_LINES=400
 AGENTS="$(dirname "$0")/../agents"
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
 posture=balanced check='' prefixes='' repeat=0
-double=risky filter=true samples=1
+double=risky filter=true samples=1 overlap=near
 ids='' listed=0
 # The run's resolved settings come first; key=value arguments override
 # them, which is how the tests drive every branch.
@@ -148,6 +150,7 @@ if [ -f "$dir/settings.txt" ]; then
 	double=$(get double_review)
 	filter=$(get finding_filter)
 	samples=$(get review_samples)
+	overlap=$(get overlap_check)
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -172,6 +175,7 @@ while [ $# -gt 0 ]; do
 		double) double=${value:-risky} ;;
 		filter) filter=${value:-true} ;;
 		samples) samples=${value:-1} ;;
+		overlap) overlap=${value:-near} ;;
 		round) round=${value:-1} ;;
 		repeat) repeat=${value:-0} ;;
 		*)
@@ -277,6 +281,7 @@ reviewer_effort=$(role_effort reviewer)
 editor_effort=$(role_effort editor)
 verifier_effort=$(role_effort verifier)
 filter_effort=$(role_effort filter)
+comparer_effort=$(role_effort comparer)
 cartographer_effort=$(role_effort cartographer)
 assembler_effort=$(role_effort assembler)
 
@@ -289,6 +294,7 @@ if [ -z "$held" ] && [ "$(cat "$dir/spawn-effort.txt" 2>/dev/null)" = unapplied 
 	edit | repair | ci-repair | conflict) held=" unapplied $editor_effort" ;;
 	verify | arbitrate) held=" unapplied $verifier_effort" ;;
 	filter) held=" unapplied $filter_effort" ;;
+	compare) held=" unapplied $comparer_effort" ;;
 	esac
 fi
 
@@ -784,6 +790,46 @@ arbitrate)
 		emit all strong "$strong" "$effort" arbitration
 	else
 		emit all base "$reviewer" "$effort" no-strong-model
+	fi
+	;;
+compare)
+	# One overlap bundle, read by the comparer only under judged: the
+	# verifier's model at the comparer's own level, climbing to the
+	# reviewer's model when a shared file is one where a defect costs
+	# most. A bundle too large to read cheaply is left to the person.
+	[ "$listed" -eq 1 ] && [ -n "$ids" ] || {
+		echo "route-models: the compare stage needs the bundle label after --" >&2
+		exit 1
+	}
+	label=$ids
+	bundle="$ctx/overlap/$label"
+	[ -f "$bundle/summary.txt" ] || {
+		echo "route-models: no overlap bundle $label in $ctx" >&2
+		exit 1
+	}
+	if [ "$overlap" != judged ]; then
+		skip "overlap-check-$overlap"
+		exit 0
+	fi
+	size=$(cat "$bundle/ours.diff" "$bundle/theirs.diff" 2>/dev/null | grep -c . || true)
+	if [ "$size" -gt "$COMPARE_MAX_LINES" ]; then
+		skip too-large
+		exit 0
+	fi
+	stakes=0
+	paths=$(awk -F '\t' 'NF >= 4 && $1 != "level" { print $2 }' "$bundle/summary.txt")
+	for path in $paths; do
+		[ -f "$ctx/probe-files.txt" ] && grep -Fqx -e "secrets	$path" -e "sensitive	$path" "$ctx/probe-files.txt" && stakes=1
+	done
+	if [ "$stakes" -eq 0 ] && [ -f "$dir/settings.txt" ]; then
+		for key in sensitive_paths migration_paths; do
+			[ -n "$(printf '%s\n' "$paths" | sh "$(dirname "$0")/match-paths.sh" "$dir" "$key")" ] && stakes=1
+		done
+	fi
+	if [ "$stakes" -eq 1 ]; then
+		emit "$label" base "$reviewer" "$(moved "$comparer_effort" 1)" stakes-file
+	else
+		emit "$label" base "$verifier" "$(moved "$comparer_effort" 0)" role-model
 	fi
 	;;
 *)

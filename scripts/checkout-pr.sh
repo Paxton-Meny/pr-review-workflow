@@ -94,6 +94,15 @@ base_branch=$(sed -n 's/^base_branch //p' "$dir/meta.txt")
 ctx="$dir/pr-context"
 if [ -n "$base_branch" ] && [ -d "$ctx" ]; then
 	sh "$(dirname "$0")/fetch-base.sh" "$repo_root" "$base_branch" >/dev/null || true
+	# The base as the review starts, recorded once: the merge gate later
+	# compares what landed after this point against the reviewed hunks.
+	# A resumed run keeps the original snapshot.
+	if ! grep -q '^base_sha ' "$dir/meta.txt" &&
+		base_sha=$(git -C "$repo_root" rev-parse --verify --quiet "refs/remotes/origin/$base_branch"); then
+		tmp=$(mktemp "$dir/.meta.XXXXXX")
+		{ cat "$dir/meta.txt"; printf 'base_sha %s\n' "$base_sha"; } >"$tmp"
+		mv "$tmp" "$dir/meta.txt"
+	fi
 	rm -f "$ctx/conventions.txt"
 	if git -C "$repo_root" show "origin/$base_branch:CLAUDE.md" >/dev/null 2>&1; then
 		tmp=$(mktemp "$ctx/.conv.XXXXXX")
