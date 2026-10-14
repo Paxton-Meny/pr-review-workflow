@@ -110,7 +110,7 @@ git_diff --numstat | awk -F '\t' '
 	d = ($2 == "-") ? 0 : $2
 	path = $3
 	# A rename arrives as "old => new" or "dir/{old => new}/rest": keep the new name.
-	if (path ~ /\{.* => .*\}/) { sub(/\{[^{]* => /, "", path); sub(/\}/, "", path) }
+	if (path ~ /\{.* => .*\}/) { sub(/\{[^{]* => /, "", path); sub(/\}/, "", path); sub(/\/\//, "/", path); sub(/^\//, "", path) }
 	else if (path ~ / => /) sub(/.* => /, "", path)
 	printf "%s\t%s\t%s\n", path, a, d
 }' >"$files"
