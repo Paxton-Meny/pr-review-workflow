@@ -219,7 +219,7 @@ to the caller, and the retry test asserts it.</code></pre>
 <div class="tablebox">
 <table>
 <tr><th>Option</th><th>Default</th><th>Meaning</th></tr>
-<tr><td><a href="settings.html#auto-approve">Auto-approve</a></td><td>off</td><td>Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold.</td></tr>
+<tr><td><a href="settings.html#auto-approve">Auto-approve</a></td><td>off</td><td>Merge without asking once the loop is clean, unless the change touches migrations or commits landed on the base touch the reviewed hunks (see <a href="settings.html#overlap-check">Overlap check</a>). When off, you get a prompt: merge now or hold.</td></tr>
 <tr><td><a href="settings.html#merge-method">Merge method</a></td><td>auto</td><td>merge, squash, or rebase. auto takes the one method the repository allows, else the one its recent merged pull requests used; mixed evidence asks you.</td></tr>
 <tr><td><a href="settings.html#ci-checks">CI checks</a></td><td>fix</td><td>After convergence, wait for the head's checks; on a failure the editor diagnoses, comments, repairs, and waits again, up to the fix rounds. wait only reports; off waits for nothing.</td></tr>
 <tr><td><a href="settings.html#ci-fix-rounds">CI fix rounds</a></td><td>2</td><td>Repairs of failing checks per pull request, kept on disk.</td></tr>
