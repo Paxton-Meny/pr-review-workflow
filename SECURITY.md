@@ -62,3 +62,12 @@ the plugin posts carries the failed checks' names and links and the
 editor's own paragraph, never log text. The editor repairs code only; it
 never edits a workflow or a check's definition, disables a check, or
 weakens a test to get a green result.
+
+## Pushes to your branch
+
+Fixes, repairs, and updates are pushed to the pull request branch as the
+account `gh` is signed in as. An update that rewrites the branch, a rebase
+onto the base under rebase merging, is pushed with a lease on the head the
+run last saw, so a push anyone else made in the meantime refuses it rather
+than being overwritten. A project's shared file can never turn the base
+sync on; only your own configuration or local file can.
