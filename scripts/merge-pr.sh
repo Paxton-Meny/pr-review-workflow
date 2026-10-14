@@ -132,8 +132,9 @@ if [ "$overlap_checked" -eq 0 ] && [ "$(sh "$(dirname -- "$0")/setting.sh" "$dir
 		# A verdict stands only for the base it judged.
 		verdict_file="$dir/pr-context/overlap/base/verdict.txt"
 		verdict=''
-		if [ -f "$verdict_file" ] &&
-			[ "$(sed -n 's/^base //p' "$verdict_file")" = "$(sed -n 's/^base //p' "$dir/pr-context/drift.txt")" ]; then
+		drift_base=$(sed -n 's/^base //p' "$dir/pr-context/drift.txt" 2>/dev/null || true)
+		if [ -f "$verdict_file" ] && [ -n "$drift_base" ] &&
+			[ "$(sed -n 's/^base //p' "$verdict_file")" = "$drift_base" ]; then
 			verdict=$(sed -n 's/^verdict base \([a-z]*\):.*/\1/p' "$verdict_file")
 		fi
 		if [ "$verdict" = independent ]; then
