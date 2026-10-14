@@ -25,6 +25,7 @@ awk '
 	mr += v["model_retries"]; mrv += v["model_retries_verified"]; er += v["effort_retries"]; erv += v["effort_retries_verified"]
 	sr += v["same_retries"]; srv += v["same_retries_verified"]
 	methods[v["method"]]++
+	ci[v["ci"] == "" ? "unknown" : v["ci"]]++; ci_rounds += v["ci_rounds"]
 	if (v["reopens"] + 0 > 0) reopened++
 	delete v
 }
@@ -43,5 +44,7 @@ END {
 		mr, mrv, er, erv, sr, srv
 	printf "stats-report: methods merge %d squash %d rebase %d none %d\n", \
 		methods["merge"] + 0, methods["squash"] + 0, methods["rebase"] + 0, methods["none"] + methods[""] + 0
+	printf "stats-report: ci unknown %d none %d off %d pass %d repaired %d failed %d rounds %d\n", \
+		ci["unknown"] + 0, ci["none"] + 0, ci["off"] + 0, ci["pass"] + 0, ci["repaired"] + 0, ci["failed"] + 0, ci_rounds
 }
 ' "$stats"

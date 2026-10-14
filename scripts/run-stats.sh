@@ -98,7 +98,7 @@ effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0 unapplied=0
 	base=$(grep -c ' rung base ' "$dir/pr-context/routes.txt" || true)
 	strong=$(grep -c ' rung strong ' "$dir/pr-context/routes.txt" || true)
 	strong_wanted=$(grep -c ' reason strong-wanted-unset' "$dir/pr-context/routes.txt" || true)
-	escalations=$(grep -c ' reason \(escalated\|more-effort\|gate-failed\|mixed\) ' "$dir/pr-context/routes.txt" || true)
+	escalations=$(grep -c ' reason \(escalated\|more-effort\|gate-failed\|ci-repeat\|mixed\) ' "$dir/pr-context/routes.txt" || true)
 	effort_low=$(grep -c ' effort low ' "$dir/pr-context/routes.txt" || true)
 	effort_medium=$(grep -c ' effort medium ' "$dir/pr-context/routes.txt" || true)
 	effort_high=$(grep -c ' effort high ' "$dir/pr-context/routes.txt" || true)
@@ -111,6 +111,15 @@ effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0 unapplied=0
 method=none
 [ -f "$dir/pr-context/merge-method.txt" ] && method=$(sed -n 's/^method //p' "$dir/pr-context/merge-method.txt")
 
+# The checks' outcome await-checks.sh recorded, repaired when they
+# passed after a repair, and the repairs made.
+ci=unknown
+[ -f "$dir/ci-result.txt" ] && ci=$(cut -d' ' -f1 "$dir/ci-result.txt")
+ci_rounds=0
+[ -f "$dir/ci-rounds.txt" ] && ci_rounds=$(cat "$dir/ci-rounds.txt")
+[ "$ci" = pass ] && [ "$ci_rounds" -gt 0 ] && ci=repaired
+[ "$ci" = fail ] && ci=failed
+
 # The highest source any setting came from: run, local, project, or none.
 config=none
 if [ -f "$dir/sources.txt" ]; then
@@ -120,7 +129,7 @@ if [ -f "$dir/sources.txt" ]; then
 fi
 
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config method $method"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config method $method ci $ci ci_rounds $ci_rounds"
 printf '%s\n' "$line" >>"$root/stats.txt"
 # The outcome marks the ledger for sweep-state.sh and list-runs.sh: held,
 # parked, and review-only runs stay live without a worktree.

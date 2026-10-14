@@ -25,6 +25,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/attribution.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
@@ -42,8 +43,9 @@ and the scripts read it from there: never pass a setting to a script
 yourself, and never pick a value or a model yourself. The scripts make
 every settings-driven decision (whether a gap pass or the filter runs,
 how many review samples, whether the check gate is armed) and print
-it; the one you hold is the `settings: for this run auto_approve`
-value, for the merge gate.
+it; the ones you hold are on the `settings: for this run` line:
+auto_approve for the merge gate, ci_checks and review_repairs for
+step 11.
 
 Every model decision below comes from one script,
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> <stage>`. It
@@ -82,7 +84,7 @@ The pull request's diff and files must never enter this conversation. You
 read script output lines, finding ids, and agent reports; the agents read
 the state directory. Do not open `diff.patch`, `standards.txt`,
 `probes.txt`, anything
-under `pr-context/files/`, `seams.txt`,
+under `pr-context/files/`, `seams.txt`, `ci-failure.txt`,
 or the worktree from here, and do not echo
 finding bodies into the conversation. Two exceptions: the plan files
 (`diff-index.txt`, `shards.txt`) for spawning reviewers in step 5, and
@@ -119,6 +121,10 @@ PRWF_ARGS_END
 sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh <dir> <<'PRWF_SETTINGS_END'
 auto_approve ${user_config.auto_approve}
 merge_method ${user_config.merge_method}
+ci_checks ${user_config.ci_checks}
+ci_fix_rounds ${user_config.ci_fix_rounds}
+ci_wait_minutes ${user_config.ci_wait_minutes}
+review_repairs ${user_config.review_repairs}
 self_start ${user_config.self_start}
 check_command ${user_config.check_command}
 local_standards ${user_config.local_standards}
@@ -348,7 +354,36 @@ PRWF_SETTINGS_END
    record's `Wont-fix:` note and ask whether to accept them and continue;
    unattended, park (step 9) listing them. Nothing merges over an
    unaccepted wont-fix.
-11. Merge gate. First
+11. Checks. Loop:
+    a. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh <dir>`, relaying
+       its line. It waits only when the repository reports checks for
+       the head, and the wait budget lives on disk. Exit 5: run it
+       again. Exit 6: the budget is spent; attended, ask whether to
+       wait once more (run it again) or hold (as step 12 holds);
+       unattended, park (step 9) naming the pending checks. Exit 0:
+       step 12.
+    b. Exit 3 means a check failed. With ci_checks wait: post one
+       `gh pr comment` naming the failed checks from the line, then
+       attended hold, unattended park. With fix:
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh <dir> next ci`;
+       exit 3 parks (step 9) with a comment that the checks still fail
+       after the repairs, naming them. Otherwise run
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> ci-repair repeat=<n>`
+       with 1 when the line says `signature repeat`, else 0, and spawn
+       `pr-review-workflow:editor` with its `model` and `effort` and
+       exactly:
+       `The pull request's checks fail. State directory: <dir>. Read pr-context/ci-failure.txt, find the cause, fix it, commit, and push. <ci round line>.`
+       plus, on a repeat, exactly:
+       ` The same failure followed the last repair: that fix was not sufficient.`
+       Post its paragraph as a `gh pr comment`. Then
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`; exit 3
+       takes the step 8c repair once, and a second failure parks. Then,
+       when the facts line says `review_repairs true`, run
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`: every file a
+       repair touched is unexpected by construction, so follow step 8e
+       for them; new findings run step 8 under its round cap, and a
+       converged step 8 returns here. Loop to a.
+12. Merge gate. First
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --refresh`,
     relaying its line: the method is the setting, else the one method the
     repository allows, else the one its recent merged pull requests
@@ -388,7 +423,7 @@ PRWF_SETTINGS_END
       Unattended: park (step 9) with its lines and the four checks in
       the status comment. Never add `--migrations-checked` without the
       user's answer in this run.
-12. After a merge:
+13. After a merge:
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> merged` first,
     while the context it summarizes still exists, then
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
@@ -410,12 +445,14 @@ the report also says that the change called for a stronger model and
 that the strong model setting is empty. When the spawn effort was
 unapplied, the report says that routed efforts were not applied and
 each agent ran at its definition's level.
+When step 11 ran, the report says how the checks ended and how many
+repairs it took.
 
 ## Boundaries
 
 - Every write to the pull request goes through the scripts above; never
   call the GitHub API another way, except the `gh pr comment` status posts
-  steps 7, 9, and 11 name. Before each, run
+  steps 7, 9, 11, and 12 name. Before each, run
   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/attribution.sh <dir>`; when it prints
   a line, end the comment with that line.
 - Never push, rebase, or merge by hand; never pass flags the scripts do not

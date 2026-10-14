@@ -25,6 +25,35 @@
       "description": "How the pull request merges. auto follows the repository: the one method it allows, else the method its recent merged pull requests into the same base branch used, judged within pull requests of the same shape (one commit or several). When that evidence is mixed the plugin asks you, and an unattended run parks. A project's shared file may set it, since the shape of the history is the team's choice; your local file still outranks it.",
       "default": "auto"
     },
+    "ci_checks": {
+      "type": "string",
+      "options": ["off", "wait", "fix"],
+      "title": "CI checks",
+      "description": "What happens to the pull request's checks after the review converges, when the repository reports any. off: nothing waits; a failing required check stops the run at the merge gate. wait: the run waits for the head's checks, and on a failure posts a comment naming the failed checks and stops. fix: on a failure the editor reads the failure output, diagnoses it, posts the diagnosis as a comment, repairs, pushes, and waits again, up to the fix rounds; a repeat of the same failure escalates the routing and tells the editor its last fix was not enough. The editor never edits a workflow, disables a check, or weakens a test to get green. A project's shared file may raise this, never lower it.",
+      "default": "fix"
+    },
+    "ci_fix_rounds": {
+      "type": "number",
+      "title": "CI fix rounds",
+      "description": "How many repairs of failing checks one pull request gets before the run parks. The count lives on disk, so a resumed run cannot restart it. A project's shared file may raise it.",
+      "default": 2,
+      "min": 1,
+      "max": 5
+    },
+    "ci_wait_minutes": {
+      "type": "number",
+      "title": "CI wait budget",
+      "description": "How long, in minutes, the run waits for one head's checks to finish before it holds or parks with the pending names. The budget is kept per head on disk. A project's shared file may raise it.",
+      "default": 30,
+      "min": 1,
+      "max": 180
+    },
+    "review_repairs": {
+      "type": "boolean",
+      "title": "Review repairs",
+      "description": "After a repair of failing checks pushes, the reviewer reads only the files it touched and any finding re-enters the remediation loop under its round cap, so nothing merges unreviewed. Off trusts the check gate and the checks alone. A project's shared file may turn this on, never off.",
+      "default": true
+    },
     "self_start": {
       "type": "string",
       "options": ["ask", "auto"],
