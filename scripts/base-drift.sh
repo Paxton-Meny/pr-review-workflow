@@ -45,6 +45,10 @@ if [ "$mode" = off ]; then
 	exit 0
 fi
 
+# drift.txt describes this attempt only; an earlier one must not be read
+# as the answer to a base that cannot be read now.
+rm -f "$ctx/drift.txt"
+
 fetched=$(sh "$here/fetch-base.sh" "$repo_root" "$base_branch" 2>/dev/null) || fetched=''
 case "$fetched" in
 *" fresh") freshness='' ;;
