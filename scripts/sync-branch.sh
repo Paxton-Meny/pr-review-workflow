@@ -84,7 +84,10 @@ conflicted() {
 patch_hashes() {
 	# patch_hashes: one "hash path" line per file changed against the base
 	git -C "$worktree" diff --name-only "origin/$base...HEAD" | while read -r path; do
-		printf '%s %s\n' "$(git -C "$worktree" diff "origin/$base...HEAD" -- "$path" | git hash-object --stdin)" "$path"
+		# patch-id of the changed lines alone: index lines, hunk headers and
+		# context a moved base shifts do not count
+		hash=$(git -C "$worktree" diff -U0 "origin/$base...HEAD" -- "$path" | git patch-id --stable | cut -d' ' -f1)
+		printf '%s %s\n' "${hash:-none}" "$path"
 	done
 }
 
