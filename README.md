@@ -114,7 +114,11 @@ comments; suggested-change blocks appear only after being applied and
 checked in a scratch worktree. An editor agent fixes each finding with its
 own commit and replies to each thread; a verifier agent re-checks only the
 claimed fixes, resolving threads or reopening them. When nothing is open,
-the merge gate runs.
+the merge gate runs. The merge uses the method the repository allows
+or, where it allows several, the one its recent merged pull requests
+used; see the `merge_method` setting. The head branch is deleted only
+when the repository does not delete it itself and no open pull request
+bases on it.
 
 ### Settings
 
@@ -126,6 +130,7 @@ pull request, and says when to choose it.
 | Option | Default | Meaning |
 | --- | --- | --- |
 | Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold. |
+| Merge method | auto | How the pull request merges: merge, squash, or rebase. auto takes the one method the repository allows, else the method its recent merged pull requests into the same base used, judged among pull requests of the same shape (one commit or several); mixed evidence asks you, and parks an unattended run. A project's shared file may set it. |
 | Self-started reviews | ask | When Claude starts a review on its own: ask (you confirm first) or auto (no question when the pull request is ready). Anything that is not ready still asks. |
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
@@ -164,7 +169,8 @@ sensitive_paths src/auth/** src/payments/**
 
 A committed project file may do less than your own. Its check command and
 contract prefixes apply only after you approve them, once per change.
-It may only raise the review depth settings. It may never set
+It may set the merge method, since the shape of the history is the
+team's choice. It may only raise the review depth settings. It may never set
 auto-approve, self-started reviews, the models, ledgers kept, or local standards. The
 [settings reference](https://paxton-meny.github.io/pr-review-workflow/settings.html#where)
 has the full table.
