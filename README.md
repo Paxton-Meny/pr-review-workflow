@@ -491,7 +491,7 @@ every change goes through.
 - `skills/status/`: read-only view of recorded runs and their statistics.
 - `skills/setup/`: writes a repository's settings file from what the clone states.
 - `skills/finding-records/`: the finding record format, preloaded into the agents.
-- `agents/`: reviewer, filter, editor, and verifier definitions, plus the
+- `agents/`: reviewer, filter, editor, verifier, and comparer definitions, plus the
   cartographer and assembler that setup spawns to map a repository.
 - `hooks/`: the check that runs before Claude starts a review itself.
 - `scripts/`: POSIX sh, one proven step each.
