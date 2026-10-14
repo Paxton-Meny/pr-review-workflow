@@ -9,7 +9,7 @@ export MERGE_PR_SETTLE_SECONDS=0
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.invalid GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.invalid
 
 setup() {
-	# setup <name> <behind|conflict|region> <method> <branch_sync>: a bare origin
+	# setup <name> <behind|conflict|region|accent> <method> <branch_sync>: a bare origin
 	# whose main moved under a feat branch, a clone, the run's state, and
 	# the worktree checkout-pr.sh makes; sets origin, clone, dir, wt, stub
 	root="$SCRATCH/$1"
@@ -23,15 +23,20 @@ setup() {
 	g() { git -C "$clone" "$@"; }
 	printf 'base\n2\n3\n4\n5\n6\n7\n8\n9\n10\n' >"$clone/a.txt"
 	printf 'base\n' >"$clone/b.txt"
-	g add a.txt b.txt && g commit -q -m "Start" && g push -q origin HEAD:main
+	printf 'base\n' >"$clone/café.txt"
+	g add a.txt b.txt café.txt && g commit -q -m "Start" && g push -q origin HEAD:main
 	g checkout -q -b feat
 	sed '1s/.*/feat/' "$clone/a.txt" >"$clone/a.new" && mv "$clone/a.new" "$clone/a.txt"
+	printf 'feat\n' >"$clone/café.txt"
 	g commit -q -am "Change a on feat" && g push -q origin feat
 	head=$(g rev-parse HEAD)
 	g checkout -q main
 	if [ "$2" = conflict ]; then
 		sed '1s/.*/main/' "$clone/a.txt" >"$clone/a.new" && mv "$clone/a.new" "$clone/a.txt"
 		g commit -q -am "Change a on main"
+	elif [ "$2" = accent ]; then
+		printf 'main\n' >"$clone/café.txt"
+		g commit -q -am "Change café on main"
 	elif [ "$2" = region ]; then
 		sed '10s/.*/main/' "$clone/a.txt" >"$clone/a.new" && mv "$clone/a.new" "$clone/a.txt"
 		g commit -q -am "Change the end of a on main"
@@ -172,6 +177,21 @@ new=$(git -C "$wt" rev-parse HEAD)
 [ "$(git -C "$wt" log -1 --format=%ae)" = tester@example.invalid ]
 [ "$(origin_feat)" = "$new" ]
 [ "$(cat "$dir/pr-context/sync-changed.txt")" = a.txt ]
+
+# A conflicted file with a non-ASCII name is staged and listed like any other.
+setup accent accent rebase resolve
+printf 'mergeable CONFLICTING\nmerge_state DIRTY\n' >"$stub/pr-view"
+rc=0
+out=$(sync) || rc=$?
+[ "$rc" -eq 3 ]
+[ "$out" = "$(printf 'sync-branch: conflicts in 1 files, the worktree holds the rebase\nconflict café.txt')" ]
+grep -qx 'path café.txt' "$dir/pr-context/conflicts.txt"
+grep -q '^  base [0-9a-f]* Change café on main$' "$dir/pr-context/conflicts.txt"
+printf 'main and feat\n' >"$wt/café.txt"
+out=$(sync --continue)
+new=$(git -C "$wt" rev-parse HEAD)
+[ "$out" = "sync-branch: rebased onto main at $new, pushed, 1 files changed by the resolution" ]
+[ "$(cat "$dir/pr-context/sync-changed.txt")" = café.txt ]
 
 # Abort restores the worktree.
 setup abort conflict rebase resolve

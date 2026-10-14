@@ -23,6 +23,9 @@
 # "conflicts <n> files". After SYNC_CAP updates on one pull request a
 # moved base is reported like off (exit 4): a base that keeps moving
 # is for a person.
+# Paths are read with core.quotepath=off, so non-ASCII names pass through
+# whole; names with quotes, tabs, or backslashes stay quoted by git and
+# are not supported.
 set -eu
 export GIT_EDITOR=true
 
@@ -78,15 +81,15 @@ in_progress() {
 }
 
 conflicted() {
-	git -C "$worktree" diff --name-only --diff-filter=U
+	git -C "$worktree" -c core.quotepath=off diff --name-only --diff-filter=U
 }
 
 patch_hashes() {
 	# patch_hashes: one "hash path" line per file changed against the base
-	git -C "$worktree" diff --name-only "origin/$base...HEAD" | while read -r path; do
+	git -C "$worktree" -c core.quotepath=off diff --name-only "origin/$base...HEAD" | while read -r path; do
 		# patch-id of the changed lines alone: index lines, hunk headers and
 		# context a moved base shifts do not count
-		hash=$(git -C "$worktree" diff -U0 "origin/$base...HEAD" -- "$path" | git patch-id --stable | cut -d' ' -f1)
+		hash=$(git -C "$worktree" -c core.quotepath=off diff -U0 "origin/$base...HEAD" -- "$path" | git patch-id --stable | cut -d' ' -f1)
 		printf '%s %s\n' "${hash:-none}" "$path"
 	done
 }
@@ -123,7 +126,7 @@ stopped() {
 		merge_base=$(git -C "$worktree" merge-base "origin/$base" "$old_head")
 		printf '%s\n' "$paths" | while read -r path; do
 			printf 'path %s\n' "$path"
-			git -C "$worktree" log --format='  base %h %s' "$merge_base..origin/$base" -- "$path"
+			git -C "$worktree" -c core.quotepath=off log --format='  base %h %s' "$merge_base..origin/$base" -- "$path"
 		done >"$tmp"
 		mv "$tmp" "$ctx/conflicts.txt"
 		echo "sync-branch: conflicts in $count files, the worktree holds the $mechanism"
