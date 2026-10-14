@@ -194,7 +194,7 @@ if [ "$mode" = --continue ]; then
 		exit 1
 	}
 	marked=$(conflicted | while read -r path; do
-		grep -Eq '^(<{7}|={7}|>{7})' "$worktree/$path" 2>/dev/null && printf '%s\n' "$path"
+		grep -Eq '^(<{7} |={7}$|>{7} )' "$worktree/$path" 2>/dev/null && printf '%s\n' "$path"
 	done || true)
 	if [ -n "$marked" ]; then
 		echo "sync-branch: conflict markers remain in $(printf '%s\n' "$marked" | grep -c .) files"

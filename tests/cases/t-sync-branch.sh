@@ -206,6 +206,20 @@ grep -qx 'sync-branch: the update failed without conflicts, a person decides' "$
 [ "$(origin_feat)" = "$head" ]
 sync --abort | grep -qx 'sync-branch: nothing to abort'
 
+# A longer run of equals signs is not a marker; a bare one still is.
+setup underline conflict rebase resolve
+printf 'mergeable CONFLICTING\nmerge_state DIRTY\n' >"$stub/pr-view"
+sync >/dev/null || true
+printf 'Title\n=========\n=======\n' >"$wt/a.txt"
+rc=0
+out=$(sync --continue) || rc=$?
+[ "$rc" -eq 3 ]
+[ "$out" = "$(printf 'sync-branch: conflict markers remain in 1 files\nconflict a.txt')" ]
+printf 'Title\n=========\n' >"$wt/a.txt"
+out=$(sync --continue)
+new=$(git -C "$wt" rev-parse HEAD)
+[ "$out" = "sync-branch: rebased onto main at $new, pushed, 1 files changed by the resolution" ]
+
 # Abort restores the worktree.
 setup abort conflict rebase resolve
 printf 'mergeable CONFLICTING\nmerge_state DIRTY\n' >"$stub/pr-view"
