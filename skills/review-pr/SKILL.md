@@ -25,6 +25,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/attribution.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh *)
@@ -347,7 +348,15 @@ PRWF_SETTINGS_END
    record's `Wont-fix:` note and ask whether to accept them and continue;
    unattended, park (step 9) listing them. Nothing merges over an
    unaccepted wont-fix.
-11. Merge gate:
+11. Merge gate. First
+    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir>`, relaying
+    its line: the method is the setting, else the one method the
+    repository allows, else the one its recent merged pull requests
+    into this base used. Exit 4 means that evidence is mixed:
+    attended, ask the user which of the allowed methods the line names
+    to use and run
+    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --set <method>`;
+    unattended, park (step 9) quoting the line. Then:
     - auto_approve true: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir> --approve`
     - auto_approve false, attended: ask the user (merge now, or hold).
       Merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>`.
@@ -360,6 +369,11 @@ PRWF_SETTINGS_END
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
+    - merge-pr exit 5: nothing merged, because the base branch moved
+      under the pull request: it is conflicting, or behind a base that
+      requires it up to date. Attended: relay its line, ask the user to
+      bring the branch up to date, and hold as above; a resumed run
+      merges from step 10. Unattended: park (step 9) with its line.
     - merge-pr exit 4: nothing merged, because the pull request changes
       migration files (or the forge listed too few files to rule them
       out), and the review reads only this pull request. Attended: relay
