@@ -33,7 +33,11 @@ report=$(tr -d '\r' | sed '/^[[:space:]]*$/d')
 	echo "save-verdict: the report must be exactly one verdict line" >&2
 	exit 1
 }
-kind=$(printf '%s\n' "$report" | sed -n "s/^verdict $label \(independent\|complementary\|duplicate\|contradictory\): ..*/\1/p")
+kind=$(printf '%s\n' "$report" | sed -n "s/^verdict $label \([a-z]*\): ..*/\1/p")
+case "$kind" in
+independent | complementary | duplicate | contradictory) ;;
+*) kind='' ;;
+esac
 [ -n "$kind" ] || {
 	echo "save-verdict: not a verdict line for $label: $report" >&2
 	exit 1
