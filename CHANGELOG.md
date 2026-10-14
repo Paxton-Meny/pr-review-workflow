@@ -8,6 +8,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A follow-up on the pull request's checks after the review converges.
+  `ci_checks` (off, wait, fix; default fix) decides it: `await-checks.sh`
+  waits for the head's checks when the repository reports any, in
+  slices under a wait budget (`ci_wait_minutes`, default 30, kept per
+  head on disk), reruns a cancelled Actions run once, and on a failure
+  writes a capped digest (names, links, annotations, the failed steps'
+  log with colour and timestamps removed) for the editor, with a
+  signature that reads the same failure after a repair as a repeat.
+  The editor diagnoses, posts its paragraph as a comment, repairs,
+  commits, and pushes; a repeat escalates the `ci-repair` route one
+  lever and tells the editor its last fix was not enough; repairs are
+  capped by `ci_fix_rounds` (default 2) on disk. `review_repairs`
+  (default on) gives every repair an incremental review before the
+  merge gate. The run statistics record how the checks ended and the
+  repairs made.
+
 - A `merge_method` setting (auto, merge, squash, rebase; default auto)
   and `scripts/merge-method.sh`, which decides how a pull request merges:
   the setting, else the one method the repository allows, else the method

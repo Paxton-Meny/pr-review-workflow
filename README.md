@@ -120,6 +120,24 @@ used; see the `merge_method` setting. The head branch is deleted only
 when the repository does not delete it itself and no open pull request
 bases on it.
 
+### CI checks
+
+Once the loop converges and before the merge gate, the run waits for
+the head's checks when the repository reports any, in slices, under a
+wait budget kept per head on disk. A failure is digested for the
+editor: the failed checks, their annotations, and the failed steps'
+log for an Actions run (an external check gives a description and a
+link). The editor diagnoses it, repairs, commits, pushes, and its one
+paragraph is posted on the pull request; the digest never leaves the
+state directory. The run then waits again. The same failure after a
+repair escalates the editor's routing one lever and tells it the last
+fix was not enough; the repairs are capped per pull request. Every
+repair commit gets an incremental review before the gate unless
+review repairs is off. The editor never edits a workflow, disables a
+check, or weakens a test to get green, and never runs the checks
+itself. A cancelled Actions run is rerun once. With the setting on
+wait, a failure is only reported; with off, nothing waits, as before.
+
 ### Settings
 
 Configured when you enable the plugin. The
@@ -131,6 +149,10 @@ pull request, and says when to choose it.
 | --- | --- | --- |
 | Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold. |
 | Merge method | auto | How the pull request merges: merge, squash, or rebase. auto takes the one method the repository allows, else the method its recent merged pull requests into the same base used, judged among pull requests of the same shape (one commit or several); mixed evidence asks you, and parks an unattended run. A project's shared file may set it. |
+| CI checks | fix | After convergence, when the repository reports checks: off waits for nothing; wait waits, and on a failure comments and stops; fix has the editor read the failure digest, post its diagnosis, repair, push, and wait again, up to the fix rounds, escalating the routing when the same failure repeats. Never edits a workflow or weakens a test. A project's shared file may raise it. |
+| CI fix rounds | 2 | Repairs of failing checks per pull request before the run parks, kept on disk. |
+| CI wait budget | 30 | Minutes the run waits for one head's checks, kept per head on disk; spent, the run holds or parks naming what is pending. |
+| Review repairs | on | The reviewer reads the files a repair touched before the merge gate; findings re-enter the remediation loop. Off trusts the checks alone. |
 | Self-started reviews | ask | When Claude starts a review on its own: ask (you confirm first) or auto (no question when the pull request is ready). Anything that is not ready still asks. |
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
@@ -362,6 +384,9 @@ by looking in the main one. Run one review per pull request at a time.
   review-only (findings and suggestions post, nothing is fixed) when it
   does not.
 - Pull requests past the GitHub API diff limits are parked as too large.
+- Checks outside GitHub Actions give the editor a description and a
+  link, never logs. The wait budget is per head; a suite longer than
+  it holds the run.
 - Unattended runs never merge unless auto-approve is on; they park with a
   status comment instead.
 - Migration conflicts with the base branch or other open pull requests
