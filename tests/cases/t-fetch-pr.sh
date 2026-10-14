@@ -40,6 +40,7 @@ if sh "$REPO_ROOT/scripts/fetch-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected failure on a failing diff fetch" >&2
 	exit 1
 fi
-grep -q "diff fetch failed" "$SCRATCH/err"
+grep -q "the API refused the diff" "$SCRATCH/err"
 grep -q "fetch-pr: pull request too large" "$SCRATCH/err"
+grep -q "diff fetch failed.*the clone could not supply it" "$SCRATCH/err"
 [ ! -f "$dir/pr-context/diff.patch" ]

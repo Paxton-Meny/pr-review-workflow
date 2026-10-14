@@ -403,7 +403,10 @@ by looking in the main one. Run one review per pull request at a time.
 - Fork pull requests: full loop when the fork allows maintainer edits;
   review-only (findings and suggestions post, nothing is fixed) when it
   does not.
-- Pull requests past the GitHub API diff limits are parked as too large.
+- Pull requests past the GitHub API diff limits are read from your clone
+  instead (the same merge-base diff GitHub shows, with the head fetched
+  through `refs/pull/<n>/head` when the clone lacks it); past the size
+  warning they are still parked as too large unless you are attending.
 - Under `update`, a conflicting pull request waits for you; the run
   holds with the paths. A branch other people push to should set base
   sync `off`, since a leased push refuses their work but a merge
