@@ -1,21 +1,28 @@
 #!/bin/sh
 # Turn the inventory, the pull request history, and the verified map into
 # advice on which settings to pin and which to leave to per-run routing.
-# Usage: sh scripts/survey-advice.sh <survey-dir> [team|personal|local] < lines
+# Usage: sh scripts/survey-advice.sh <survey-dir> [team|personal|local]
 #
-# Reads inventory.txt and, when present, history-summary.txt and
-# digest.txt from the survey directory, plus the survey and preview
-# lines on stdin (the check candidates, the sensitive directories by
-# name, and whether a strong model is configured). Prints one
+# Reads inventory.txt and, when present, history-summary.txt,
+# digest.txt, survey.txt (the survey's lines: the check candidates, the
+# sensitive directories by name, the settings files found), and
+# preview.txt (the settings preview: whether a strong model is
+# configured, the migration patterns in force) from the survey
+# directory. The audience is decided here, once: the one given, else
+# the settings file already there (a tracked project file is the
+# team's, an untracked one yours, a lone local file local), else team
+# when a CODEOWNERS file names owners, pull requests come from forks, or
+# at least three people merge or commit, else personal; every other
+# piece of advice is written for that audience. Prints one
 # "advice: <key> <value> because <reason>" line per decision: a value
 # to write, "auto" to leave the key unset so defaults and per-run
 # routing decide, or "recommend" for a model setting that belongs in
 # the plugin configuration, never in a file. Stakes outrank variance:
 # a repository with sensitive code or many fork contributors gets the
-# second review pass whatever its size spread. Directories the survey
-# or the verified map shows holding migrations that the migration
-# paths in force do not cover are advised as extra patterns (the whole
-# list for a local file, which replaces it), and directories only
+# second review pass whatever its size spread. Directories the survey or
+# the verified map shows holding migrations that the migration paths in
+# force do not cover are advised as extra patterns (the whole list for
+# a personal or local file, which replaces it), and directories only
 # named like migrations that the patterns catch are a recommendation
 # to narrow them in the plugin configuration, since a project file
 # cannot. The economy posture is never advised for a team file, which
@@ -50,7 +57,7 @@ MIN_AUTHORS_FOR_TEAM=3
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-cat >"$work/stdin"
+cat "$dir/survey.txt" "$dir/preview.txt" 2>/dev/null >"$work/stdin" || true
 [ -f "$dir/history-summary.txt" ] && cp "$dir/history-summary.txt" "$work/history" || : >"$work/history"
 [ -f "$dir/digest.txt" ] && cp "$dir/digest.txt" "$work/digest" || : >"$work/digest"
 
@@ -96,11 +103,20 @@ FILENAME == ARGV[3] {
 	if ($1 == "settings:" && $2 == "strong_model" && $3 == "(empty)") strong_empty = 1
 	if ($1 == "survey:" && $2 == "migrations" && !($3 in migdir)) { migdir[$3] = $4; migorder[++nmig] = $3 }
 	if ($1 == "survey:" && $2 == "migration-named") named[++nnamed] = $3
+	if ($1 == "survey:" && $2 == "project" && $3 == "file") { shared_state = $4; sub(/,$/, "", shared_state); local_state = $7 }
+	if ($1 == "survey:" && $2 == "authors") commit_authors = $3 + 0
 	if ($1 == "settings:" && $2 == "migration_paths" && $3 != "(empty)") { inforce = $0; sub(/^settings: migration_paths /, "", inforce); sub(/ from [a-z]+$/, "", inforce); nglobs = split(inforce, globs, " ") }
 }
 END {
-	if (authors + 0 >= team_authors || forks > 0 || codeowners)
-		advise("audience", "team", (codeowners ? "a CODEOWNERS file names owners" : (forks > 0 ? forks "% of merged pull requests came from forks" : authors " people merged pull requests")) ", so the file is the team'"'"'s")
+	if (audience != "") why = "you named it"
+	else if (shared_state == "tracked") { audience = "team"; why = "the project file is tracked, so it is the team'"'"'s" }
+	else if (shared_state == "untracked") { audience = "personal"; why = "the project file is untracked, so it is already yours" }
+	else if (local_state == "present") { audience = "local"; why = "only a local file exists" }
+	else if (codeowners || forks > 0 || authors + 0 >= team_authors || commit_authors >= team_authors) {
+		audience = "team"
+		why = (codeowners ? "a CODEOWNERS file names owners" : (forks > 0 ? forks "% of merged pull requests came from forks" : (authors + 0 >= team_authors ? authors " people merged pull requests" : commit_authors " people committed in the last year"))) ", so the file is the team'"'"'s"
+	} else { audience = "personal"; why = "no CODEOWNERS file, no forks, and fewer than " team_authors " people at work here, so the file is yours" }
+	advise("audience", audience, why)
 	paths = ""
 	for (d in sdir) paths = paths (paths == "" ? "" : " ") d "/**"
 	for (d in sdir_named) { p = d; sub(/\/\*\*$/, "", p); if (!(p in sdir)) paths = paths (paths == "" ? "" : " ") d }
@@ -131,7 +147,7 @@ END {
 		advise("strong_model", "recommend", over_large "% of merged pull requests exceed 800 changed lines and no strong model is configured; set one in /plugin configure so routing can climb")
 	extra = ""; evidence = ""
 	for (i = 1; i <= nmig; i++) if (!covered(migorder[i])) { extra = extra (extra == "" ? "" : " ") migorder[i] "/*"; evidence = evidence (evidence == "" ? "" : ", ") migorder[i] " (" migdir[migorder[i]] ")" }
-	if (extra != "") advise("migration_paths", (audience == "local" && inforce != "" ? inforce " " extra : extra), evidence " hold migrations the patterns in force miss" (audience == "local" ? "; a local file replaces the list, so it repeats the patterns in force" : "; a project file adds them to the list"))
+	if (extra != "") advise("migration_paths", (audience != "team" && inforce != "" ? inforce " " extra : extra), evidence " hold migrations the patterns in force miss" (audience != "team" ? "; a " audience " file replaces the list, so it repeats the patterns in force" : "; a project file adds them to the list"))
 	falsehits = ""
 	for (i = 1; i <= nnamed; i++) if (covered(named[i])) falsehits = falsehits (falsehits == "" ? "" : ", ") named[i]
 	if (falsehits != "") advise("migration_paths", "recommend", falsehits " match the migration patterns but hold no migrations, so changes there would wait for a person at merge; narrow the patterns in /plugin configure, since a project file can only add to them")

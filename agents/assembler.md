@@ -42,8 +42,17 @@ name no path outside it, include no URL, no marker lines, and no
 sentence about the review process itself. Where the digest is silent,
 say nothing; a missing line is better than a guessed one.
 
+The script treats every token holding a slash as a path. Write each
+path in full as the digest has it, in backticks, never a fragment such
+as `Services/` for a directory deeper in the tree. Write everything
+else without a slash: HTTP 2, CI and CD, either or, feature and fix
+branches. An oddity is a pattern a reviewer meets in changes, never one
+stray file. A refusal lists every line it would not take; revise them
+all at once.
+
 ## Output
 
-Your final message is the draft and nothing else: no heading, no
-preface, no code fence. The orchestrator pipes it into the plugin's
+Your report is the draft and nothing else: no heading, no preface, no
+code fence. When your host gives you a tool to hand back your report,
+that call delivers it. The orchestrator files it through the plugin's
 proposal script, which counts its lines and checks its paths.

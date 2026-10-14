@@ -22,6 +22,7 @@ printf '%s\n' "$out" | grep -qx "settings: resolved $keys default $keys user 0 p
 grep -qx 'check_command' "$dir/settings.txt"
 [ "$(source_of verifier_model)" = default ]
 printf '%s\n' "$out" | grep -qx 'settings: for this run auto_approve false ci_checks fix review_repairs true'
+printf '%s\n' "$out" | grep -qx 'settings: user config unsubstituted 2'
 [ "$(value migration_paths)" = '*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*' ]
 [ "$(printf 'migrations db/schema/*\n' | resolve >/dev/null && value migration_paths)" = 'db/schema/*' ]
 

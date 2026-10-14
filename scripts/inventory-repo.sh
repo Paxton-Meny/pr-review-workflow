@@ -18,8 +18,14 @@
 # always the docs; the rest pack the largest directories first into
 # the lightest bin, each listing at most a budget of files and lines,
 # with one test file per directory first, then code ordered by churn on
-# a huge repository and by size otherwise. Nothing
-# is fetched, and nothing is written outside the survey directory.
+# a huge repository and by size otherwise. The estimate is a ceiling:
+# every reader reading its whole budget. When the root CLAUDE.md or
+# AGENTS.md already holds a conventions block or a long set of rules, a
+# "reading suggested skip" line says so, since the repository already
+# documents what the readers would find; otherwise "reading suggested
+# read". A run on a moved HEAD replans, so it clears the records, the
+# digest, and the proposal the old plan produced. Nothing is fetched,
+# and nothing is written outside the survey directory.
 set -eu
 
 data_root=${1:?usage: inventory-repo.sh <data-root> [max-partitions]}
@@ -61,8 +67,9 @@ LINE_BUDGET=12000
 MAX_TEXT_BYTES=262144
 TOKENS_PER_LINE=10
 TOKENS_PER_AGENT=8000
-SENSITIVE_MIN_HITS=3
+SENSITIVE_MIN_HITS=2
 SENSITIVE_MIN_RATIO=0.2
+RULES_SKIP_LINES=150
 MAX_SENSITIVE_DIRS=8
 MAX_SECRET_LOCATIONS=20
 BINARY_EXT='png|jpe?g|gif|ico|bmp|webp|svgz|pdf|zip|gz|tgz|bz2|xz|7z|tar|jar|war|woff2?|ttf|otf|eot|mp[34]|wav|ogg|mov|avi|wasm|so|dylib|dll|exe|bin|class|pyc|o|a|lockb|db|sqlite'
@@ -185,7 +192,7 @@ unit_of <"$work/code-paths" | sort | uniq -c | awk '{ print $2 "\t" $1 }' >"$wor
 unit_of <"$work/sensitive-files" | sort | uniq -c | awk '{ print $2 "\t" $1 }' >"$work/unit-hits"
 awk -F '\t' -v min_hits="$SENSITIVE_MIN_HITS" -v min_ratio="$SENSITIVE_MIN_RATIO" '
 FILENAME == ARGV[1] { total[$1] = $2; next }
-{ if ($2 >= min_hits || ($2 >= 2 && $2 / total[$1] >= min_ratio)) print $2 "\t" $1 "\t" total[$1] }
+{ if ($2 >= min_hits && $2 / total[$1] >= min_ratio) print $2 "\t" $1 "\t" total[$1] }
 ' "$work/unit-code-files" "$work/unit-hits" | sort -t '	' -k1,1nr -k2,2 | head -n "$MAX_SENSITIVE_DIRS" |
 	awk -F '\t' '{ print $2 " " $1 " " $3 }' >"$work/sensitive.txt"
 while read -r d hits total; do
@@ -226,7 +233,7 @@ BEGIN {
 	if ($1 == "code" || $1 == "tests") { n = ++nf[u]; fpath[u, n] = $3; flines[u, n] = $2; fclass[u, n] = $1 }
 }
 END {
-	if (cap == 0) { say("inventory: plan partitions 0 max 0"); say("inventory: estimate read_lines 0 tokens ~0 agents 0"); exit }
+	if (cap == 0) { say("inventory: plan partitions 0 max 0"); say("inventory: estimate read_lines 0 tokens up to ~0 agents 0"); exit }
 	id = 1
 	file = out "/" id ".txt"
 	printf "root %s\npartition %d\nbudget files %d lines %d\nsensitive no\n", root, id, nd, docbudget > file
@@ -295,11 +302,27 @@ END {
 		printf "partition %d lines %d files %d docs %d sensitive %s units %s\n", i, plines[i], pfiles[i], pdocs[i], psens[i], punits[i] > plan
 	}
 	say(sprintf("inventory: plan partitions %d max %d", id, cap))
-	say(sprintf("inventory: estimate read_lines %d tokens ~%d agents %d", read_lines, read_lines * tpl + id * tpa, id))
+	say(sprintf("inventory: estimate read_lines %d tokens up to ~%d agents %d", read_lines, read_lines * tpl + id * tpa, id))
 }' "$work/files.txt"
 [ -f "$work/partitions.txt" ] || : >"$work/partitions.txt"
+if [ "$cap" -gt 0 ]; then
+	reading=read
+	for r in CLAUDE.md AGENTS.md; do
+		set -- $(awk -v r="$r" '$1 == r { print $2, $4 }' "$work/rules.txt")
+		[ $# -eq 2 ] || continue
+		if [ "$2" = yes ]; then
+			reading="skip because $r already holds a conventions block"
+			break
+		elif [ "$1" -ge "$RULES_SKIP_LINES" ]; then
+			reading="skip because $r holds $1 lines of rules"
+			break
+		fi
+	done
+	say "inventory: reading suggested $reading"
+fi
 
-rm -rf "$dir/partitions"
+rm -rf "$dir/partitions" "$dir/records"
+rm -f "$dir/digest.txt" "$dir/conventions-proposal.md"
 mv "$work/partitions" "$dir/partitions"
 for f in files.txt rules.txt docs.txt sensitive.txt secrets.txt partitions.txt inventory.txt; do
 	mv "$work/$f" "$dir/$f"

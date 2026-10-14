@@ -68,6 +68,37 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   fork's. A conflicting pull request, or one behind a base that requires
   it up to date, is refused with exit 5 and nothing written, so the run
   can hold or park instead of stopping on an error.
+- A refused conventions proposal lists every offending line at once,
+  and a second refusal files the draft without those lines
+  (`save-proposal.sh --drop-lines`) instead of dropping the proposal.
+  The assembler is told that every token holding a slash is a path.
+- The survey and preview save their lines in the survey directory
+  (`survey-project.sh facts <survey-dir>`, `resolve-settings.sh
+  --preview --save`), and `verify-claims.sh` and `survey-advice.sh` read
+  them there, so the orchestrator no longer retypes them into a
+  heredoc. The skill falls back to a file when a host mangles a quoted
+  heredoc.
+- `survey-advice.sh` decides the audience once, from the argument, the
+  settings file already present, then the history, and always prints
+  it; the survey's own audience suggestion is gone.
+- A sensitive directory found by content needs both two hits and a
+  fifth of its files.
+- A .NET tree with several test projects, or a browser suite, offers
+  each other test project as its own check candidate and lists the
+  browser suites as skipped; every check candidate is named after the
+  file that backs it.
+- A migrations claim stands only for a directory outside the tests that
+  holds a `.sql` file or a file the migration pattern matches.
+- Pull request history counts only pull requests into the base branch
+  and leaves out syncs between long-lived branches.
+- A personal or local settings file written from a linked worktree
+  lands in the main worktree, where every worktree reads it, and the
+  writer prints the path it wrote.
+- The inventory labels its estimate a ceiling and suggests skipping
+  the reading when the root rules file already holds a conventions
+  block or 150 lines of rules.
+- The settings preview says when every plugin configuration value
+  arrived as a literal placeholder.
 
 - `fetch-pr.sh` falls back to the clone instead of stopping when the
   API refuses the diff. The file list then comes from the same diff,
@@ -80,6 +111,26 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Repositories that do not allow rebase merging can now be merged by
   the plugin.
+- Setup readers no longer lose their slice when they stop early. Hosts
+  that deliver a subagent's report only through a hand-back tool force
+  an agent that ends a turn on plain text to report at once, so a
+  cartographer that announced its save instead of making it returned a
+  stub and saved nothing. The cartographer now saves each section as it
+  goes (`save-record.sh --append`), never ends a turn on an announced
+  step, and reports `record: <id> unsaved` rather than a stub.
+- The setup skill checks the reading by files, not by what readers
+  report: survey routing skips partitions already recorded, so the
+  same call plans one retry, at the same level, of any partition no
+  record reached, and `verify-claims.sh` names the partitions still
+  missing.
+- `verify-claims.sh` counts duplicate claims, so kept, duplicate, and
+  dropped add up to the claims read.
+- A personal file's `migration_paths` advice repeats the patterns in
+  force, since a personal file, like a local one, replaces the list.
+- A moved HEAD clears the records, digest, and proposal of the old
+  reading plan.
+- Inventory and review routing count `App.Tests/`, `App.Test/`,
+  `UnitTests/`, and `FooTests.cs`-style files as tests.
 
 ## [0.3.0] - 2026-10-13
 

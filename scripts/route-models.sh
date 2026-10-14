@@ -747,16 +747,25 @@ conflict)
 	;;
 survey)
 	# Setup's reading of a repository: one cheap cartographer per planned
-	# partition, a level up where the partition holds sensitive code, and
-	# one assembler on the session model to draft the map.
+	# partition that has no record yet, a level up where the partition
+	# holds sensitive code, and one assembler on the session model to
+	# draft the map. A partition already recorded prints a skip line, so
+	# the same call plans the first reading and the retry of whatever a
+	# reader left unrecorded, at the same level.
 	if ! grep -q '^partition ' "$dir/partitions.txt"; then
 		skip no-partitions
 		exit 0
 	fi
 	while read -r _p pid _l _n _f _m _d _k _s sens _rest; do
-		steps=0
-		[ "$sens" = yes ] && steps=1
-		emit "cartographer-$pid" cheap "$CHEAP" "$(moved "$cartographer_effort" "$steps")" partition-read
+		if [ -f "$dir/records/$pid.txt" ]; then
+			line="route $stage cartographer-$pid skip reason partition-recorded"
+			printf '%s\n' "$line" >>"$ctx/routes.txt"
+			echo "$line"
+			continue
+		fi
+		steps=0 reason=partition-read
+		[ "$sens" = yes ] && steps=1 reason=partition-read-sensitive
+		emit "cartographer-$pid" cheap "$CHEAP" "$(moved "$cartographer_effort" "$steps")" "$reason"
 	done <"$dir/partitions.txt"
 	emit assembler base inherit "$(moved "$assembler_effort" 0)" synthesis
 	;;
