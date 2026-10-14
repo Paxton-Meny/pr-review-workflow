@@ -486,8 +486,10 @@ PRWF_SETTINGS_END
       user's answer in this run.
     - merge-pr exit 6: nothing merged, because commits landed on the
       base since the review and touch the reviewed hunks, within a few
-      lines or inside the same function, so the code that would land is
-      not the code that was reviewed; its `base-drift` and `drift` lines
+      lines or inside the same function, or because the base could not
+      be read fresh (unreadable, or only an earlier fetch available), so
+      neither can be ruled out. Its `base-drift` line says which, `drift`
+      lines appear only when commits touching the hunks were found and
       say what landed where, and a `verdict` line, when present, is the
       comparer's reading of it. First, when the resolved settings say
       `overlap_check judged` and no `verdict` line was printed, run
@@ -500,8 +502,9 @@ PRWF_SETTINGS_END
       relay the result, and rerun the same merge-pr command: a verdict
       of independent on that very base lets it merge on its own, and
       any other verdict refuses again with the verdict line. Then,
-      attended: relay the lines, say that the reviewed code is not the
-      code that will land, and ask merge or hold. Merge: rerun the same
+      attended: relay the lines, say that the reviewed code may not be
+      the code that will land (is not, when `drift` lines are present),
+      and ask merge or hold. Merge: rerun the same
       merge-pr command with `--overlap-checked` added; hold as above.
       Unattended: park (step 9) with the lines in the status comment.
       Never add `--overlap-checked` without the user's answer in this
