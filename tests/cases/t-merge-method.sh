@@ -86,9 +86,11 @@ fi
 [ "$(record reason)" = asked ]
 [ "$(run)" = "merge-method: squash reason asked" ]
 
-# A clear majority within the pull request's own shape wins; "either"
-# counts for both squash and rebase, so with merge disallowed the
-# single-commit history settles a single-commit pull request.
+# A clear majority within the pull request's own shape wins: the first
+# case is decided among multi-commit entries. The single-commit pull
+# request that follows, with merge disallowed, ties squash and rebase
+# because "either" counts for both; that assertion shows a tie, not a
+# decision. The shape-first rule is locked in by the history-single case.
 rm -f "$stub/calls.log"
 history "2	$m2	2	Add two${rs}Fix two" "6	$m6	2	Add six${rs}Fix six" "3	$m3	2	Add three${rs}Fix three" "9	$m2	2	Add two${rs}Fix two"
 [ "$(run --refresh)" = "merge-method: squash reason history-multi 3/4" ]
@@ -102,6 +104,11 @@ out=$(run --refresh) || rc=$?
 [ "$out" = "merge-method: undecided among squash rebase, history merge 1 squash 1 rebase 1 either 2; set merge_method" ]
 history "4	$m4	1	Add four" "5	$m5	1	Add five" "2	$m2	2	Add two${rs}Fix two" "6	$m6	2	Add six${rs}Fix six"
 [ "$(run --refresh)" = "merge-method: squash reason history-all 4/4" ]
+# Shape comes first: of the three single-commit entries squash scores 3
+# and rebase 2, while over all pull requests the three multi-commit
+# rebase entries would put rebase ahead.
+history "4	$m4	1	Add four" "5	$m5	1	Add five" "2	$m2	1	Add two (#2)" "3	$m3	2	Add three${rs}Fix three" "10	$m3	2	Add three${rs}Fix three" "11	$m3	2	Add three${rs}Fix three"
+[ "$(run --refresh)" = "merge-method: squash reason history-single 3/3" ]
 
 # Fewer than three with this base widens to every base.
 rm -f "$stub/calls.log"
