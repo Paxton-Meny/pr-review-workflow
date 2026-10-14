@@ -98,10 +98,17 @@ old_head=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 
 finish() {
 	# finish: push, record, and list the files whose patch changed
+	pushed=yes
 	if [ "$mechanism" = rebase ]; then
-		sh "$here/push-branch.sh" "$dir" --force-with-lease >/dev/null
+		sh "$here/push-branch.sh" "$dir" --force-with-lease >/dev/null || pushed=no
 	else
-		sh "$here/push-branch.sh" "$dir" >/dev/null
+		sh "$here/push-branch.sh" "$dir" >/dev/null || pushed=no
+	fi
+	if [ "$pushed" = no ]; then
+		git -C "$worktree" reset --hard --quiet "$old_head"
+		rm -f "$ctx/sync-before.txt" "$ctx/conflicts.txt"
+		echo "sync-branch: the push was refused, the worktree is back at $old_head" >&2
+		exit 1
 	fi
 	new_head=$(git -C "$worktree" rev-parse HEAD)
 	patch_hashes >"$ctx/sync-after.txt"

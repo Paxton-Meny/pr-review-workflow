@@ -228,6 +228,9 @@ if sync >/dev/null 2>"$SCRATCH/err"; then
 	exit 1
 fi
 [ "$(origin_feat)" = "$theirs" ]
+[ "$(git -C "$wt" rev-parse HEAD)" = "$head" ]
+grep -q "the push was refused, the worktree is back at $head" "$SCRATCH/err"
+[ ! -f "$dir/pr-context/sync-before.txt" ]
 
 # Refusals: no decided method, an undecided one, an unknown argument.
 setup refuse behind rebase update
