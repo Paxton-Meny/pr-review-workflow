@@ -40,13 +40,14 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 17 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 18 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
 <div class="side-head">STARTING AND MERGING</div>
 <a href="#self-start" data-words="self_start start invoke ask auto">Self-started reviews</a>
 <a href="#auto-approve" data-words="auto_approve merge ask">Auto-approve</a>
+<a href="#merge-method" data-words="merge_method squash rebase merge commit history">Merge method</a>
 </div>
 <div class="side-group">
 <div class="side-head">PROOF AND CHECKS</div>
@@ -87,7 +88,7 @@
 <div class="intro">
 <div class="kicker">Settings reference</div>
 <h1 class="display">What each setting changes</h1>
-<p>Sixteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
+<p>Eighteen settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
 </div>
 
 <div id="merging">
@@ -164,6 +165,48 @@
 </dl>
 </div>
 <p class="works"><b>Works with</b> &#183; <a href="#check-command">Check command</a></p>
+</section>
+<section class="entry" id="merge-method" data-key="merge_method" data-project="sets" data-default="auto" data-options="auto merge squash rebase">
+<h3 class="display">Merge method</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>merge_method</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">auto</dd></div>
+<div><dt>ACCEPTS</dt><dd>auto | merge | squash | rebase</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">may set it</a></dd></div>
+</dl>
+<p class="lead">How the pull request is merged once the gate says yes. A repository that allows only one method never needs this. Where several are allowed, <code>auto</code> reads the repository&#8217;s own practice instead of guessing, because the shape of a history cannot be undone.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Merge method value">
+<button type="button" data-set="auto" aria-pressed="true">auto <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="merge" aria-pressed="false">merge</button>
+<button type="button" data-set="squash" aria-pressed="false">squash</button>
+<button type="button" data-set="rebase" aria-pressed="false">rebase</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="termbox">
+<div data-show="auto"><span class="dim">merge-method:</span> squash reason history-multi 18/20</div>
+<div data-show="merge" hidden><span class="dim">merge-method:</span> merge reason setting</div>
+<div data-show="squash" hidden><span class="dim">merge-method:</span> squash reason setting</div>
+<div data-show="rebase" hidden><span class="dim">merge-method:</span> rebase reason setting</div>
+</div>
+<p class="note" data-show="auto">The method is the one the repository allows when it allows only one. Otherwise the plugin reads the last thirty merged pull requests into the same base branch and classifies each by its merge commit: a merge commit, a squash, or a rebase. Pull requests of the same shape as this one (one commit, or several) decide first, then all of them; a method needs two thirds of at least three. When the evidence is mixed, you are asked which of the allowed methods to use, and an unattended run parks with the counts.</p>
+<p class="note" data-show="merge" hidden>A merge commit, always. Refused up front, before anything is read, when the repository does not allow it.</p>
+<p class="note" data-show="squash" hidden>The pull request&#8217;s commits become one, always. Refused up front when the repository does not allow it.</p>
+<p class="note" data-show="rebase" hidden>The commits are replayed onto the base, always. Refused up front when the repository does not allow it.</p>
+<p class="note">Either way the merge names the head the run last saw, so a push the run did not review refuses it, and the head branch is deleted only when the repository does not delete it itself, no open pull request bases on it, and it is not a fork&#8217;s.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>auto <span class="badge">DEFAULT</span></dt><dd>Most repositories. The repository settles it, or its own history does.</dd></div>
+<div><dt>a method</dt><dd>A team with a stated rule, in the shared project file, or one pull request that should merge differently, as <code>method=merge</code> on the run.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#auto-approve">Auto-approve</a></p>
 </section>
 </div>
 
@@ -927,7 +970,7 @@
 <div class="setting"><div class="setting-k"><h5>2. Your configuration</h5><span>every project</span></div><div class="setting-d"><p>Set once in the dialog <code>/plugin configure pr-review-workflow</code>. Your baseline everywhere.</p></div></div>
 <div class="setting"><div class="setting-k"><h5>3. The project file</h5><code>.claude/pr-review-workflow.conf</code></div><div class="setting-d"><p>Whether to commit it is the repository&#8217;s choice, and the plugin follows it. Committed, it is the team&#8217;s shared file: read from the pull request&#8217;s base branch, never from the files on disk, so a pull request can never change how it is reviewed, and limited in what it may set; see <a href="#where-project">below</a>. Kept out of version control, it is yours, read from your clone, and may set anything.</p></div></div>
 <div class="setting"><div class="setting-k"><h5>4. Your local file</h5><code>.claude/pr-review-workflow.local.conf</code></div><div class="setting-d"><p>Untracked, in your clone, yours alone: overrides for this repository only. It may set anything. The plugin refuses it if the repository tracks it or if it is a symlink.</p></div></div>
-<div class="setting"><div class="setting-k"><h5>5. This run</h5><code>review-pr 128 posture=quality</code></div><div class="setting-d"><p>Words typed after the pull request, as <code>key=value</code>. They apply to that invocation only; quote a value with spaces, <code>check="npm test -- --ci"</code>. Short names work: <code>posture</code>, <code>samples</code>, <code>check</code>, <code>prefixes</code>, <code>filter</code>, <code>second_review</code>, <code>strong</code>.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>5. This run</h5><code>review-pr 128 posture=quality</code></div><div class="setting-d"><p>Words typed after the pull request, as <code>key=value</code>. They apply to that invocation only; quote a value with spaces, <code>check="npm test -- --ci"</code>. Short names work: <code>posture</code>, <code>samples</code>, <code>check</code>, <code>prefixes</code>, <code>filter</code>, <code>second_review</code>, <code>strong</code>, <code>method</code>.</p></div></div>
 </div>
 <h4 class="display">The file format</h4>
 <p class="sub">One setting per line: the key, a space, the value. A key alone on its line sets it to empty. Lines starting with <code>#</code> are comments. The short names above work here too.</p>
@@ -944,6 +987,7 @@ sensitive_paths src/auth/** src/payments/**</code></pre>
 <tr><th scope="col">SETTINGS</th><th scope="col">THE SHARED FILE MAY</th><th scope="col">WHY</th></tr>
 <tr><th scope="row">Check command, contract command prefixes</th><td><b>set them after you approve</b></td><td>They run on your machine. The first run that sees them, and every run after they change, shows you the exact commands and asks; an unattended run goes without them.</td></tr>
 <tr><th scope="row">Second review pass, precision filter, cost posture, review samples</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
+<tr><th scope="row">Merge method</th><td><b>set it</b></td><td>The shape of the history is the team&#8217;s choice, and nothing runs because of it. Your local file still outranks it, and the run refuses a method the repository does not allow.</td></tr>
 <tr><th scope="row">Sensitive paths, migration paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
 <tr><th scope="row">Auto-approve, self-started reviews, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, start reviews on your behalf, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
 </table>

@@ -35,8 +35,9 @@
 #
 # The shared file is the team's, so it may set less than the others:
 # never auto_approve, self_start, the models, routing, keep_ledgers, or
-# local_standards; the quality settings only upward (a project may raise
-# the bar, only the user may lower it); and the check command and
+# local_standards; the merge method, a team choice, freely; the quality
+# settings only upward (a project may raise the bar, only the user may
+# lower it); and the check command and
 # contract prefixes, which execute, only once the user approved that
 # exact pair (trust on first use). An unapproved pair is ignored and
 # reported with its hash as pending; --approve records the pending hash
@@ -125,7 +126,8 @@ PROJECT_NEVER='auto_approve self_start reviewer_model editor_model verifier_mode
 PROJECT_RAISE='double_review finding_filter cost_posture review_samples'
 PROJECT_TRUSTED='check_command contract_commands'
 PROJECT_ADDS='sensitive_paths migration_paths'
-ALIASES='posture:cost_posture samples:review_samples check:check_command prefixes:contract_commands standards:local_standards migrations:migration_paths routing:model_routing strong:strong_model reviewer:reviewer_model editor:editor_model verifier:verifier_model filter:finding_filter second_review:double_review ledgers:keep_ledgers'
+PROJECT_SETS='merge_method'
+ALIASES='method:merge_method posture:cost_posture samples:review_samples check:check_command prefixes:contract_commands standards:local_standards migrations:migration_paths routing:model_routing strong:strong_model reviewer:reviewer_model editor:editor_model verifier:verifier_model filter:finding_filter second_review:double_review ledgers:keep_ledgers'
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 manifest="$here/../.claude-plugin/plugin.json"
 [ -f "$manifest" ] || {
@@ -308,7 +310,7 @@ if [ -s "$work/exec" ]; then
 	fi
 fi
 
-awk -v spec="$work/spec" -v out="$work/settings" -v src="$work/sources" \
+awk -v spec="$work/spec" -v out="$work/settings" -v src="$work/sources" -v raise_keys="$PROJECT_RAISE" \
 	-v exec_trusted="$exec_trusted" -v aliases="$ALIASES" -v never_keys="$PROJECT_NEVER" -v add_keys="$PROJECT_ADDS" '
 function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
 function canon(k) { return (k in alias) ? alias[k] : k }
@@ -346,6 +348,8 @@ BEGIN {
 	for (i = 1; i <= n; i++) { split(pairs[i], p, ":"); alias[p[1]] = p[2] }
 	split(never_keys, nvk, " ")
 	for (i in nvk) never[nvk[i]] = 1
+	split(raise_keys, rsk, " ")
+	for (i in rsk) raise[rsk[i]] = 1
 	split(add_keys, adk, " ")
 	for (i in adk) adds[adk[i]] = 1
 	# Strength order for the settings a shared file may only raise.
@@ -374,7 +378,7 @@ FNR == 1 { for (i = 1; i <= 4; i++) if (FILENAME == ARGV[i]) source = names[i] }
 		if ((k, nv) in rank && (k, val[k]) in rank && rank[k, nv] < rank[k, val[k]]) {
 			ignored[++ni] = "project " k ": would lower " val[k] " to " nv "; a project may only raise it"; next
 		}
-		if (k == "review_samples" && nv + 0 < val[k] + 0) {
+		if (type[k] == "number" && (k in raise) && nv + 0 < val[k] + 0) {
 			ignored[++ni] = "project " k ": would lower " val[k] " to " nv "; a project may only raise it"; next
 		}
 		# A project adds paths; it never removes yours.

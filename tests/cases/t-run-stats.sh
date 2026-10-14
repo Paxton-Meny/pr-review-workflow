@@ -53,8 +53,8 @@ finding F012 verified
 { note 1 inherit 'effort medium'; note 2 inherit 'effort high unapplied medium'; } >>"$dir/findings/F012"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none' "$root/stats.txt"
 
 [ "$(cat "$dir/outcome.txt")" = parked ]
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
