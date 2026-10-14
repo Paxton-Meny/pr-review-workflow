@@ -1,9 +1,20 @@
 #!/bin/sh
 # List files the last push changed outside any finding's scope.
-# Usage: sh scripts/round-diff.sh <state-dir>
+# Usage: sh scripts/round-diff.sh <state-dir> [--all]
+# With --all every file changed in prev_head..head_sha is listed, finding
+# paths included; "clean" then means the range is empty.
 set -eu
 
-dir=${1:?usage: round-diff.sh <state-dir>}
+dir=${1:?usage: round-diff.sh <state-dir> [--all]}
+all=0
+case "${2:-}" in
+'') ;;
+--all) all=1 ;;
+*)
+	echo "round-diff: unknown argument: $2" >&2
+	exit 1
+	;;
+esac
 worktree="$dir/worktree"
 [ -f "$dir/meta.txt" ] && [ -d "$worktree" ] || {
 	echo "round-diff: no worktree in $dir" >&2
@@ -26,7 +37,11 @@ for record in "$dir/findings"/F*; do
 done | sort -u >"$expected"
 git -C "$worktree" diff --name-only "$prev_head" "$head_sha" | sort -u >"$changed"
 
-unexpected=$(grep -vxF -f "$expected" "$changed" || true)
+if [ "$all" -eq 1 ]; then
+	unexpected=$(cat "$changed")
+else
+	unexpected=$(grep -vxF -f "$expected" "$changed" || true)
+fi
 if [ -n "$unexpected" ]; then
 	printf '%s\n' "$unexpected" | sed 's/^/unexpected /'
 	exit 3
