@@ -49,3 +49,16 @@ A pull request that changes migration files never merges without a
 person, auto-approve included, because one pull request cannot show
 what the base branch or other open pull requests did to the same
 schema.
+
+## Check output
+
+When the pull request's checks fail after the review converges, the plugin
+reads what GitHub reports about them: the check runs' summaries and
+annotations, and the failed steps' log of an Actions run. All of it is
+written by whatever the pull request runs, so it is handled as data: it
+goes into a capped digest in the state directory that only the editor
+reads, it is never printed into the orchestrating session, and the comment
+the plugin posts carries the failed checks' names and links and the
+editor's own paragraph, never log text. The editor repairs code only; it
+never edits a workflow or a check's definition, disables a check, or
+weakens a test to get a green result.
