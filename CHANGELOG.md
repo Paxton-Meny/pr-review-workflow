@@ -8,6 +8,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Base sync. A `branch_sync` setting (off, update, resolve; default
+  update, never from a project's shared file) and `scripts/sync-branch.sh`
+  bring the pull request branch up to date, before the checks are
+  awaited and when the merge gate finds the base moved, whenever the
+  forge reports it conflicting or behind a base that requires it up to
+  date, at most three times per pull request. The mechanism follows the
+  merge method: a rebase onto the base and a push leased on the head
+  the run last saw (`push-branch.sh --force-with-lease`) under rebase
+  merging, a merge of the base into the head and a plain push
+  otherwise. Conflicts are aborted and handed to a person under update;
+  under resolve the editor resolves them and continues through the
+  script, with the files whose change the resolution touched reviewed
+  before the checks run. A new `conflict` route stage puts the editor
+  one level up for it. The run statistics record the updates and the
+  conflicts met.
+
 - A follow-up on the pull request's checks after the review converges.
   `ci_checks` (off, wait, fix; default fix) decides it: `await-checks.sh`
   waits for the head's checks when the repository reports any, in

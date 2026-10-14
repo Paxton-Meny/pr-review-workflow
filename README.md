@@ -120,6 +120,25 @@ used; see the `merge_method` setting. The head branch is deleted only
 when the repository does not delete it itself and no open pull request
 bases on it.
 
+### Base sync
+
+Before the checks are awaited, and again when the merge gate finds the
+base moved while it waited, the run brings the branch up to date when
+the forge says it must: the pull request conflicts, or is behind a base
+that requires it up to date. The mechanism follows the merge method,
+because it has to. Under rebase merging the branch is rebased onto the
+base in the plugin's worktree and pushed with a lease on the head the
+run last saw, so a push anyone else made refuses it; your local copy
+is then behind the rewritten remote, and `git pull --rebase` brings it
+back. Under merge or squash merging the base is merged into the head
+and pushed plainly, rewriting nothing. A conflict is aborted and
+handed to you with the paths unless base sync is `resolve`, where the
+editor resolves each file so both sides survive, continues through
+the script, and the files whose change the resolution touched get an
+incremental review. At most three updates happen per pull request; a
+base that keeps moving is for a person. Nothing moves while the forge
+is content, and nothing moves at all with base sync `off`.
+
 ### CI checks
 
 Once the loop converges and before the merge gate, the run waits for
@@ -153,6 +172,7 @@ pull request, and says when to choose it.
 | CI fix rounds | 2 | Repairs of failing checks per pull request before the run parks, kept on disk. |
 | CI wait budget | 30 | Minutes the run waits for one head's checks, kept per head on disk; spent, the run holds or parks naming what is pending. |
 | Review repairs | on | The reviewer reads the files a repair touched before the merge gate; findings re-enter the remediation loop. Off trusts the checks alone. |
+| Base sync | update | When the base moved so the pull request conflicts or is behind a base that requires it up to date: off reports and holds; update brings the branch up to date by the mechanism the merge method needs (a rebase and a leased forced push under rebase merging, a merge of the base into the head otherwise) and hands conflicts to you; resolve has the editor resolve conflicts too, with the resolution reviewed. Only you can set it. |
 | Self-started reviews | ask | When Claude starts a review on its own: ask (you confirm first) or auto (no question when the pull request is ready). Anything that is not ready still asks. |
 | Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
@@ -384,6 +404,10 @@ by looking in the main one. Run one review per pull request at a time.
   review-only (findings and suggestions post, nothing is fixed) when it
   does not.
 - Pull requests past the GitHub API diff limits are parked as too large.
+- Under `update`, a conflicting pull request waits for you; the run
+  holds with the paths. A branch other people push to should set base
+  sync `off`, since a leased push refuses their work but a merge
+  update does not.
 - Checks outside GitHub Actions give the editor a description and a
   link, never logs. The wait budget is per head; a suite longer than
   it holds the run.
