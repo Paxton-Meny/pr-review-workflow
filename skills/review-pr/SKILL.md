@@ -349,8 +349,8 @@ PRWF_SETTINGS_END
    unattended, park (step 9) listing them. Nothing merges over an
    unaccepted wont-fix.
 11. Merge gate. First
-    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir>`, relaying
-    its line: the method is the setting, else the one method the
+    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --refresh`,
+    relaying its line: the method is the setting, else the one method the
     repository allows, else the one its recent merged pull requests
     into this base used. Exit 4 means that evidence is mixed:
     attended, ask the user which of the allowed methods the line names
