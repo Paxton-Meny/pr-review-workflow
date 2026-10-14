@@ -123,11 +123,11 @@ MAX_BYTES=16384
 # key is in exactly one list; the settings reference page and its test
 # are held to these.
 PROJECT_NEVER='auto_approve self_start reviewer_model editor_model verifier_model model_routing strong_model keep_ledgers local_standards'
-PROJECT_RAISE='double_review finding_filter cost_posture review_samples'
+PROJECT_RAISE='double_review finding_filter cost_posture review_samples ci_checks ci_fix_rounds ci_wait_minutes review_repairs'
 PROJECT_TRUSTED='check_command contract_commands'
 PROJECT_ADDS='sensitive_paths migration_paths'
 PROJECT_SETS='merge_method'
-ALIASES='method:merge_method posture:cost_posture samples:review_samples check:check_command prefixes:contract_commands standards:local_standards migrations:migration_paths routing:model_routing strong:strong_model reviewer:reviewer_model editor:editor_model verifier:verifier_model filter:finding_filter second_review:double_review ledgers:keep_ledgers'
+ALIASES='method:merge_method ci:ci_checks posture:cost_posture samples:review_samples check:check_command prefixes:contract_commands standards:local_standards migrations:migration_paths routing:model_routing strong:strong_model reviewer:reviewer_model editor:editor_model verifier:verifier_model filter:finding_filter second_review:double_review ledgers:keep_ledgers'
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 manifest="$here/../.claude-plugin/plugin.json"
 [ -f "$manifest" ] || {
@@ -356,6 +356,8 @@ BEGIN {
 	rank["double_review", "off"] = 0; rank["double_review", "risky"] = 1; rank["double_review", "always"] = 2
 	rank["finding_filter", "false"] = 0; rank["finding_filter", "true"] = 1
 	rank["cost_posture", "economy"] = 0; rank["cost_posture", "balanced"] = 1; rank["cost_posture", "quality"] = 2
+	rank["ci_checks", "off"] = 0; rank["ci_checks", "wait"] = 1; rank["ci_checks", "fix"] = 2
+	rank["review_repairs", "false"] = 0; rank["review_repairs", "true"] = 1
 	names[1] = "user"; names[2] = "project"; names[3] = "local"; names[4] = "run"
 }
 FNR == 1 { for (i = 1; i <= 4; i++) if (FILENAME == ARGV[i]) source = names[i] }
@@ -395,7 +397,7 @@ END {
 	}
 	printf "settings: resolved %d default %d user %d project %d local %d run %d ignored %d\n", nk, count["default"] + 0, count["user"] + 0, count["project"] + 0, count["local"] + 0, count["run"] + 0, ni + 0
 	# The facts the orchestrator branches on, never the commands themselves.
-	printf "settings: for this run auto_approve %s\n", val["auto_approve"]
+	printf "settings: for this run auto_approve %s ci_checks %s review_repairs %s\n", val["auto_approve"], val["ci_checks"], val["review_repairs"]
 	for (i = 1; i <= nk; i++) {
 		k = keys[i]
 		if (from[k] != "default" && from[k] != "user") printf "settings: %s %s from %s\n", k, (val[k] == "" ? "(empty)" : val[k]), from[k]

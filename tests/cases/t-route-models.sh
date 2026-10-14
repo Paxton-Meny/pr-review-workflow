@@ -410,3 +410,21 @@ if sh "$REPO_ROOT/scripts/route-models.sh" "$SCRATCH/nope" review 2>"$SCRATCH/er
 	exit 1
 fi
 grep -q "no pr-context" "$SCRATCH/err"
+
+# A repair of failing checks never starts cheap: the editor's rung one
+# level up in effort for a fresh failure, and one lever up from the
+# last repair when the same failure followed it, more effort below the
+# posture's cap and the model at it. Fixed routing keeps the editor's
+# level; an unapplied effort climbs the model at once.
+rm -f "$dir/spawn-effort.txt"
+[ "$(route ci-repair $ARGS)" = "route ci-repair all rung base model inherit effort high reason ci-failed" ]
+[ "$(route ci-repair $ARGS repeat=1)" = "route ci-repair all rung base model inherit effort high reason ci-repeat" ]
+[ "$(route ci-repair $ARGS strong=opus repeat=1)" = "route ci-repair all rung strong model opus effort high reason ci-repeat" ]
+[ "$(route ci-repair $ARGS strong=opus posture=quality repeat=1)" = "route ci-repair all rung strong model opus effort xhigh reason ci-repeat" ]
+[ "$(route ci-repair $ARGS strong=opus repeat=0)" = "route ci-repair all rung base model inherit effort high reason ci-failed" ]
+[ "$(route ci-repair routing=fixed repeat=1)" = "route ci-repair all rung base model inherit effort medium reason fixed" ]
+route spawn-effort unapplied >/dev/null
+[ "$(route ci-repair $ARGS)" = "route ci-repair all rung base model inherit effort high unapplied medium reason ci-failed" ]
+[ "$(route ci-repair $ARGS strong=opus repeat=1)" = "route ci-repair all rung strong model opus effort high unapplied medium reason ci-repeat" ]
+rm -f "$dir/spawn-effort.txt"
+[ "$(grep -c '^route ci-repair ' "$ctx/routes.txt")" -eq 8 ]

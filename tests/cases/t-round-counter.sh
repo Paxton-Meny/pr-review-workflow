@@ -20,3 +20,19 @@ if sh "$REPO_ROOT/scripts/round-counter.sh" "$dir" wat 3 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "unknown operation" "$SCRATCH/err"
+
+# The repairs of failing checks have their own counter, capped by the
+# run's ci_fix_rounds setting.
+run="$SCRATCH/data/state/a__w__7"
+mkdir -p "$run"
+printf 'owner a\nrepo w\npr 7\n' >"$run/meta.txt"
+printf 'ci_fix_rounds 2\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$run" >/dev/null
+[ "$(sh "$REPO_ROOT/scripts/round-counter.sh" "$run" next ci)" = "ci round 1 of 2" ]
+[ "$(sh "$REPO_ROOT/scripts/round-counter.sh" "$run" next 4)" = "round 1 of 4" ]
+[ "$(sh "$REPO_ROOT/scripts/round-counter.sh" "$run" next ci)" = "ci round 2 of 2" ]
+rc=0
+sh "$REPO_ROOT/scripts/round-counter.sh" "$run" next ci 2>"$SCRATCH/err" || rc=$?
+[ "$rc" -eq 3 ]
+grep -q "ci round cap of 2 reached" "$SCRATCH/err"
+grep -qx '2' "$run/ci-rounds.txt"
+grep -qx '1' "$run/rounds.txt"
