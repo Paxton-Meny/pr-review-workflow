@@ -58,7 +58,7 @@ grep -qx 'added.txt	1	0' "$dir/pr-context/files.txt"
 grep -qx 'blob.bin	0	0' "$dir/pr-context/files.txt"
 grep -qx 'café.txt	1	0' "$dir/pr-context/files.txt"
 grep -qx 'new-name.txt	0	0' "$dir/pr-context/files.txt"
-grep -qvF 'old-name' "$dir/pr-context/files.txt"
+! grep -qF 'old-name' "$dir/pr-context/files.txt"
 # GitHub's diff shape: a/ b/ prefixes, three context lines, unquoted paths, renames.
 grep -qx '+++ b/file.txt' "$dir/pr-context/diff.patch"
 grep -q '^@@ -2,7 +2,7 @@' "$dir/pr-context/diff.patch"
