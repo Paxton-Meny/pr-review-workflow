@@ -147,6 +147,15 @@ rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
 printf '%s\n' "$out" | grep -q 'level near, base read from an earlier fetch$'
+# A stale read that shows nothing close is refused too, since a failed
+# fetch cannot show that the base did not move.
+cp "$ctx/files.txt" "$SCRATCH/files.keep"
+printf 'unrelated.txt\t1\t0\n' >"$ctx/files.txt"
+rc=0
+out=$(drift) || rc=$?
+[ "$rc" -eq 5 ]
+printf '%s\n' "$out" | grep -q 'level none, base read from an earlier fetch$'
+cp "$SCRATCH/files.keep" "$ctx/files.txt"
 git -C "$clone" update-ref -d refs/remotes/origin/main
 rc=0
 out=$(drift) || rc=$?
