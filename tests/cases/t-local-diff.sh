@@ -88,6 +88,35 @@ printf '%s\n' "$out" | grep -q '^local-diff: 1 files from the clone'
 grep -qx 'file.txt	1	0' "$pdir/pr-context/files.txt"
 grep -qx '+eleven' "$pdir/pr-context/diff.patch"
 
+# A rename that drops or adds a directory segment lists the plain new path.
+work="$SCRATCH/work2"
+git clone --quiet "$remote" "$work" 2>/dev/null
+git -C "$work" config user.name author
+git -C "$work" config user.email author@example.invalid
+git -C "$work" checkout --quiet -b base2 origin/main
+mkdir -p "$work/a/b" "$work/sub"
+printf 'x\n' >"$work/a/b/x.txt"
+printf 'deep\n' >"$work/sub/deep.txt"
+printf 'moved\n' >"$work/up.txt"
+git -C "$work" add -A
+git -C "$work" commit --quiet -m "Base two"
+git -C "$work" push --quiet origin base2
+git -C "$work" checkout --quiet -b feat-rename
+git -C "$work" mv a/b/x.txt a/x.txt
+git -C "$work" mv sub/deep.txt deep.txt
+mkdir -p "$work/newdir"
+git -C "$work" mv up.txt newdir/up.txt
+git -C "$work" commit --quiet -m "Move files"
+git -C "$work" push --quiet origin HEAD:refs/pull/10/head
+rename_sha=$(git -C "$work" rev-parse HEAD)
+rm -rf "$work"
+printf 'owner Paxton-Meny\nrepo widgets\npr 10\nhead_branch feat-rename\nbase_branch base2\nhead_sha %s\ncross_repo true\nhead_repo_url \nrepo_root %s\n' "$rename_sha" "$clone" >"$pdir/meta.txt"
+sh "$REPO_ROOT/scripts/local-diff.sh" "$pdir" >/dev/null
+grep -qx 'a/x.txt	0	0' "$pdir/pr-context/files.txt"
+grep -qx 'deep.txt	0	0' "$pdir/pr-context/files.txt"
+grep -qx 'newdir/up.txt	0	0' "$pdir/pr-context/files.txt"
+! grep -q '//' "$pdir/pr-context/files.txt"
+
 # A gone fork with no pull request ref is exit 2.
 printf 'owner Paxton-Meny\nrepo widgets\npr 9\nhead_branch feat-gone\nbase_branch main\nhead_sha 0123456789012345678901234567890123456789\ncross_repo true\nhead_repo_url \nrepo_root %s\n' "$clone" >"$pdir/meta.txt"
 rc=0
