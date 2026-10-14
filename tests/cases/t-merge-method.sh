@@ -138,6 +138,26 @@ out=$(run --refresh) || rc=$?
 [ "$rc" -eq 4 ]
 [ "$(record history)" = "merge 1 squash 0 rebase 0 either 2" ]
 
+# A stale undecided record is replaced once merge_method is set and
+# --refresh is passed; without it the record would be reused.
+printf 'method rebase\n' >"$dir/overrides.txt"
+: | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+printf 'method undecided\nreason mixed-history\nallowed merge squash rebase\n' >"$dir/pr-context/merge-method.txt"
+[ "$(run --refresh)" = "merge-method: rebase reason setting" ]
+[ "$(record method)" = rebase ]
+
+# A failing history read is an error, never an undecided record.
+: >"$dir/overrides.txt"
+: | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+rm -f "$dir/pr-context/merge-method.txt" "$stub/pr-list" "$stub"/pr-list.*
+printf '1\n' >"$stub/pr-list.exit"
+rc=0
+run --refresh 2>"$SCRATCH/err" || rc=$?
+[ "$rc" -eq 1 ]
+grep -q "gh could not list merged pull requests of o/r" "$SCRATCH/err"
+[ ! -f "$dir/pr-context/merge-method.txt" ]
+rm -f "$stub/pr-list.exit"
+
 if sh "$REPO_ROOT/scripts/merge-method.sh" "$SCRATCH/nowhere" 2>"$SCRATCH/err"; then
 	echo "expected failure without meta.txt" >&2
 	exit 1
