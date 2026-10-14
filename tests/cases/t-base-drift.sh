@@ -103,7 +103,7 @@ grep -qx 'level near files 1' "$ctx/drift.txt"
 grep -qx 'path: src/app.py' "$ctx/overlap/base/ours.diff"
 grep -qx 'R10 +    a10 = 100' "$ctx/overlap/base/ours.diff"
 grep -qx '+    a28 = 280' "$ctx/overlap/base/theirs.diff"
-! grep -q 'package-lock' "$ctx/overlap/base/theirs.diff"
+if grep -q 'package-lock' "$ctx/overlap/base/theirs.diff"; then echo "a lockfile must not reach the landed diff" >&2; exit 1; fi
 grep -qx 'label base' "$ctx/overlap/base/summary.txt"
 grep -qx 'level near files 1 near 1 same 0' "$ctx/overlap/base/summary.txt"
 
