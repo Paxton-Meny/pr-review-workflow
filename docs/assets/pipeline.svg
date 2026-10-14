@@ -90,7 +90,7 @@
 <g filter="url(#plsh)"><rect class="cm" x="614" y="634" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="656">Verifier</text><text class="sm" x="628" y="673">judges each Resolution verbatim</text>
 <g filter="url(#plsh)"><rect class="c" x="344" y="712" width="236" height="54" rx="9"/></g><text class="h" x="358" y="734">Skim the round</text><text class="" x="358" y="751">unasked changes get their own review</text>
 <text x="24" y="835"><tspan class="num">5</tspan><tspan class="ph teal" dx="7">MERGE</tspan></text><text x="24" y="852">after asking you</text>
-<g filter="url(#plsh)"><rect class="done" x="156" y="810" width="156" height="54" rx="9"/></g><path class="tick" d="M171 829l3.5 3.5 6.5-7.5"/><text class="h doneh" x="189" y="833">Merged</text><text class="dones" x="170" y="850">rebase, proven merged</text>
+<g filter="url(#plsh)"><rect class="done" x="156" y="810" width="156" height="54" rx="9"/></g><path class="tick" d="M171 829l3.5 3.5 6.5-7.5"/><text class="h doneh" x="189" y="833">Merged</text><text class="dones" x="170" y="850">proven merge</text>
 <path class="ar" d="M341 837.0H317" marker-end="url(#pla)"/>
 <g filter="url(#plsh)"><rect class="c" x="344" y="810" width="236" height="54" rx="9"/></g><text class="h" x="358" y="832">Merge gate</text><text class="" x="358" y="849">asks first unless auto-approve is on</text>
 <g filter="url(#plsh)"><rect class="c" x="156" y="888" width="156" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="170" y="910">Status comment</text><text class="" x="170" y="927">resumable later</text>
