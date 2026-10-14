@@ -380,9 +380,9 @@ PRWF_SETTINGS_END
        `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`; exit 3
        takes the step 8c repair once, and a second failure parks. Then,
        when the facts line says `review_repairs true`, run
-       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`: every file a
-       repair touched is unexpected by construction, so follow step 8e
-       for them; new findings run step 8 under its round cap, and a
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir> --all`: it lists
+       every file the repair changed, finding paths included, so follow
+       step 8e for them; no new commit means no review; new findings run step 8 under its round cap, and a
        converged step 8 returns here. Loop to a.
 12. Merge gate. First
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --refresh`,
