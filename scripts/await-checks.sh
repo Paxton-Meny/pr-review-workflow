@@ -176,12 +176,21 @@ digest() {
 }
 
 while :; do
+	# Exit 0 and 8 (checks pending) are answers; any other exit (network,
+	# rate limit, token, 5xx) leaves the poll unreadable, and an
+	# unreadable poll is never "no checks".
+	rc=0
 	gh pr checks "$pr" --repo "$owner/$repo" --json name,state,bucket,link,workflow,description \
-		--jq '.[] | "\(.bucket)\t\(.name)\t\(.link)\t\(.workflow)\t\(.description)"' >"$checks" 2>/dev/null || true
+		--jq '.[] | "\(.bucket)\t\(.name)\t\(.link)\t\(.workflow)\t\(.description)"' >"$checks" 2>/dev/null || rc=$?
+	readable=1
+	case "$rc" in
+	0 | 8) ;;
+	*) readable=0 ;;
+	esac
 	total=$(grep -c . "$checks" || true)
 	now=$(date +%s)
 	if [ "$total" -eq 0 ]; then
-		if [ "$now" -ge $((first_seen + grace)) ]; then
+		if [ "$readable" -eq 1 ] && [ "$now" -ge $((first_seen + grace)) ]; then
 			result none
 			echo "await-checks: no checks"
 			exit 0
