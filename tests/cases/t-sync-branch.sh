@@ -9,7 +9,7 @@ export MERGE_PR_SETTLE_SECONDS=0
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.invalid GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.invalid
 
 setup() {
-	# setup <name> <behind|conflict> <method> <branch_sync>: a bare origin
+	# setup <name> <behind|conflict|region> <method> <branch_sync>: a bare origin
 	# whose main moved under a feat branch, a clone, the run's state, and
 	# the worktree checkout-pr.sh makes; sets origin, clone, dir, wt, stub
 	root="$SCRATCH/$1"
@@ -21,17 +21,20 @@ setup() {
 	clone="$root/clone"
 	git clone -q "$origin" "$clone" 2>/dev/null
 	g() { git -C "$clone" "$@"; }
-	printf 'base\n' >"$clone/a.txt"
+	printf 'base\n2\n3\n4\n5\n6\n7\n8\n9\n10\n' >"$clone/a.txt"
 	printf 'base\n' >"$clone/b.txt"
 	g add a.txt b.txt && g commit -q -m "Start" && g push -q origin HEAD:main
 	g checkout -q -b feat
-	printf 'feat\n' >"$clone/a.txt"
+	sed '1s/.*/feat/' "$clone/a.txt" >"$clone/a.new" && mv "$clone/a.new" "$clone/a.txt"
 	g commit -q -am "Change a on feat" && g push -q origin feat
 	head=$(g rev-parse HEAD)
 	g checkout -q main
 	if [ "$2" = conflict ]; then
-		printf 'main\n' >"$clone/a.txt"
+		sed '1s/.*/main/' "$clone/a.txt" >"$clone/a.new" && mv "$clone/a.new" "$clone/a.txt"
 		g commit -q -am "Change a on main"
+	elif [ "$2" = region ]; then
+		sed '10s/.*/main/' "$clone/a.txt" >"$clone/a.new" && mv "$clone/a.new" "$clone/a.txt"
+		g commit -q -am "Change the end of a on main"
 	else
 		printf 'new\n' >"$clone/c.txt"
 		g add c.txt && g commit -q -m "Add c on main"
@@ -82,6 +85,20 @@ grep -qx "update rebase $head $new" "$dir/sync.txt"
 printf 'mergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view"
 [ "$(sync)" = "sync-branch: current" ]
 [ "$(grep -c '^update ' "$dir/sync.txt")" -eq 1 ]
+
+# The base editing another region of a file the branch changed leaves
+# that file out of the list, under both mechanisms.
+for method in rebase squash; do
+	setup region-$method region $method update
+	out=$(sync)
+	new=$(git -C "$wt" rev-parse HEAD)
+	case "$out" in
+	*"$new, pushed, 0 files changed by the resolution") ;;
+	*) echo "unexpected line: $out" >&2; exit 1 ;;
+	esac
+	[ "$(git -C "$wt" show HEAD:a.txt | sed -n '1p;10p' | tr '\n' ' ')" = "feat main " ]
+	[ ! -s "$dir/pr-context/sync-changed.txt" ]
+done
 
 # A clean update under squash merging merges the base in: a merge
 # commit, a plain push, the old head still in the history.
