@@ -127,6 +127,11 @@ run_id() {
 	printf '%s\n' "$1" | sed -n 's|.*/actions/runs/\([0-9][0-9]*\).*|\1|p'
 }
 
+field() {
+	# field <tab-separated line> <cut list>: keeps empty fields, which read with a tab IFS drops
+	printf '%s\n' "$1" | cut -f"$2"
+}
+
 digest() {
 	# digest <failed lines>: writes pr-context/ci-failure.txt, prints the signature
 	out=$(mktemp "$ctx/.digest.XXXXXX")
@@ -134,11 +139,18 @@ digest() {
 	runs=$(mktemp "$ctx/.digest.XXXXXX")
 	gh api "repos/$owner/$repo/commits/$head_sha/check-runs" --paginate \
 		--jq '.check_runs[] | "\(.id)\t\(.name)\t\(.output.title // "")\t\(.output.summary // "" | gsub("\n"; "\\n"))"' >"$runs" 2>/dev/null || : >"$runs"
-	printf '%s\n' "$1" | while IFS='	' read -r bucket name link _workflow description; do
+	printf '%s\n' "$1" | while IFS= read -r line; do
+		bucket=$(field "$line" 1)
+		name=$(field "$line" 2)
+		link=$(field "$line" 3)
+		description=$(field "$line" 5-)
 		printf 'check %s %s %s\n' "$name" "$bucket" "$link"
 		[ -z "$description" ] || printf 'description %s\n' "$description"
 		printf '%s\n' "$name" >>"$sig"
-		awk -F '\t' -v want="$name" '$2 == want' "$runs" | while IFS='	' read -r id _n title summary; do
+		awk -F '\t' -v want="$name" '$2 == want' "$runs" | while IFS= read -r rline; do
+			id=$(field "$rline" 1)
+			title=$(field "$rline" 3)
+			summary=$(field "$rline" 4-)
 			[ -z "$title" ] || printf 'title %s\n' "$title"
 			[ -z "$summary" ] || printf '%s\n' "$summary" | sed 's/\\n/\n/g' | head -n "$SUMMARY_LINES" | sed 's/^/summary /'
 			gh api "repos/$owner/$repo/check-runs/$id/annotations" --paginate \
@@ -182,7 +194,12 @@ while :; do
 			# A cancelled Actions run is rerun once and then pending while
 			# the rerun registers; cancelled again, or not an Actions run, it failed.
 			rm -f "$checks.pending" "$checks.failed"
-			printf '%s\n' "$cancelled" | while IFS='	' read -r bucket name link workflow description; do
+			printf '%s\n' "$cancelled" | while IFS= read -r line; do
+				bucket=$(field "$line" 1)
+				name=$(field "$line" 2)
+				link=$(field "$line" 3)
+				workflow=$(field "$line" 4)
+				description=$(field "$line" 5-)
 				id=$(run_id "$link")
 				since=$(sed -n "s/^$id //p" "$dir/ci-reruns.txt" 2>/dev/null | tail -n 1)
 				if [ -n "$id" ] && [ -z "$since" ] && gh run rerun "$id" --failed --repo "$owner/$repo" >/dev/null 2>&1; then
