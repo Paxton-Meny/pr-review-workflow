@@ -25,6 +25,9 @@ fi
 
 awk '
 function start(spec) { sub(/^[-+]/, "", spec); sub(/,.*/, "", spec); return spec + 0 }
+function count(spec) { sub(/^[-+]/, "", spec); return (index(spec, ",") ? substr(spec, index(spec, ",") + 1) : 1) + 0 }
+function added() { if (nlo == "") nlo = newl; nhi = newl; if (olo == "") { olo = oldl; ohi = oldl }; newl++ }
+function removed() { if (olo == "") olo = oldl; ohi = oldl; if (nlo == "") { nlo = newl; nhi = newl }; oldl++ }
 function flush() {
 	if (!inhunk) return
 	if (olo == "") { olo = oldl; ohi = oldl }
@@ -33,6 +36,16 @@ function flush() {
 	inhunk = 0
 }
 /^diff --git / { flush(); path = ""; oldpath = ""; next }
+# While the hunk header promises more lines, every line is body, so a
+# deleted "-- text" or an added "++ text" is never read as a file header.
+(oc > 0 || nc > 0) && /^\\/ { next }
+oc > 0 || nc > 0 {
+	c = substr($0, 1, 1)
+	if (c == "+") { nc--; added() }
+	else if (c == "-") { oc--; removed() }
+	else { oc--; nc--; oldl++; newl++ }
+	next
+}
 /^--- / { flush(); p = $0; sub(/^--- /, "", p); sub(/^a\//, "", p); oldpath = p; next }
 /^\+\+\+ / {
 	p = $0; sub(/^\+\+\+ /, "", p); sub(/^b\//, "", p)
@@ -42,7 +55,7 @@ function flush() {
 /^@@ / {
 	flush()
 	if (path == "") next
-	oldl = start($2); newl = start($3)
+	oldl = start($2); newl = start($3); oc = count($2); nc = count($3)
 	olo = ""; ohi = ""; nlo = ""; nhi = ""
 	fn = $0
 	sub(/^@@ [^@]*@@ ?/, "", fn)
@@ -52,8 +65,8 @@ function flush() {
 }
 !inhunk { next }
 /^\\/ { next }
-/^\+/ { if (nlo == "") nlo = newl; nhi = newl; if (olo == "") { olo = oldl; ohi = oldl }; newl++; next }
-/^-/ { if (olo == "") olo = oldl; ohi = oldl; if (nlo == "") { nlo = newl; nhi = newl }; oldl++; next }
+/^\+/ { added(); next }
+/^-/ { removed(); next }
 { oldl++; newl++ }
 END { flush() }
 '
