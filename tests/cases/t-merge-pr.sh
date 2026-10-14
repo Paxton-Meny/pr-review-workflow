@@ -85,6 +85,16 @@ out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir")
 [ "$out" = "merge-pr: $fixture_owner/widgets#7 merged by merge, branch kept (#9 #11 bases on it)" ]
 grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit abc123" "$stub/calls.log"
 
+# An unknown answer about dependents keeps the branch.
+rm -f "$stub"/pr-view.*.done "$stub/calls.log" "$stub/pr-list"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+printf '1\n' >"$stub/pr-list.exit"
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir")
+[ "$out" = "merge-pr: $fixture_owner/widgets#7 merged by merge, branch kept (dependents could not be checked)" ]
+grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit abc123" "$stub/calls.log"
+rm -f "$stub/pr-list.exit"
+
 rm -f "$stub"/pr-view.*.done "$stub/calls.log"
 printf 'cross_repo true\n' >>"$dir/meta.txt"
 printf "$clean" >"$stub/pr-view.1"
