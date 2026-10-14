@@ -463,6 +463,23 @@ out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
 [ "$rc" -eq 6 ]
 printf '%s\n' "$out" | grep -qx 'verdict duplicate: both set a12.'
 
+# An independent verdict for an earlier base carries nothing when the base
+# cannot be read this time: the drift of the earlier attempt is gone.
+printf 'verdict base independent: unrelated.\n' | sh "$REPO_ROOT/scripts/save-verdict.sh" "$dir" base >/dev/null
+mv "$remote" "$remote.gone"
+git -C "$clone" update-ref -d refs/remotes/origin/main
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+mv "$remote.gone" "$remote"
+[ "$rc" -eq 6 ]
+if grep -q '^pr merge' "$stub/calls.log"; then
+	echo "an unreadable base must not be waved through by an old verdict" >&2
+	exit 1
+fi
+git -C "$clone" fetch --quiet origin "+refs/heads/main:refs/remotes/origin/main"
+
 # Migrations are asked about before drift.
 rm -f "$stub"/pr-view.* "$stub/calls.log"
 printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 2\nfile src/app.py\nfile db/migrate/001_x.rb\n' >"$stub/pr-view.1"
