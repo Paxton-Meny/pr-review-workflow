@@ -34,7 +34,9 @@ or `pr-<number>`. Under `<state-dir>/pr-context/overlap/<label>/`:
 
 `<state-dir>/worktree/` holds this pull request's full tree when you
 need the code around a hunk: the enclosing function, a caller, a test.
-Read only what the hunks make necessary.
+Read only what the hunks make necessary. For a `pr-<n>` label the scan
+runs before checkout, so the worktree may not exist; judge from the
+hunks alone then.
 
 ## Procedure
 
@@ -57,8 +59,9 @@ Read only what the hunks make necessary.
      in one function. Both land cleanly and neither changes what the
      other means.
 4. When the hunks alone cannot settle it, read the surrounding code in
-   the worktree once. Still unsure between two verdicts: give the worse
-   one. A person can wave through a false alarm; nobody can review a
+   the worktree once, if it exists. A missing worktree is not a reason
+   to pick the worse verdict; judge from the hunks. Still unsure between
+   two verdicts after reading what is available: give the worse one. A person can wave through a false alarm; nobody can review a
    merge that already happened.
 
 ## Boundaries
