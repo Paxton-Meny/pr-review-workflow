@@ -163,7 +163,7 @@
       "type": "string",
       "options": ["off", "near", "judged"],
       "title": "Overlap check",
-      "description": "How the review treats work landing beside this pull request. near: at the start, open pull requests whose hunks touch this change (within 12 lines, or in the same function) are named, and the merge waits for a person when commits that landed on the base since the review touch its hunks that closely; disjoint changes to the same files pass silently. judged: as near, plus a cheap agent reads the touching hunks first and classifies them; independent ones merge on their own, the rest go to the person with the verdict. off: neither check. A project's shared file may only raise it.",
+      "description": "How the review treats work landing beside this pull request. near: at the start, open pull requests whose hunks touch this change (within 12 lines, or in the same function) are named, and the merge waits for a person when commits that landed on the base since the review touch its hunks that closely; disjoint changes to the same files pass silently, and only code and test files count. judged: as near, plus a cheap agent reads the touching hunks first and classifies them; independent ones merge on their own, the rest go to the person with the verdict. off: neither check. A project's shared file may only raise it.",
       "default": "near"
     },
     "strong_model": {

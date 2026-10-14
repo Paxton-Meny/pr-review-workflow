@@ -74,7 +74,11 @@ tr -d '\r' <"$work/list" >"$work/list.clean"
 cut -f1 "$ctx/files.txt" | sort -u >"$work/ours.all"
 { cat "$work/ours.all"; sed -n 's/^file //p' "$work/list.clean"; } | sort -u |
 	sh "$here/split-diff.sh" --excluded >"$work/excluded" || true
-grep -vxF -f "$work/excluded" "$work/ours.all" >"$work/ours.paths" || true
+# Only code and tests count: a changelog or a dependency list is where
+# every concurrent change meets, and a clash there is not a defect.
+{ cat "$work/ours.all"; sed -n 's/^file //p' "$work/list.clean"; } | sort -u |
+	sh "$here/classify-change.sh" --classify | awk -F '\t' '$1 == "code" || $1 == "tests" { print $2 }' >"$work/allowed"
+grep -vxF -f "$work/excluded" "$work/ours.all" | grep -xF -f "$work/allowed" >"$work/ours.paths" || true
 
 # Candidates: number, login, draft, updated, mentions-us, shared count.
 awk -F '\t' -v me="$pr" -v base="$base_branch" -v head="$head_branch" \
