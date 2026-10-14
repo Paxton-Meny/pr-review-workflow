@@ -193,6 +193,19 @@ new=$(git -C "$wt" rev-parse HEAD)
 [ "$out" = "sync-branch: rebased onto main at $new, pushed, 1 files changed by the resolution" ]
 [ "$(cat "$dir/pr-context/sync-changed.txt")" = café.txt ]
 
+# A failure with no conflicted paths leaves no update in progress and says so.
+setup nopaths behind squash update
+printf 'mine\n' >"$wt/c.txt"
+rc=0
+sync >/dev/null 2>"$SCRATCH/err" || rc=$?
+[ "$rc" -eq 1 ]
+grep -qx 'sync-branch: the update failed without conflicts, a person decides' "$SCRATCH/err"
+[ "$(git -C "$wt" rev-parse HEAD)" = "$head" ]
+[ ! -f "$dir/pr-context/sync-before.txt" ]
+[ ! -f "$dir/sync.txt" ]
+[ "$(origin_feat)" = "$head" ]
+sync --abort | grep -qx 'sync-branch: nothing to abort'
+
 # Abort restores the worktree.
 setup abort conflict rebase resolve
 printf 'mergeable CONFLICTING\nmerge_state DIRTY\n' >"$stub/pr-view"
