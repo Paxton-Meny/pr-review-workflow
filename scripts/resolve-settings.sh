@@ -34,10 +34,10 @@
 # the source below it gave, never jumping to the default.
 #
 # The shared file is the team's, so it may set less than the others:
-# never auto_approve, self_start, the models, routing, keep_ledgers, or
-# local_standards; the merge method, a team choice, freely; the quality
-# settings only upward (a project may raise the bar, only the user may
-# lower it); and the check command and
+# never auto_approve, self_start, branch_sync, the models, routing,
+# keep_ledgers, or local_standards; the merge method, a team choice,
+# freely; the quality settings only upward (a project may raise the
+# bar, only the user may lower it); and the check command and
 # contract prefixes, which execute, only once the user approved that
 # exact pair (trust on first use). An unapproved pair is ignored and
 # reported with its hash as pending; --approve records the pending hash
@@ -122,12 +122,12 @@ MAX_BYTES=16384
 # What a project's shared file may do with each setting. Every manifest
 # key is in exactly one list; the settings reference page and its test
 # are held to these.
-PROJECT_NEVER='auto_approve self_start reviewer_model editor_model verifier_model model_routing strong_model keep_ledgers local_standards'
+PROJECT_NEVER='auto_approve self_start branch_sync reviewer_model editor_model verifier_model model_routing strong_model keep_ledgers local_standards'
 PROJECT_RAISE='double_review finding_filter cost_posture review_samples ci_checks ci_fix_rounds ci_wait_minutes review_repairs'
 PROJECT_TRUSTED='check_command contract_commands'
 PROJECT_ADDS='sensitive_paths migration_paths'
 PROJECT_SETS='merge_method'
-ALIASES='method:merge_method ci:ci_checks posture:cost_posture samples:review_samples check:check_command prefixes:contract_commands standards:local_standards migrations:migration_paths routing:model_routing strong:strong_model reviewer:reviewer_model editor:editor_model verifier:verifier_model filter:finding_filter second_review:double_review ledgers:keep_ledgers'
+ALIASES='method:merge_method ci:ci_checks sync:branch_sync posture:cost_posture samples:review_samples check:check_command prefixes:contract_commands standards:local_standards migrations:migration_paths routing:model_routing strong:strong_model reviewer:reviewer_model editor:editor_model verifier:verifier_model filter:finding_filter second_review:double_review ledgers:keep_ledgers'
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 manifest="$here/../.claude-plugin/plugin.json"
 [ -f "$manifest" ] || {

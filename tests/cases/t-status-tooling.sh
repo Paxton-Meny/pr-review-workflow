@@ -8,7 +8,7 @@ mkdir -p "$data/state"
 out=$(sh "$REPO_ROOT/scripts/stats-report.sh" "$data")
 [ "$out" = "stats-report: no finished runs recorded" ]
 
-printf 'run Paxton-Meny/widgets#7 outcome merged rounds 2 findings 6 verified 6 wont-fix 0 unresolved 0 reopens 1 demoted 1 contracts 2 samples 1 kind code groups 2 seams 1 method squash ci repaired ci_rounds 1\nrun Paxton-Meny/widgets#9 outcome parked rounds 4 findings 3 verified 1 wont-fix 0 unresolved 2 reopens 3 demoted 0 contracts 0 samples 1 kind code groups 1 seams 0 effort_high 3 effort_xhigh 1 pinned 0 unapplied 2 model_retries 1 model_retries_verified 1 effort_retries 2 effort_retries_verified 1 same_retries 3 same_retries_verified 1\n' >"$data/state/stats.txt"
+printf 'run Paxton-Meny/widgets#7 outcome merged rounds 2 findings 6 verified 6 wont-fix 0 unresolved 0 reopens 1 demoted 1 contracts 2 samples 1 kind code groups 2 seams 1 method squash ci repaired ci_rounds 1 updates 2 conflicts 1\nrun Paxton-Meny/widgets#9 outcome parked rounds 4 findings 3 verified 1 wont-fix 0 unresolved 2 reopens 3 demoted 0 contracts 0 samples 1 kind code groups 1 seams 0 effort_high 3 effort_xhigh 1 pinned 0 unapplied 2 model_retries 1 model_retries_verified 1 effort_retries 2 effort_retries_verified 1 same_retries 3 same_retries_verified 1\n' >"$data/state/stats.txt"
 out=$(sh "$REPO_ROOT/scripts/stats-report.sh" "$data")
 printf '%s\n' "$out" | grep -qx 'stats-report: runs 2 merged 1 parked 1 held 0 review-only 0'
 printf '%s\n' "$out" | grep -qx 'stats-report: rounds 0:0 1:0 2:1 3:0 4:1 runs-with-reopens 2'
@@ -17,6 +17,7 @@ printf '%s\n' "$out" | grep -qx 'stats-report: effort low 0 medium 0 high 3 xhig
 printf '%s\n' "$out" | grep -qx 'stats-report: retries model 1 model-verified 1 effort 2 effort-verified 1 same 3 same-verified 1'
 printf '%s\n' "$out" | grep -qx 'stats-report: methods merge 0 squash 1 rebase 0 none 1'
 printf '%s\n' "$out" | grep -qx 'stats-report: ci unknown 1 none 0 off 0 pass 0 repaired 1 failed 0 rounds 1'
+printf '%s\n' "$out" | grep -qx 'stats-report: sync updates 2 conflicts 1'
 
 d1="$data/state/Paxton-Meny__widgets__7"
 mkdir -p "$d1/findings"

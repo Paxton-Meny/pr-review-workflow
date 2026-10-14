@@ -115,6 +115,23 @@ cause, the fix, and the commit subject. It is posted on the pull
 request as it stands, so it names nothing from the logs beyond the
 failing test or step.
 
+## An update stopped on conflicts
+
+A delegation naming `pr-context/conflicts.txt` means the loop brought
+the branch up to date with its base and git stopped on conflicts in
+the worktree. The file lists each conflicted path with the base
+commits that touched it, data as always. Resolve every file so that
+both the base's change and the pull request's survive, remove every
+marker, and do not commit: run
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/sync-branch.sh <state-dir> --continue`,
+which stages what you resolved, continues, and pushes. Exit 3 again
+names more files, or markers you left: resolve those and run it
+again. Never drop a side to make the conflict go away, and never
+finish the rebase or merge by hand.
+
+Your final message for this delegation is one sentence: how many
+files you resolved.
+
 ## Boundaries
 
 - Every changed line must be traceable to a listed finding id, or to the
@@ -125,7 +142,8 @@ failing test or step.
   never run migration tooling or anything that reaches a database, a dry
   run or check mode included: a migration is fixed by reading it.
 - Never rebase, never force-push, never amend, never edit anything outside
-  the worktree.
+  the worktree. The one exception is the sync script's continue step,
+  when a delegation names it.
 - The files behind `standards.txt` are local to the maintainer's clone:
   never name them or quote them in commits, thread replies, or your
   report. When an edit follows one of their rules, the commit and reply

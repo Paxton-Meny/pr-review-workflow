@@ -83,7 +83,9 @@
 # failed, starts the editor at its own rung one level up in effort
 # (finding a cause is a search) and never cheap, and with repeat=1, the
 # same failure after a repair, moves one lever up from its last line,
-# as a retry does.
+# as a retry does. The conflict stage, for the editor resolving an
+# update that stopped on conflicts, is the editor's rung one level up:
+# a wrong resolution drops code.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -284,7 +286,7 @@ held=$pinned
 if [ -z "$held" ] && [ "$(cat "$dir/spawn-effort.txt" 2>/dev/null)" = unapplied ]; then
 	case "$stage" in
 	review | gap | incremental) held=" unapplied $reviewer_effort" ;;
-	edit | repair | ci-repair) held=" unapplied $editor_effort" ;;
+	edit | repair | ci-repair | conflict) held=" unapplied $editor_effort" ;;
 	verify | arbitrate) held=" unapplied $verifier_effort" ;;
 	filter) held=" unapplied $filter_effort" ;;
 	esac
@@ -731,6 +733,16 @@ ci-repair)
 		emit all "$1" "$(model_for "$1" "$editor")" "$2" ci-repeat
 	else
 		emit all base "$editor" "$(moved "$editor_effort" 1)" ci-failed
+	fi
+	;;
+conflict)
+	# Resolving an update that stopped on conflicts: never cheap, one
+	# level more effort than the editor's own, since a wrong resolution
+	# drops code.
+	if [ "$routing" = fixed ]; then
+		emit all base "$editor" "$(moved "$editor_effort" 0)" fixed
+	else
+		emit all base "$editor" "$(moved "$editor_effort" 1)" conflict
 	fi
 	;;
 survey)
