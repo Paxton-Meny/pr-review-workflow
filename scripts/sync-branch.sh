@@ -119,7 +119,20 @@ finish() {
 stopped() {
 	# stopped: the update hit conflicts; report by the setting
 	paths=$(conflicted)
-	count=$(printf '%s\n' "$paths" | grep -c .)
+	count=$(printf '%s\n' "$paths" | grep -c . || true)
+	if [ "$count" -eq 0 ]; then
+		# git failed for another reason: leave nothing half done
+		if in_progress; then
+			if [ "$mechanism" = rebase ]; then
+				git -C "$worktree" rebase --abort
+			else
+				git -C "$worktree" merge --abort
+			fi
+		fi
+		rm -f "$ctx/sync-before.txt" "$ctx/conflicts.txt"
+		echo "sync-branch: the update failed without conflicts, a person decides" >&2
+		exit 1
+	fi
 	printf 'conflicts %s files\n' "$count" >>"$dir/sync.txt"
 	if [ "$setting" = resolve ]; then
 		tmp=$(mktemp "$ctx/.sync.XXXXXX")
