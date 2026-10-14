@@ -5,10 +5,16 @@
 #
 # One gh call lists the last <limit> merged pull requests (default 100,
 # at most 200) with their sizes and authors; when that call fails, a
-# REST fallback lists them without sizes and the output says so. Writes
-# history.txt (one record per pull request: number, author, added,
-# deleted, files, fork, merged) and history-summary.txt (the printed
-# lines), and prints "history:" lines: the source and count, the user's
+# REST fallback lists them without sizes and the output says so. Only
+# pull requests merged into the survey's base branch count, and of
+# those not the syncs between long-lived branches (a pull request from
+# this repository whose head branch is itself the base of two or more
+# listed ones, which a stacked branch seldom is), since their sizes say
+# nothing about the changes reviewed here;
+# a "history: excluded N" line counts what was left out. Writes
+# history.txt (one record per pull request kept: number, author, added,
+# deleted, files, fork, merged, base, head) and history-summary.txt
+# (the printed lines), and prints "history:" lines: the source and count, the user's
 # own login, the p50, p90, and maximum changed lines with their ratio,
 # the share of pull requests over each size the review loop reacts to,
 # the fork share and author count, and per-author lines for the most
@@ -30,6 +36,7 @@ esac
 [ "$limit" -le 200 ] || limit=200
 owner=$(sed -n 's/^owner //p' "$dir/meta.txt")
 repo=$(sed -n 's/^repo //p' "$dir/meta.txt")
+base=$(sed -n 's/^base //p' "$dir/meta.txt")
 [ -n "$owner" ] && [ -n "$repo" ] || {
 	echo "pr-history: meta.txt names no owner and repo" >&2
 	exit 1
@@ -46,21 +53,32 @@ trap 'rm -rf "$work"' EXIT
 
 source=pr-list
 if ! gh pr list --repo "$owner/$repo" --state merged --limit "$limit" \
-	--json number,author,additions,deletions,changedFiles,isCrossRepository,mergedAt \
-	--jq '.[] | "\(.number) \(.author.login) \(.additions) \(.deletions) \(.changedFiles) \(.isCrossRepository) \(.mergedAt)"' >"$work/raw" 2>/dev/null; then
+	--json number,author,additions,deletions,changedFiles,isCrossRepository,mergedAt,baseRefName,headRefName \
+	--jq '.[] | "\(.number) \(.author.login) \(.additions) \(.deletions) \(.changedFiles) \(.isCrossRepository) \(.mergedAt) \(.baseRefName) \(.headRefName)"' >"$work/raw" 2>/dev/null; then
 	source=api-fallback
 	gh api "repos/$owner/$repo/pulls" -X GET -f state=closed -F per_page=100 \
-		--jq ".[] | select(.merged_at != null) | \"\\(.number) \\(.user.login) - - - \\(.head.repo.full_name != \"$owner/$repo\") \\(.merged_at)\"" >"$work/raw" 2>/dev/null || {
+		--jq ".[] | select(.merged_at != null) | \"\\(.number) \\(.user.login) - - - \\(.head.repo.full_name != \"$owner/$repo\") \\(.merged_at) \\(.base.ref) \\(.head.ref)\"" >"$work/raw" 2>/dev/null || {
 		echo "pr-history: gh could list no merged pull requests for $owner/$repo" >&2
 		exit 1
 	}
 fi
-tr -d '\r' <"$work/raw" | awk 'NF == 7 && $1 ~ /^[0-9]+$/' >"$work/history.txt"
+tr -d '\r' <"$work/raw" | awk -v base="$base" -v excluded="$work/excluded" '
+NF == 9 && $1 ~ /^[0-9]+$/ { rec[++n] = $0; b[n] = $8; h[n] = $9; fork[n] = $6; bases[$8]++ }
+END {
+	dropped = 0
+	for (i = 1; i <= n; i++) {
+		if (base != "" && b[i] != base) { dropped++; continue }
+		if (fork[i] != "true" && bases[h[i]] >= 2) { dropped++; continue }
+		print rec[i]
+	}
+	print dropped > excluded
+}' >"$work/history.txt"
+excluded=$(cat "$work/excluded")
 self=$(gh api user --jq '"\(.login) \(.id)"' 2>/dev/null) || self=''
 self_login=${self%% *}
 
 awk -v source="$source" -v self="$self_login" -v small="$SMALL_LINES" -v large="$LARGE_CODE_LINES" \
-	-v shard="$SHARD_LINES" -v warn="$SIZE_WARN_LINES" -v max_authors="$MAX_AUTHORS" '
+	-v shard="$SHARD_LINES" -v warn="$SIZE_WARN_LINES" -v max_authors="$MAX_AUTHORS" -v excluded="$excluded" -v base="$base" '
 function pct(k, n) { return (n > 0) ? int(k * 100 / n + 0.5) : 0 }
 function sortn(arr, n,    i, j, t) { for (i = 2; i <= n; i++) { t = arr[i]; j = i - 1; while (j > 0 && arr[j] > t) { arr[j + 1] = arr[j]; j-- } arr[j + 1] = t } }
 function quant(arr, n, q,    k) { k = int(n * q + 0.999999); if (k < 1) k = 1; if (k > n) k = n; return arr[k] }
@@ -85,6 +103,7 @@ END {
 	since = (oldest == "") ? "unknown" : substr(oldest, 1, 10)
 	printf "history: source %s prs %d merged since %s\n", source, n, since
 	printf "history: self %s\n", (self == "" ? "unknown" : self)
+	if (excluded + 0 > 0) printf "history: excluded %d merged into another base than %s or syncing a long-lived branch\n", excluded, base
 	if (n == 0) { print "history: no merged pull requests"; exit }
 	if (!sizes) { print "history: sizes unavailable"; printf "history: forks %d%% authors %d\n", pct(forks, n), authors; exit }
 	sortn(all, n)

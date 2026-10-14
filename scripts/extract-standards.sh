@@ -38,7 +38,7 @@ tmp=$(mktemp "$ctx/.std.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
 files=0
 seen=
-for root in "$repo_root" $main_root; do
+for root in "$repo_root" ${main_root:+"$main_root"}; do
 	cd "$root"
 	for path in $patterns; do
 		case "$path" in

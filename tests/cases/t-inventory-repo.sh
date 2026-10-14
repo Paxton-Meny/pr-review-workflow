@@ -27,7 +27,8 @@ printf '%s\n' "$out" | grep -qx "inventory: dir $data/survey/Paxton-Meny__widget
 printf '%s\n' "$out" | grep -qx 'inventory: files 2 code 1 tests 0 docs 1 config 0 skipped 0'
 printf '%s\n' "$out" | grep -qx 'inventory: tier small'
 printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 0 max 0'
-printf '%s\n' "$out" | grep -qx 'inventory: estimate read_lines 0 tokens ~0 agents 0'
+printf '%s\n' "$out" | grep -qx 'inventory: estimate read_lines 0 tokens up to ~0 agents 0'
+if printf '%s\n' "$out" | grep -q '^inventory: reading suggested'; then echo "unexpected: a reading suggestion with nothing to read" >&2; exit 1; fi
 printf '%s\n' "$out" | grep -qx 'inventory: docs 1 files 1 lines, readme yes, contributing no, docs-dir none'
 [ ! -s "$data/survey/Paxton-Meny__widgets/partitions.txt" ]
 [ ! -e "$data/state" ]
@@ -42,6 +43,8 @@ for d in core api web cli db cache queue mail auth search export import; do
 	done
 done
 for n in 1 2 3; do printf 'token = jwt.decode(x)\nhmac.new(k)\n' >>"src/auth/m$n.py"; done
+# Three hits among sixteen files is incidental use, not a sensitive directory.
+for n in 1 2 3; do printf 'jwt.decode(x)\n' >>"src/core/m$n.py"; done
 mkdir -p tests/auth docs vendor/lib pkg/a .github
 printf 'jwt.decode(x)\n' >tests/auth/test_login.py
 printf 'x = 1\n' >vendor/lib/big.py
@@ -60,7 +63,7 @@ out=$(inventory "$data")
 printf '%s\n' "$out" | grep -qx 'inventory: tier medium'
 printf '%s\n' "$out" | grep -q '^inventory: head [0-9a-f]* cached no$'
 printf '%s\n' "$out" | grep -q '^inventory: files 191 code 184 tests 1 docs 6 config 0 skipped 1$'
-printf '%s\n' "$out" | grep -qx 'inventory: languages py 10808'
+printf '%s\n' "$out" | grep -qx 'inventory: languages py 10811'
 printf '%s\n' "$out" | grep -qx 'inventory: rules CLAUDE.md 4 block yes'
 printf '%s\n' "$out" | grep -qx 'inventory: rules pkg/a/AGENTS.md 1 block no'
 printf '%s\n' "$out" | grep -qx 'inventory: rules pkg/a/CLAUDE.md 1 block no'
@@ -74,7 +77,8 @@ printf '%s\n' "$out" | grep -qx 'inventory: churn commits 2 authors 2 since 1 ye
 printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 4 max 4'
 printf '%s\n' "$out" | grep -q '^inventory: partition 1 lines [0-9]* files 6 docs 6 sensitive no$'
 [ "$(printf '%s\n' "$out" | grep -c '^inventory: partition ')" -eq 4 ]
-printf '%s\n' "$out" | grep -q '^inventory: estimate read_lines [0-9]* tokens ~[0-9]* agents 4$'
+printf '%s\n' "$out" | grep -q '^inventory: estimate read_lines [0-9]* tokens up to ~[0-9]* agents 4$'
+printf '%s\n' "$out" | grep -qx 'inventory: reading suggested skip because CLAUDE.md already holds a conventions block'
 # The three code partitions carry four directories each and balance within 1.5x.
 printf '%s\n' "$out" | sed -n 's/^inventory: partition [234] lines \([0-9]*\) .*/\1/p' | sort -n >"$SCRATCH/sizes"
 [ "$(wc -l <"$SCRATCH/sizes" | tr -d ' ')" -eq 3 ]
@@ -105,10 +109,25 @@ mkdir -p "$survey/records"
 printf '## layout\n' >"$survey/records/1.txt"
 inventory "$data" | grep -qx 'inventory: records 1 of 4'
 
-# A partition cap below the tier's shrinks the plan.
+# A partition cap below the tier's shrinks the plan, and a moved HEAD
+# clears what the old plan produced.
+printf 'x\n' >"$survey/digest.txt"
+printf 'x\n' >"$survey/conventions-proposal.md"
 git commit --quiet --allow-empty -m move
 out=$(inventory "$data" 2)
 printf '%s\n' "$out" | grep -qx 'inventory: plan partitions 2 max 2'
+[ ! -e "$survey/records" ]
+[ ! -e "$survey/digest.txt" ]
+[ ! -e "$survey/conventions-proposal.md" ]
+# A long root rules file suggests skipping the reading too.
+awk 'BEGIN { for (i = 1; i <= 160; i++) print "- rule " i }' >CLAUDE.md
+git add -A
+git commit --quiet -m rules
+inventory "$data" | grep -qx 'inventory: reading suggested skip because CLAUDE.md holds 160 lines of rules'
+printf 'Notes.\n' >CLAUDE.md
+git add -A
+git commit --quiet -m short
+inventory "$data" | grep -qx 'inventory: reading suggested read'
 
 # A tracked file whose extension holds a command substitution is only data.
 printf 'x = 1\n' >'evil.$(touch pwned)'

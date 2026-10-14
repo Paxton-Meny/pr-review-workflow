@@ -227,17 +227,25 @@ has never seen. Scripts inventory the tracked files, every CLAUDE.md
 and AGENTS.md at any depth, the docs, the directories whose code
 matches the sensitive probe, and the check command from the Makefile,
 package manifest, toolchain, or CI workflow; one `gh` call reads the
-last hundred merged pull requests for their sizes by author. The
+last hundred merged pull requests for their sizes by author, counting
+only those into the base branch and leaving out syncs between
+long-lived branches. The
 repository's size sets how much a model reads: nothing on a small one,
 up to four, eight, or sixteen cheap parallel readers on a medium,
 large, or huge one, each over a planned slice with docs first, and the
-estimate is shown before any of them spawn on a large one. A script
-drops every claim the tree cannot confirm before the map is drafted.
+estimate, a ceiling, is shown before any of them spawn on a large one,
+with skipping recommended when the root CLAUDE.md already documents
+the repository. Each reader saves its record a section at a time, and
+any slice no record reached is read once more before the reading is
+called done; the report names whatever stayed unread. A script drops
+every claim the tree cannot confirm before the map is drafted.
 The history decides what to pin and what to leave to per-run routing:
 a developer whose pull requests vary twenty-fold in size gets no depth
 setting pinned, while sensitive code or many fork contributors turn
 the second review pass on for everyone. It decides whether the file is
-the team's or yours unless you say (`team`, `personal`, or `local`),
+the team's or yours unless you say (`team`, `personal`, or `local`);
+a file of your own written from a linked worktree, such as a desktop
+session's, lands in the main worktree so every worktree reads it. It
 applies a profile (`standard`, `careful`, or `economy`, which only your
 own file may carry), lints the file as the source it will become so a
 committed file never holds a line the resolver would refuse, shows it

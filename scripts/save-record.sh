@@ -1,6 +1,6 @@
 #!/bin/sh
 # Validate a cartographer's record from stdin and file it under the survey.
-# Usage: sh scripts/save-record.sh <survey-dir> <partition-id> <<'END'
+# Usage: sh scripts/save-record.sh <survey-dir> <partition-id> [--append] <<'END'
 #        ## layout
 #        layout <path> | <statement>
 #        ...
@@ -16,11 +16,24 @@
 # paths, no parent references, no conventions markers. The partition
 # must exist in the plan, so an agent can file only the record it was
 # asked for. Writes records/<id>.txt atomically and prints one line:
-# "record: <id> lines N claims N".
+# "record: <id> lines N claims N". With --append the lines on stdin are
+# added to the record already filed, so an agent can save each section
+# as it finishes it and an early stop keeps what it had read; the limits
+# and the totals printed cover the whole record, and a refusal names the
+# line of the chunk and leaves the filed record as it was.
 set -eu
 
 dir=${1:?usage: save-record.sh <survey-dir> <partition-id>}
 id=${2:?usage: save-record.sh <survey-dir> <partition-id>}
+append=0
+case "${3:-}" in
+'') ;;
+--append) append=1 ;;
+*)
+	echo "save-record: usage: save-record.sh <survey-dir> <partition-id> [--append]" >&2
+	exit 1
+	;;
+esac
 case "$id" in
 '' | *[!0-9]* | 0*)
 	echo "save-record: partition id must be a positive number: $id" >&2
@@ -37,14 +50,24 @@ SECTIONS='layout tests idioms oddities rules sensitive check migrations'
 
 mkdir -p "$dir/records"
 tmp=$(mktemp "$dir/records/.record.XXXXXX")
-trap 'rm -f "$tmp" "$tmp.line"' EXIT
-tr -d '\r' >"$tmp"
+trap 'rm -f "$tmp" "$tmp.line" "$tmp.chunk"' EXIT
+tr -d '\r' >"$tmp.chunk"
+offset=0
+if [ "$append" -eq 1 ] && [ -f "$dir/records/$id.txt" ]; then
+	awk 1 "$dir/records/$id.txt" >"$tmp"
+	offset=$(grep -c '' "$tmp" || true)
+fi
+awk 1 "$tmp.chunk" >>"$tmp"
+[ -s "$tmp.chunk" ] || {
+	echo "save-record: line 1: empty record" >&2
+	exit 1
+}
 
-awk -v id="$id" -v max_lines="$MAX_LINES" -v max_chars="$MAX_CHARS" -v sections="$SECTIONS" '
-function fail(msg) { printf "save-record: line %d: %s\n", NR, msg > "/dev/stderr"; exit 1 }
+awk -v id="$id" -v max_lines="$MAX_LINES" -v max_chars="$MAX_CHARS" -v sections="$SECTIONS" -v offset="$offset" '
+function fail(msg) { printf "save-record: line %d: %s\n", NR - offset, msg > "/dev/stderr"; exit 1 }
 BEGIN { n = split(sections, s, " "); for (i = 1; i <= n; i++) known[s[i]] = 1 }
 {
-	if (NR > max_lines) fail("more than " max_lines " lines")
+	if (NR > max_lines) fail("more than " max_lines " lines in the whole record")
 	if (length($0) > max_chars) fail("longer than " max_chars " characters")
 	if (index($0, "<!-- review-conventions")) fail("a conventions marker belongs to CLAUDE.md, not a record")
 	if ($0 ~ /^[ \t]*$/) next
@@ -68,5 +91,5 @@ END { if (NR == 0) fail("empty record"); printf "record: %s lines %d claims %d\n
 ' "$tmp" >"$tmp.line"
 mv "$tmp" "$dir/records/$id.txt"
 cat "$tmp.line"
-rm -f "$tmp.line"
+rm -f "$tmp.line" "$tmp.chunk"
 trap - EXIT

@@ -47,7 +47,8 @@ who has never seen the repository.
   naming, logging, the module a new one copies), each tied to the file
   that shows it best.
 - `oddities`: generated files, vendored code, deliberate deviations and
-  their stated reasons, each tied to its path.
+  their stated reasons, each tied to its path: patterns a reviewer
+  meets in changes, never one stray file.
 - `rules`: a stated rule from a docs or rules file, tied to that file.
   Nested CLAUDE.md or AGENTS.md files earn one claim each saying what
   they govern.
@@ -62,12 +63,14 @@ who has never seen the repository.
   that runs migrations or reaches a database.
 
 Prefer fewer, surer claims. A statement that needs a hedge is not a
-claim.
+claim. Write statements without apostrophes or quotation marks: a plain
+sentence needs neither, and some shells break on them.
 
 ## Output
 
-Write the record once, through the plugin's script, as a quoted
-heredoc with the closing delimiter alone at the start of its line:
+Save the record as you go, through the plugin's script, as a quoted
+heredoc with the closing delimiter alone at the start of its line.
+The first save creates the record:
 
 ```
 sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-record.sh <survey-dir> <id> <<'PRWF_RECORD_END'
@@ -77,7 +80,16 @@ layout src/auth/** | Session and token handling for the HTTP API.
 PRWF_RECORD_END
 ```
 
-The script refuses a malformed record and says which line; fix it and
-write again. Your final message is exactly the one `record:` line the
-script printed, nothing else. Never write any other file, never edit
-the repository, never post anywhere.
+Every later section adds to it with `--append` after the id, so a
+reader stopped early still leaves what it read. The script refuses a
+malformed chunk and says which line; fix it and save again.
+
+Every turn either calls a tool or delivers your report. Never end a
+turn on a sentence about what you will do next: make the call in that
+turn. Your report is the last `record:` line the script printed,
+nothing else. When your host gives you a tool to hand back your report,
+that call delivers it, and it ends your run, so call it only after the
+last save. If you are told to report before anything is saved, report
+`record: <id> unsaved`, never a draft, a summary, or a placeholder.
+Never write any other file, never edit the repository, never post
+anywhere.
