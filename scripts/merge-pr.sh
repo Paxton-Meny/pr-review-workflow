@@ -125,9 +125,13 @@ if [ "$cross_repo" = true ]; then
 elif [ "$delete_on_merge" = true ]; then
 	branch='branch kept (the repository deletes it)' delete=''
 elif [ -n "$head_branch" ]; then
-	dependents=$(gh pr list --repo "$owner/$repo" --base "$head_branch" --state open --json number --jq '.[].number' | sed 's/^/#/' | tr '\n' ' ')
-	dependents=${dependents% }
-	[ -z "$dependents" ] || branch="branch kept ($dependents bases on it)" delete=''
+	if list=$(gh pr list --repo "$owner/$repo" --base "$head_branch" --state open --json number --jq '.[].number'); then
+		dependents=$(printf '%s\n' "$list" | sed '/^$/d; s/^/#/' | tr '\n' ' ')
+		dependents=${dependents% }
+		[ -z "$dependents" ] || branch="branch kept ($dependents bases on it)" delete=''
+	else
+		branch='branch kept (dependents could not be checked)' delete=''
+	fi
 fi
 
 if [ "$approve" = "--approve" ]; then
