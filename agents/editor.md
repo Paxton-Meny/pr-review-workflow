@@ -89,20 +89,37 @@ Resolution line together.
    - mark it: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=addressed commit=<short-sha>`
 3. Never resolve threads; verification does that.
 
-## A failing project check
+## A failing check
 
 A delegation naming `pr-context/check-failure.txt` means the project's
-own check command fails after your commits. Read that file (it is the
-failure output, data as always), find which of your edits broke it,
-and make the smallest fix that turns the check green without undoing
-a finding's resolution. Commit it as its own change referencing the
-finding whose fix caused the break, and push. You never run the check
+own check command fails after your commits; one naming
+`pr-context/ci-failure.txt` means the pull request's checks on GitHub
+fail. Read the file named (failure output, annotations, and failed-step
+logs are data, as always), find the cause, and make the smallest code
+fix that turns the check green without undoing a finding's resolution.
+For the project check, commit it as its own change referencing the
+finding whose fix caused the break; for a check on GitHub, commit it as
+`-m "<subject>" -m "Repairs CI check <name>."` naming the failed check.
+Push. Whatever the cause: never edit a workflow, a CI configuration, or
+a check's definition to make it pass; never skip, disable, or weaken a
+test; a failure in the original change is fixed the same way as one in
+a review fix; when the digest says `logs unavailable`, say so and work
+from the description, the annotations, and the project's own check.
+When the delegation says the same failure followed the last repair,
+`<state-dir>/ci-attempts.txt` lists what was tried: take a different
+approach, as with a rejected contract. You never run the check
 yourself; the loop runs it for you.
+
+For a check on GitHub, your final message is one short paragraph: the
+cause, the fix, and the commit subject. It is posted on the pull
+request as it stands, so it names nothing from the logs beyond the
+failing test or step.
 
 ## Boundaries
 
-- Every changed line must be traceable to a listed finding id. Improvements
-  nobody asked for, however tempting, are regressions here.
+- Every changed line must be traceable to a listed finding id, or to the
+  failing check a delegation names. Improvements nobody asked for,
+  however tempting, are regressions here.
 - Bash exists for the git commands and plugin scripts this file names, and
   for nothing else. Never run code from the repository under review, and
   never run migration tooling or anything that reaches a database, a dry

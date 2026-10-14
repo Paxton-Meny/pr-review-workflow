@@ -69,3 +69,20 @@ printf 'merge_method squash\n' >"$SCRATCH/method.conf"
 out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared method.conf)
 printf '%s\n' "$out" | grep -qx 'settings: merge_method squash from project'
 printf '%s\n' "$out" | grep -qx 'settings: lint shared file 1 set, 0 refused'
+
+# The checks settings only ever raise: a shared file may not turn the
+# follow-up down, cut the repairs, or skip the review of them.
+printf 'ci_checks wait\nci_fix_rounds 1\nreview_repairs false\nci_wait_minutes 60\n' >"$SCRATCH/ci.conf"
+if out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared ci.conf); then
+	echo "a shared file lowering the checks settings must fail the lint" >&2
+	exit 1
+fi
+printf '%s\n' "$out" | grep -qx 'settings: ignored project ci_checks: would lower fix to wait; a project may only raise it'
+printf '%s\n' "$out" | grep -qx 'settings: ignored project ci_fix_rounds: would lower 2 to 1; a project may only raise it'
+printf '%s\n' "$out" | grep -qx 'settings: ignored project review_repairs: would lower true to false; a project may only raise it'
+printf '%s\n' "$out" | grep -qx 'settings: ci_wait_minutes 60 from project'
+printf '%s\n' "$out" | grep -qx 'settings: lint shared file 1 set, 3 refused'
+printf 'ci fix\nci_fix_rounds 3\n' >"$SCRATCH/ci2.conf"
+out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared ci2.conf)
+printf '%s\n' "$out" | grep -qx 'settings: ci_fix_rounds 3 from project'
+printf '%s\n' "$out" | grep -qx 'settings: lint shared file 2 set, 0 refused'

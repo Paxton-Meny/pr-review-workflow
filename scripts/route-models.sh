@@ -79,7 +79,11 @@
 # verifier on the strong model, else the reviewer's, at high effort.
 # With routing fixed, every role stays on its own setting. The verify
 # stage takes the addressed ids after "--" too, and skips when none
-# follow it.
+# follow it. The ci-repair stage, after the pull request's checks
+# failed, starts the editor at its own rung one level up in effort
+# (finding a cause is a search) and never cheap, and with repeat=1, the
+# same failure after a repair, moves one lever up from its last line,
+# as a retry does.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -124,7 +128,7 @@ MAX_SAMPLES=3
 AGENTS="$(dirname "$0")/../agents"
 
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
-posture=balanced check='' prefixes=''
+posture=balanced check='' prefixes='' repeat=0
 double=risky filter=true samples=1
 ids='' listed=0
 # The run's resolved settings come first; key=value arguments override
@@ -167,6 +171,7 @@ while [ $# -gt 0 ]; do
 		filter) filter=${value:-true} ;;
 		samples) samples=${value:-1} ;;
 		round) round=${value:-1} ;;
+		repeat) repeat=${value:-0} ;;
 		*)
 			echo "route-models: unknown key: $key" >&2
 			exit 1
@@ -279,7 +284,7 @@ held=$pinned
 if [ -z "$held" ] && [ "$(cat "$dir/spawn-effort.txt" 2>/dev/null)" = unapplied ]; then
 	case "$stage" in
 	review | gap | incremental) held=" unapplied $reviewer_effort" ;;
-	edit | repair) held=" unapplied $editor_effort" ;;
+	edit | repair | ci-repair) held=" unapplied $editor_effort" ;;
 	verify | arbitrate) held=" unapplied $verifier_effort" ;;
 	filter) held=" unapplied $filter_effort" ;;
 	esac
@@ -711,6 +716,22 @@ repair)
 	model=$(model_for "$rung" "$editor")
 	for id in $ids; do note_attempt "$id" "$rung" "$model" "$effort" "$reason"; done
 	emit all "$rung" "$model" "$effort" "$reason" "$ids"
+	;;
+ci-repair)
+	# After failing checks: never cheap, one level more effort than the
+	# editor's own for a fresh failure, and one lever up from the last
+	# repair when the same failure followed it.
+	if [ "$routing" = fixed ]; then
+		emit all base "$editor" "$(moved "$editor_effort" 0)" fixed
+		exit 0
+	fi
+	last=$(grep '^route ci-repair ' "$ctx/routes.txt" 2>/dev/null | grep -v ' skip ' | tail -n 1 || true)
+	if [ "$repeat" = 1 ] && [ -n "$last" ]; then
+		set -- $(next_attempt "$(printf '%s\n' "$last" | sed 's/.* rung \([a-z]*\) .*/\1/')" "$(printf '%s\n' "$last" | sed 's/.* effort \([a-z]*\).*/\1/')")
+		emit all "$1" "$(model_for "$1" "$editor")" "$2" ci-repeat
+	else
+		emit all base "$editor" "$(moved "$editor_effort" 1)" ci-failed
+	fi
 	;;
 survey)
 	# Setup's reading of a repository: one cheap cartographer per planned
