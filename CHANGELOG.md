@@ -6,6 +6,33 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A `merge_method` setting (auto, merge, squash, rebase; default auto)
+  and `scripts/merge-method.sh`, which decides how a pull request merges:
+  the setting, else the one method the repository allows, else the method
+  its last thirty merged pull requests into the same base branch used,
+  each classified by its merge commit in the clone, judged first among
+  pull requests of the same shape (one commit or several). Mixed
+  evidence asks an attended user and parks an unattended run with the
+  counts; the run never guesses a history shape. A project's shared file
+  may set it. The run statistics record the method.
+
+### Changed
+
+- `merge-pr.sh` merges by the decided method instead of always by
+  rebase, names the head the run last saw so an unseen push refuses the
+  merge, and deletes the head branch only when the repository does not
+  delete it itself, no open pull request bases on it, and it is not a
+  fork's. A conflicting pull request, or one behind a base that requires
+  it up to date, is refused with exit 5 and nothing written, so the run
+  can hold or park instead of stopping on an error.
+
+### Fixed
+
+- Repositories that do not allow rebase merging can now be merged by
+  the plugin.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
