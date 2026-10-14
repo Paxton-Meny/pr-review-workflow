@@ -54,6 +54,15 @@ rc=0
 out=$(await) || rc=$?
 [ "$rc" -eq 6 ]
 [ "$out" = "await-checks: wait budget of 1 minutes spent, 1 pending" ]
+# After exit 6, --extend gives the head a fresh budget and polls again.
+printf 'pass\tbuild\t%s\tCI\t\n' "$run" >"$stub/pr-checks.1"
+printf 'abc123 0 0\n' >"$dir/ci-wait.txt"
+[ "$(await --extend)" = "await-checks: pass 1 checks" ]
+grep -q '^abc123 0 [1-9][0-9]*$' "$dir/ci-wait.txt"
+if grep -q '^abc123 0 0$' "$dir/ci-wait.txt"; then
+	echo "--extend must move the deadline" >&2
+	exit 1
+fi
 rm -f "$dir/ci-wait.txt"
 
 # A failed gh call is not "no checks": with the head long seen, it ends

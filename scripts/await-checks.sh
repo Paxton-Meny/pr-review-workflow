@@ -1,6 +1,6 @@
 #!/bin/sh
 # Wait for the pull request head's checks and record how they ended.
-# Usage: sh scripts/await-checks.sh <state-dir> [--slice <seconds>]
+# Usage: sh scripts/await-checks.sh <state-dir> [--slice <seconds>] [--extend]
 #
 # Reads the checks GitHub reports for the head in meta.txt until they
 # finish, the slice ends, or the wait budget (ci_wait_minutes, kept per
@@ -10,7 +10,8 @@
 # appeared within a grace: SCHEDULE_GRACE seconds when the base branch
 # holds workflows, STATUS_GRACE otherwise), or "await-checks: off"; exit
 # 5 means the slice ended with checks pending, call again; exit 6 means
-# the budget is spent. Exit 3 means a check failed: the digest for the
+# the budget is spent; --extend then gives the head a fresh budget of
+# ci_wait_minutes from now (first_seen kept) and polls again. Exit 3 means a check failed: the digest for the
 # editor is written to pr-context/ci-failure.txt (name, link,
 # description, the check run's title and summary, its annotations, and
 # the failed steps' log for an Actions run, each capped, none of it
@@ -26,19 +27,27 @@
 # ci-result.txt as "pass|fail|none|off <head>".
 set -eu
 
-dir=${1:?usage: await-checks.sh <state-dir> [--slice <seconds>]}
+usage='usage: await-checks.sh <state-dir> [--slice <seconds>] [--extend]'
+dir=${1:?$usage}
 shift
 slice=${AWAIT_CHECKS_SLICE:-480}
-case "${1:-}" in
-'') ;;
---slice)
-	slice=${2:?usage: await-checks.sh <state-dir> [--slice <seconds>]}
-	;;
-*)
-	echo "await-checks: unknown argument: $1" >&2
-	exit 1
-	;;
-esac
+extend=0
+while [ $# -gt 0 ]; do
+	case "$1" in
+	--slice)
+		slice=${2:?$usage}
+		shift 2
+		;;
+	--extend)
+		extend=1
+		shift
+		;;
+	*)
+		echo "await-checks: unknown argument: $1" >&2
+		exit 1
+		;;
+	esac
+done
 case "$slice" in
 '' | *[!0-9]*)
 	echo "await-checks: slice must be a number of seconds: $slice" >&2
@@ -97,6 +106,12 @@ case "$wait_record" in
 "$head_sha "*)
 	set -- $wait_record
 	first_seen=$2 deadline=$3
+	if [ "$extend" -eq 1 ]; then
+		deadline=$((now + minutes * 60))
+		tmp=$(mktemp "$dir/.ci.XXXXXX")
+		printf '%s %s %s\n' "$head_sha" "$first_seen" "$deadline" >"$tmp"
+		mv "$tmp" "$dir/ci-wait.txt"
+	fi
 	;;
 *)
 	first_seen=$now deadline=$((now + minutes * 60))
