@@ -180,7 +180,11 @@ PRWF_SETTINGS_END
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh <dir>`,
    relaying each
    one-line result. fetch-pr prints file and
-   line counts; the classify line feeds model routing in steps 5
+   line counts; when GitHub refuses the diff (it serves none for very
+   large pull requests) it builds the same diff from the clone instead,
+   its line ends `diff from the clone`, and a `local-diff:` line names
+   the commits used: relay both. The classify line feeds model routing
+   in steps 5
    and 8. Over SIZE_WARN_LINES changed lines: attended, ask whether to
    proceed; unattended, park (step 9) as too large.
 4. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>`. It prints the

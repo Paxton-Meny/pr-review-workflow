@@ -50,6 +50,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   counts; the run never guesses a history shape. A project's shared file
   may set it. The run statistics record the method.
 
+- `scripts/local-diff.sh`: builds a pull request's diff from the clone
+  when GitHub refuses to serve it (very large pull requests get an HTTP
+  500 from the diff endpoint). It is the diff GitHub shows, merge base
+  of the base branch and the head to the head, with `a/` and `b/`
+  prefixes, three context lines, renames, and unquoted paths whatever
+  the user's git configuration says. The head is fetched through
+  `refs/pull/<n>/head` when the clone lacks it, which outlives a
+  deleted fork, then through the head branch as the checkout does.
+
 ### Changed
 
 - `merge-pr.sh` merges by the decided method instead of always by
@@ -59,6 +68,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   fork's. A conflicting pull request, or one behind a base that requires
   it up to date, is refused with exit 5 and nothing written, so the run
   can hold or park instead of stopping on an error.
+
+- `fetch-pr.sh` falls back to the clone instead of stopping when the
+  API refuses the diff. The file list then comes from the same diff,
+  since the API's file list is capped as well, and `meta-full.txt`
+  records `diff_source api` or `diff_source clone`. The review skill
+  relays the fallback; the size warning still parks oversized pull
+  requests unattended.
 
 ### Fixed
 
