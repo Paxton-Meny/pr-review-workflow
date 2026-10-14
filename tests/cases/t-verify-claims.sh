@@ -122,7 +122,8 @@ grep -qx '1 check make check | the Makefile gate' "$dir/digest.txt"
 # A migrations claim stands only as a tracked directory that holds
 # migration files outside the tests, and a check naming migration or
 # database tooling never stands, whatever backs it.
-mkdir -p "$clone/db/changes" "$clone/src/Data/Migrations" "$clone/src/schema" "$clone/App.Tests/Schema"
+mkdir -p "$clone/db/changes" "$clone/src/Data/Migrations" "$clone/src/schema" "$clone/App.Tests/Schema" "$clone/src/db/migrations"
+printf 'module.exports = { up: async (queryInterface) => {} };\n' >"$clone/src/db/migrations/20240101-create-users.js"
 printf 'ALTER TABLE users ADD email TEXT;\n' >"$clone/db/changes/0001.sql"
 printf 'class Init : Migration { void Up(MigrationBuilder b) {} }\n' >"$clone/src/Data/Migrations/Init.cs"
 printf 'type Schema struct{}\n' >"$clone/src/schema/schema.go"
@@ -136,6 +137,7 @@ migrations db/changes/ | schema changes go here
 migrations db/missing/ | no such directory
 migrations db/changes/0001.sql | a file, not a directory
 migrations src/Data/Migrations/ | EF Core migrations
+migrations src/db/migrations/ | Sequelize migrations
 migrations src/schema/ | named like a schema, holds no migrations
 migrations App.Tests/Schema/ | schema snapshots the tests compare
 ## check
@@ -145,6 +147,7 @@ R
 out=$(verify "$dir")
 grep -qx '3 migrations db/changes/ | schema changes go here' "$dir/digest.txt"
 grep -qx '3 migrations src/Data/Migrations/ | EF Core migrations' "$dir/digest.txt"
+grep -qx '3 migrations src/db/migrations/ | Sequelize migrations' "$dir/digest.txt"
 printf '%s\n' "$out" | grep -qx 'verify: dropped 3 migrations src/schema/ (no migration files)'
 printf '%s\n' "$out" | grep -qx 'verify: dropped 3 migrations App.Tests/Schema/ (a test directory)'
 printf '%s\n' "$out" | grep -qx 'verify: dropped 3 migrations db/missing/'
