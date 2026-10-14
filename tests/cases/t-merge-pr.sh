@@ -293,7 +293,7 @@ printf "$clean" >"$stub/pr-view.1"
 rc=0
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
 [ "$rc" -eq 6 ]
-! printf '%s\n' "$out" | grep -q '^verdict '
+if printf '%s\n' "$out" | grep -q '^verdict '; then echo "a verdict for an older base must not be relayed" >&2; exit 1; fi
 if grep -q '^pr merge' "$stub/calls.log"; then
 	echo "a verdict on an older base must not carry a merge" >&2
 	exit 1
