@@ -56,6 +56,26 @@ out=$(await) || rc=$?
 [ "$out" = "await-checks: wait budget of 1 minutes spent, 1 pending" ]
 rm -f "$dir/ci-wait.txt"
 
+# A failed gh call is not "no checks": with the head long seen, it ends
+# as budget spent or a slice, never as none.
+rm -f "$stub/pr-checks"
+printf '1\n' >"$stub/pr-checks.exit"
+printf 'abc123 0 0\n' >"$dir/ci-wait.txt"
+rm -f "$dir/ci-result.txt"
+rc=0
+out=$(await) || rc=$?
+[ "$rc" -eq 6 ]
+if printf '%s\n' "$out" | grep -q 'no checks'; then
+	echo "a failed poll must not read as no checks" >&2
+	exit 1
+fi
+printf 'abc123 0 99999999999\n' >"$dir/ci-wait.txt"
+rc=0
+out=$(await --slice 0) || rc=$?
+[ "$rc" -eq 5 ]
+[ ! -f "$dir/ci-result.txt" ] || ! grep -q '^none' "$dir/ci-result.txt"
+rm -f "$stub/pr-checks.exit" "$dir/ci-wait.txt"
+
 # A failure is digested for the editor: the check, its run's title,
 # summary, and annotations, and the failed steps' log with colour and
 # timestamps removed. Nothing of it reaches the output.
