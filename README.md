@@ -336,9 +336,11 @@ refuses, says what landed where, and asks you, or parks unattended.
 Under `judged`, a cheap agent reads both sets of hunks first and
 classifies them as independent, complementary, duplicate, or
 contradictory; independent merges on its own, and the rest reach you
-with the verdict. A verdict stands only for the base it judged. Nothing
-here edits, closes, retargets, or merges on a verdict, and the editor
-never sees any of it.
+with the verdict. A verdict stands only for the base it judged. A verdict
+never edits, closes, or retargets anything and never substitutes for
+`--overlap-checked`; its one effect on a merge is that an independent
+verdict on the very base it judged lets the merge proceed without a
+question. The editor never sees any of it.
 
 Not covered: a branch with no pull request, two fixes that share no
 file (one in a caller, one in a callee), and any reading of intent
