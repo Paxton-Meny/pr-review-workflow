@@ -289,20 +289,21 @@ fi
 # other than the browser suites is offered on its own instead, the one
 # with the most files first, and each browser suite prints as skipped.
 # A candidate is named after the file that backs it, or "dotnet" when
-# that name holds a space.
+# that name holds a character outside letters, digits and ._+@-. A path
+# with any such character is never offered.
 git ls-files 2>/dev/null >"$work/tracked"
 dotnet_root=''
 for f in ./*.sln ./*.csproj; do
 	[ -f "$f" ] && dotnet_root=${f#./} && break
 done
 if [ -z "$dotnet_root" ]; then
-	awk -F/ -v max="$MAX_SLN_DEPTH" '/\.sln$/ && !/ / && NF - 1 <= max' "$work/tracked" >"$work/sln"
+	awk -F/ -v max="$MAX_SLN_DEPTH" '/\.sln$/ && $0 !~ "[^A-Za-z0-9._/+@-]" && NF - 1 <= max' "$work/tracked" >"$work/sln"
 	[ "$(grep -c '' "$work/sln" || true)" -eq 1 ] && dotnet_root=$(cat "$work/sln")
 fi
 if [ -n "$dotnet_root" ]; then
 	label=${dotnet_root##*/}
-	case "$label" in *' '*) label=dotnet ;; esac
-	grep -E '\.(cs|fs|vb)proj$' "$work/tracked" | grep -v ' ' >"$work/projects" || true
+	case "$label" in *[!A-Za-z0-9._+@-]*) label=dotnet ;; esac
+	grep -E '\.(cs|fs|vb)proj$' "$work/tracked" | grep -v '[^A-Za-z0-9._/+@-]' >"$work/projects" || true
 	: >"$work/sdk-projects"
 	: >"$work/browser-projects"
 	if [ -s "$work/projects" ]; then
