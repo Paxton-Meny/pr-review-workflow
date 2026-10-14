@@ -152,9 +152,13 @@ esac
 # commit count, then the commit subjects separated by a record separator.
 merged() {
 	# merged [--base <branch>]
-	gh pr list --repo "$owner/$repo" --state merged --limit "$HISTORY_LIMIT" "$@" \
+	out=$(gh pr list --repo "$owner/$repo" --state merged --limit "$HISTORY_LIMIT" "$@" \
 		--json number,mergeCommit,commits \
-		--jq '.[] | "\(.number)\t\(.mergeCommit.oid // "-")\t\(.commits | length)\t\(.commits | map(.messageHeadline) | join("\u001e"))"' 2>/dev/null || true
+		--jq '.[] | "\(.number)\t\(.mergeCommit.oid // "-")\t\(.commits | length)\t\(.commits | map(.messageHeadline) | join("\u001e"))"') || {
+		echo "merge-method: gh could not list merged pull requests of $owner/$repo" >&2
+		exit 1
+	}
+	[ -z "$out" ] || printf '%s\n' "$out"
 }
 raw=$(mktemp "$ctx/.history.XXXXXX")
 trap 'rm -f "$raw"' EXIT
