@@ -31,6 +31,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   round a park or hold closed starts a new one. A ledger from before the
   journal is reported unplaced (exit 4) and resumes as before.
 
+- Overlap awareness. A new `overlap_check` setting (off, near, judged;
+  default near; a project may only raise it) makes the review notice
+  work landing beside the pull request. At the start, open pull
+  requests on the same base that share files are compared hunk by hunk
+  and the ones touching this change, within 12 lines or in the same
+  function, are named with draft, same-author, and linked marks, and
+  the user is asked whether to continue. Before any merge, commits that
+  landed on the base since the review are compared the same way in the
+  merge base's coordinates; disjoint changes to shared files merge,
+  near or same ones refuse with exit 6 and a person decides, or the
+  run parks. Under judged, a new comparer agent reads the touching
+  hunks first and classifies them; an independent verdict on that
+  base merges on its own. New scripts: hunk-ranges, compare-hunks,
+  base-drift, scan-open-prs, save-verdict; split-diff gains
+  `--excluded`; checkout-pr records the base snapshot; route-models
+  gains the compare stage.
 - Base sync. A `branch_sync` setting (off, update, resolve; default
   update, never from a project's shared file) and `scripts/sync-branch.sh`
   bring the pull request branch up to date, before the checks are
