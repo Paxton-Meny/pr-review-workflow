@@ -1,15 +1,21 @@
 #!/bin/sh
 # List files the last push changed outside any finding's scope.
-# Usage: sh scripts/round-diff.sh <state-dir> [--all]
+# Usage: sh scripts/round-diff.sh <state-dir> [--all [<base-sha>]]
 # With --all every file changed in prev_head..head_sha is listed, finding
-# paths included; "clean" then means the range is empty.
+# paths included; "clean" then means the range is empty. prev_head moves on
+# every push, so after several pushes pass the head the first one started
+# from as <base-sha> to cover them all.
 set -eu
 
-dir=${1:?usage: round-diff.sh <state-dir> [--all]}
+dir=${1:?usage: round-diff.sh <state-dir> [--all [<base-sha>]]}
 all=0
+base=""
 case "${2:-}" in
 '') ;;
---all) all=1 ;;
+--all)
+	all=1
+	base=${3:-}
+	;;
 *)
 	echo "round-diff: unknown argument: $2" >&2
 	exit 1
@@ -22,6 +28,7 @@ worktree="$dir/worktree"
 }
 prev_head=$(sed -n 's/^prev_head //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
+[ -z "$base" ] || prev_head=$base
 if [ -z "$prev_head" ]; then
 	echo "round-diff: no push recorded yet"
 	exit 0

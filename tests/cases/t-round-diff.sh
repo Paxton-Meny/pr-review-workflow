@@ -45,3 +45,15 @@ out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all) || rc=$?
 printf '%s\n' "$out" | grep -qx 'unexpected src/named.txt'
 printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_sha %s\nprev_head %s\n' "$head1" "$head1" >"$dir/meta.txt"
 sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all | grep -qx 'round-diff: clean'
+
+# An explicit base covers two consecutive pushes although prev_head moved.
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_sha %s\nprev_head %s\n' "$head2" "$head1" >"$dir/meta.txt"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all) || rc=$?
+[ "$rc" -eq 3 ]
+printf '%s\n' "$out" | grep -cx 'unexpected src/named.txt' | grep -qx 0
+rc=0
+out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all "$base") || rc=$?
+[ "$rc" -eq 3 ]
+printf '%s\n' "$out" | grep -qx 'unexpected src/named.txt'
+printf '%s\n' "$out" | grep -qx 'unexpected src/other.txt'
