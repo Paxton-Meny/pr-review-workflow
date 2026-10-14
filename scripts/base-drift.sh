@@ -98,16 +98,17 @@ finish() {
 [ "$landed" -gt 0 ] || finish none 0
 
 cut -f1 "$ctx/files.txt" | sort -u >"$work/ours.paths"
-git -C "$repo_root" diff --name-only "$mb" "$base_now" | sort -u >"$work/theirs.paths"
+git -C "$repo_root" -c core.quotepath=off diff --no-ext-diff --no-textconv --no-color --no-renames --src-prefix=a/ --dst-prefix=b/ --name-only "$mb" "$base_now" | sort -u >"$work/theirs.paths"
 comm -12 "$work/ours.paths" "$work/theirs.paths" >"$work/shared.all"
 sh "$here/split-diff.sh" --excluded <"$work/shared.all" >"$work/excluded" || true
 grep -vxF -f "$work/excluded" "$work/shared.all" >"$work/shared" || true
 shared=$(grep -c . "$work/shared" || true)
 [ "$shared" -gt 0 ] || finish none 0
 
+# The user's diff config must not change what is read, so it is pinned.
 # Both diffs against the merge base: ours is the forge's diff, theirs the
 # landed commits restricted to the shared files.
-tr '\n' '\0' <"$work/shared" | xargs -0 git -C "$repo_root" diff "$mb" "$base_now" -- >"$work/theirs.diff"
+tr '\n' '\0' <"$work/shared" | xargs -0 git -C "$repo_root" -c core.quotepath=off diff --no-ext-diff --no-textconv --no-color --no-renames --src-prefix=a/ --dst-prefix=b/ "$mb" "$base_now" -- >"$work/theirs.diff"
 sh "$here/hunk-ranges.sh" "$work/theirs.diff" >"$work/theirs.ranges"
 sh "$here/hunk-ranges.sh" "$ctx/diff.patch" |
 	awk -F '\t' 'NR == FNR { shared[$0] = 1; next } ($1 in shared)' "$work/shared" - >"$work/ours.ranges"
