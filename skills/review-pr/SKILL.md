@@ -373,7 +373,12 @@ PRWF_SETTINGS_END
        and exactly:
        `Resolve the update conflicts. State directory: <dir>. Read pr-context/conflicts.txt, resolve every file, then run the sync script's continue step.`
        and relay its sentence; a worktree still mid-update afterwards
-       is parked as a conflict the editor could not resolve. After any
+       is first restored with
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sync-branch.sh <dir> --abort`
+       and then parked as a conflict the editor could not resolve. Any
+       other non-zero exit (1 or 2: mergeability unknown, base
+       unavailable, a dirty worktree, no merge method, a refused push)
+       is relayed and handled as exit 4. After any
        update whose line counts files changed by the resolution, when
        the facts line says `review_repairs true`, review those files as
        step c reviews a repair, with `pr-context/sync-changed.txt` as
