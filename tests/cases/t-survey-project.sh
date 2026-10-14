@@ -196,6 +196,21 @@ printf 'survey: check App.Test.csproj dotnet test App.Test/App.Test.csproj\nsurv
 printf '%s\n' "$out" | grep -qx 'survey: skipped App.UiTests.csproj dotnet test App.UiTests/App.UiTests.csproj (browser suite: it needs the app running)'
 printf '%s\n' "$out" | grep -qx 'survey: prefix App.sln dotnet test'
 
+# A project path with a shell metacharacter is never offered, whether it
+# would print as a check or as a skipped browser suite.
+mkdir -p 'Bad;x.Tests' 'Bad;x.UiTests'
+printf '<Project><ItemGroup><PackageReference Include="Microsoft.NET.Test.Sdk" /></ItemGroup></Project>\n' >'Bad;x.Tests/Bad;x.Tests.csproj'
+printf '<Project><ItemGroup><PackageReference Include="Microsoft.NET.Test.Sdk" /><PackageReference Include="Microsoft.Playwright" /></ItemGroup></Project>\n' >'Bad;x.UiTests/Bad;x.UiTests.csproj'
+git add -A
+git commit --quiet -m bad-path
+out=$(sh "$REPO_ROOT/scripts/survey-project.sh" facts)
+printf '%s\n' "$out" | grep '^survey: check ' | cmp - "$SCRATCH/checks"
+if printf '%s\n' "$out" | grep -E '^survey: (check|skipped|prefix) ' | grep -q ';'; then
+	echo "a project path with a shell metacharacter must never be offered" >&2
+	exit 1
+fi
+printf '%s\n' "$out" | grep -qx 'survey: skipped App.UiTests.csproj dotnet test App.UiTests/App.UiTests.csproj (browser suite: it needs the app running)'
+
 # A browser suite alone offers no check: running it needs the app up.
 br_remote="$SCRATCH/Paxton-Meny/browser.git"
 git init --quiet --bare "$br_remote"
