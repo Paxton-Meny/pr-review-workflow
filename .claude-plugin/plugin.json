@@ -54,6 +54,13 @@
       "description": "After a repair of failing checks pushes, the reviewer reads only the files it touched and any finding re-enters the remediation loop under its round cap, so nothing merges unreviewed. Off trusts the check gate and the checks alone. A project's shared file may turn this on, never off.",
       "default": true
     },
+    "branch_sync": {
+      "type": "string",
+      "options": ["off", "update", "resolve"],
+      "title": "Base sync",
+      "description": "What happens, before the checks are awaited and at the merge gate, when the base branch has moved under the pull request so that it conflicts or is behind a base that requires it up to date. off: the run reports it and holds, or parks unattended. update: the plugin brings the branch up to date in its own worktree by the mechanism the merge method needs (a rebase and a leased forced push under rebase merging, a merge of the base into the head otherwise) and pushes; conflicts still go to a person. resolve: the editor resolves conflicts too, and the files whose change it touched get an incremental review. Only you can set this: it writes to your branch.",
+      "default": "update"
+    },
     "self_start": {
       "type": "string",
       "options": ["ask", "auto"],

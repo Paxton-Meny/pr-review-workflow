@@ -428,3 +428,12 @@ route spawn-effort unapplied >/dev/null
 [ "$(route ci-repair $ARGS strong=opus repeat=1)" = "route ci-repair all rung strong model opus effort high unapplied medium reason ci-repeat" ]
 rm -f "$dir/spawn-effort.txt"
 [ "$(grep -c '^route ci-repair ' "$ctx/routes.txt")" -eq 8 ]
+
+# Resolving an update that stopped on conflicts never starts cheap and
+# takes one level more effort than the editor's own; fixed keeps it.
+[ "$(route conflict $ARGS)" = "route conflict all rung base model inherit effort high reason conflict" ]
+[ "$(route conflict $ARGS posture=economy)" = "route conflict all rung base model inherit effort high reason conflict" ]
+[ "$(route conflict routing=fixed)" = "route conflict all rung base model inherit effort medium reason fixed" ]
+route spawn-effort unapplied >/dev/null
+[ "$(route conflict $ARGS)" = "route conflict all rung base model inherit effort high unapplied medium reason conflict" ]
+rm -f "$dir/spawn-effort.txt"
