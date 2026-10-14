@@ -91,6 +91,9 @@ grep -q "^file	disjoint	src/app.py	10-12	50-50	$" "$ctx/drift.txt"
 # header names the same function, so near, and the merge waits.
 sed -i 's/^    a28 = 28$/    a28 = 280/' "$seed/src/app.py"
 land near-fn
+# The clone's own diff config must not change what is read.
+git -C "$clone" config diff.mnemonicPrefix true
+git -C "$clone" config diff.noprefix true
 rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
