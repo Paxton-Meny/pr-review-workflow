@@ -45,7 +45,7 @@ scan() { sh "$REPO_ROOT/scripts/scan-open-prs.sh" "$dir"; }
 
 # The listing, as the jq filter shapes it: 7 is us; 8 is ours too, older;
 # 9 is bob's, near; 10 is stacked on us; 11 targets another base; 12 is
-# erin's draft that names us, same lines; 13 shares nothing; 14 shares
+# erin's draft that names us, same lines; 13 shares only docs, never counted; 14 shares
 # only the lockfile; 15 to 17 share app.py but are older than the cap.
 cat >"$stub/pr-list" <<'LIST'
 pr 7	alice	false	main	feat	2026-10-14T10:00:00Z	false

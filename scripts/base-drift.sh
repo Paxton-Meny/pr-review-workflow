@@ -66,20 +66,34 @@ mb=$(git -C "$repo_root" merge-base "$head_sha" "$base_now" 2>/dev/null) || {
 	echo "base-drift: no merge base between the reviewed head and origin/$base_branch"
 	exit 5
 }
-landed=$(git -C "$repo_root" rev-list --count "$mb..$base_now")
+# When the branch was brought up to date since the review (its merge
+# base now sits past the snapshot), the merge base hides what landed:
+# compare from the snapshot instead, approximately, since the two diffs
+# are then in different coordinates.
+from=$mb
+approx=''
+if [ -n "$snapshot" ] && [ "$snapshot" != "$mb" ] &&
+	git -C "$repo_root" merge-base --is-ancestor "$snapshot" "$mb" 2>/dev/null; then
+	from=$snapshot
+	approx=', approximate: the branch was brought up to date since the review'
+fi
+landed=$(git -C "$repo_root" rev-list --count "$from..$base_now")
+aside=0
 
 work=$(mktemp -d "$ctx/.drift.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 out="$work/drift.txt"
 {
-	printf 'base %s\nmerge_base %s\ncommits %s\n' "$base_now" "$mb" "$landed"
+	printf 'base %s\nmerge_base %s\nlanded_from %s\ncommits %s\n' "$base_now" "$mb" "$from" "$landed"
 	[ -z "$snapshot" ] || printf 'snapshot %s\n' "$snapshot"
 } >"$out"
 
 finish() {
 	# finish <level> <shared> [<extra lines>]
 	printf 'level %s files %s\n' "$1" "$2" >>"$out"
-	summary="base-drift: $landed commits landed, $2 files shared, level $1$freshness"
+	aside_note=''
+	[ "$aside" -eq 0 ] || aside_note=", $aside docs or config set aside"
+	summary="base-drift: $landed commits landed, $2 files shared${aside_note}, level $1$approx$freshness"
 	# A base read from an earlier fetch cannot show whether it moved, so
 	# a quiet level there is refused without recording a drift.
 	if [ -n "$freshness" ]; then
@@ -102,17 +116,22 @@ finish() {
 [ "$landed" -gt 0 ] || finish none 0
 
 cut -f1 "$ctx/files.txt" | sort -u >"$work/ours.paths"
-git -C "$repo_root" -c core.quotepath=off diff --no-ext-diff --no-textconv --no-color --no-renames --src-prefix=a/ --dst-prefix=b/ --name-only "$mb" "$base_now" | sort -u >"$work/theirs.paths"
+git -C "$repo_root" -c core.quotepath=off diff --no-ext-diff --no-textconv --no-color --no-renames --src-prefix=a/ --dst-prefix=b/ --name-only "$from" "$base_now" | sort -u >"$work/theirs.paths"
 comm -12 "$work/ours.paths" "$work/theirs.paths" >"$work/shared.all"
 sh "$here/split-diff.sh" --excluded <"$work/shared.all" >"$work/excluded" || true
-grep -vxF -f "$work/excluded" "$work/shared.all" >"$work/shared" || true
+grep -vxF -f "$work/excluded" "$work/shared.all" >"$work/shared.kept" || true
+# Only code and tests count: a changelog or a dependency list is where
+# every concurrent change meets, and a clash there is not a defect.
+sh "$here/classify-change.sh" --classify <"$work/shared.kept" |
+	awk -F '\t' '$1 == "code" || $1 == "tests" { print $2 }' >"$work/shared"
 shared=$(grep -c . "$work/shared" || true)
+aside=$(($(grep -c . "$work/shared.kept" || true) - shared))
 [ "$shared" -gt 0 ] || finish none 0
 
 # The user's diff config must not change what is read, so it is pinned.
 # Both diffs against the merge base: ours is the forge's diff, theirs the
 # landed commits restricted to the shared files.
-tr '\n' '\0' <"$work/shared" | xargs -0 git -C "$repo_root" -c core.quotepath=off diff --no-ext-diff --no-textconv --no-color --no-renames --src-prefix=a/ --dst-prefix=b/ "$mb" "$base_now" -- >"$work/theirs.diff"
+tr '\n' '\0' <"$work/shared" | xargs -0 git -C "$repo_root" -c core.quotepath=off diff --no-ext-diff --no-textconv --no-color --no-renames --src-prefix=a/ --dst-prefix=b/ "$from" "$base_now" -- >"$work/theirs.diff"
 sh "$here/hunk-ranges.sh" "$work/theirs.diff" >"$work/theirs.ranges"
 sh "$here/hunk-ranges.sh" "$ctx/diff.patch" |
 	awk -F '\t' 'NR == FNR { shared[$0] = 1; next } ($1 in shared)' "$work/shared" - >"$work/ours.ranges"

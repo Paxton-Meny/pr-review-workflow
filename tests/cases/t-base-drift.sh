@@ -27,6 +27,7 @@ mkdir -p "$seed/src"
 	done
 } >"$seed/src/app.py"
 printf 'lock v1\n' >"$seed/package-lock.json"
+printf 'intro\nbody\n' >"$seed/notes.md"
 git -C "$seed" add .
 git -C "$seed" commit --quiet -m base
 git -C "$seed" push --quiet origin HEAD:main
@@ -35,6 +36,7 @@ git -C "$seed" push --quiet origin HEAD:main
 git -C "$seed" checkout --quiet -b feature
 sed -i 's/^    a10 = 10$/    a10 = 100/; s/^    a11 = 11$/    a11 = 110/; s/^    a12 = 12$/    a12 = 120/' "$seed/src/app.py"
 printf 'lock v2\n' >"$seed/package-lock.json"
+printf 'intro\nbody changed\n' >"$seed/notes.md"
 git -C "$seed" commit --quiet -am feature
 git -C "$seed" push --quiet origin feature
 head=$(git -C "$seed" rev-parse HEAD)
@@ -80,10 +82,17 @@ printf 'lock v3\n' >"$seed/package-lock.json"
 land lock
 [ "$(drift)" = "base-drift: 2 commits landed, 0 files shared, level none" ]
 
+# A docs file shared on the same lines: set aside, since a changelog or a
+# note is where every concurrent change meets.
+printf 'intro changed\nbody\n' >"$seed/notes.md"
+land notes
+[ "$(drift)" = "base-drift: 3 commits landed, 0 files shared, 1 docs or config set aside, level none" ]
+grep -qx 'level none files 0' "$ctx/drift.txt"
+
 # A change in beta, far from alpha's lines: disjoint passes.
 sed -i 's/^    b50 = 50$/    b50 = 500/' "$seed/src/app.py"
 land far
-[ "$(drift)" = "base-drift: 3 commits landed, 1 files shared, level disjoint" ]
+[ "$(drift)" = "base-drift: 4 commits landed, 1 files shared, 1 docs or config set aside, level disjoint" ]
 grep -q "^file	disjoint	src/app.py	10-12	50-50	$" "$ctx/drift.txt"
 [ ! -d "$ctx/overlap" ]
 
@@ -97,7 +106,7 @@ git -C "$clone" config diff.noprefix true
 rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
-[ "$out" = "$(printf 'base-drift: 4 commits landed, 1 files shared, level near\ndrift near src/app.py ours 10-12 theirs 28-28 in def alpha():')" ]
+[ "$out" = "$(printf 'base-drift: 5 commits landed, 1 files shared, 1 docs or config set aside, level near\ndrift near src/app.py ours 10-12 theirs 28-28 in def alpha():')" ]
 grep -q "^file	near	src/app.py	10-12	28-28	def alpha():$" "$ctx/drift.txt"
 grep -qx 'level near files 1' "$ctx/drift.txt"
 grep -qx 'path: src/app.py' "$ctx/overlap/base/ours.diff"
@@ -113,12 +122,13 @@ land same
 rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
-printf '%s\n' "$out" | grep -qx 'base-drift: 5 commits landed, 1 files shared, level same'
+printf '%s\n' "$out" | grep -qx 'base-drift: 6 commits landed, 1 files shared, 1 docs or config set aside, level same'
 printf '%s\n' "$out" | grep -qx 'drift same src/app.py ours 10-12 theirs 11-11 in def alpha():'
 
-# The author rebases onto the moved base: the merge base moves with the
-# head, the forge's diff is taken against it, and what landed after it
-# is compared in those coordinates, with nothing counted twice.
+# The branch is brought up to date with the moved base (by the author
+# or by base sync): the merge base now sits past the snapshot and would
+# hide everything that landed, so the comparison runs from the snapshot
+# instead, approximately, and still refuses.
 git -C "$seed" checkout --quiet -b feature2 main
 sed -i 's/^    a10 = 10$/    a10 = 100/; s/^    a12 = 12$/    a12 = 120/' "$seed/src/app.py"
 git -C "$seed" commit --quiet -am rebased
@@ -128,14 +138,18 @@ git -C "$seed" checkout --quiet main
 git -C "$clone" fetch --quiet origin feature2
 sed -i "s/^head_sha .*/head_sha $head2/" "$dir/meta.txt"
 refetch
-[ "$(drift)" = "base-drift: 0 commits landed, 0 files shared, level none" ]
+rc=0
+out=$(drift) || rc=$?
+[ "$rc" -eq 5 ]
+printf '%s\n' "$out" | grep -qx 'base-drift: 6 commits landed, 1 files shared, level same, approximate: the branch was brought up to date since the review'
+grep -qx "landed_from $base_sha" "$ctx/drift.txt"
 sed -i 's/^    a20 = 20$/    a20 = 200/' "$seed/src/app.py"
 land after-rebase
 rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
-printf '%s\n' "$out" | grep -q '^base-drift: 1 commits landed, 1 files shared, level near'
-printf '%s\n' "$out" | grep -q '^drift near src/app.py ours 10-12 theirs 20-20 in def alpha():$'
+printf '%s\n' "$out" | grep -q '^base-drift: 7 commits landed, 1 files shared, level same, approximate'
+printf '%s\n' "$out" | grep -q '^drift same src/app.py ours 10-12 theirs 11-11 in def alpha():$'
 
 # The snapshot never changes on a resume, and off skips everything.
 grep -qx "snapshot $base_sha" "$ctx/drift.txt"
@@ -149,7 +163,7 @@ mv "$remote" "$remote.gone"
 rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
-printf '%s\n' "$out" | grep -q 'level near, base read from an earlier fetch$'
+printf '%s\n' "$out" | grep -q 'level same, approximate: the branch was brought up to date since the review, base read from an earlier fetch$'
 # A stale read that shows nothing close is refused too, since a failed
 # fetch cannot show that the base did not move.
 cp "$ctx/files.txt" "$SCRATCH/files.keep"
@@ -157,7 +171,7 @@ printf 'unrelated.txt\t1\t0\n' >"$ctx/files.txt"
 rc=0
 out=$(drift) || rc=$?
 [ "$rc" -eq 5 ]
-printf '%s\n' "$out" | grep -q 'level none, base read from an earlier fetch$'
+printf '%s\n' "$out" | grep -q 'level none, approximate: the branch was brought up to date since the review, base read from an earlier fetch$'
 cp "$SCRATCH/files.keep" "$ctx/files.txt"
 git -C "$clone" update-ref -d refs/remotes/origin/main
 rc=0
