@@ -61,7 +61,7 @@ MAX_CI_LINES_PER_WORKFLOW=3
 MAX_MIGRATION_DIRS=20
 MAX_SLN_DEPTH=3
 MIGRATION_EXT='\.(py|rb|php|ex|exs|js|mjs|cjs|ts|cs|sql|xml|ya?ml)$'
-MIGRATION_RE='class [A-Za-z0-9_]+\(migrations\.Migration\)|^down_revision[^=]*=|ActiveRecord::Migration|use Ecto\.Migration|implements MigrationInterface|exports\.up[[:space:]]*=|extends Migration|-- \+goose Up|databaseChangeLog|\[Migration\(|MigrationBuilder'
+MIGRATION_RE='class [A-Za-z0-9_]+\(migrations\.Migration\)|^down_revision[^=]*=|ActiveRecord::Migration|use Ecto\.Migration|implements MigrationInterface|exports\.up[[:space:]]*=|extends Migration|-- \+goose Up|databaseChangeLog|\[Migration\(|MigrationBuilder|AbstractMigration|queryInterface|export (async )?function up[[:space:]]*\(|BaseJavaMigration|goose\.AddMigration'
 SENSITIVE_NAMES='auth|authn|authz|oauth|oidc|sso|login|session|sessions|identity|password|passwords|credential|credentials|secret|secrets|token|tokens|crypto|kms|vault|payment|payments|billing|checkout|invoice|invoices|wallet|ledger|permission|permissions|acl|rbac|policy|policies|security|admin'
 SKIP_DIRS='test|tests|spec|specs|__tests__|fixtures|fixture|testdata|mocks|docs|doc|examples|example|node_modules|vendor|third_party|dist|build'
 RULEBOOK_NAMES='laws|rules|standards|conventions|guidelines?|polic(y|ies)|principles|requirements'
