@@ -39,6 +39,7 @@ printf '%s\n' "$out" | grep -cx 'unexpected src/named.txt' | grep -qx 0
 
 # --all lists a repair's files even when a finding names them.
 printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_sha %s\nprev_head %s\n' "$head1" "$base" >"$dir/meta.txt"
+rc=0
 out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all) || rc=$?
 [ "$rc" -eq 3 ]
 printf '%s\n' "$out" | grep -qx 'unexpected src/named.txt'
