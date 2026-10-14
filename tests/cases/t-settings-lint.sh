@@ -63,3 +63,9 @@ fi
 
 # Nothing was written anywhere near the files.
 [ "$(ls "$SCRATCH" | grep -vx log)" = "$(printf 'bad.conf\nshared.conf')" ]
+
+# A shared file may name the merge method.
+printf 'merge_method squash\n' >"$SCRATCH/method.conf"
+out=$(sh "$REPO_ROOT/scripts/resolve-settings.sh" --lint shared method.conf)
+printf '%s\n' "$out" | grep -qx 'settings: merge_method squash from project'
+printf '%s\n' "$out" | grep -qx 'settings: lint shared file 1 set, 0 refused'

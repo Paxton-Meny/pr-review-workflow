@@ -32,8 +32,8 @@ mv "$tmp" "$ctx/diff.patch"
 
 tmp=$(mktemp "$ctx/.fetch.XXXXXX")
 gh pr view "$pr" --repo "$owner/$repo" \
-	--json title,additions,deletions,changedFiles,labels \
-	--jq '"title \(.title)\nadditions \(.additions)\ndeletions \(.deletions)\nchanged_files \(.changedFiles)\nlabels \([.labels[].name] | join(","))"' >"$tmp"
+	--json title,additions,deletions,changedFiles,labels,commits \
+	--jq '"title \(.title)\nadditions \(.additions)\ndeletions \(.deletions)\nchanged_files \(.changedFiles)\nlabels \([.labels[].name] | join(","))\ncommits \(.commits | length)"' >"$tmp"
 mv "$tmp" "$ctx/meta-full.txt"
 
 tmp=$(mktemp "$ctx/.fetch.XXXXXX")

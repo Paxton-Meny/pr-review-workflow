@@ -117,6 +117,7 @@ PRWF_ARGS_END
 ```
 sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh <dir> <<'PRWF_SETTINGS_END'
 auto_approve ${user_config.auto_approve}
+merge_method ${user_config.merge_method}
 self_start ${user_config.self_start}
 check_command ${user_config.check_command}
 local_standards ${user_config.local_standards}

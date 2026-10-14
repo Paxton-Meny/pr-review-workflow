@@ -24,6 +24,7 @@ awk '
 	elow += v["effort_low"]; emed += v["effort_medium"]; ehigh += v["effort_high"]; exhigh += v["effort_xhigh"]; pinned += v["pinned"]; unapplied += v["unapplied"]
 	mr += v["model_retries"]; mrv += v["model_retries_verified"]; er += v["effort_retries"]; erv += v["effort_retries_verified"]
 	sr += v["same_retries"]; srv += v["same_retries_verified"]
+	methods[v["method"]]++
 	if (v["reopens"] + 0 > 0) reopened++
 	delete v
 }
@@ -40,5 +41,7 @@ END {
 		elow, emed, ehigh, exhigh, pinned, unapplied
 	printf "stats-report: retries model %d model-verified %d effort %d effort-verified %d same %d same-verified %d\n", \
 		mr, mrv, er, erv, sr, srv
+	printf "stats-report: methods merge %d squash %d rebase %d none %d\n", \
+		methods["merge"] + 0, methods["squash"] + 0, methods["rebase"] + 0, methods["none"] + methods[""] + 0
 }
 ' "$stats"

@@ -95,7 +95,7 @@ grep -q "'use strict';" "$script"
 resolver="$REPO_ROOT/scripts/resolve-settings.sh"
 list() { sed -n "s/^PROJECT_$1='\(.*\)'\$/\1/p" "$resolver"; }
 : >"$SCRATCH/classes.txt"
-for cls in NEVER RAISE TRUSTED ADDS; do
+for cls in NEVER RAISE TRUSTED ADDS SETS; do
 	for key in $(list "$cls"); do
 		printf '%s %s\n' "$key" "$(printf '%s' "$cls" | tr 'A-Z' 'a-z')" >>"$SCRATCH/classes.txt"
 	done
