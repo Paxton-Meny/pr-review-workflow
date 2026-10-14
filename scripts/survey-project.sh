@@ -1,7 +1,7 @@
 #!/bin/sh
 # Report what the clone this runs in already states about itself, for the
 # setup skill to decide from instead of asking.
-# Usage: sh scripts/survey-project.sh facts
+# Usage: sh scripts/survey-project.sh facts [survey-dir]
 #        sh scripts/survey-project.sh conventions
 #        sh scripts/survey-project.sh lists skip|sensitive-names
 #
@@ -9,11 +9,15 @@
 # clone and its origin, the base branch (origin/HEAD, else the one of
 # origin/main or origin/master that exists), how many people committed
 # in the last year and whether a CODEOWNERS file exists, which of the
-# two settings files exist and whether git tracks them, their current
-# lines, whether the base branch's CLAUDE.md holds a conventions block,
-# then the candidates: check commands best first (a Makefile target, a
-# scripts/ gate, a package manifest's test script, a language
-# toolchain's test command, a CI run line), test runner prefixes a
+# two settings files exist and whether git tracks them (a file of your
+# own counts when it sits in the main worktree, where setup writes it
+# from a linked one), their current lines, whether the base branch's
+# CLAUDE.md holds a conventions block, then the candidates: check
+# commands best first (a Makefile target, a scripts/ gate, a package
+# manifest's test script, a language toolchain's test command, each
+# .NET test project apart when there are several or a browser suite
+# among them, a CI run line), each named after the file that backs it,
+# test runner prefixes a
 # Check line could start with, directories whose names suggest a defect
 # costs most, directories that hold database migrations with the
 # evidence for each, directories named like migrations that hold none,
@@ -21,18 +25,24 @@
 # hold rules (laws, standards, conventions, guidelines, policies), which
 # is where untracked rules files live. A candidate command that names
 # migration or database tooling is never offered; it prints as skipped.
-# The last line counts each kind. Nothing is fetched, nothing written,
-# and nothing in the clone is run: migrations are found by reading.
+# The last line counts each kind. Given the survey directory that
+# inventory-repo.sh made, facts also saves its lines there as
+# survey.txt, where the later setup scripts read them. Nothing else is
+# written, nothing is fetched, and nothing in the clone is run:
+# migrations are found by reading.
 #
 # conventions prints the review-conventions block from the base
 # branch's CLAUDE.md, nothing else, and exits 3 when there is none.
 #
 # lists prints one of this script's name lists as the regex alternation
-# it uses, so other scripts share it: skip (directories no scan enters)
-# or sensitive-names (directory names where a defect costs most).
+# it uses, so other scripts share it: skip (directories no scan enters),
+# sensitive-names (directory names where a defect costs most), or
+# migration-evidence (two lines: the file names searched for migration
+# code, then the pattern that marks a file as a migration). It needs no
+# clone.
 set -eu
 
-mode=${1:?usage: survey-project.sh facts|conventions|lists skip|sensitive-names}
+mode=${1:?usage: survey-project.sh facts|conventions|lists skip|sensitive-names|migration-evidence}
 case "$mode" in
 facts | conventions | lists) ;;
 *)
@@ -40,6 +50,52 @@ facts | conventions | lists) ;;
 	exit 1
 	;;
 esac
+
+SHARED=.claude/pr-review-workflow.conf
+LOCAL=.claude/pr-review-workflow.local.conf
+BEGIN_MARK='<!-- review-conventions:begin -->'
+END_MARK='<!-- review-conventions:end -->'
+MAX_EXISTING_LINES=60
+MAX_SENSITIVE=12
+MAX_CI_LINES_PER_WORKFLOW=3
+MAX_MIGRATION_DIRS=20
+MAX_SLN_DEPTH=3
+MIGRATION_EXT='\.(py|rb|php|ex|exs|js|mjs|cjs|ts|cs|sql|xml|ya?ml)$'
+MIGRATION_RE='class [A-Za-z0-9_]+\(migrations\.Migration\)|^down_revision[^=]*=|ActiveRecord::Migration|use Ecto\.Migration|implements MigrationInterface|exports\.up[[:space:]]*=|extends Migration|-- \+goose Up|databaseChangeLog|\[Migration\(|MigrationBuilder'
+SENSITIVE_NAMES='auth|authn|authz|oauth|oidc|sso|login|session|sessions|identity|password|passwords|credential|credentials|secret|secrets|token|tokens|crypto|kms|vault|payment|payments|billing|checkout|invoice|invoices|wallet|ledger|permission|permissions|acl|rbac|policy|policies|security|admin'
+SKIP_DIRS='test|tests|spec|specs|__tests__|fixtures|fixture|testdata|mocks|docs|doc|examples|example|node_modules|vendor|third_party|dist|build'
+RULEBOOK_NAMES='laws|rules|standards|conventions|guidelines?|polic(y|ies)|principles|requirements'
+
+if [ "$mode" = lists ]; then
+	case "${2:-}" in
+	skip) printf '%s\n' "$SKIP_DIRS" ;;
+	sensitive-names) printf '%s\n' "$SENSITIVE_NAMES" ;;
+	migration-evidence) printf '%s\n%s\n' "$MIGRATION_EXT" "$MIGRATION_RE" ;;
+	*)
+		echo "survey-project: lists takes skip, sensitive-names, or migration-evidence" >&2
+		exit 1
+		;;
+	esac
+	exit 0
+fi
+
+if [ "$mode" = facts ] && [ -n "${2:-}" ]; then
+	[ -f "$2/meta.txt" ] || {
+		echo "survey-project: no meta.txt in $2, run inventory-repo.sh first" >&2
+		exit 1
+	}
+	saved=$(mktemp "$2/.survey.XXXXXX")
+	rc=0
+	sh "$0" facts >"$saved" || rc=$?
+	if [ "$rc" -ne 0 ]; then
+		cat "$saved"
+		rm -f "$saved"
+		exit "$rc"
+	fi
+	mv "$saved" "$2/survey.txt"
+	cat "$2/survey.txt"
+	exit 0
+fi
 
 clone=$(git rev-parse --show-toplevel 2>/dev/null) || {
 	echo "survey-project: run it from inside a clone" >&2
@@ -58,31 +114,6 @@ base=$(sh "$(dirname -- "$0")/origin-base.sh" "$clone" 2>/dev/null) || base=''
 base_ref=''
 [ -n "$base" ] && git -C "$clone" rev-parse --verify --quiet "refs/remotes/origin/$base" >/dev/null && base_ref="refs/remotes/origin/$base"
 
-SHARED=.claude/pr-review-workflow.conf
-LOCAL=.claude/pr-review-workflow.local.conf
-BEGIN_MARK='<!-- review-conventions:begin -->'
-END_MARK='<!-- review-conventions:end -->'
-MAX_EXISTING_LINES=60
-MAX_SENSITIVE=12
-MAX_CI_LINES_PER_WORKFLOW=3
-MAX_MIGRATION_DIRS=20
-MAX_SLN_DEPTH=3
-MIGRATION_RE='class [A-Za-z0-9_]+\(migrations\.Migration\)|^down_revision[^=]*=|ActiveRecord::Migration|use Ecto\.Migration|implements MigrationInterface|exports\.up[[:space:]]*=|extends Migration|-- \+goose Up|databaseChangeLog|\[Migration\(|MigrationBuilder'
-SENSITIVE_NAMES='auth|authn|authz|oauth|oidc|sso|login|session|sessions|identity|password|passwords|credential|credentials|secret|secrets|token|tokens|crypto|kms|vault|payment|payments|billing|checkout|invoice|invoices|wallet|ledger|permission|permissions|acl|rbac|policy|policies|security|admin'
-SKIP_DIRS='test|tests|spec|specs|__tests__|fixtures|fixture|testdata|mocks|docs|doc|examples|example|node_modules|vendor|third_party|dist|build'
-RULEBOOK_NAMES='laws|rules|standards|conventions|guidelines?|polic(y|ies)|principles|requirements'
-
-if [ "$mode" = lists ]; then
-	case "${2:-}" in
-	skip) printf '%s\n' "$SKIP_DIRS" ;;
-	sensitive-names) printf '%s\n' "$SENSITIVE_NAMES" ;;
-	*)
-		echo "survey-project: lists takes skip or sensitive-names" >&2
-		exit 1
-		;;
-	esac
-	exit 0
-fi
 
 conventions_block() {
 	[ -n "$base_ref" ] || return 1
@@ -113,12 +144,28 @@ for f in CODEOWNERS .github/CODEOWNERS docs/CODEOWNERS; do
 done
 echo "survey: authors $authors in the last year, codeowners $codeowners"
 
+# A file of your own may live in the main worktree, where setup writes it
+# from a linked one so every worktree reads it.
+main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
+[ -n "$main_root" ] && [ "$main_root" != "$clone" ] || main_root=''
+located() {
+	if [ -n "$main_root" ] && [ ! -e "$1" ] && [ ! -L "$1" ] && { [ -e "$main_root/$1" ] || [ -L "$main_root/$1" ]; }; then
+		printf '%s\n' "$main_root/$1"
+	else
+		printf '%s\n' "$1"
+	fi
+}
 file_state() {
-	if [ -L "$1" ]; then
+	if git ls-files --error-unmatch "$1" >/dev/null 2>&1; then
+		[ -L "$1" ] && echo refused || echo tracked
+		return
+	fi
+	at=$(located "$1")
+	if [ -L "$at" ]; then
 		echo refused
-	elif git ls-files --error-unmatch "$1" >/dev/null 2>&1; then
+	elif [ "$at" != "$1" ] && git -C "$main_root" ls-files --error-unmatch "$1" >/dev/null 2>&1; then
 		echo tracked
-	elif [ -f "$1" ]; then
+	elif [ -f "$at" ]; then
 		echo untracked
 	else
 		echo absent
@@ -129,24 +176,13 @@ local_state=$(file_state "$LOCAL")
 case "$local_state" in untracked) local_state=present ;; esac
 echo "survey: project file $shared_state, local file $local_state"
 
-case "$shared_state$local_state" in
-tracked*) audience=team ;;
-untracked*) audience=personal ;;
-*present) audience=local ;;
-*)
-	if [ "$authors" -gt 1 ] || [ "$codeowners" = yes ]; then
-		audience=team
-	else
-		audience=personal
-	fi
-	;;
-esac
-echo "survey: audience $audience suggested"
 
 show_existing() {
-	[ -f "$1" ] && [ ! -L "$1" ] || return 0
-	head -n "$MAX_EXISTING_LINES" "$1" | tr -d '\r' | sed "s|^|survey: existing $1: |"
-	total=$(grep -c '' "$1" || true)
+	at=$(located "$1")
+	[ -f "$at" ] && [ ! -L "$at" ] || return 0
+	[ "$at" = "$1" ] || echo "survey: located $1 in the main worktree $main_root"
+	head -n "$MAX_EXISTING_LINES" "$at" | tr -d '\r' | sed "s|^|survey: existing $1: |"
+	total=$(grep -c '' "$at" || true)
 	[ "$total" -le "$MAX_EXISTING_LINES" ] || echo "survey: existing $1: ... $((total - MAX_EXISTING_LINES)) more lines"
 }
 show_existing "$SHARED"
@@ -247,15 +283,69 @@ fi
 [ -f gradlew ] && check gradlew './gradlew test'
 [ -f Package.swift ] && check Package.swift 'swift test'
 [ -f pubspec.yaml ] && check pubspec.yaml 'dart test'
-if ls ./*.sln >/dev/null 2>&1 || ls ./*.csproj >/dev/null 2>&1; then
-	check dotnet 'dotnet test'
-	prefix dotnet 'dotnet test'
-else
-	git ls-files 2>/dev/null | awk -F/ -v max="$MAX_SLN_DEPTH" '/\.sln$/ && !/ / && NF - 1 <= max' >"$work/sln"
-	if [ "$(grep -c '' "$work/sln" || true)" -eq 1 ]; then
-		check dotnet "dotnet test $(cat "$work/sln")"
-		prefix dotnet 'dotnet test'
+# .NET: a solution or project at the root, else the one solution near it,
+# runs every test project it holds. When the tree holds more than one test
+# project, or a browser suite that needs the app running, each project
+# other than the browser suites is offered on its own instead, the one
+# with the most files first, and each browser suite prints as skipped.
+# A candidate is named after the file that backs it, or "dotnet" when
+# that name holds a space.
+git ls-files 2>/dev/null >"$work/tracked"
+dotnet_root=''
+for f in ./*.sln ./*.csproj; do
+	[ -f "$f" ] && dotnet_root=${f#./} && break
+done
+if [ -z "$dotnet_root" ]; then
+	awk -F/ -v max="$MAX_SLN_DEPTH" '/\.sln$/ && !/ / && NF - 1 <= max' "$work/tracked" >"$work/sln"
+	[ "$(grep -c '' "$work/sln" || true)" -eq 1 ] && dotnet_root=$(cat "$work/sln")
+fi
+if [ -n "$dotnet_root" ]; then
+	label=${dotnet_root##*/}
+	case "$label" in *' '*) label=dotnet ;; esac
+	grep -E '\.(cs|fs|vb)proj$' "$work/tracked" | grep -v ' ' >"$work/projects" || true
+	: >"$work/sdk-projects"
+	: >"$work/browser-projects"
+	if [ -s "$work/projects" ]; then
+		tr '\n' '\0' <"$work/projects" | xargs -0 grep -liE 'Microsoft\.NET\.Test\.Sdk|Include="(xunit|nunit|MSTest)' -- >"$work/sdk-projects" 2>/dev/null || true
+		tr '\n' '\0' <"$work/projects" | xargs -0 grep -liE 'Playwright|Selenium|Appium' -- >"$work/browser-candidates" 2>/dev/null || true
 	fi
+	# One pass: the test projects (by package or by name), the browser
+	# suites among them, and each other one's tracked file count.
+	awk -v sdk="$work/sdk-projects" -v browser="$work/browser-candidates" -v browsers="$work/browser-projects" -v tracked="$work/tracked" '
+	BEGIN {
+		while ((getline p < sdk) > 0) is_sdk[p] = 1
+		while ((getline p < browser) > 0) is_browser[p] = 1
+	}
+	{
+		name = $0; sub(/.*\//, "", name)
+		if (!($0 in is_sdk) && name !~ /([.]Tests?|Tests)[.](cs|fs|vb)proj$/) next
+		if ($0 in is_browser) { print $0 > browsers; next }
+		d = $0; if (d ~ /\//) sub(/\/[^\/]*$/, "", d); else d = ""
+		dir[d] = 1; proj[++n] = $0; pdir[n] = d
+	}
+	END {
+		while ((getline f < tracked) > 0) {
+			count[""]++
+			p = f
+			while (sub(/\/[^\/]*$/, "", p)) if (p in dir) count[p]++
+		}
+		for (i = 1; i <= n; i++) printf "%d\t%s\n", count[pdir[i]], proj[i]
+	}' "$work/projects" >"$work/test-projects"
+	tests_n=$(grep -c '' "$work/test-projects" || true)
+	browsers_n=$(grep -c '' "$work/browser-projects" || true)
+	if [ "$tests_n" -gt 1 ] || [ "$browsers_n" -ge 1 ]; then
+		sort -t "$(printf '\t')" -k1,1nr -k2,2 "$work/test-projects" | cut -f2 | while IFS= read -r proj; do
+			check "${proj##*/}" "dotnet test $proj"
+		done
+		while IFS= read -r proj; do
+			echo "survey: skipped ${proj##*/} dotnet test $proj (browser suite: it needs the app running)"
+		done <"$work/browser-projects"
+	elif [ "${dotnet_root%/*}" = "$dotnet_root" ]; then
+		check "$label" 'dotnet test'
+	else
+		check "$label" "dotnet test $dotnet_root"
+	fi
+	[ "$tests_n" -eq 0 ] && [ "$browsers_n" -ge 1 ] || prefix "$label" 'dotnet test'
 fi
 
 for wf in .github/workflows/*.yml .github/workflows/*.yaml; do
@@ -286,8 +376,7 @@ while IFS= read -r d; do
 	echo "survey: sensitive $d/**"
 done <"$work/sensitive"
 
-git ls-files 2>/dev/null >"$work/tracked"
-grep -E '\.(py|rb|php|ex|exs|js|mjs|cjs|ts|cs|sql|xml|ya?ml)$' "$work/tracked" | tr '\n' '\0' |
+grep -E "$MIGRATION_EXT" "$work/tracked" | tr '\n' '\0' |
 	xargs -0 grep -HoE -m 1 -- "$MIGRATION_RE" 2>/dev/null | awk '{
 	i = index($0, ":"); path = substr($0, 1, i - 1); m = substr($0, i + 1)
 	d = path; if (d ~ /\//) sub(/\/[^\/]*$/, "", d); else d = "."
@@ -359,10 +448,8 @@ while IFS= read -r d; do
 	echo "survey: migration-named $d"
 done <"$work/migration-named"
 
-main_root=$(git worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p')
-[ -n "$main_root" ] && [ "$main_root" != "$clone" ] || main_root=''
 : >"$work/standards"
-for root in "$clone" $main_root; do
+for root in "$clone" ${main_root:+"$main_root"}; do
 	git -C "$root" ls-files --others --ignored --exclude-standard 2>/dev/null | grep -E '^[^/]+\.md$' | grep -vx CLAUDE.md | grep -iE "$RULEBOOK_NAMES" >"$work/ignored" || true
 	while IFS= read -r f; do
 		grep -qxF -- "$f" "$work/standards" && continue

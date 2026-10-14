@@ -48,3 +48,9 @@ grep -q "no diff-index.txt" "$SCRATCH/err"
 # --classify shares the classes with any script that feeds it paths.
 out=$(printf 'src/app.py\ntests/test_app.py\nREADME.md\nconfig.yaml\n\npkg/util.spec.ts\n' | sh "$REPO_ROOT/scripts/classify-change.sh" --classify)
 [ "$out" = "$(printf 'code\tsrc/app.py\ntests\ttests/test_app.py\ndocs\tREADME.md\nconfig\tconfig.yaml\ntests\tpkg/util.spec.ts')" ]
+
+# Test projects named for what they test, conventional test roots, and
+# test classes named by convention are tests; names that merely end in
+# Test or Tests stay code.
+out=$(printf 'App.Test/Planning/Plan.cs\nsrc/App.Tests/Foo.cs\nsrc/App.UnitTests/Bar.cs\nios/UnitTests/a.swift\nTests/AppTests/a.swift\nsrc/FooTests.cs\nlib/LoginTest.java\nsrc/Features/ABTests/Experiment.cs\nsrc/Diagnostics/SpeedTest.cs\nsrc/Contests/a.cs\nsrc/Foo.cs\n' | sh "$REPO_ROOT/scripts/classify-change.sh" --classify)
+[ "$out" = "$(printf 'tests\tApp.Test/Planning/Plan.cs\ntests\tsrc/App.Tests/Foo.cs\ntests\tsrc/App.UnitTests/Bar.cs\ntests\tios/UnitTests/a.swift\ntests\tTests/AppTests/a.swift\ntests\tsrc/FooTests.cs\ntests\tlib/LoginTest.java\ncode\tsrc/Features/ABTests/Experiment.cs\ncode\tsrc/Diagnostics/SpeedTest.cs\ncode\tsrc/Contests/a.cs\ncode\tsrc/Foo.cs')" ]

@@ -31,6 +31,20 @@ printf '%s\n' "$out" | grep -q '^settings: trust pending [0-9a-f]* check_command
 
 # Nothing was written: no state, no pending approval, no run hash.
 [ ! -e "$data" ]
+! printf '%s\n' "$out" | grep -q 'unsubstituted'
+
+# --save keeps the same lines in the survey directory, and only there.
+mkdir -p "$SCRATCH/sv"
+if printf 'review_samples 2\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" --preview "$data" --save "$SCRATCH/sv" 2>/dev/null; then
+	echo "expected refusal of a survey directory without meta.txt" >&2
+	exit 1
+fi
+printf 'owner Paxton-Meny\n' >"$SCRATCH/sv/meta.txt"
+saved=$(printf 'review_samples 2\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" --preview "$data" --save "$SCRATCH/sv")
+[ "$saved" = "$out" ]
+[ "$saved" = "$(cat "$SCRATCH/sv/preview.txt")" ]
+[ "$(ls -A "$SCRATCH/sv" | tr '\n' ' ')" = 'meta.txt preview.txt ' ]
+[ ! -e "$data" ]
 
 # With origin/HEAD unset, origin/main stands in as the base; with neither,
 # the shared file is unavailable, not an error.

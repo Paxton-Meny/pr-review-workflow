@@ -379,17 +379,23 @@ done
 # The survey stage reads a survey directory: a cheap cartographer per
 # partition, a level up for a sensitive one, an assembler on the session
 # model, the economy cap applied, fixed routing at the definitions' levels,
-# and a skip when nothing was planned.
+# a skip for a partition already recorded, and a skip when nothing was
+# planned.
 survey="$SCRATCH/survey"
 mkdir -p "$survey"
 printf 'partition 1 lines 9 files 6 docs 6 sensitive no units docs\npartition 2 lines 2400 files 40 docs 0 sensitive yes units src/auth src/api\n' >"$survey/partitions.txt"
 out=$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey $ARGS)
-[ "$out" = "$(printf 'route survey cartographer-1 rung cheap model sonnet effort medium reason partition-read\nroute survey cartographer-2 rung cheap model sonnet effort high reason partition-read\nroute survey assembler rung base model inherit effort high reason synthesis')" ]
+[ "$out" = "$(printf 'route survey cartographer-1 rung cheap model sonnet effort medium reason partition-read\nroute survey cartographer-2 rung cheap model sonnet effort high reason partition-read-sensitive\nroute survey assembler rung base model inherit effort high reason synthesis')" ]
 [ "$(grep -c '^route survey ' "$survey/routes.txt")" -eq 3 ]
 [ ! -e "$survey/pr-context" ]
 sed 's/^effort: medium$/effort: high/' "$REPO_ROOT/agents/cartographer.md" >"$SCRATCH/capped/agents/cartographer.md"
-[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$survey" survey $ARGS posture=economy | sed -n '2p')" = "route survey cartographer-2 rung cheap model sonnet effort high reason partition-read" ]
-[ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey routing=fixed | sed -n '2p')" = "route survey cartographer-2 rung cheap model sonnet effort medium reason partition-read" ]
+[ "$(sh "$SCRATCH/capped/scripts/route-models.sh" "$survey" survey $ARGS posture=economy | sed -n '2p')" = "route survey cartographer-2 rung cheap model sonnet effort high reason partition-read-sensitive" ]
+[ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey routing=fixed | sed -n '2p')" = "route survey cartographer-2 rung cheap model sonnet effort medium reason partition-read-sensitive" ]
+# A recorded partition is skipped, so a second call plans only the retry.
+mkdir -p "$survey/records"
+printf '## layout\n' >"$survey/records/1.txt"
+[ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey $ARGS)" = "$(printf 'route survey cartographer-1 skip reason partition-recorded\nroute survey cartographer-2 rung cheap model sonnet effort high reason partition-read-sensitive\nroute survey assembler rung base model inherit effort high reason synthesis')" ]
+rm -r "$survey/records"
 : >"$survey/partitions.txt"
 [ "$(sh "$REPO_ROOT/scripts/route-models.sh" "$survey" survey $ARGS)" = "route survey all skip reason no-partitions" ]
 if sh "$REPO_ROOT/scripts/route-models.sh" "$SCRATCH/nosurvey" survey 2>"$SCRATCH/err"; then

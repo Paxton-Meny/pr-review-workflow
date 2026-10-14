@@ -106,6 +106,63 @@ printf '%s\n' "$out" | grep -qx "write-settings: wrote $shared as the personal f
 ! printf '%s\n' "$out" | grep -q excluded
 [ ! -e "$other/.git/info/exclude" ] || ! grep -q "$shared" "$other/.git/info/exclude"
 
+# From a linked worktree, a file of your own lands in the main worktree,
+# where every worktree reads it; a shared file stays with the branch.
+git -C "$other" worktree add --quiet -b side "$SCRATCH/side" 2>/dev/null
+cd "$SCRATCH/side"
+side=$(pwd -P)
+main=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+out=$(printf 'cost_posture quality\n' | write local)
+printf '%s\n' "$out" | grep -qx "write-settings: path $main/$local"
+printf '%s\n' "$out" | grep -qx "write-settings: written in the main worktree $main, where every worktree of this clone reads it"
+[ -f "$main/$local" ]
+[ ! -e "$side/$local" ]
+git -C "$side" check-ignore -q "$local"
+git -C "$other" check-ignore -q "$local"
+git -C "$side" rm --quiet .gitignore
+git -C "$side" commit --quiet -m unignore
+out=$(printf 'double_review always\n' | write shared)
+printf '%s\n' "$out" | grep -qx "write-settings: path $side/$shared"
+! printf '%s\n' "$out" | grep -q 'main worktree'
+[ -f "$side/$shared" ]
+
+# The resolver reads this worktree's file first, so one already here is
+# revised here, and a path this branch tracks is still refused.
+rm "$main/$local"
+printf 'cost_posture balanced\n' >"$side/$local"
+out=$(printf 'cost_posture quality\n' | write local --replace)
+printf '%s\n' "$out" | grep -qx "write-settings: path $side/$local"
+[ ! -e "$main/$local" ]
+grep -qx 'cost_posture quality' "$side/$local"
+rm "$side/$local"
+git -C "$side" add -f "$shared"
+git -C "$side" commit --quiet -m track
+if printf 'cost_posture quality\n' | write personal --replace 2>"$SCRATCH/err"; then
+	echo "a path the linked branch tracks must not be written as personal" >&2
+	exit 1
+fi
+grep -q 'the repository tracks' "$SCRATCH/err"
+[ "$(cat "$main/$shared")" = 'double_review always' ]
+
+# A main worktree whose path holds a space still receives the file, and
+# the resolver reads it from a linked worktree.
+spaced_remote="$SCRATCH/spaced.git"
+git init --quiet --bare "$spaced_remote"
+spaced="$SCRATCH/John Doe/repo"
+mkdir -p "$SCRATCH/John Doe"
+git clone --quiet "$spaced_remote" "$spaced" 2>/dev/null
+git -C "$spaced" config user.name tester
+git -C "$spaced" config user.email tester@example.invalid
+printf 'readme\n' >"$spaced/README.md"
+git -C "$spaced" add -A
+git -C "$spaced" commit --quiet -m root
+git -C "$spaced" push --quiet origin HEAD:main
+git -C "$spaced" worktree add --quiet -b work "$SCRATCH/spaced-work" 2>/dev/null
+cd "$SCRATCH/spaced-work"
+printf 'review_samples 2\n' | write personal >/dev/null
+[ -f "$spaced/$shared" ]
+sh "$REPO_ROOT/scripts/resolve-settings.sh" --preview "$SCRATCH/data" </dev/null | grep -qx 'settings: review_samples 2 from local'
+
 # Bad arguments and a missing clone refuse before reading stdin.
 if printf 'x\n' | write team 2>/dev/null; then
 	echo "expected refusal of an unknown audience" >&2

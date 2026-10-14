@@ -14,10 +14,22 @@ class_of() {
 		class=tests
 		return
 		;;
+	# Test projects named for what they test (App.Tests/, App.Test/,
+	# App.UnitTests/) and the conventional test roots (Tests/, UnitTests/,
+	# IntegrationTests/); a name that merely ends in Tests, such as
+	# ABTests/, stays code.
+	*.Test/* | *.Tests/* | *.UnitTests/* | *.IntegrationTests/* | *.FunctionalTests/* | \
+		Tests/* | */Tests/* | UnitTests/* | */UnitTests/* | IntegrationTests/* | */IntegrationTests/*)
+		class=tests
+		return
+		;;
 	esac
 	base=${1##*/}
 	case "$base" in
 	test_*.* | *_test.* | *.test.* | *.spec.* | *_spec.* | conftest.py) class=tests ;;
+	# The xUnit-family and JUnit naming conventions; a C# name ending in
+	# the singular Test, such as SpeedTest.cs, stays code.
+	*Tests.cs | *Tests.java | *Test.java | *Tests.kt | *Test.kt | *Tests.swift | *Spec.scala | *Test.scala) class=tests ;;
 	requirements*.txt | constraints*.txt) class=config ;;
 	*.md | *.rst | *.adoc | *.txt | LICENSE* | NOTICE* | AUTHORS*) class=docs ;;
 	*.json | *.yml | *.yaml | *.toml | *.ini | *.cfg | .gitignore | .gitattributes | .editorconfig) class=config ;;

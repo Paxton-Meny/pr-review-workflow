@@ -5,13 +5,15 @@
 #        ...
 #        END
 #        sh scripts/resolve-settings.sh <state-dir> --approve <hash>
-#        sh scripts/resolve-settings.sh --preview <data-root> <<'END' ... END
+#        sh scripts/resolve-settings.sh --preview <data-root> [--save <survey-dir>] <<'END' ... END
 #        sh scripts/resolve-settings.sh --lint shared|personal <file>
 #
 # --preview resolves for the clone the command runs in, against the
 # base its origin/HEAD names, as of the last fetch: it fetches nothing,
 # writes nothing, records no pending approval, and prints every
-# setting with its source.
+# setting with its source. With --save it also keeps those lines as
+# preview.txt in the survey directory inventory-repo.sh made, where the
+# later setup scripts read them, and writes nothing else.
 #
 # --lint reads one settings file before it is put in place, as the
 # shared file (what a team's committed file may set, judged against
@@ -30,7 +32,9 @@
 # recorded. A value
 # still reading as a literal ${user_config...} placeholder, as on an
 # install with no saved configuration, counts as unset, and so does an
-# empty user value. An invalid value is reported and the key keeps what
+# empty user value; when every user value arrived as such a placeholder,
+# a "settings: user config unsubstituted N" line says the configuration
+# never reached the command. An invalid value is reported and the key keeps what
 # the source below it gave, never jumping to the default.
 #
 # The shared file is the team's, so it may set less than the others:
@@ -73,7 +77,22 @@ if [ "${1:-}" = --lint ]; then
 	printf 'owner lint\nrepo lint\n' >"$dir/meta.txt"
 elif [ "${1:-}" = --preview ]; then
 	preview=1
-	data_root=${2:?usage: resolve-settings.sh --preview <data-root>}
+	data_root=${2:?usage: resolve-settings.sh --preview <data-root> [--save <survey-dir>]}
+	save_dir=''
+	case "${3:-}" in
+	'') ;;
+	--save)
+		save_dir=${4:?usage: resolve-settings.sh --preview <data-root> [--save <survey-dir>]}
+		[ -f "$save_dir/meta.txt" ] || {
+			echo "resolve-settings: no meta.txt in $save_dir, run inventory-repo.sh first" >&2
+			exit 1
+		}
+		;;
+	*)
+		echo "resolve-settings: usage: resolve-settings.sh --preview <data-root> [--save <survey-dir>]" >&2
+		exit 1
+		;;
+	esac
 	clone=$(git rev-parse --show-toplevel 2>/dev/null) || {
 		echo "resolve-settings: run the preview from inside a clone" >&2
 		exit 1
@@ -242,7 +261,7 @@ fi
 personal() {
 	# personal <path relative to the clone> <name for notes>; prints a state
 	[ -n "$repo_root" ] && [ -d "$repo_root" ] || { echo absent; return 0; }
-	for root in "$repo_root" $main_root; do
+	for root in "$repo_root" ${main_root:+"$main_root"}; do
 		path="$root/$1"
 		[ -e "$path" ] || [ -L "$path" ] || continue
 		if [ -L "$path" ]; then
@@ -420,14 +439,25 @@ if [ "$lint" -eq 1 ]; then
 	exit 1
 fi
 printf 'settings: project file %s, local file %s\n' "$shared_state" "$local_state" >>"$work/report"
+placeholders=$(grep -c '^[^ ]* *\${user_config\.' "$work/user" || true)
+if [ "$placeholders" -gt 0 ] && [ "$placeholders" -eq "$(grep -c '[^[:space:]]' "$work/user" || true)" ]; then
+	echo "settings: user config unsubstituted $placeholders" >>"$work/report"
+fi
 cat "$work/notes" >>"$work/report"
 
 if [ "$preview" -eq 1 ]; then
-	cat "$work/report"
-	awk 'NR == FNR { k = $1; v = $0; sub(/^[^ ]*/, "", v); sub(/^ /, "", v); val[k] = v; order[++n] = k; next }
-	{ from[$1] = $2 }
-	END { for (i = 1; i <= n; i++) { k = order[i]; print "settings: " k " " (val[k] == "" ? "(empty)" : val[k]) " from " from[k] } }
-	' "$work/settings" "$work/sources"
+	{
+		cat "$work/report"
+		awk 'NR == FNR { k = $1; v = $0; sub(/^[^ ]*/, "", v); sub(/^ /, "", v); val[k] = v; order[++n] = k; next }
+		{ from[$1] = $2 }
+		END { for (i = 1; i <= n; i++) { k = order[i]; print "settings: " k " " (val[k] == "" ? "(empty)" : val[k]) " from " from[k] } }
+		' "$work/settings" "$work/sources"
+	} >"$work/preview"
+	if [ -n "$save_dir" ]; then
+		cp "$work/preview" "$save_dir/.preview.$$"
+		mv "$save_dir/.preview.$$" "$save_dir/preview.txt"
+	fi
+	cat "$work/preview"
 	exit 0
 fi
 
