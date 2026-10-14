@@ -167,7 +167,7 @@ pull request, and says when to choose it.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. Only when the author can push to the repository: anyone else's pull request always waits for a person. When off, you get a prompt: merge now or hold. |
+| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations, or commits landed on the base touch the reviewed hunks and the comparer has not judged them independent (unless Overlap check is off). Only when the author can push to the repository: anyone else's pull request always waits for a person. When off, you get a prompt: merge now or hold. |
 | Merge method | auto | How the pull request merges: merge, squash, or rebase. auto takes the one method the repository allows, else the method its recent merged pull requests into the same base used, judged among pull requests of the same shape (one commit or several); mixed evidence asks you, and parks an unattended run. A project's shared file may set it. |
 | CI checks | fix | After convergence, when the repository reports checks: off waits for nothing; wait waits, and on a failure comments and stops; fix has the editor read the failure digest, post its diagnosis, repair, push, and wait again, up to the fix rounds, escalating the routing when the same failure repeats. Never edits a workflow or weakens a test. A project's shared file may raise it. |
 | CI fix rounds | 2 | Repairs of failing checks per pull request before the run parks, kept on disk. |

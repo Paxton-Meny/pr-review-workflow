@@ -143,7 +143,7 @@
 <div><dt>ACCEPTS</dt><dd>on | off</dd></div>
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
-<p class="lead">When a run finishes with nothing left open, the pull request is ready to merge. This setting decides whether the plugin merges it or asks you first. A change to <a href="#migration-paths">migration files</a> always asks, and so does a pull request whose author cannot push to the repository, since the review is a model reading what that author wrote.</p>
+<p class="lead">When a run finishes with nothing left open, the pull request is ready to merge. This setting decides whether the plugin merges it or asks you first. A change to <a href="#migration-paths">migration files</a> always asks, and so does one whose base gained commits touching the reviewed hunks, unless <a href="#overlap-check">overlap check</a> is off or the comparer judged the overlap independent on that very base. A pull request whose author cannot push to the repository always asks too, since the review is a model reading what that author wrote.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">If you set it to</span>
@@ -159,7 +159,7 @@
 <div data-show="on" hidden><span class="dim">merge-pr:</span> Paxton-Meny/api#128 <span class="ok">merged by rebase, branch deleted</span></div>
 </div>
 <p class="note" data-show="off">You are asked at the end of every clean run. When nobody is there to answer, the plugin posts a comment saying the review converged and stops; it never merges unattended with this off.</p>
-<p class="note" data-show="on" hidden>The pull request merges as soon as the loop is clean, whether or not anyone is watching, unless Claude started the review on its own.</p>
+<p class="note" data-show="on" hidden>The pull request merges as soon as the loop is clean, whether or not anyone is watching, unless Claude started the review on its own, the change touches migrations, or commits landed on the base touch the reviewed hunks (see <a href="#overlap-check">overlap check</a>).</p>
 <p class="note">Either way, nothing merges while a finding is open, or over a finding marked won&#8217;t-fix that you have not accepted.</p>
 </div>
 </div>
