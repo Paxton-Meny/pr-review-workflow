@@ -8,7 +8,7 @@ field() {
 	sed -n '2,/^---$/p' "$REPO_ROOT/agents/$1.md" | sed -n "s/^$2: //p"
 }
 
-for agent in reviewer editor verifier filter cartographer assembler; do
+for agent in reviewer editor verifier filter cartographer assembler comparer; do
 	effort=$(field "$agent" effort)
 	case "$effort" in
 	low | medium | high | xhigh | max) ;;
@@ -25,6 +25,7 @@ done
 [ "$(field filter effort)" = low ]
 [ "$(field cartographer effort)" = medium ]
 [ "$(field assembler effort)" = high ]
+[ "$(field comparer effort)" = low ]
 
 [ ! -e "$REPO_ROOT/agents/arbiter.md" ]
 grep -q '^## Arbitration$' "$REPO_ROOT/agents/verifier.md"
@@ -37,14 +38,14 @@ fi
 # delegation prompt in the skill has `effort` named within its step.
 awk '
 	{ line[NR] = $0 }
-	/^ *`(Review the pull request|Filter the banked|Address the open|The project check fails|Verify the addressed|Arbitrate the repeatedly)/ { at[++n] = NR }
+	/^ *`(Review the pull request|Filter the banked|Address the open|The project check fails|Verify the addressed|Arbitrate the repeatedly|Compare the overlapping hunks)/ { at[++n] = NR }
 	END {
 		for (i = 1; i <= n; i++) {
 			found = 0
 			for (j = at[i] - 8; j <= at[i] + 8; j++) if (index(line[j], "`effort`")) found = 1
 			if (!found) { print "no effort named near skill line " at[i] > "/dev/stderr"; bad = 1 }
 		}
-		if (n < 7) { print "expected seven delegation prompts, found " n > "/dev/stderr"; bad = 1 }
+		if (n < 9) { print "expected nine delegation prompts, found " n > "/dev/stderr"; bad = 1 }
 		exit bad
 	}' "$REPO_ROOT/skills/review-pr/SKILL.md"
 
