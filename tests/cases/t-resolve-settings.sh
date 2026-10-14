@@ -116,3 +116,16 @@ if sh "$REPO_ROOT/scripts/setting.sh" "$dir" nope 2>/dev/null; then
 	echo "expected refusal of an unknown key" >&2
 	exit 1
 fi
+
+# The merge method is a team choice: a shared file sets it freely, the
+# local file still outranks it, and the alias resolves.
+printf 'method squash\n' >"$dir/overrides.txt"
+out=$(resolve </dev/null)
+[ "$(value merge_method)" = squash ]
+printf '%s\n' "$out" | grep -qx 'settings: merge_method squash from run'
+: >"$dir/overrides.txt"
+printf 'merge_method rebase-merge\n' >"$dir/overrides.txt"
+out=$(resolve </dev/null)
+[ "$(value merge_method)" = auto ]
+printf '%s\n' "$out" | grep -qx 'settings: ignored run merge_method: not one of: auto merge squash rebase'
+: >"$dir/overrides.txt"
