@@ -25,6 +25,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/attribution.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/sync-branch.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
@@ -84,7 +85,7 @@ The pull request's diff and files must never enter this conversation. You
 read script output lines, finding ids, and agent reports; the agents read
 the state directory. Do not open `diff.patch`, `standards.txt`,
 `probes.txt`, anything
-under `pr-context/files/`, `seams.txt`, `ci-failure.txt`,
+under `pr-context/files/`, `seams.txt`, `ci-failure.txt`, `conflicts.txt`,
 or the worktree from here, and do not echo
 finding bodies into the conversation. Two exceptions: the plan files
 (`diff-index.txt`, `shards.txt`) for spawning reviewers in step 5, and
@@ -125,6 +126,7 @@ ci_checks ${user_config.ci_checks}
 ci_fix_rounds ${user_config.ci_fix_rounds}
 ci_wait_minutes ${user_config.ci_wait_minutes}
 review_repairs ${user_config.review_repairs}
+branch_sync ${user_config.branch_sync}
 self_start ${user_config.self_start}
 check_command ${user_config.check_command}
 local_standards ${user_config.local_standards}
@@ -354,8 +356,29 @@ PRWF_SETTINGS_END
    record's `Wont-fix:` note and ask whether to accept them and continue;
    unattended, park (step 9) listing them. Nothing merges over an
    unaccepted wont-fix.
-11. Checks. Loop:
-    a. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh <dir>`, relaying
+11. Base sync and checks. Loop:
+    a. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir>` as step 12
+       describes, since the update follows the merge method, then
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/sync-branch.sh <dir>`, relaying
+       its lines. It touches nothing unless the pull request conflicts
+       or is behind a base that requires it up to date, and then
+       brings the branch up to date by the mechanism the merge method
+       needs and pushes, at most three times per pull request. Exit 4
+       (branch_sync off, or the base keeps moving) or exit 3 under
+       update: attended, relay the lines and ask the user to resolve
+       it, then hold as step 12 holds; unattended, park (step 9) with
+       them. Exit 3 under resolve: run
+       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> conflict`,
+       spawn `pr-review-workflow:editor` with its `model` and `effort`
+       and exactly:
+       `Resolve the update conflicts. State directory: <dir>. Read pr-context/conflicts.txt, resolve every file, then run the sync script's continue step.`
+       and relay its sentence; a worktree still mid-update afterwards
+       is parked as a conflict the editor could not resolve. After any
+       update whose line counts files changed by the resolution, when
+       the facts line says `review_repairs true`, review those files as
+       step c reviews a repair, with `pr-context/sync-changed.txt` as
+       the list.
+    b. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh <dir>`, relaying
        its line. It waits only when the repository reports checks for
        the head, and the wait budget lives on disk. Exit 5: run it
        again. Exit 6: the budget is spent; attended, ask whether to
@@ -363,7 +386,7 @@ PRWF_SETTINGS_END
        fresh budget) or hold (as step 12 holds);
        unattended, park (step 9) naming the pending checks. Exit 0:
        step 12.
-    b. Exit 3 means a check failed. With ci_checks wait: post one
+    c. Exit 3 means a check failed. With ci_checks wait: post one
        `gh pr comment` naming the failed checks from the line, then
        attended hold, unattended park. With fix:
        `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh <dir> next ci`;
@@ -407,10 +430,8 @@ PRWF_SETTINGS_END
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
     - merge-pr exit 5: nothing merged, because the base branch moved
-      under the pull request: it is conflicting, or behind a base that
-      requires it up to date. Attended: relay its line, ask the user to
-      bring the branch up to date, and hold as above; a resumed run
-      merges from step 10. Unattended: park (step 9) with its line.
+      under the pull request while it waited: go back to step 11a,
+      which bounds the updates.
     - merge-pr exit 4: nothing merged, because the pull request changes
       migration files (or the forge listed too few files to rule them
       out), and the review reads only this pull request. Attended: relay

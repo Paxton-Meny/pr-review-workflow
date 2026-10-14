@@ -40,7 +40,7 @@
 <div class="find">
 <svg class="ic" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
 <label class="sr" for="filter">Filter settings</label>
-<input id="filter" type="search" placeholder="Filter 22 settings" autocomplete="off">
+<input id="filter" type="search" placeholder="Filter 23 settings" autocomplete="off">
 </div>
 <p class="nomatch" id="filter-none" hidden>No setting matches.</p>
 <div class="side-group">
@@ -52,6 +52,7 @@
 <a href="#ci-fix-rounds" data-words="ci_fix_rounds repairs cap">CI fix rounds</a>
 <a href="#ci-wait-minutes" data-words="ci_wait_minutes budget pending timeout">CI wait budget</a>
 <a href="#review-repairs" data-words="review_repairs incremental unreviewed">Review repairs</a>
+<a href="#branch-sync" data-words="branch_sync rebase conflicts behind update base">Base sync</a>
 </div>
 <div class="side-group">
 <div class="side-head">PROOF AND CHECKS</div>
@@ -92,7 +93,7 @@
 <div class="intro">
 <div class="kicker">Settings reference</div>
 <h1 class="display">What each setting changes</h1>
-<p>Twenty-two settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
+<p>Twenty-three settings, grouped by what you are trying to control. Each entry says what the setting does in plain terms, lets you switch between its values to see what would differ on a pull request, and says when each value is the right one. Open the dialog with <code>/plugin configure pr-review-workflow</code>.</p>
 </div>
 
 <div id="merging">
@@ -344,6 +345,49 @@
 </dl>
 </div>
 <p class="works"><b>Works with</b> &#183; <a href="#ci-checks">CI checks</a>, <a href="#check-command">Check command</a></p>
+</section>
+<section class="entry" id="branch-sync" data-key="branch_sync" data-project="never" data-default="update" data-options="off update resolve">
+<h3 class="display">Base sync</h3>
+<dl class="spec">
+<div><dt>KEY</dt><dd>branch_sync</dd></div>
+<div><dt>DEFAULT</dt><dd class="def">update</dd></div>
+<div><dt>ACCEPTS</dt><dd>off | update | resolve</dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
+</dl>
+<p class="lead">While a review runs, other branches merge. When the base has moved so far that the pull request conflicts, or is behind a base that requires it up to date, something has to bring the branch up to date before the checks mean anything and before the merge. This setting decides whether the plugin does it, and how far it goes.</p>
+<div class="unit" data-switch>
+<div class="unit-bar" hidden>
+<span class="kicker">If you set it to</span>
+<div class="seg" role="group" aria-label="Base sync value">
+<button type="button" data-set="update" aria-pressed="true">update <span class="badge">DEFAULT</span></button>
+<button type="button" data-set="resolve" aria-pressed="false">resolve</button>
+<button type="button" data-set="off" aria-pressed="false">off</button>
+</div>
+</div>
+<div class="unit-body">
+<div class="termbox">
+<div data-show="update resolve"><span class="dim">sync-branch:</span> rebased onto main at 9f2c1e4, pushed, 0 files changed by the resolution</div>
+<div data-show="update"><span class="dim">sync-branch:</span> conflicts in 1 files, a person decides</div>
+<div data-show="resolve" hidden><span class="dim">sync-branch:</span> conflicts in 1 files, the worktree holds the rebase</div>
+<div data-show="resolve" hidden><span class="dim">sync-branch:</span> rebased onto main at 4b7d2a0, pushed, 1 files changed by the resolution</div>
+<div data-show="off" hidden><span class="dim">sync-branch:</span> off, pull request is CONFLICTING, a person decides</div>
+</div>
+<p class="note" data-show="update resolve">The mechanism follows the <a href="#merge-method">merge method</a>, because it has to: under rebase merging the branch is rebased onto the base in the plugin&#8217;s own worktree and pushed with a lease on the head the run last saw, so a push anyone else made refuses it; under merge or squash merging the base is merged into the head and pushed plainly, rewriting nothing. Either way nothing happens while the forge is content, and at most three times per pull request.</p>
+<p class="note" data-show="update">A conflict is aborted and handed to you with the paths: you resolve, the run holds, and a resumed run carries on.</p>
+<p class="note" data-show="resolve" hidden>A conflict stops in the worktree for the editor, which resolves each file so both sides survive and continues through the script; the files whose change the resolution touched get an incremental review before the checks run, when <a href="#review-repairs">Review repairs</a> is on.</p>
+<p class="note" data-show="off" hidden>The run reports the state and holds; unattended, it parks. Nothing on your branch moves.</p>
+<p class="note">Only you can set this, never a project&#8217;s shared file: it writes to your branch. Under rebase merging your local copy of the branch is then behind a rewritten remote; <code>git pull --rebase</code> brings it back.</p>
+</div>
+</div>
+<div class="choose">
+<div class="kicker">Choose it when</div>
+<dl class="choose-l">
+<div><dt>update <span class="badge">DEFAULT</span></dt><dd>Most repositories: clean updates happen, conflicts stay yours.</dd></div>
+<div><dt>resolve</dt><dd>Branches that race often and whose conflicts are usually mechanical, with the review of the resolution left on.</dd></div>
+<div><dt>off</dt><dd>Branches other people also push to, or any branch you never want a tool to rewrite.</dd></div>
+</dl>
+</div>
+<p class="works"><b>Works with</b> &#183; <a href="#merge-method">Merge method</a>, <a href="#ci-checks">CI checks</a>, <a href="#review-repairs">Review repairs</a></p>
 </section>
 </div>
 
@@ -1108,7 +1152,7 @@
 <div class="setting"><div class="setting-k"><h5>2. Your configuration</h5><span>every project</span></div><div class="setting-d"><p>Set once in the dialog <code>/plugin configure pr-review-workflow</code>. Your baseline everywhere.</p></div></div>
 <div class="setting"><div class="setting-k"><h5>3. The project file</h5><code>.claude/pr-review-workflow.conf</code></div><div class="setting-d"><p>Whether to commit it is the repository&#8217;s choice, and the plugin follows it. Committed, it is the team&#8217;s shared file: read from the pull request&#8217;s base branch, never from the files on disk, so a pull request can never change how it is reviewed, and limited in what it may set; see <a href="#where-project">below</a>. Kept out of version control, it is yours, read from your clone, and may set anything.</p></div></div>
 <div class="setting"><div class="setting-k"><h5>4. Your local file</h5><code>.claude/pr-review-workflow.local.conf</code></div><div class="setting-d"><p>Untracked, in your clone, yours alone: overrides for this repository only. It may set anything. The plugin refuses it if the repository tracks it or if it is a symlink.</p></div></div>
-<div class="setting"><div class="setting-k"><h5>5. This run</h5><code>review-pr 128 posture=quality</code></div><div class="setting-d"><p>Words typed after the pull request, as <code>key=value</code>. They apply to that invocation only; quote a value with spaces, <code>check="npm test -- --ci"</code>. Short names work: <code>posture</code>, <code>samples</code>, <code>check</code>, <code>prefixes</code>, <code>filter</code>, <code>second_review</code>, <code>strong</code>, <code>method</code>, <code>ci</code>.</p></div></div>
+<div class="setting"><div class="setting-k"><h5>5. This run</h5><code>review-pr 128 posture=quality</code></div><div class="setting-d"><p>Words typed after the pull request, as <code>key=value</code>. They apply to that invocation only; quote a value with spaces, <code>check="npm test -- --ci"</code>. Short names work: <code>posture</code>, <code>samples</code>, <code>check</code>, <code>prefixes</code>, <code>filter</code>, <code>second_review</code>, <code>strong</code>, <code>method</code>, <code>ci</code>, <code>sync</code>.</p></div></div>
 </div>
 <h4 class="display">The file format</h4>
 <p class="sub">One setting per line: the key, a space, the value. A key alone on its line sets it to empty. Lines starting with <code>#</code> are comments. The short names above work here too.</p>
@@ -1127,7 +1171,7 @@ sensitive_paths src/auth/** src/payments/**</code></pre>
 <tr><th scope="row">Second review pass, precision filter, cost posture, review samples, CI checks, CI fix rounds, CI wait budget, review repairs</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
 <tr><th scope="row">Merge method</th><td><b>set it</b></td><td>The shape of the history is the team&#8217;s choice, and nothing runs because of it. Your local file still outranks it, and the run refuses a method the repository does not allow.</td></tr>
 <tr><th scope="row">Sensitive paths, migration paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
-<tr><th scope="row">Auto-approve, self-started reviews, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, start reviews on your behalf, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
+<tr><th scope="row">Auto-approve, self-started reviews, base sync, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, start reviews on your behalf, rewrite your branch, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>
 </table>
 </div>
 <p class="note">Everything the shared file tried and was refused, and every command waiting for your approval, is listed at the start of the run, so nothing is applied or dropped silently.</p>

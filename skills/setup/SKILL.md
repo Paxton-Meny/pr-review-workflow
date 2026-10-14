@@ -59,6 +59,7 @@ ci_checks ${user_config.ci_checks}
 ci_fix_rounds ${user_config.ci_fix_rounds}
 ci_wait_minutes ${user_config.ci_wait_minutes}
 review_repairs ${user_config.review_repairs}
+branch_sync ${user_config.branch_sync}
 check_command ${user_config.check_command}
 keep_ledgers ${user_config.keep_ledgers}
 double_review ${user_config.double_review}
