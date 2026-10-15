@@ -206,6 +206,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and adds the attribution line itself, in place of a `gh pr comment`
   grant that matched any repository and any body file.
 
+- The plugin's agents are held to their definitions. A PreToolUse hook,
+  `scripts/agent-scope.sh`, acts on calls Claude Code attributes to one
+  of the plugin's agents (2.1.69 and later): reads stay inside the
+  data directory, the plugin, and the session's folder, without `..` or
+  symlinked files; edits stay inside a review worktree; and shell
+  commands are only `git -C` into the data directory with the agent's
+  own subcommands and the plugin scripts it names, without expansion,
+  redirection, chaining, file-reading git options, or a status change
+  outside its role. `append-note.sh` refuses a note that adds a Check,
+  Resolution, or Fix line or a suggestion fence.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
