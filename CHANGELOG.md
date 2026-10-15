@@ -189,6 +189,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `merge-pr.sh` refuses any other head (exit 6) and pins the merge to
   the reviewed one.
 
+- Auto-approve merges only a pull request whose author can push to the
+  repository. `init-state.sh` records the author's permission,
+  `scripts/author-trust.sh` trusts the account's own pull requests, write,
+  maintain, and admin permission, and a branch in the repository when
+  GitHub cannot say; `merge-pr.sh --approve` refuses anyone else (exit
+  7) and the run asks, or parks unattended. The review is a model
+  reading what the author wrote, so a stranger's text alone never
+  merges it.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
