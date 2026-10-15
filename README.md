@@ -210,7 +210,8 @@ sensitive_paths src/auth/** src/payments/**
 ```
 
 A committed project file may do less than your own. Its check command and
-contract prefixes apply only after you approve them, once per change.
+contract prefixes, and any raise of review samples, apply only after you
+approve them, once per change.
 It may set the merge method, since the shape of the history is the
 team's choice. It may only raise the review depth settings. It may never set
 auto-approve, self-started reviews, the models, ledgers kept, or local standards. The

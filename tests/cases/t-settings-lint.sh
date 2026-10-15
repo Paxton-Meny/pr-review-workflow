@@ -28,9 +28,11 @@ printf '%s\n' "$out" | grep -qx 'settings: ignored project finding_filter: would
 printf '%s\n' "$out" | grep -q '^settings: trust pending [0-9a-f]* check_command npm test -- --ci$'
 printf '%s\n' "$out" | grep -q '^settings: trust pending [0-9a-f]* contract_commands npx vitest$'
 printf '%s\n' "$out" | grep -qx 'settings: double_review always from project'
-printf '%s\n' "$out" | grep -qx 'settings: review_samples 2 from project'
+# A raise of review_samples waits for approval with the commands.
+printf '%s\n' "$out" | grep -q '^settings: trust pending [0-9a-f]* review_samples 2$'
+! printf '%s\n' "$out" | grep -q '^settings: review_samples '
 printf '%s\n' "$out" | grep -qxF 'settings: sensitive_paths src/auth/** from project'
-printf '%s\n' "$out" | grep -qx 'settings: lint shared file 4 set, 3 refused'
+printf '%s\n' "$out" | grep -qx 'settings: lint shared file 3 set, 3 refused'
 ! printf '%s\n' "$out" | grep -q 'project file'
 
 # The same file is fine as a personal one.
