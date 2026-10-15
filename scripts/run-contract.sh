@@ -65,9 +65,13 @@ case "$tooling" in
 esac
 
 allowed=0
+matched=''
 if [ -n "$check" ]; then
 	case "$cmd" in
-	"$check" | "$check "*) allowed=1 ;;
+	"$check" | "$check "*)
+		allowed=1
+		matched=$check
+		;;
 	esac
 fi
 if [ "$allowed" -eq 0 ] && [ -n "$extra" ]; then
@@ -81,6 +85,7 @@ if [ "$allowed" -eq 0 ] && [ -n "$extra" ]; then
 		case "$cmd" in
 		"$prefix" | "$prefix "*)
 			allowed=1
+			matched=$prefix
 			break
 			;;
 		esac
@@ -88,6 +93,34 @@ if [ "$allowed" -eq 0 ] && [ -n "$extra" ]; then
 fi
 if [ "$allowed" -eq 0 ]; then
 	echo "run-contract: $id verdict not-executable reason unapproved-prefix"
+	exit 4
+fi
+# The prefix is the user's; the arguments after it are the reviewer's.
+# They may not name a path outside the worktree (absolute, ~, or a ..
+# segment, also after any =), as in pytest --basetemp=/home/you, which
+# empties that folder, nor carry quotes, globs, braces, parentheses, #,
+# or !. A ./... package pattern is fine.
+args=${cmd#"$matched"}
+unsafe=0
+if printf '%s' "$args" | grep -q "[][\"'*?{}()#!]"; then
+	unsafe=1
+fi
+set -f
+for word in $args; do
+	part=$word
+	while :; do
+		case "$part" in
+		/* | '~'* | .. | ../* | */.. | */../*) unsafe=1 ;;
+		esac
+		case "$part" in
+		*=*) part=${part#*=} ;;
+		*) break ;;
+		esac
+	done
+done
+set +f
+if [ "$unsafe" -eq 1 ]; then
+	echo "run-contract: $id verdict not-executable reason unsafe-argument"
 	exit 4
 fi
 if [ "$policy" -eq 1 ]; then
