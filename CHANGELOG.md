@@ -152,6 +152,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a umask of 0002 no longer leaves ledgers, surveys, and settings
   readable by other accounts on the machine.
 
+- A Check line's arguments cannot reach outside the worktree.
+  `run-contract.sh` allowed quotes, globs, `~`, and absolute paths after
+  the approved prefix, so `pytest --basetemp=/home/you/projects` would
+  empty that folder. Arguments after the prefix that are absolute, start
+  with `~`, or hold a `..` segment, also after an `=`, or that contain
+  any of `'"*?[]{}()#!`, are now refused as `unsafe-argument` and the
+  finding is judged by reading; `./...` package patterns still run.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
