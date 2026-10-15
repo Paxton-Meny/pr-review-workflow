@@ -231,6 +231,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   that file from the incremental review; every reader now stops at the
   header's `---`, and `update-finding.sh` rewrites header lines only.
 
+- The start gate's decision is always one valid JSON line. A refusal
+  quoting a multi-line error, as gh's own stderr is, printed raw
+  newlines inside the reason; Claude Code then saw no decision, and the
+  call either failed as a hook error or, before `onFailure: "block"`,
+  went through without the gate.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

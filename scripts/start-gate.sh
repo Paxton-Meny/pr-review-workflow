@@ -16,7 +16,10 @@ case "$input" in
 esac
 
 decide() {
-	reason=$(printf '%s' "$2" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr -d '\t\r')
+	# One JSON line: a reason quoting a multi-line error (gh's own stderr
+	# included) keeps its words, never a raw control character, so the
+	# decision always parses.
+	reason=$(printf '%s' "$2" | tr '\n\t\r' '   ' | tr -d '\000-\037' | sed 's/\\/\\\\/g; s/"/\\"/g')
 	printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"%s","permissionDecisionReason":"%s"}}\n' "$1" "$reason"
 	exit 0
 }
