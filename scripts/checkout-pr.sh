@@ -1,6 +1,10 @@
 #!/bin/sh
 # Ensure a detached worktree holding the pull request head, from this clone.
 # Usage: sh scripts/checkout-pr.sh <state-dir>
+# A fork's head comes from GitHub's refs/pull/<n>/head on origin, as
+# local-diff.sh fetches it, and only then from the fork's branch; every
+# branch fetch puts -- before the remote, so a name read from GitHub
+# cannot act as an option.
 set -eu
 
 dir=${1:?usage: checkout-pr.sh <state-dir>}
@@ -10,6 +14,7 @@ dir=${1:?usage: checkout-pr.sh <state-dir>}
 }
 owner=$(sed -n 's/^owner //p' "$dir/meta.txt")
 repo=$(sed -n 's/^repo //p' "$dir/meta.txt")
+pr=$(sed -n 's/^pr //p' "$dir/meta.txt")
 head_branch=$(sed -n 's/^head_branch //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 cross_repo=$(sed -n 's/^cross_repo //p' "$dir/meta.txt")
@@ -50,9 +55,14 @@ if [ "$cross_repo" = "true" ]; then
 		esac
 		;;
 	esac
-	git -C "$repo_root" fetch --quiet "$head_repo_url" "$head_branch"
+	case "$pr" in
+	'' | *[!0-9]*) ;;
+	*) git -C "$repo_root" fetch --quiet origin "refs/pull/$pr/head" 2>/dev/null || true ;;
+	esac
+	git -C "$repo_root" cat-file -e "$head_sha^{commit}" 2>/dev/null ||
+		git -C "$repo_root" fetch --quiet -- "$head_repo_url" "$head_branch"
 else
-	git -C "$repo_root" fetch --quiet origin "$head_branch"
+	git -C "$repo_root" fetch --quiet -- origin "$head_branch"
 fi
 
 worktree="$dir/worktree"
