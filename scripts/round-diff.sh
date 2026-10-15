@@ -40,7 +40,7 @@ trap 'rm -f "$expected" "$changed"' EXIT
 
 for record in "$dir/findings"/F*; do
 	[ -f "$record" ] || continue
-	sed -n 's/^path: //p' "$record"
+	sed -n '/^---$/q; s/^path: //p' "$record"
 done | sort -u >"$expected"
 git -C "$worktree" diff --name-only "$prev_head" "$head_sha" | sort -u >"$changed"
 

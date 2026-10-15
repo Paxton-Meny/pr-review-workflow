@@ -23,12 +23,12 @@ open_ids='' addressed_ids='' verified_ids='' wontfix_ids=''
 mech_ids='' capped_ids=''
 for f in "$findings"/F*; do
 	[ -f "$f" ] || continue
-	status=$(sed -n 's/^status: //p' "$f")
+	status=$(sed -n '/^---$/q; s/^status: //p' "$f")
 	case "$status" in
 	open)
 		open=$((open + 1))
 		open_ids="$open_ids ${f##*/}"
-		sev=$(sed -n 's/^severity: //p' "$f")
+		sev=$(sed -n '/^---$/q; s/^severity: //p' "$f")
 		case "$sev" in
 		minor | nit)
 			grep -q '^```suggestion' "$f" && mech_ids="$mech_ids ${f##*/}"
@@ -52,7 +52,7 @@ for f in "$findings"/F*; do
 		exit 1
 		;;
 	esac
-	r=$(sed -n 's/^reopens: //p' "$f")
+	r=$(sed -n '/^---$/q; s/^reopens: //p' "$f")
 	[ "$r" -gt "$max_reopens" ] && max_reopens=$r
 	[ "$status" = open ] && [ "$r" -gt 2 ] && capped_ids="$capped_ids ${f##*/}"
 done

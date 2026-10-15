@@ -19,7 +19,8 @@ round=$(($(cat "$dir/round.txt") + 1))
 here=$(dirname -- "$0")
 tab=$(printf '\t')
 
-field() { sed -n "s/^$2: //p" "$1"; }
+# Header fields only: a body may quote a line that looks like one.
+field() { sed -n "/^---\$/q; s/^$2: //p" "$1"; }
 body_of() { awk 'f && !/^Criteria note: / { print } /^---$/ { f = 1 }' "$1"; }
 unposted() { [ "$(field "$1" status)" = "open" ] && [ -z "$(field "$1" placement)" ]; }
 
@@ -49,7 +50,11 @@ for record in "$dir/findings"/F*; do
 done
 
 summarized=0
-if grep -qx "round: $round" "$dir/findings"/F* 2>/dev/null; then
+new_round=0
+for record in "$dir/findings"/F*; do
+	[ -f "$record" ] && [ "$(field "$record" round)" = "$round" ] && new_round=1 && break
+done
+if [ "$new_round" -eq 1 ]; then
 	blocker=0 major=0 minor=0 nit=0
 	summary_ids=''
 	for record in "$dir/findings"/F*; do
