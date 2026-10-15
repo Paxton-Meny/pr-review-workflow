@@ -1,7 +1,9 @@
 #!/bin/sh
 # Gather the project's local standards files into the review context.
 # Usage: sh scripts/extract-standards.sh <state-dir> [glob ...]
-# Without globs, the run's resolved local_standards is used.
+# Without globs, the run's resolved local_standards is used. Files git
+# tracks are skipped with a line saying so: those are the repository's,
+# written by whoever can commit, not the user's own standards.
 set -eu
 
 dir=${1:?usage: extract-standards.sh <state-dir> [glob ...]}
@@ -38,6 +40,7 @@ tmp=$(mktemp "$ctx/.std.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
 files=0
 seen=
+skipped=
 for root in "$repo_root" ${main_root:+"$main_root"}; do
 	cd "$root"
 	for path in $patterns; do
@@ -49,6 +52,16 @@ for root in "$repo_root" ${main_root:+"$main_root"}; do
 		esac
 		[ -f "$path" ] || continue
 		[ ! -L "$path" ] || continue
+		if git -C "$root" ls-files --error-unmatch -- ":(literal)$path" >/dev/null 2>&1; then
+			case " $skipped " in
+			*" $path "*) ;;
+			*)
+				skipped="$skipped $path"
+				echo "extract-standards: skipped $path: tracked by git"
+				;;
+			esac
+			continue
+		fi
 		case " $seen " in
 		*" $path "*) continue ;;
 		esac
