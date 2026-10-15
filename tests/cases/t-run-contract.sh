@@ -58,6 +58,41 @@ out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F001 'sh check.sh') || rc=$
 [ "$rc" -eq 4 ]
 printf '%s\n' "$out" | grep -q 'unapproved-prefix'
 
+# Arguments after the prefix stay inside the worktree and literal: no
+# absolute, home, or parent paths, also after an =, and no quotes,
+# globs, braces, parentheses, comments, or history marks.
+printf '#!/bin/sh\n: >unsafe-ran\nexit 0\n' >"$dir/worktree/check.sh"
+for line in 'sh check.sh --basetemp=/home/someone/projects' 'sh check.sh /etc' \
+	'sh check.sh ~/projects' 'sh check.sh --out=~' 'sh check.sh ../up' 'sh check.sh a/../../b' \
+	'sh check.sh a/..' 'sh check.sh ..' 'sh check.sh --cfg=x=/abs' 'sh check.sh --dir=../x' \
+	"sh check.sh -k 'x'" 'sh check.sh -k "x"' 'sh check.sh tests/*.py' 'sh check.sh a?b' \
+	'sh check.sh [ab]' 'sh check.sh {a,b}' 'sh check.sh (x)' 'sh check.sh #x' 'sh check.sh !x'; do
+	mkrec "Check: $line"
+	for flag in '' --policy; do
+		rc=0
+		out=$(sh "$REPO_ROOT/scripts/run-contract.sh" $flag "$dir" F001 'sh check.sh') || rc=$?
+		[ "$rc" -eq 4 ] && [ "$out" = "run-contract: F001 verdict not-executable reason unsafe-argument" ] || {
+			echo "unsafe argument allowed: $line ($out)" >&2
+			exit 1
+		}
+	done
+	[ ! -e "$dir/worktree/unsafe-ran" ]
+done
+for line in 'sh check.sh ./...' 'sh check.sh ./pkg/... -run TestX' 'sh check.sh --dir=sub/dir a.b' \
+	'sh check.sh v1..v2-notes'; do
+	mkrec "Check: $line"
+	out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F001 'sh check.sh')
+	[ "$out" = "run-contract: F001 verdict satisfied" ] || {
+		echo "safe argument refused: $line ($out)" >&2
+		exit 1
+	}
+done
+rm -f "$dir/worktree/unsafe-ran"
+# The configured prefix itself is the user's and is not judged.
+mkrec 'Check: sh ./check.sh ./...'
+out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F001 'sh ./check.sh')
+[ "$out" = "run-contract: F001 verdict satisfied" ]
+
 printf 'id: F002\nstatus: open\ncategory: correctness\nseverity: minor\npath: a.sh\nline: 1\nend_line:\nside: RIGHT\nplacement:\ncomment_id:\ncommit:\nround: 1\nreopens: 0\ntitle: T\n---\nevidence\nFix: do.\nResolution: done.\n' >"$dir/findings/F002"
 rc=0
 out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F002 'sh check.sh') || rc=$?

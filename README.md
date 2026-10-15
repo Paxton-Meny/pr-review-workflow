@@ -265,7 +265,9 @@ execution is the one judge that cannot be argued with. Containment is
 strict because reviewers read untrusted pull request content: a Check
 line executes only when it starts with your configured check command or
 one of the prefixes above, and never when it contains shell
-metacharacters. With no check command configured, nothing ever
+metacharacters or arguments that leave the worktree or need quoting
+(an absolute, `~`, or `..` path, a quote, glob, bracket, brace,
+parenthesis, `#`, or `!`). With no check command configured, nothing ever
 executes, exactly as before. Running a narrowed test executes no more
 of the pull request's code than the check command you already
 configured runs on every round.
