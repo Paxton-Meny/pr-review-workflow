@@ -148,6 +148,10 @@ if [ -f "$dir/settings.txt" ]; then
 	double=$(get double_review)
 	filter=$(get finding_filter)
 	samples=$(get review_samples)
+	# A check that will not run on this author's code gates nothing.
+	if ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+		check='' prefixes=''
+	fi
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in

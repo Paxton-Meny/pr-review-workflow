@@ -15,7 +15,8 @@
 # shell metacharacters. Reviewer-authored text never widens what can run
 # beyond commands the user already chose to trust. A Check line naming
 # migration tooling never runs, even under an allowed prefix: migrations
-# are judged by reading, and no contract may touch a database.
+# are judged by reading, and no contract may touch a database. Nothing
+# runs on the code of an author author-trust.sh --exec does not allow.
 set -eu
 
 policy=0
@@ -47,6 +48,10 @@ worktree="$dir/worktree"
 cmd=$(sed -n 's/^Check: //p' "$record" | head -n 1)
 if [ -z "$cmd" ]; then
 	echo "run-contract: $id verdict not-executable reason no-check-line"
+	exit 4
+fi
+if ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+	echo "run-contract: $id verdict not-executable reason untrusted-author"
 	exit 4
 fi
 if printf '%s' "$cmd" | grep -q '[;&|$<>`\\]'; then
