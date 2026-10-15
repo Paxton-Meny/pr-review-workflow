@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 860" width="860" role="img" aria-labelledby="pmt pmd" class="pm">
+<title id="pmt">Phase 6, Merge: four doors, then the merge and the bookkeeping</title>
+<desc id="pmd">The merge method is refreshed: the setting, else the one method the repository allows, else the one its recent merged pull requests used, and mixed evidence asks a person. Auto-approve merges on its own; attended, the user is asked to merge or hold; unattended, a converged status comment is posted and nothing merges. merge-pr then passes four doors in order and writes nothing when one refuses: the pull request must be open and not a draft; mergeable, or exit 5 sends the run back to base sync; free of migration files, or exit 4 hands a person four checks to confirm; and clear of commits landed beside the reviewed hunks, or exit 6 shows the drift lines and any verdict for a person to decide. The merge runs by the decided method with the head matched, the branch is deleted or kept with the reason, and the run records its statistics, drops the worktree, sweeps closed runs, and reports with its criteria signals.</desc>
+<style>
+.pm{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A}
+@media (prefers-color-scheme:dark){.pm{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--coral-line:#7a3a24;--clay:#D97757;--term:#141413;--term-line:#44433F}}
+.pm text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.pm .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.pm .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+.pm .h{font-size:12.5px;font-weight:700;fill:var(--ink)}
+.pm .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.pm .ttl{font-size:16px;font-weight:700;fill:var(--ink)}
+.pm .c{fill:var(--card);stroke:var(--line)}
+.pm .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pm .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.pm .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pm .hm{fill:var(--accent-ink)}.pm .sm{fill:var(--accent)}
+.pm .hg2{fill:var(--teal-ink)}.pm .sg{fill:var(--teal)}
+.pm .hp{fill:var(--coral-ink)}.pm .sp{fill:var(--coral)}
+.pm .accent{fill:var(--accent)}.pm .teal{fill:var(--teal)}.pm .coral{fill:var(--coral)}
+.pm .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pm .arh{fill:var(--faint)}
+.pm .ring{fill:none;stroke:var(--rule);stroke-width:3}
+.pm .term{fill:var(--term);stroke:var(--term-line)}
+.pm .tl{fill:#F1EFE8}.pm .tm{fill:#B4B2A9}
+.pm .lane{fill:var(--lane)}
+.pm .ph{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.pm .num{font-size:10.5px;font-weight:700;fill:var(--faint)}
+.pm .chip rect{stroke-width:1}.pm .chip text{font-weight:700;fill:var(--ink)}
+.pm .bad rect{fill:var(--coral-bg);stroke:var(--coral-line)}.pm .bad text{fill:var(--coral-ink)}
+.pm .ask rect{fill:var(--card);stroke:var(--coral)}.pm .ask text{fill:var(--coral)}
+.pm .good rect{fill:var(--teal-bg);stroke:var(--teal-line)}.pm .good text{fill:var(--teal-ink)}
+.pm .note rect{fill:var(--panel);stroke:var(--line)}.pm .note text{fill:var(--muted)}
+.pm .mdl rect{fill:var(--accent-bg);stroke:var(--accent-line)}.pm .mdl text{fill:var(--accent-ink)}
+.pm .lf rect{fill:var(--rule)}.pm .lf text{fill:var(--muted)}
+.pm .done{fill:var(--teal);stroke:var(--teal)}
+.pm .doneh{fill:var(--bg)}.pm .dones{fill:var(--bg);opacity:.85}
+.pm .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pm .cardg>rect{stroke-width:1}
+@keyframes pm-walk{0%,6.1%{offset-distance:0.00%}11.0%,17.1%{offset-distance:26.35%}22.0%,28.1%{offset-distance:36.80%}33.0%,39.6%{offset-distance:44.19%}45.0%,51.6%{offset-distance:51.59%}57.0%,65.2%{offset-distance:58.99%}72.0%,76.4%{offset-distance:66.38%}80.0%,81.1%{offset-distance:70.26%}82.0%,100%{offset-distance:100.00%}}
+.pm .tok{fill:var(--clay);stroke:var(--card);stroke-width:2.5;offset-path:path('M149 255 L434 255 L434 368 L434 448 L434 528 L434 608 L434 688 L434 730 L115 771');offset-rotate:0deg;animation:pm-walk 34s linear infinite}
+@keyframes pm-st0{0%,0.0%{stroke:var(--line);stroke-width:1}0.0%,10.9%{stroke:var(--accent);stroke-width:2}11.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st0>rect{animation:pm-st0 34s linear infinite}
+@keyframes pm-in0{0%,0.0%{opacity:0}0.5%,100%{opacity:1}}
+.pm .tl0,.pm .lf0{animation:pm-in0 34s linear infinite}
+@keyframes pm-st1{0%,10.9%{stroke:var(--line);stroke-width:1}11.0%,21.9%{stroke:var(--accent);stroke-width:2}22.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st1>rect{animation:pm-st1 34s linear infinite}
+@keyframes pm-in1{0%,10.9%{opacity:0}11.5%,100%{opacity:1}}
+.pm .tl1,.pm .lf1{animation:pm-in1 34s linear infinite}
+@keyframes pm-st2{0%,21.9%{stroke:var(--line);stroke-width:1}22.0%,32.9%{stroke:var(--accent);stroke-width:2}33.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st2>rect{animation:pm-st2 34s linear infinite}
+@keyframes pm-in2{0%,21.9%{opacity:0}22.5%,100%{opacity:1}}
+.pm .tl2,.pm .lf2{animation:pm-in2 34s linear infinite}
+@keyframes pm-st3{0%,32.9%{stroke:var(--line);stroke-width:1}33.0%,44.9%{stroke:var(--accent);stroke-width:2}45.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st3>rect{animation:pm-st3 34s linear infinite}
+@keyframes pm-in3{0%,32.9%{opacity:0}33.5%,100%{opacity:1}}
+.pm .tl3,.pm .lf3{animation:pm-in3 34s linear infinite}
+@keyframes pm-st4{0%,44.9%{stroke:var(--line);stroke-width:1}45.0%,56.9%{stroke:var(--accent);stroke-width:2}57.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st4>rect{animation:pm-st4 34s linear infinite}
+@keyframes pm-in4{0%,44.9%{opacity:0}45.5%,100%{opacity:1}}
+.pm .tl4,.pm .lf4{animation:pm-in4 34s linear infinite}
+@keyframes pm-st5{0%,56.9%{stroke:var(--line);stroke-width:1}57.0%,71.9%{stroke:var(--accent);stroke-width:2}72.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st5>rect{animation:pm-st5 34s linear infinite}
+@keyframes pm-in5{0%,56.9%{opacity:0}57.5%,100%{opacity:1}}
+.pm .tl5,.pm .lf5{animation:pm-in5 34s linear infinite}
+@keyframes pm-st6{0%,71.9%{stroke:var(--line);stroke-width:1}72.0%,81.9%{stroke:var(--accent);stroke-width:2}82.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st6>rect{animation:pm-st6 34s linear infinite}
+@keyframes pm-in6{0%,71.9%{opacity:0}72.5%,100%{opacity:1}}
+.pm .tl6,.pm .lf6{animation:pm-in6 34s linear infinite}
+@keyframes pm-st7{0%,81.9%{stroke:var(--line);stroke-width:1}82.0%,99.9%{stroke:var(--accent);stroke-width:2}100.0%,100%{stroke:var(--line);stroke-width:1}}
+.pm .st7>rect{animation:pm-st7 34s linear infinite}
+@keyframes pm-in7{0%,81.9%{opacity:0}82.5%,100%{opacity:1}}
+.pm .tl7,.pm .lf7{animation:pm-in7 34s linear infinite}
+@keyframes pm-ex0{0%,3.9%{opacity:.35}4.0%,10.9%{opacity:1}11.0%,100%{opacity:.35}}
+.pm .ex0{animation:pm-ex0 34s linear infinite}
+@keyframes pm-ex1{0%,13.9%{opacity:.35}14.0%,21.9%{opacity:1}22.0%,100%{opacity:.35}}
+.pm .ex1{animation:pm-ex1 34s linear infinite}
+@keyframes pm-ex3{0%,35.9%{opacity:.35}36.0%,44.9%{opacity:1}45.0%,100%{opacity:.35}}
+.pm .ex3{animation:pm-ex3 34s linear infinite}
+@keyframes pm-ex4{0%,47.9%{opacity:.35}48.0%,56.9%{opacity:1}57.0%,100%{opacity:.35}}
+.pm .ex4{animation:pm-ex4 34s linear infinite}
+@keyframes pm-ex5{0%,59.9%{opacity:.35}60.0%,71.9%{opacity:1}72.0%,100%{opacity:.35}}
+.pm .ex5{animation:pm-ex5 34s linear infinite}
+@keyframes pm-ex6{0%,73.9%{opacity:.35}74.0%,81.9%{opacity:1}82.0%,100%{opacity:.35}}
+.pm .ex6{animation:pm-ex6 34s linear infinite}
+@media (prefers-reduced-motion:reduce){.pm *{animation:none!important}.pm .tok{display:none}.pm .tl,.pm .lf,.pm .ex0,.pm .ex1,.pm .ex2,.pm .ex3,.pm .ex4,.pm .ex5,.pm .ex6,.pm .ex7,.pm .ex8,.pm .ex9,.pm .ex10,.pm .ex11{opacity:1}}
+</style>
+<defs><filter id="pm-sh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="pm-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<text class="ttl" x="24" y="30" style="font-size:16px">Merge</text>
+<text x="24" y="49">Every refusal writes nothing and names who decides. The merge is the only step that cannot be undone.</text>
+<g filter="url(#pm-sh)"><rect class="term" x="24" y="62" width="812" height="148" rx="9"/></g>
+<text class="mono tl tl0" x="36" y="82"><tspan class="tm">merge-method:</tspan> rebase reason setting</text>
+<text class="mono tl tl5" x="36" y="100"><tspan class="tm">base-drift:</tspan> 2 commits landed, 1 files shared, level disjoint</text>
+<text class="mono tl tl6" x="36" y="118"><tspan class="tm">merge-pr:</tspan> Paxton-Meny/api#128 merged by rebase, branch deleted</text>
+<text class="mono tl tl7" x="36" y="136"><tspan class="tm">run-stats:</tspan> run Paxton-Meny/api#128 outcome merged rounds 2 findings 5 verified 5 …</text>
+<text class="mono tl tl7" x="36" y="154"><tspan class="tm">cleanup-state:</tspan> worktree and context removed, ledger kept</text>
+<text class="mono tl tl7" x="36" y="172"><tspan class="tm">sweep-state:</tspan> stale 0 pruned 1 kept 20</text>
+<text class="mono tl tl7" x="36" y="190"><tspan class="tm">criteria-signals:</tspan> other 1 notes 1</text>
+<text class="tm" x="826" y="204" text-anchor="end" style="font-size:9.5px">what the orchestrating session sees</text>
+<g class="cardg st0" data-step="0"><rect class="c" x="24" y="220" width="250" height="70" rx="9"/>
+<text class="h" x="36" y="240" style="font-size:12.5px">merge-method --refresh</text>
+<text x="36" y="256" style="font-size:10.5px">setting · the repo’s one method</text>
+<text x="36" y="271" style="font-size:10.5px">· recent history, same shape first</text>
+</g>
+<g class="chip ask ex0"><rect x="24" y="298" width="203.58" height="19" rx="9.5"/>
+<text x="125.79" y="311.5" text-anchor="middle" style="font-size:10.5px">mixed evidence → you pick a method</text>
+</g>
+<g class="cardg st1" data-step="1"><rect class="c" x="304" y="220" width="260" height="70" rx="9"/>
+<text class="h" x="316" y="240" style="font-size:12.5px">Who opens the gate</text>
+<text x="316" y="256" style="font-size:10.5px">auto-approve → merges on its own</text>
+<text x="316" y="271" style="font-size:10.5px">attended → merge now, or hold?</text>
+</g>
+<g class="chip note ex1"><rect x="304" y="298" width="252.317" height="19" rx="9.5"/>
+<text x="430.159" y="311.5" text-anchor="middle" style="font-size:10.5px">unattended, auto-approve off → comment, stop</text>
+</g>
+<path class="ar" d="M274 255 L302 255" marker-end="url(#pm-a)"/>
+<g class="cardg st2" data-step="2"><rect class="c" x="304" y="340" width="260" height="56" rx="9"/>
+<text class="h" x="316" y="360" style="font-size:12.5px">Open, not a draft</text>
+<text x="316" y="376" style="font-size:10.5px">else nothing happens</text>
+</g>
+<g class="cardg st3" data-step="3"><rect class="c" x="304" y="420" width="260" height="56" rx="9"/>
+<text class="h" x="316" y="440" style="font-size:12.5px">Mergeable</text>
+<text x="316" y="456" style="font-size:10.5px">the forge’s own verdict</text>
+</g>
+<g class="chip bad ex3"><rect x="573.021" y="438" width="262.979" height="19" rx="9.5"/>
+<text x="704.51" y="451.5" text-anchor="middle" style="font-size:10.5px">CONFLICTING or BEHIND → exit 5 → base sync</text>
+</g>
+<path class="ar" d="M564 448 L584 448" marker-end="url(#pm-a)"/>
+<g class="cardg st4" data-step="4"><rect class="c" x="304" y="500" width="260" height="56" rx="9"/>
+<text class="h" x="316" y="520" style="font-size:12.5px">No migration files</text>
+<text x="316" y="536" style="font-size:10.5px">or the forge listed too few files</text>
+</g>
+<g class="chip ask ex4"><rect x="656.16" y="518" width="179.84" height="19" rx="9.5"/>
+<text x="746.08" y="531.5" text-anchor="middle" style="font-size:10.5px">exit 4 → four checks you confirm</text>
+</g>
+<path class="ar" d="M564 528 L584 528" marker-end="url(#pm-a)"/>
+<g class="cardg st5" data-step="5"><rect class="c" x="304" y="580" width="260" height="56" rx="9"/>
+<text class="h" x="316" y="600" style="font-size:12.5px">Nothing landed beside the hunks</text>
+<text x="316" y="616" style="font-size:10.5px">base fetched, compared in place</text>
+</g>
+<g class="chip ask ex5"><rect x="607.962" y="598" width="228.038" height="19" rx="9.5"/>
+<text x="721.981" y="611.5" text-anchor="middle" style="font-size:10.5px">near or same → exit 6 → drift lines, verdict</text>
+</g>
+<path class="ar" d="M564 608 L584 608" marker-end="url(#pm-a)"/>
+<path class="ar" d="M434 396 L434 418" marker-end="url(#pm-a)"/>
+<path class="ar" d="M434 476 L434 498" marker-end="url(#pm-a)"/>
+<path class="ar" d="M434 556 L434 578" marker-end="url(#pm-a)"/>
+<path class="ar" d="M434 290 L434 338" marker-end="url(#pm-a)"/>
+<g class="cardg st6" data-step="6"><rect class="done" x="304" y="660" width="260" height="56" rx="9"/>
+<text class="h doneh" x="316" y="680" style="font-size:12.5px">Merged</text>
+<text class="dones" x="316" y="696" style="font-size:10.5px">by the method, head matched</text>
+</g>
+<path class="ar" d="M434 636 L434 658" marker-end="url(#pm-a)"/>
+<g class="chip note ex6"><rect x="497.083" y="722" width="338.917" height="19" rx="9.5"/>
+<text x="666.542" y="735.5" text-anchor="middle" style="font-size:10.5px">--migrations-checked · --overlap-checked: only after your answer</text>
+</g>
+<g class="chip good ex5"><rect x="531.856" y="642" width="304.144" height="19" rx="9.5"/>
+<text x="683.928" y="655.5" text-anchor="middle" style="font-size:10.5px">an independent verdict on that base → merges on its own</text>
+</g>
+<g class="cardg"><rect class="c" x="24" y="340" width="250" height="136" rx="9"/>
+<text class="h" x="36" y="360" style="font-size:12.5px">The branch afterwards</text>
+<text x="36" y="376" style="font-size:10.5px">deleted, unless it is a fork’s,</text>
+<text x="36" y="391" style="font-size:10.5px">the repository deletes it itself,</text>
+<text x="36" y="406" style="font-size:10.5px">or an open pull request bases on it</text>
+<text x="36" y="421" style="font-size:10.5px">(a stacked branch stays)</text>
+<text x="36" y="436" style="font-size:10.5px">the line says which, and why</text>
+</g>
+<g class="cardg"><rect class="c" x="24" y="500" width="250" height="136" rx="9"/>
+<text class="h" x="36" y="520" style="font-size:12.5px">What the person confirms</text>
+<text x="36" y="536" style="font-size:10.5px">migrations: no newer ones on the base,</text>
+<text x="36" y="551" style="font-size:10.5px">none in other open pull requests,</text>
+<text x="36" y="566" style="font-size:10.5px">running code still works, nothing</text>
+<text x="36" y="581" style="font-size:10.5px">shipped was edited</text>
+<text x="36" y="596" style="font-size:10.5px">overlap: the drift lines, the verdict</text>
+</g>
+<g class="cardg st7" data-step="7"><rect class="c" x="24" y="744" width="182" height="54" rx="9"/>
+<text class="h" x="36" y="764" style="font-size:12.5px">run-stats</text>
+<text x="36" y="780" style="font-size:10.5px">one line per finished run</text>
+</g>
+<g class="cardg st7" data-step="7"><rect class="c" x="230" y="744" width="182" height="54" rx="9"/>
+<text class="h" x="242" y="764" style="font-size:12.5px">cleanup-state</text>
+<text x="242" y="780" style="font-size:10.5px">worktree gone, ledger kept</text>
+</g>
+<g class="cardg st7" data-step="7"><rect class="c" x="436" y="744" width="182" height="54" rx="9"/>
+<text class="h" x="448" y="764" style="font-size:12.5px">sweep-state</text>
+<text x="448" y="780" style="font-size:10.5px">closed runs reaped, pruned</text>
+</g>
+<g class="cardg st7" data-step="7"><rect class="c" x="642" y="744" width="194" height="54" rx="9"/>
+<text class="h" x="654" y="764" style="font-size:12.5px">The report</text>
+<text x="654" y="780" style="font-size:10.5px">rounds, findings, signals</text>
+</g>
+<path class="ar" d="M206 771 L228 771" marker-end="url(#pm-a)"/>
+<path class="ar" d="M412 771 L434 771" marker-end="url(#pm-a)"/>
+<path class="ar" d="M618 771 L640 771" marker-end="url(#pm-a)"/>
+<path class="ar" d="M434 716 L434 730 L115 730 L115 742" marker-end="url(#pm-a)"/>
+<rect class="lane" x="24" y="812" width="812" height="46" rx="9"/>
+<text class="k" x="36" y="829" style="font-size:9.5px">written to the ledger</text>
+<g class="lf lf0"><rect x="36" y="840" width="8" height="8" rx="2"/><text class="mono" x="49" y="848" style="font-size:10px">merge-method.txt</text></g>
+<g class="lf lf5"><rect x="161.32" y="840" width="8" height="8" rx="2"/><text class="mono" x="174.32" y="848" style="font-size:10px">drift.txt</text></g>
+<g class="lf lf5"><rect x="244.5" y="840" width="8" height="8" rx="2"/><text class="mono" x="257.5" y="848" style="font-size:10px">overlap/base/verdict.txt</text></g>
+<g class="lf lf7"><rect x="417.98" y="840" width="8" height="8" rx="2"/><text class="mono" x="430.98" y="848" style="font-size:10px">stats.txt</text></g>
+<g class="lf lf7"><rect x="501.16" y="840" width="8" height="8" rx="2"/><text class="mono" x="514.16" y="848" style="font-size:10px">ledger kept for keep_ledgers runs</text></g>
+<circle class="tok" r="7"/>
+</svg>
