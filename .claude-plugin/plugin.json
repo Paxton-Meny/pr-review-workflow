@@ -15,7 +15,7 @@
     "auto_approve": {
       "type": "boolean",
       "title": "Auto-approve on convergence",
-      "description": "Merge automatically once the review loop finds nothing open. When off, the plugin asks before merging.",
+      "description": "Merge automatically once the review loop finds nothing open, when the pull request's author can push to the repository; anyone else's pull request waits for you. When off, the plugin asks before merging.",
       "default": false
     },
     "merge_method": {
