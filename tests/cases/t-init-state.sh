@@ -23,10 +23,20 @@ grep -qx 'head_sha abc123' "$dir/meta.txt"
 grep -qx 'self_login Paxton-Meny' "$dir/meta.txt"
 grep -qx 'self_email 308824607+Paxton-Meny@users.noreply.github.com' "$dir/meta.txt"
 grep -qx 'cross_repo false' "$dir/meta.txt"
+# No answer about the author's permission records it as unknown.
+grep -qx 'author_permission unknown' "$dir/meta.txt"
 grep -qx 'maintainer_can_modify true' "$dir/meta.txt"
 grep -q '^head_repo_url https://github.com/Paxton-Meny/widgets.git$' "$dir/meta.txt"
 grep -qx '0' "$dir/round.txt"
 ! grep -q '^state ' "$dir/meta.txt"
+
+printf 'write\n' >"$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'author_permission write' "$dir/meta.txt"
+printf 'pull\n' >"$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'author_permission unknown' "$dir/meta.txt"
+rm -f "$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
 
 url_dir=$(sh "$REPO_ROOT/scripts/init-state.sh" "$data" "https://github.com/Paxton-Meny/widgets/pull/7")
 [ "$url_dir" = "$dir" ]
