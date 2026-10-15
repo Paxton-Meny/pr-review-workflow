@@ -93,7 +93,7 @@ skip_re=$(sh "$here/survey-project.sh" lists skip | sed 's/^test|tests|spec|spec
 sensitive_re=$(sh "$here/probe-diff.sh" --pattern sensitive)
 secrets_re=$(sh "$here/probe-diff.sh" --pattern secrets)
 
-git ls-tree -r -l HEAD | tr -d '\r' | awk -F '\t' -v skip="(^|/)($skip_re)/" -v binary="\\.($BINARY_EXT)\$" -v max="$MAX_TEXT_BYTES" '
+git ls-tree -r -l HEAD | tr -d '\r' | awk -F '\t' -v skip="(^|/)($skip_re)/" -v binary="[.]($BINARY_EXT)\$" -v max="$MAX_TEXT_BYTES" '
 {
 	path = $2
 	split($1, m, " ")

@@ -117,6 +117,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Setup's inventory counts files the same under every awk. It passed
+  the binary-extension pattern to awk as `\.`, which mawk keeps but GNU
+  awk warns about and reads as any character; the warning landed in
+  the skipped-files count, and a name like `logopng` counted as binary.
+  The pattern now uses `[.]`, which needs no escape.
 - Repositories that do not allow rebase merging can now be merged by
   the plugin.
 - Setup readers no longer lose their slice when they stop early. Hosts
