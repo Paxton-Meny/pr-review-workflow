@@ -193,8 +193,8 @@ PRWF_SETTINGS_END
    here, so remember the mode for step 7. Exit 2 means the fork itself is
    gone: report that and stop. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir>`
-   (it expands any configured globs inside the clone itself, or says
-   none are configured) and
+   (it expands any configured globs inside the clone itself, skipping
+   files git tracks with a line each, or says none are configured) and
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --baseline`,
    relaying each one-line result. The baseline is recorded on disk: a
    passing one arms the step 8 gate, and a failing one disarms it and
