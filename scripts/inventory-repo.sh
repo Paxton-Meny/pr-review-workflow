@@ -77,6 +77,9 @@ BEGIN_MARK='<!-- review-conventions:begin -->'
 
 dir="$data_root/survey/${owner}__${repo}"
 mkdir -p "$dir"
+# The survey quotes the repository: the data root is private to the
+# user whatever the umask.
+chmod 700 "$data_root"
 printf 'owner %s\nrepo %s\nbase %s\nrepo_root %s\n' "$owner" "$repo" "$base" "$clone" >"$dir/meta.txt"
 if [ -f "$dir/head.txt" ] && [ "$(cat "$dir/head.txt")" = "$head" ] && [ -f "$dir/inventory.txt" ]; then
 	sed "s/^inventory: head $head cached no\$/inventory: head $head cached yes/" "$dir/inventory.txt"

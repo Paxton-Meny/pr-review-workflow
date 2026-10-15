@@ -60,6 +60,10 @@ rest=${resolved#* }
 repo=${rest%% *}
 number=${rest#* }
 repo_root=$(git rev-parse --show-toplevel)
+# The ledger holds review text, settings, and logs: the data root is
+# private to the user whatever the umask.
+mkdir -p "$data_root"
+chmod 700 "$data_root"
 
 meta=$(gh pr view "$number" --repo "$owner/$repo" \
 	--json author,headRefName,baseRefName,headRefOid,url,state,isCrossRepository,maintainerCanModify,headRepository,headRepositoryOwner \
