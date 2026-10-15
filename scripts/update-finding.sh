@@ -17,7 +17,7 @@ record="$dir/findings/$id"
 	exit 1
 }
 
-current=$(sed -n 's/^status: //p' "$record")
+current=$(sed -n '/^---$/q; s/^status: //p' "$record")
 reopen=0 arbitrated=0
 new_status=''
 for arg in "$@"; do
@@ -68,12 +68,13 @@ cp "$record" "$tmp"
 for arg in "$@"; do
 	field=${arg%%=*}
 	value=$(printf '%s' "${arg#*=}" | tr -d '\n')
-	sed "s|^$field:.*|$field: $value|" "$tmp" >"$tmp.2"
+	# The header only: a body line that looks like a field stays as written.
+	sed "1,/^---\$/s|^$field:.*|$field: $value|" "$tmp" >"$tmp.2"
 	mv "$tmp.2" "$tmp"
 done
 if [ "$reopen" -eq 1 ]; then
-	count=$(sed -n 's/^reopens: //p' "$tmp")
-	sed "s|^reopens:.*|reopens: $((count + 1))|" "$tmp" >"$tmp.2"
+	count=$(sed -n '/^---$/q; s/^reopens: //p' "$tmp")
+	sed "1,/^---\$/s|^reopens:.*|reopens: $((count + 1))|" "$tmp" >"$tmp.2"
 	mv "$tmp.2" "$tmp"
 fi
 [ "$arbitrated" -eq 1 ] && printf '\nArbitrated: verified from open, over the last reopen.\n' >>"$tmp"

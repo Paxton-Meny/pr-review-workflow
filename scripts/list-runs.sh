@@ -35,7 +35,7 @@ if [ -d "$root" ]; then
 		open=0 addressed=0 verified=0 wontfix=0
 		for f in "$dir/findings"/F*; do
 			[ -f "$f" ] || continue
-			case "$(sed -n 's/^status: //p' "$f")" in
+			case "$(sed -n '/^---$/q; s/^status: //p' "$f")" in
 			open) open=$((open + 1)) ;;
 			addressed) addressed=$((addressed + 1)) ;;
 			verified) verified=$((verified + 1)) ;;
