@@ -29,6 +29,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-comment.sh *)
@@ -204,6 +205,14 @@ PRWF_SETTINGS_END
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 7. Exit 2 means the fork itself is
    gone: report that and stop. Then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh <dir>`, relaying
+   its lines. When one says the check command and contracts will not
+   run on this code unless you approve it: attended, tell the user
+   that running the check executes code this author wrote on their
+   machine and ask whether to run it for this pull request; on yes run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh <dir> --approve`.
+   Never approve on your own. Unattended, carry on: the scripts skip
+   the check, and the final report says so. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir>`
    (it expands any configured globs inside the clone itself, skipping
    files git tracks with a line each, or says none are configured) and
