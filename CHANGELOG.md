@@ -181,6 +181,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and contract prefixes in the trust-on-first-use hash, reported as
   `settings: trust pending <hash> review_samples <n>` and applied once
   approved; an unattended run keeps the user's value.
+- A push made after the review no longer merges unread. The ledger
+  keeps the head the review last covered (`reviewed_head`), which a
+  resumed run carries over instead of taking GitHub's head;
+  `scripts/reviewed-head.sh` reports a head that moved since, the run
+  reviews the files the new commits changed and marks the head, and
+  `merge-pr.sh` refuses any other head (exit 6) and pins the merge to
+  the reviewed one.
 
 ## [0.3.0] - 2026-10-13
 

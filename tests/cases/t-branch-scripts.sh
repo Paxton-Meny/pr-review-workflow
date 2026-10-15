@@ -53,6 +53,7 @@ new_sha=$(git -C "$wt" rev-parse HEAD)
 [ "$(git -C "$SCRATCH/Paxton-Meny/widgets.git" rev-parse refs/heads/feat-thing)" = "$new_sha" ]
 grep -qx "head_sha $new_sha" "$dir/meta.txt"
 grep -qx "prev_head $sha" "$dir/meta.txt"
+grep -qx "reviewed_head $new_sha" "$dir/meta.txt"
 
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" | grep -q "ledger kept"
 [ ! -d "$dir/worktree" ]
