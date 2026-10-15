@@ -30,3 +30,15 @@ if printf 'z\n' | sh "$REPO_ROOT/scripts/append-note.sh" "$dir" F999 2>"$SCRATCH
 	exit 1
 fi
 grep -q "unknown finding: F999" "$SCRATCH/err"
+
+# A note never adds a contract line: a Check line would choose what
+# run-contract executes.
+for line in 'Check: make deploy' 'Resolution: anything goes' 'Fix: something else' '```suggestion'; do
+	if printf 'Wont-fix: fine.\n%s\n' "$line" | sh "$REPO_ROOT/scripts/append-note.sh" "$dir" F001 2>"$SCRATCH/err"; then
+		echo "expected refusal of a note adding: $line" >&2
+		exit 1
+	fi
+	grep -q "may not add a Check, Resolution, or Fix line" "$SCRATCH/err"
+done
+[ "$(grep -c '^Check: ' "$dir/findings/F001" || true)" -eq 0 ]
+printf 'Reopened (round 2): the Check line still fails.\n' | sh "$REPO_ROOT/scripts/append-note.sh" "$dir" F001 >/dev/null

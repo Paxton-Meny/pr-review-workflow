@@ -25,6 +25,30 @@ Status comments go through `scripts/post-comment.sh`, which posts only
 to the run's own pull request. The masking knows formats, not secrets:
 a credential in a format it does not list posts as written.
 
+## What the agents may touch
+
+The reviewer, filter, editor, verifier, and setup's readers all read
+text the pull request's author or the repository wrote, and that text
+may address them. A hook (`scripts/agent-scope.sh`) holds each of them
+to its definition whenever Claude Code names the agent in the call,
+which it does from version 2.1.69:
+
+- reads stay inside the plugin's data directory, the plugin, and the
+  session's folder (never a home directory as a whole), with no `..`
+  and no symlinked file, so a link planted in a change reads nothing
+  outside;
+- edits stay inside a review worktree;
+- shell commands are only `git -C <path in the data directory>` with
+  the subcommands the agent's definition names, and the plugin scripts
+  it names, with no expansion, redirection, or chaining, no git option
+  that reads, writes, or runs something else, and no status change its
+  role does not make (the editor cannot mark its own fix verified).
+
+The hook only refuses; whatever it lets through still meets your own
+permission settings. Your own session is never affected. A note an agent
+appends can never add a contract line, so no agent can choose what a
+finding's Check line runs.
+
 ## Reporting a vulnerability
 
 Report vulnerabilities privately through GitHub security advisories:
