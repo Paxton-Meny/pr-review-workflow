@@ -167,6 +167,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `extract-standards: skipped <path>: tracked by git` line, as
   `resolve-settings.sh` already skips a tracked personal file.
 
+- A fork's head is fetched from origin's pull request ref first.
+  `checkout-pr.sh` fetched the fork by branch name with no `--`, so a
+  head branch shaped like an option, such as `--upload-pack=...`, would
+  be read as one. It now fetches `refs/pull/<n>/head` from origin, as
+  `local-diff.sh` does, and falls back to the fork's branch only when
+  that lacks the head; every branch fetch puts `--` before the remote.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
