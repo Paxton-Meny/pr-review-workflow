@@ -61,6 +61,20 @@ call auto pr-review-workflow:review-pr ''
 [ "$(decision)" = deny ]
 reason | grep -q 'Pass the pull request as the argument'
 
+# A refusal quoting a multi-line error stays one valid JSON line: gh's
+# own stderr arrives with newlines and control characters in it.
+printf '1\n' >"$stub/repo-view.exit"
+printf 'failed to run git: fatal: not a git repository\n\tStopping at filesystem boundary\001.\r\n\n' >"$stub/repo-view.err"
+call auto pr-review-workflow:review-pr '7 auto_approve=false'
+rm -f "$stub/repo-view.exit" "$stub/repo-view.err"
+[ "$(wc -l <"$SCRATCH/out" | tr -d ' ')" -eq 1 ]
+[ "$(decision)" = deny ]
+reason | grep -q 'failed to run git: fatal: not a git repository  Stopping at filesystem boundary.   resolve-ref: not inside a GitHub repository'
+if LC_ALL=C grep -q "$(printf '[\001-\010\013-\037]')" "$SCRATCH/out"; then
+	echo "the decision holds a raw control character" >&2
+	exit 1
+fi
+
 for args in 'acme/widgets#7' 'acme/widgets#7 auto_approve=true' 'acme/widgets#7 auto_approve=false check=make' 'acme/widgets#7 self_start=auto auto_approve=false'; do
 	call auto pr-review-workflow:review-pr "$args"
 	[ "$(decision)" = deny ]
