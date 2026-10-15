@@ -13,6 +13,18 @@ the GitHub CLI and lets it hold its own credentials. It acts with whatever
 access your `gh` login carries: it reads pull requests, posts comments, pushes
 commits to pull request branches, and merges when told to.
 
+## What the plugin posts
+
+Everything posted to a pull request, finding bodies, the round
+summary, thread replies, and status comments, is written by an agent
+that read the change and may have been steered by it. Every body passes
+through `scripts/redact.sh` first, which masks known token formats
+(GitHub, GitLab, Anthropic, OpenAI, AWS, Slack, Google, Stripe, npm),
+JSON web tokens, private key blocks, and credentials inside URLs.
+Status comments go through `scripts/post-comment.sh`, which posts only
+to the run's own pull request. The masking knows formats, not secrets:
+a credential in a format it does not list posts as written.
+
 ## Reporting a vulnerability
 
 Report vulnerabilities privately through GitHub security advisories:
