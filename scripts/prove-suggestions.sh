@@ -42,7 +42,7 @@ trap cleanup EXIT
 withdraw() {
 	rec=$1
 	reason=$2
-	tmp=$(mktemp "$dir/findings/.$(sed -n 's/^id: //p' "$rec").XXXXXX")
+	tmp=$(mktemp "$dir/findings/.$(sed -n '/^---$/q; s/^id: //p' "$rec").XXXXXX")
 	awk -v reason="$reason" '
 	/^```suggestion$/ { drop = 1; next }
 	drop && /^```$/ { drop = 0; withdrawn = 1; next }
@@ -60,13 +60,13 @@ proven=0
 withdrawn=0
 for record in "$dir/findings"/F*; do
 	[ -f "$record" ] || continue
-	[ "$(sed -n 's/^status: //p' "$record")" = "open" ] || continue
+	[ "$(sed -n '/^---$/q; s/^status: //p' "$record")" = "open" ] || continue
 	grep -q '^```suggestion$' "$record" || continue
-	id=$(sed -n 's/^id: //p' "$record")
-	path=$(sed -n 's/^path: //p' "$record")
-	line=$(sed -n 's/^line: //p' "$record")
-	end_line=$(sed -n 's/^end_line: //p' "$record")
-	side=$(sed -n 's/^side: //p' "$record")
+	id=$(sed -n '/^---$/q; s/^id: //p' "$record")
+	path=$(sed -n '/^---$/q; s/^path: //p' "$record")
+	line=$(sed -n '/^---$/q; s/^line: //p' "$record")
+	end_line=$(sed -n '/^---$/q; s/^end_line: //p' "$record")
+	side=$(sed -n '/^---$/q; s/^side: //p' "$record")
 	last=${end_line:-$line}
 
 	if [ "$side" != "RIGHT" ]; then

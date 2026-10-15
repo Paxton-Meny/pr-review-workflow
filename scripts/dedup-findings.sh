@@ -25,7 +25,7 @@ case "$n" in
 	;;
 esac
 
-field() { sed -n "s/^$2: //p" "$1" | head -n 1; }
+field() { sed -n "/^---\$/q; s/^$2: //p" "$1" | head -n 1; }
 bodysize() { awk 'f { c += length($0) + 1 } /^---$/ { f = 1 } END { print c + 0 }' "$1"; }
 
 reps=''
@@ -77,8 +77,9 @@ for rep in $reps; do
 	eval "count=\$sup_$rep"
 	tmp=$(mktemp "$findings/.$rep.XXXXXX")
 	awk -v s="support: $count/$n" '
-	/^support: / { next }
-	/^reopens: / { print; print s; next }
+	/^---$/ { body = 1 }
+	!body && /^support: / { next }
+	!body && /^reopens: / { print; print s; next }
 	{ print }
 	' "$rf" >"$tmp"
 	mv "$tmp" "$rf"
