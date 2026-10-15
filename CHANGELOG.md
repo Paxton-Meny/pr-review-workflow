@@ -145,6 +145,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Inventory and review routing count `App.Tests/`, `App.Test/`,
   `UnitTests/`, and `FooTests.cs`-style files as tests.
 
+### Security
+
+- The data directory is private to the user. `init-state.sh` and
+  `inventory-repo.sh` set it to mode 700 whenever they write state, so
+  a umask of 0002 no longer leaves ledgers, surveys, and settings
+  readable by other accounts on the machine.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

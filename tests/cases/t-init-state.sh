@@ -97,3 +97,15 @@ if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" 2>"$SCR
 	exit 1
 fi
 grep -q "run from inside a clone" "$SCRATCH/err"
+
+# The data root is private whatever the umask, fresh or already there.
+cd "$clone"
+printf 'author Paxton-Meny\nhead_branch feat-thing\nbase_branch main\nhead_sha abc123\nurl u\nstate OPEN\n' >"$stub/pr-view"
+for fresh in "$SCRATCH/private-new" "$SCRATCH/private-loose"; do
+	[ "$fresh" = "$SCRATCH/private-new" ] || { mkdir -p "$fresh" && chmod 775 "$fresh"; }
+	(umask 002 && sh "$REPO_ROOT/scripts/init-state.sh" "$fresh" "Paxton-Meny/widgets#7" >/dev/null)
+	[ "$(ls -ld "$fresh" | cut -c1-10)" = drwx------ ] || {
+		echo "data root is not private: $(ls -ld "$fresh")" >&2
+		exit 1
+	}
+done
