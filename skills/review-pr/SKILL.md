@@ -29,6 +29,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/sweep-state.sh *)
   - Bash(gh pr comment *)
@@ -171,7 +172,17 @@ PRWF_SETTINGS_END
 
    If `<dir>/findings/` already has records, this is a resume: run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
-   report the counts, and continue at the step they imply. Open findings:
+   report the counts, then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh <dir>`, relaying
+   its line. Exit 3 means someone pushed after the review: run the
+   moved-head review before anything else. Its line is
+   `reviewed-head: moved <reviewed> <head>`: run `fetch-pr.sh <dir>`
+   and `checkout-pr.sh <dir>` as in steps 3 and 4, then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir> --all <reviewed>`
+   and follow step 8e for every file it lists, then
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh <dir> --mark`.
+   Then continue at the step the counts imply, counting again first
+   when the review saved findings. Open findings:
    step 7 first, because a run may have stopped between saving and
    posting, and prove-suggestions and post-review are both rerun-safe;
    then step 8. None open: step 10. The `--list` lines give the ids every
@@ -440,6 +451,10 @@ PRWF_SETTINGS_END
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
+    - merge-pr exit 6: nothing merged, because someone pushed after
+      the review: run `reviewed-head.sh <dir>` and, on exit 3, the
+      moved-head review from step 2, then go back to step 11a, or to
+      step 8 when it saved findings.
     - merge-pr exit 5: nothing merged, because the base branch moved
       under the pull request while it waited: go back to step 11a,
       which bounds the updates.

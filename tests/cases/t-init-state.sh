@@ -60,6 +60,26 @@ printf '2\n' >"$dir/round.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx '2' "$dir/round.txt"
 
+# The reviewed head is GitHub's head until the ledger holds findings;
+# from then on it carries over, so a push made since stays unreviewed.
+grep -qx 'reviewed_head abc123' "$dir/meta.txt"
+mkdir -p "$dir/findings"
+: >"$dir/findings/F001"
+sed 's/^head_sha abc123$/head_sha def456/' "$stub/pr-view" >"$stub/pr-view.new"
+mv "$stub/pr-view.new" "$stub/pr-view"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'head_sha def456' "$dir/meta.txt"
+grep -qx 'reviewed_head abc123' "$dir/meta.txt"
+[ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
+# A ledger written before the field falls back to the head it recorded.
+sed -e '/^reviewed_head /d' -e 's/^head_sha .*/head_sha 0ld0ld/' "$dir/meta.txt" >"$dir/meta.old"
+mv "$dir/meta.old" "$dir/meta.txt"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'reviewed_head 0ld0ld' "$dir/meta.txt"
+rm -rf "$dir/findings"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'reviewed_head def456' "$dir/meta.txt"
+
 if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#nope" 2>"$SCRATCH/err"; then
 	echo "expected failure on a bad number" >&2
 	exit 1
