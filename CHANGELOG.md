@@ -151,6 +151,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   reading what the author wrote, so a stranger's text alone never
   merges it.
 
+- Credentials are masked before anything posts. `scripts/redact.sh`
+  replaces known token formats, private key blocks, and credentials in
+  URLs with `[redacted: <kind>]` in finding bodies, the round summary,
+  thread replies, and status comments. Status comments now go through
+  `scripts/post-comment.sh`, which posts only to the run's pull request
+  and adds the attribution line itself, in place of a `gh pr comment`
+  grant that matched any repository and any body file.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
