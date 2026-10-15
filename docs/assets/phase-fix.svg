@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 820" width="860" role="img" aria-labelledby="pft pfd" class="pf">
+<title id="pft">Phase 4, Fix loop: a bounded ring with gates</title>
+<desc id="pfd">Open findings go around a ring at most four times, the budget kept on disk: the round counter opens a round; routing gives each finding a starting rung, cheap for a minor finding with a proven fence, never cheap for a blocker, a security finding, or a flagged file, one lever up on a retry; the editor makes one commit per finding, replies, and pushes; the project's check gate must pass, with one repair allowed and a second failure parking the run; the verifier executes Check lines and judges each Resolution verbatim, resolving threads or reopening them with notes; a skim sends files no finding named to an incremental review; the count decides: open findings go around again, a finding reopened past the limit gets one arbitration, none open converges, and an unaccepted wont-fix never merges.</desc>
+<style>
+.pf{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A}
+@media (prefers-color-scheme:dark){.pf{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--coral-line:#7a3a24;--clay:#D97757;--term:#141413;--term-line:#44433F}}
+.pf text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.pf .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.pf .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+.pf .h{font-size:12.5px;font-weight:700;fill:var(--ink)}
+.pf .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.pf .ttl{font-size:16px;font-weight:700;fill:var(--ink)}
+.pf .c{fill:var(--card);stroke:var(--line)}
+.pf .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pf .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.pf .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pf .hm{fill:var(--accent-ink)}.pf .sm{fill:var(--accent)}
+.pf .hg2{fill:var(--teal-ink)}.pf .sg{fill:var(--teal)}
+.pf .hp{fill:var(--coral-ink)}.pf .sp{fill:var(--coral)}
+.pf .accent{fill:var(--accent)}.pf .teal{fill:var(--teal)}.pf .coral{fill:var(--coral)}
+.pf .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pf .arh{fill:var(--faint)}
+.pf .ring{fill:none;stroke:var(--rule);stroke-width:3}
+.pf .term{fill:var(--term);stroke:var(--term-line)}
+.pf .tl{fill:#F1EFE8}.pf .tm{fill:#B4B2A9}
+.pf .lane{fill:var(--lane)}
+.pf .ph{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.pf .num{font-size:10.5px;font-weight:700;fill:var(--faint)}
+.pf .chip rect{stroke-width:1}.pf .chip text{font-weight:700;fill:var(--ink)}
+.pf .bad rect{fill:var(--coral-bg);stroke:var(--coral-line)}.pf .bad text{fill:var(--coral-ink)}
+.pf .ask rect{fill:var(--card);stroke:var(--coral)}.pf .ask text{fill:var(--coral)}
+.pf .good rect{fill:var(--teal-bg);stroke:var(--teal-line)}.pf .good text{fill:var(--teal-ink)}
+.pf .note rect{fill:var(--panel);stroke:var(--line)}.pf .note text{fill:var(--muted)}
+.pf .mdl rect{fill:var(--accent-bg);stroke:var(--accent-line)}.pf .mdl text{fill:var(--accent-ink)}
+.pf .lf rect{fill:var(--rule)}.pf .lf text{fill:var(--muted)}
+.pf .done{fill:var(--teal);stroke:var(--teal)}
+.pf .doneh{fill:var(--bg)}.pf .dones{fill:var(--bg);opacity:.85}
+.pf .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pf .cardg>rect{stroke-width:1}
+@keyframes pf-walk{0%,6.1%{offset-distance:0.00%}11.1%,17.2%{offset-distance:12.53%}22.2%,28.3%{offset-distance:25.06%}33.3%,39.4%{offset-distance:37.53%}44.4%,50.6%{offset-distance:50.00%}55.6%,61.7%{offset-distance:62.53%}66.7%,72.8%{offset-distance:75.06%}77.8%,83.9%{offset-distance:87.53%}88.9%,100%{offset-distance:100.00%}}
+.pf .tok{fill:var(--clay);stroke:var(--card);stroke-width:2.5;offset-path:path('M328 262 L496 226 L664 262 L734 418 L664 574 L496 610 L328 574 L258 418 L328 262');offset-rotate:0deg;animation:pf-walk 36s linear infinite}
+@keyframes pf-st0{0%,0.0%{stroke:var(--line);stroke-width:1}0.0%,11.0%{stroke:var(--accent);stroke-width:2}11.1%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st0>rect{animation:pf-st0 36s linear infinite}
+@keyframes pf-in0{0%,0.0%{opacity:0}0.5%,100%{opacity:1}}
+.pf .tl0,.pf .lf0{animation:pf-in0 36s linear infinite}
+@keyframes pf-st1{0%,11.0%{stroke:var(--line);stroke-width:1}11.1%,22.1%{stroke:var(--accent);stroke-width:2}22.2%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st1>rect{animation:pf-st1 36s linear infinite}
+@keyframes pf-in1{0%,11.0%{opacity:0}11.6%,100%{opacity:1}}
+.pf .tl1,.pf .lf1{animation:pf-in1 36s linear infinite}
+@keyframes pf-st2{0%,22.1%{stroke:var(--line);stroke-width:1}22.2%,33.2%{stroke:var(--accent);stroke-width:2}33.3%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st2>rect{animation:pf-st2 36s linear infinite}
+@keyframes pf-in2{0%,22.1%{opacity:0}22.7%,100%{opacity:1}}
+.pf .tl2,.pf .lf2{animation:pf-in2 36s linear infinite}
+@keyframes pf-st3{0%,33.2%{stroke:var(--line);stroke-width:1}33.3%,44.3%{stroke:var(--accent);stroke-width:2}44.4%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st3>rect{animation:pf-st3 36s linear infinite}
+@keyframes pf-in3{0%,33.2%{opacity:0}33.8%,100%{opacity:1}}
+.pf .tl3,.pf .lf3{animation:pf-in3 36s linear infinite}
+@keyframes pf-st4{0%,44.3%{stroke:var(--line);stroke-width:1}44.4%,55.5%{stroke:var(--accent);stroke-width:2}55.6%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st4>rect{animation:pf-st4 36s linear infinite}
+@keyframes pf-in4{0%,44.3%{opacity:0}44.9%,100%{opacity:1}}
+.pf .tl4,.pf .lf4{animation:pf-in4 36s linear infinite}
+@keyframes pf-st5{0%,55.5%{stroke:var(--line);stroke-width:1}55.6%,66.6%{stroke:var(--accent);stroke-width:2}66.7%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st5>rect{animation:pf-st5 36s linear infinite}
+@keyframes pf-in5{0%,55.5%{opacity:0}56.1%,100%{opacity:1}}
+.pf .tl5,.pf .lf5{animation:pf-in5 36s linear infinite}
+@keyframes pf-st6{0%,66.6%{stroke:var(--line);stroke-width:1}66.7%,77.7%{stroke:var(--accent);stroke-width:2}77.8%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st6>rect{animation:pf-st6 36s linear infinite}
+@keyframes pf-in6{0%,66.6%{opacity:0}67.2%,100%{opacity:1}}
+.pf .tl6,.pf .lf6{animation:pf-in6 36s linear infinite}
+@keyframes pf-st7{0%,77.7%{stroke:var(--line);stroke-width:1}77.8%,99.9%{stroke:var(--accent);stroke-width:2}100.0%,100%{stroke:var(--line);stroke-width:1}}
+.pf .st7>rect{animation:pf-st7 36s linear infinite}
+@keyframes pf-in7{0%,77.7%{opacity:0}78.3%,100%{opacity:1}}
+.pf .tl7,.pf .lf7{animation:pf-in7 36s linear infinite}
+@keyframes pf-ex3{0%,36.2%{opacity:.35}36.3%,44.3%{opacity:1}44.4%,100%{opacity:.35}}
+.pf .ex3{animation:pf-ex3 36s linear infinite}
+@keyframes pf-ex4{0%,47.3%{opacity:.35}47.4%,55.5%{opacity:1}55.6%,100%{opacity:.35}}
+.pf .ex4{animation:pf-ex4 36s linear infinite}
+@keyframes pf-ex5{0%,58.5%{opacity:.35}58.6%,66.6%{opacity:1}66.7%,100%{opacity:.35}}
+.pf .ex5{animation:pf-ex5 36s linear infinite}
+@keyframes pf-ex6{0%,69.6%{opacity:.35}69.7%,77.7%{opacity:1}77.8%,100%{opacity:.35}}
+.pf .ex6{animation:pf-ex6 36s linear infinite}
+@keyframes pf-ex0{0%,2.9%{opacity:.35}3.0%,11.0%{opacity:1}11.1%,100%{opacity:.35}}
+.pf .ex0{animation:pf-ex0 36s linear infinite}
+@media (prefers-reduced-motion:reduce){.pf *{animation:none!important}.pf .tok{display:none}.pf .tl,.pf .lf,.pf .ex0,.pf .ex1,.pf .ex2,.pf .ex3,.pf .ex4,.pf .ex5,.pf .ex6,.pf .ex7,.pf .ex8,.pf .ex9,.pf .ex10,.pf .ex11{opacity:1}}
+</style>
+<defs><filter id="pf-sh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="pf-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<text class="ttl" x="24" y="30" style="font-size:16px">Fix loop</text>
+<text x="24" y="49">The agent that writes code cannot close findings; the agent that closes them cannot write code.</text>
+<g filter="url(#pf-sh)"><rect class="term" x="24" y="62" width="812" height="112" rx="9"/></g>
+<text class="mono tl tl0" x="36" y="82"><tspan class="tm">round</tspan> 1 of 4</text>
+<text class="mono tl tl1" x="36" y="100"><tspan class="tm">route</tspan> edit all rung cheap model sonnet effort medium reason mechanical ids F001 F004</text>
+<text class="mono tl tl3" x="36" y="118"><tspan class="tm">run-check:</tspan> pass</text>
+<text class="mono tl tl5" x="36" y="136"><tspan class="tm">round-diff:</tspan> clean</text>
+<text class="mono tl tl6" x="36" y="154"><tspan class="tm">open</tspan> 0 addressed 0 verified 5 wont-fix 0 max_reopens 1</text>
+<text class="tm" x="826" y="168" text-anchor="end" style="font-size:9.5px">what the orchestrating session sees</text>
+<g class="cardg st0" data-step="0"><rect class="c" x="250" y="235" width="156" height="54" rx="9"/>
+<text class="h" x="262" y="255" style="font-size:12.5px">round-counter</text>
+<text x="262" y="271" style="font-size:10.5px">the budget of four, on disk</text>
+</g>
+<g class="cardg st1" data-step="1"><rect class="c" x="418" y="199" width="156" height="54" rx="9"/>
+<text class="h" x="430" y="219" style="font-size:12.5px">route-models edit</text>
+<text x="430" y="235" style="font-size:10.5px">a rung per finding, a ladder</text>
+</g>
+<g class="cardg st2" data-step="2"><rect class="cm" x="586" y="235" width="156" height="54" rx="9"/>
+<text class="h hm" x="598" y="255" style="font-size:12.5px">Editor</text>
+<text class="sm" x="598" y="271" style="font-size:10.5px">one commit per finding, push</text>
+</g>
+<g class="cardg st3" data-step="3"><rect class="c" x="656" y="391" width="156" height="54" rx="9"/>
+<text class="h" x="668" y="411" style="font-size:12.5px">run-check --gate</text>
+<text x="668" y="427" style="font-size:10.5px">the project’s own check</text>
+</g>
+<g class="cardg st4" data-step="4"><rect class="cm" x="586" y="547" width="156" height="54" rx="9"/>
+<text class="h hm" x="598" y="567" style="font-size:12.5px">Verifier</text>
+<text class="sm" x="598" y="583" style="font-size:10.5px">Check lines run, then judged</text>
+</g>
+<g class="cardg st5" data-step="5"><rect class="c" x="418" y="583" width="156" height="54" rx="9"/>
+<text class="h" x="430" y="603" style="font-size:12.5px">round-diff</text>
+<text x="430" y="619" style="font-size:10.5px">unasked files get reviewed</text>
+</g>
+<g class="cardg st6" data-step="6"><rect class="c" x="250" y="547" width="156" height="54" rx="9"/>
+<text class="h" x="262" y="567" style="font-size:12.5px">count-findings</text>
+<text x="262" y="583" style="font-size:10.5px">open? capped? converged?</text>
+</g>
+<g class="cardg st7" data-step="7"><rect class="c" x="180" y="391" width="156" height="54" rx="9"/>
+<text class="h" x="192" y="411" style="font-size:12.5px">open findings</text>
+<text x="192" y="427" style="font-size:10.5px">go around again</text>
+</g>
+<path class="ar" d="M409.911 244.448 L414.089 243.552" marker-end="url(#pf-a)"/>
+<path class="ar" d="M577.911 243.552 L582.089 244.448" marker-end="url(#pf-a)"/>
+<path class="ar" d="M677.753 292.649 L720.247 387.351" marker-end="url(#pf-a)"/>
+<path class="ar" d="M720.247 448.649 L677.753 543.351" marker-end="url(#pf-a)"/>
+<path class="ar" d="M582.089 591.552 L577.911 592.448" marker-end="url(#pf-a)"/>
+<path class="ar" d="M414.089 592.448 L409.911 591.552" marker-end="url(#pf-a)"/>
+<path class="ar" d="M314.247 543.351 L271.753 448.649" marker-end="url(#pf-a)"/>
+<path class="ar" d="M271.753 387.351 L314.247 292.649" marker-end="url(#pf-a)"/>
+<text class="k" x="496" y="400" text-anchor="middle" style="font-size:10.5px">ROUND</text>
+<text class="serif" x="496" y="452" text-anchor="middle" style="font-size:54px;font-weight:700;fill:var(--ink)">2</text>
+<text x="496" y="476" text-anchor="middle">of four, on disk</text>
+<g class="cardg"><rect class="c" x="24" y="200" width="190" height="132" rx="9"/>
+<text class="h" x="36" y="220" style="font-size:12.5px">The editing ladder</text>
+<text x="36" y="236" style="font-size:10.5px">mechanical: minor or nit with a</text>
+<text x="36" y="251" style="font-size:10.5px">proven fence → starts cheap</text>
+<text x="36" y="266" style="font-size:10.5px">a blocker, security, or a flagged</text>
+<text x="36" y="281" style="font-size:10.5px">file → never cheap</text>
+<text x="36" y="296" style="font-size:10.5px">a retry: one lever up, effort</text>
+<text x="36" y="311" style="font-size:10.5px">then model, under the posture</text>
+</g>
+<g class="cardg"><rect class="c" x="24" y="486" width="190" height="118" rx="9"/>
+<text class="h" x="36" y="506" style="font-size:12.5px">Separation of powers</text>
+<text x="36" y="522" style="font-size:10.5px">the editor cannot resolve a</text>
+<text x="36" y="537" style="font-size:10.5px">thread; the verifier cannot</text>
+<text x="36" y="552" style="font-size:10.5px">edit a file; the skim catches</text>
+<text x="36" y="567" style="font-size:10.5px">changes no finding asked for</text>
+<text x="36" y="582" style="font-size:10.5px">arbitration: one strong pass</text>
+</g>
+<g class="chip bad ex3"><rect x="638.027" y="322" width="197.973" height="19" rx="9.5"/>
+<text x="737.013" y="335.5" text-anchor="middle" style="font-size:10.5px">gate fails → one repair, one lever up</text>
+</g>
+<g class="chip bad ex3"><rect x="626.185" y="346" width="209.815" height="19" rx="9.5"/>
+<text x="731.092" y="359.5" text-anchor="middle" style="font-size:10.5px">fails again → park, never merge over it</text>
+</g>
+<g class="chip note ex4"><rect x="657.373" y="486" width="178.627" height="19" rx="9.5"/>
+<text x="746.687" y="499.5" text-anchor="middle" style="font-size:10.5px">reopened → notes on the record</text>
+</g>
+<g class="chip note ex5"><rect x="648.014" y="640" width="187.986" height="19" rx="9.5"/>
+<text x="742.007" y="653.5" text-anchor="middle" style="font-size:10.5px">new findings → the loop continues</text>
+</g>
+<g class="chip bad ex6"><rect x="24" y="660" width="316.008" height="19" rx="9.5"/>
+<text x="182.004" y="673.5" text-anchor="middle" style="font-size:10.5px">capped: reopened past the limit → one arbitration, then park</text>
+</g>
+<g class="chip bad ex0"><rect x="24" y="684" width="267.9" height="19" rx="9.5"/>
+<text x="157.95" y="697.5" text-anchor="middle" style="font-size:10.5px">cap of four reached → park with a status comment</text>
+</g>
+<g class="chip good ex6"><rect x="24" y="708" width="296.145" height="19" rx="9.5"/>
+<text x="172.072" y="721.5" text-anchor="middle" style="font-size:10.5px">0 open → converged; a wont-fix needs your yes → Land</text>
+</g>
+<rect class="lane" x="24" y="742" width="812" height="64" rx="9"/>
+<text class="k" x="36" y="759" style="font-size:9.5px">written to the ledger</text>
+<g class="lf lf0"><rect x="36" y="770" width="8" height="8" rx="2"/><text class="mono" x="49" y="778" style="font-size:10px">rounds.txt</text></g>
+<g class="lf lf1"><rect x="125.2" y="770" width="8" height="8" rx="2"/><text class="mono" x="138.2" y="778" style="font-size:10px">findings/F003: Route notes</text></g>
+<g class="lf lf2"><rect x="310.72" y="770" width="8" height="8" rx="2"/><text class="mono" x="323.72" y="778" style="font-size:10px">commits, replies</text></g>
+<g class="lf lf3"><rect x="436.04" y="770" width="8" height="8" rx="2"/><text class="mono" x="449.04" y="778" style="font-size:10px">pr-context/check-failure.txt</text></g>
+<g class="lf lf4"><rect x="633.6" y="770" width="8" height="8" rx="2"/><text class="mono" x="646.6" y="778" style="font-size:10px">threads resolved or reopened</text></g>
+<g class="lf lf5"><rect x="36" y="788" width="8" height="8" rx="2"/><text class="mono" x="49" y="796" style="font-size:10px">incremental review</text></g>
+<g class="lf lf6"><rect x="173.36" y="788" width="8" height="8" rx="2"/><text class="mono" x="186.36" y="796" style="font-size:10px">count, capped_ids</text></g>
+<circle class="tok" r="7"/>
+</svg>

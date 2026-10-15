@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 784" width="860" role="img" aria-labelledby="pst psd" class="ps">
+<title id="pst">Phase 1, Stage: scripts set up one pull request with no model</title>
+<desc id="psd">Eleven scripts run in order with no model: the tools are checked, the ledger directory is created, settings are resolved from five sources with a project file allowed only to raise, add, or set, closed runs are swept, the diff is fetched from the API or built from the clone when the API refuses it and split into annotated per-file diffs, deterministic probes and a size classification run over it, open pull requests touching the same hunks are named, a detached worktree is checked out with the base snapshot and the conventions block, local standards are gathered, and the project's own check runs once as the baseline that arms the fix loop's gate. A terminal strip shows the one line each script prints; a ledger strip shows what each writes.</desc>
+<style>
+.ps{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A}
+@media (prefers-color-scheme:dark){.ps{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--coral-line:#7a3a24;--clay:#D97757;--term:#141413;--term-line:#44433F}}
+.ps text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.ps .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.ps .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+.ps .h{font-size:12.5px;font-weight:700;fill:var(--ink)}
+.ps .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.ps .ttl{font-size:16px;font-weight:700;fill:var(--ink)}
+.ps .c{fill:var(--card);stroke:var(--line)}
+.ps .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.ps .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.ps .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.ps .hm{fill:var(--accent-ink)}.ps .sm{fill:var(--accent)}
+.ps .hg2{fill:var(--teal-ink)}.ps .sg{fill:var(--teal)}
+.ps .hp{fill:var(--coral-ink)}.ps .sp{fill:var(--coral)}
+.ps .accent{fill:var(--accent)}.ps .teal{fill:var(--teal)}.ps .coral{fill:var(--coral)}
+.ps .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ps .arh{fill:var(--faint)}
+.ps .ring{fill:none;stroke:var(--rule);stroke-width:3}
+.ps .term{fill:var(--term);stroke:var(--term-line)}
+.ps .tl{fill:#F1EFE8}.ps .tm{fill:#B4B2A9}
+.ps .lane{fill:var(--lane)}
+.ps .ph{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.ps .num{font-size:10.5px;font-weight:700;fill:var(--faint)}
+.ps .chip rect{stroke-width:1}.ps .chip text{font-weight:700;fill:var(--ink)}
+.ps .bad rect{fill:var(--coral-bg);stroke:var(--coral-line)}.ps .bad text{fill:var(--coral-ink)}
+.ps .ask rect{fill:var(--card);stroke:var(--coral)}.ps .ask text{fill:var(--coral)}
+.ps .good rect{fill:var(--teal-bg);stroke:var(--teal-line)}.ps .good text{fill:var(--teal-ink)}
+.ps .note rect{fill:var(--panel);stroke:var(--line)}.ps .note text{fill:var(--muted)}
+.ps .mdl rect{fill:var(--accent-bg);stroke:var(--accent-line)}.ps .mdl text{fill:var(--accent-ink)}
+.ps .lf rect{fill:var(--rule)}.ps .lf text{fill:var(--muted)}
+.ps .done{fill:var(--teal);stroke:var(--teal)}
+.ps .doneh{fill:var(--bg)}.ps .dones{fill:var(--bg);opacity:.85}
+.ps .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ps .cardg>rect{stroke-width:1}
+@keyframes ps-walk{0%,4.6%{offset-distance:0.00%}8.3%,12.9%{offset-distance:6.00%}16.7%,21.2%{offset-distance:12.01%}25.0%,29.0%{offset-distance:18.01%}32.3%,32.6%{offset-distance:20.81%}32.8%,33.1%{offset-distance:38.83%}33.3%,37.9%{offset-distance:40.99%}41.7%,46.2%{offset-distance:47.00%}50.0%,54.6%{offset-distance:53.00%}58.3%,62.4%{offset-distance:59.01%}65.7%,65.9%{offset-distance:61.81%}66.2%,66.4%{offset-distance:79.82%}66.7%,71.2%{offset-distance:81.99%}75.0%,79.6%{offset-distance:87.99%}83.3%,87.9%{offset-distance:94.00%}91.7%,100%{offset-distance:100.00%}}
+.ps .tok{fill:var(--clay);stroke:var(--card);stroke-width:2.5;offset-path:path('M117 251 L325 251 L533 251 L741 251 L741 348 L117 348 L117 423 L325 423 L533 423 L741 423 L741 520 L117 520 L117 595 L325 595 L533 595 L741 595');offset-rotate:0deg;animation:ps-walk 34s linear infinite}
+@keyframes ps-st0{0%,0.0%{stroke:var(--line);stroke-width:1}0.0%,8.2%{stroke:var(--accent);stroke-width:2}8.3%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st0>rect{animation:ps-st0 34s linear infinite}
+@keyframes ps-in0{0%,0.0%{opacity:0}0.5%,100%{opacity:1}}
+.ps .tl0,.ps .lf0{animation:ps-in0 34s linear infinite}
+@keyframes ps-st1{0%,8.2%{stroke:var(--line);stroke-width:1}8.3%,16.6%{stroke:var(--accent);stroke-width:2}16.7%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st1>rect{animation:ps-st1 34s linear infinite}
+@keyframes ps-in1{0%,8.2%{opacity:0}8.8%,100%{opacity:1}}
+.ps .tl1,.ps .lf1{animation:ps-in1 34s linear infinite}
+@keyframes ps-st2{0%,16.6%{stroke:var(--line);stroke-width:1}16.7%,24.9%{stroke:var(--accent);stroke-width:2}25.0%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st2>rect{animation:ps-st2 34s linear infinite}
+@keyframes ps-in2{0%,16.6%{opacity:0}17.2%,100%{opacity:1}}
+.ps .tl2,.ps .lf2{animation:ps-in2 34s linear infinite}
+@keyframes ps-st3{0%,24.9%{stroke:var(--line);stroke-width:1}25.0%,33.2%{stroke:var(--accent);stroke-width:2}33.3%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st3>rect{animation:ps-st3 34s linear infinite}
+@keyframes ps-in3{0%,24.9%{opacity:0}25.5%,100%{opacity:1}}
+.ps .tl3,.ps .lf3{animation:ps-in3 34s linear infinite}
+@keyframes ps-st4{0%,33.2%{stroke:var(--line);stroke-width:1}33.3%,41.6%{stroke:var(--accent);stroke-width:2}41.7%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st4>rect{animation:ps-st4 34s linear infinite}
+@keyframes ps-in4{0%,33.2%{opacity:0}33.8%,100%{opacity:1}}
+.ps .tl4,.ps .lf4{animation:ps-in4 34s linear infinite}
+@keyframes ps-st5{0%,41.6%{stroke:var(--line);stroke-width:1}41.7%,49.9%{stroke:var(--accent);stroke-width:2}50.0%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st5>rect{animation:ps-st5 34s linear infinite}
+@keyframes ps-in5{0%,41.6%{opacity:0}42.2%,100%{opacity:1}}
+.ps .tl5,.ps .lf5{animation:ps-in5 34s linear infinite}
+@keyframes ps-st6{0%,49.9%{stroke:var(--line);stroke-width:1}50.0%,58.2%{stroke:var(--accent);stroke-width:2}58.3%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st6>rect{animation:ps-st6 34s linear infinite}
+@keyframes ps-in6{0%,49.9%{opacity:0}50.5%,100%{opacity:1}}
+.ps .tl6,.ps .lf6{animation:ps-in6 34s linear infinite}
+@keyframes ps-st7{0%,58.2%{stroke:var(--line);stroke-width:1}58.3%,66.6%{stroke:var(--accent);stroke-width:2}66.7%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st7>rect{animation:ps-st7 34s linear infinite}
+@keyframes ps-in7{0%,58.2%{opacity:0}58.8%,100%{opacity:1}}
+.ps .tl7,.ps .lf7{animation:ps-in7 34s linear infinite}
+@keyframes ps-st8{0%,66.6%{stroke:var(--line);stroke-width:1}66.7%,74.9%{stroke:var(--accent);stroke-width:2}75.0%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st8>rect{animation:ps-st8 34s linear infinite}
+@keyframes ps-in8{0%,66.6%{opacity:0}67.2%,100%{opacity:1}}
+.ps .tl8,.ps .lf8{animation:ps-in8 34s linear infinite}
+@keyframes ps-st9{0%,74.9%{stroke:var(--line);stroke-width:1}75.0%,83.2%{stroke:var(--accent);stroke-width:2}83.3%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st9>rect{animation:ps-st9 34s linear infinite}
+@keyframes ps-in9{0%,74.9%{opacity:0}75.5%,100%{opacity:1}}
+.ps .tl9,.ps .lf9{animation:ps-in9 34s linear infinite}
+@keyframes ps-st10{0%,83.2%{stroke:var(--line);stroke-width:1}83.3%,91.6%{stroke:var(--accent);stroke-width:2}91.7%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st10>rect{animation:ps-st10 34s linear infinite}
+@keyframes ps-in10{0%,83.2%{opacity:0}83.8%,100%{opacity:1}}
+.ps .tl10,.ps .lf10{animation:ps-in10 34s linear infinite}
+@keyframes ps-st11{0%,91.6%{stroke:var(--line);stroke-width:1}91.7%,99.9%{stroke:var(--accent);stroke-width:2}100.0%,100%{stroke:var(--line);stroke-width:1}}
+.ps .st11>rect{animation:ps-st11 34s linear infinite}
+@keyframes ps-in11{0%,91.6%{opacity:0}92.2%,100%{opacity:1}}
+.ps .tl11,.ps .lf11{animation:ps-in11 34s linear infinite}
+@keyframes ps-ex2{0%,20.6%{opacity:.35}20.7%,24.9%{opacity:1}25.0%,100%{opacity:.35}}
+.ps .ex2{animation:ps-ex2 34s linear infinite}
+@keyframes ps-ex4{0%,37.2%{opacity:.35}37.3%,41.6%{opacity:1}41.7%,100%{opacity:.35}}
+.ps .ex4{animation:ps-ex4 34s linear infinite}
+@keyframes ps-ex5{0%,45.6%{opacity:.35}45.7%,49.9%{opacity:1}50.0%,100%{opacity:.35}}
+.ps .ex5{animation:ps-ex5 34s linear infinite}
+@keyframes ps-ex7{0%,62.2%{opacity:.35}62.3%,66.6%{opacity:1}66.7%,100%{opacity:.35}}
+.ps .ex7{animation:ps-ex7 34s linear infinite}
+@keyframes ps-ex8{0%,70.6%{opacity:.35}70.7%,74.9%{opacity:1}75.0%,100%{opacity:.35}}
+.ps .ex8{animation:ps-ex8 34s linear infinite}
+@keyframes ps-ex10{0%,87.2%{opacity:.35}87.3%,91.6%{opacity:1}91.7%,100%{opacity:.35}}
+.ps .ex10{animation:ps-ex10 34s linear infinite}
+@media (prefers-reduced-motion:reduce){.ps *{animation:none!important}.ps .tok{display:none}.ps .tl,.ps .lf,.ps .ex0,.ps .ex1,.ps .ex2,.ps .ex3,.ps .ex4,.ps .ex5,.ps .ex6,.ps .ex7,.ps .ex8,.ps .ex9,.ps .ex10,.ps .ex11{opacity:1}}
+</style>
+<defs><filter id="ps-sh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="ps-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<text class="ttl" x="24" y="30" style="font-size:16px">Stage</text>
+<text x="24" y="49">Eleven scripts, no model, one line each. Everything the review will read is on disk before a model reads anything.</text>
+<g filter="url(#ps-sh)"><rect class="term" x="24" y="62" width="812" height="130" rx="9"/></g>
+<text class="mono tl tl0" x="36" y="82"><tspan class="tm">check-tools:</tspan> git and gh ready</text>
+<text class="mono tl tl2" x="36" y="100"><tspan class="tm">settings:</tspan> resolved 24 default 21 user 1 project 1 local 1 run 0 ignored 0</text>
+<text class="mono tl tl4" x="36" y="118"><tspan class="tm">fetch-pr:</tspan> 14 files, 612 additions, 88 deletions</text>
+<text class="mono tl tl5" x="36" y="136"><tspan class="tm">probe-diff:</tspan> 2 sections (deps, sensitive)</text>
+<text class="mono tl tl7" x="36" y="154"><tspan class="tm">scan-open-prs:</tspan> overlap: 2 candidates, 1 near, 0 same, approximate</text>
+<text class="mono tl tl10" x="36" y="172"><tspan class="tm">run-check:</tspan> pass</text>
+<text class="tm" x="826" y="186" text-anchor="end" style="font-size:9.5px">what the orchestrating session sees</text>
+<text x="24" y="199"><tspan class="num">1</tspan><tspan class="ph" dx="7">LEDGER</tspan></text>
+<text x="24" y="216"></text>
+<g class="cardg st0" data-step="0"><rect class="c" x="24" y="216" width="186" height="70" rx="9"/>
+<text class="h" x="36" y="236" style="font-size:12.5px">check-tools</text>
+<text x="36" y="252" style="font-size:10.5px">git and an authenticated gh</text>
+<text x="36" y="267" style="font-size:10.5px">nothing else is assumed</text>
+</g>
+<g class="cardg st1" data-step="1"><rect class="c" x="232" y="216" width="186" height="70" rx="9"/>
+<text class="h" x="244" y="236" style="font-size:12.5px">init-state</text>
+<text x="244" y="252" style="font-size:10.5px">the ledger directory, per PR</text>
+<text x="244" y="267" style="font-size:10.5px">typed overrides, this run only</text>
+</g>
+<g class="cardg st2" data-step="2"><rect class="c" x="440" y="216" width="186" height="70" rx="9"/>
+<text class="h" x="452" y="236" style="font-size:12.5px">resolve-settings</text>
+<text x="452" y="252" style="font-size:10.5px">defaults · yours · project · local · run</text>
+<text x="452" y="267" style="font-size:10.5px">a project may raise, add, or set</text>
+</g>
+<g class="cardg st3" data-step="3"><rect class="c" x="648" y="216" width="186" height="70" rx="9"/>
+<text class="h" x="660" y="236" style="font-size:12.5px">sweep-state</text>
+<text x="660" y="252" style="font-size:10.5px">reaps runs whose PR closed</text>
+<text x="660" y="267" style="font-size:10.5px">prunes finished ledgers</text>
+</g>
+<path class="ar" d="M210 251 L230 251" marker-end="url(#ps-a)"/>
+<path class="ar" d="M418 251 L438 251" marker-end="url(#ps-a)"/>
+<path class="ar" d="M626 251 L646 251" marker-end="url(#ps-a)"/>
+<g class="chip ask ex2"><rect x="366.266" y="296" width="333.468" height="19" rx="9.5"/>
+<text x="533" y="309.5" text-anchor="middle" style="font-size:10.5px">trust pending: a command from the project file → you approve it</text>
+</g>
+<text x="24" y="371"><tspan class="num">2</tspan><tspan class="ph" dx="7">READ</tspan></text>
+<text x="24" y="388"></text>
+<g class="cardg st4" data-step="4"><rect class="c" x="24" y="388" width="186" height="70" rx="9"/>
+<text class="h" x="36" y="408" style="font-size:12.5px">fetch-pr · split-diff</text>
+<text x="36" y="424" style="font-size:10.5px">diff, body, files, from the API</text>
+<text x="36" y="439" style="font-size:10.5px">per-file diffs, lines numbered</text>
+</g>
+<g class="cardg st5" data-step="5"><rect class="c" x="232" y="388" width="186" height="70" rx="9"/>
+<text class="h" x="244" y="408" style="font-size:12.5px">probe-diff</text>
+<text x="244" y="424" style="font-size:10.5px">secrets · automation · sensitive</text>
+<text x="244" y="439" style="font-size:10.5px">schema · deps · debug · markers</text>
+</g>
+<g class="cardg st6" data-step="6"><rect class="c" x="440" y="388" width="186" height="70" rx="9"/>
+<text class="h" x="452" y="408" style="font-size:12.5px">classify-change</text>
+<text x="452" y="424" style="font-size:10.5px">kind: code, docs, config, tests</text>
+<text x="452" y="439" style="font-size:10.5px">lines and code lines, for routing</text>
+</g>
+<g class="cardg st7" data-step="7"><rect class="c" x="648" y="388" width="186" height="70" rx="9"/>
+<text class="h" x="660" y="408" style="font-size:12.5px">scan-open-prs</text>
+<text x="660" y="424" style="font-size:10.5px">open PRs on the same base</text>
+<text x="660" y="439" style="font-size:10.5px">hunks within 12 lines or a function</text>
+</g>
+<path class="ar" d="M210 423 L230 423" marker-end="url(#ps-a)"/>
+<path class="ar" d="M418 423 L438 423" marker-end="url(#ps-a)"/>
+<path class="ar" d="M626 423 L646 423" marker-end="url(#ps-a)"/>
+<path class="ar" d="M741 286 L741 348 L117 348 L117 386" marker-end="url(#ps-a)"/>
+<g class="chip note ex4"><rect x="24" y="468" width="224.196" height="19" rx="9.5"/>
+<text x="136.098" y="481.5" text-anchor="middle" style="font-size:10.5px">API refuses the diff → built from the clone</text>
+</g>
+<g class="chip note ex5"><rect x="242.933" y="492" width="164.134" height="19" rx="9.5"/>
+<text x="325" y="505.5" text-anchor="middle" style="font-size:10.5px">a hit is a lead, never a finding</text>
+</g>
+<g class="chip ask ex7"><rect x="644.149" y="468" width="189.851" height="19" rx="9.5"/>
+<text x="739.075" y="481.5" text-anchor="middle" style="font-size:10.5px">near or same → continue, or stop?</text>
+</g>
+<text x="24" y="543"><tspan class="num">3</tspan><tspan class="ph" dx="7">CHECK OUT</tspan></text>
+<text x="24" y="560"></text>
+<g class="cardg st8" data-step="8"><rect class="c" x="24" y="560" width="186" height="70" rx="9"/>
+<text class="h" x="36" y="580" style="font-size:12.5px">checkout-pr</text>
+<text x="36" y="596" style="font-size:10.5px">a detached worktree at the head</text>
+<text x="36" y="611" style="font-size:10.5px">base snapshot · conventions block</text>
+</g>
+<g class="cardg st9" data-step="9"><rect class="c" x="232" y="560" width="186" height="70" rx="9"/>
+<text class="h" x="244" y="580" style="font-size:12.5px">extract-standards</text>
+<text x="244" y="596" style="font-size:10.5px">your untracked rule files</text>
+<text x="244" y="611" style="font-size:10.5px">substance in, names never out</text>
+</g>
+<g class="cardg st10" data-step="10"><rect class="c" x="440" y="560" width="186" height="70" rx="9"/>
+<text class="h" x="452" y="580" style="font-size:12.5px">run-check --baseline</text>
+<text x="452" y="596" style="font-size:10.5px">the project’s own check, once</text>
+<text x="452" y="611" style="font-size:10.5px">a pass arms the fix loop’s gate</text>
+</g>
+<g class="cardg st11" data-step="11"><rect class="done" x="648" y="560" width="186" height="70" rx="9"/>
+<text class="h doneh" x="660" y="580" style="font-size:12.5px">Staged</text>
+<text class="dones" x="660" y="596" style="font-size:10.5px">every input on disk;</text>
+<text class="dones" x="660" y="611" style="font-size:10.5px">the reviewer is next</text>
+</g>
+<path class="ar" d="M210 595 L230 595" marker-end="url(#ps-a)"/>
+<path class="ar" d="M418 595 L438 595" marker-end="url(#ps-a)"/>
+<path class="ar" d="M626 595 L646 595" marker-end="url(#ps-a)"/>
+<path class="ar" d="M741 458 L741 520 L117 520 L117 558" marker-end="url(#ps-a)"/>
+<g class="chip note ex8"><rect x="24" y="640" width="239.161" height="19" rx="9.5"/>
+<text x="143.58" y="653.5" text-anchor="middle" style="font-size:10.5px">a fork that refuses edits → review-only mode</text>
+</g>
+<g class="chip bad ex10"><rect x="415.908" y="640" width="234.184" height="19" rx="9.5"/>
+<text x="533" y="653.5" text-anchor="middle" style="font-size:10.5px">a failing baseline → gate disarmed, tail kept</text>
+</g>
+<rect class="lane" x="24" y="700" width="812" height="64" rx="9"/>
+<text class="k" x="36" y="717" style="font-size:9.5px">written to the ledger</text>
+<g class="lf lf1"><rect x="36" y="728" width="8" height="8" rx="2"/><text class="mono" x="49" y="736" style="font-size:10px">meta.txt</text></g>
+<g class="lf lf1"><rect x="113.16" y="728" width="8" height="8" rx="2"/><text class="mono" x="126.16" y="736" style="font-size:10px">overrides.txt</text></g>
+<g class="lf lf2"><rect x="220.42" y="728" width="8" height="8" rx="2"/><text class="mono" x="233.42" y="736" style="font-size:10px">settings.txt</text></g>
+<g class="lf lf4"><rect x="321.66" y="728" width="8" height="8" rx="2"/><text class="mono" x="334.66" y="736" style="font-size:10px">pr-context/diff.patch</text></g>
+<g class="lf lf4"><rect x="477.08" y="728" width="8" height="8" rx="2"/><text class="mono" x="490.08" y="736" style="font-size:10px">files/001.diff</text></g>
+<g class="lf lf5"><rect x="590.36" y="728" width="8" height="8" rx="2"/><text class="mono" x="603.36" y="736" style="font-size:10px">probes.txt</text></g>
+<g class="lf lf6"><rect x="679.56" y="728" width="8" height="8" rx="2"/><text class="mono" x="692.56" y="736" style="font-size:10px">class.txt</text></g>
+<g class="lf lf7"><rect x="36" y="746" width="8" height="8" rx="2"/><text class="mono" x="49" y="754" style="font-size:10px">overlap.txt</text></g>
+<g class="lf lf8"><rect x="131.22" y="746" width="8" height="8" rx="2"/><text class="mono" x="144.22" y="754" style="font-size:10px">worktree/</text></g>
+<g class="lf lf9"><rect x="214.4" y="746" width="8" height="8" rx="2"/><text class="mono" x="227.4" y="754" style="font-size:10px">standards.txt</text></g>
+<g class="lf lf10"><rect x="321.66" y="746" width="8" height="8" rx="2"/><text class="mono" x="334.66" y="754" style="font-size:10px">check-baseline.txt</text></g>
+<circle class="tok" r="7"/>
+</svg>

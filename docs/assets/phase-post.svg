@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 584" width="860" role="img" aria-labelledby="ppt ppd" class="pp">
+<title id="ppt">Phase 3, Post: a cold re-read, proof, then threads</title>
+<desc id="ppd">Before anything reaches the pull request, a cheap filter re-reads the cited code cold and demotes findings whose evidence it cannot support into the round summary, never dropping one; every suggestion fence is applied in a scratch worktree and the project's check runs, so a fence posts only after passing and an unproven one is withdrawn while the finding stays; then post-review opens one inline thread per finding and one summary comment, recording the thread ids on the records. A fork that refuses maintainer edits stops here in review-only mode: the findings stand for the author.</desc>
+<style>
+.pp{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A}
+@media (prefers-color-scheme:dark){.pp{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--coral-line:#7a3a24;--clay:#D97757;--term:#141413;--term-line:#44433F}}
+.pp text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.pp .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.pp .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+.pp .h{font-size:12.5px;font-weight:700;fill:var(--ink)}
+.pp .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.pp .ttl{font-size:16px;font-weight:700;fill:var(--ink)}
+.pp .c{fill:var(--card);stroke:var(--line)}
+.pp .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pp .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.pp .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pp .hm{fill:var(--accent-ink)}.pp .sm{fill:var(--accent)}
+.pp .hg2{fill:var(--teal-ink)}.pp .sg{fill:var(--teal)}
+.pp .hp{fill:var(--coral-ink)}.pp .sp{fill:var(--coral)}
+.pp .accent{fill:var(--accent)}.pp .teal{fill:var(--teal)}.pp .coral{fill:var(--coral)}
+.pp .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pp .arh{fill:var(--faint)}
+.pp .ring{fill:none;stroke:var(--rule);stroke-width:3}
+.pp .term{fill:var(--term);stroke:var(--term-line)}
+.pp .tl{fill:#F1EFE8}.pp .tm{fill:#B4B2A9}
+.pp .lane{fill:var(--lane)}
+.pp .ph{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
+.pp .num{font-size:10.5px;font-weight:700;fill:var(--faint)}
+.pp .chip rect{stroke-width:1}.pp .chip text{font-weight:700;fill:var(--ink)}
+.pp .bad rect{fill:var(--coral-bg);stroke:var(--coral-line)}.pp .bad text{fill:var(--coral-ink)}
+.pp .ask rect{fill:var(--card);stroke:var(--coral)}.pp .ask text{fill:var(--coral)}
+.pp .good rect{fill:var(--teal-bg);stroke:var(--teal-line)}.pp .good text{fill:var(--teal-ink)}
+.pp .note rect{fill:var(--panel);stroke:var(--line)}.pp .note text{fill:var(--muted)}
+.pp .mdl rect{fill:var(--accent-bg);stroke:var(--accent-line)}.pp .mdl text{fill:var(--accent-ink)}
+.pp .lf rect{fill:var(--rule)}.pp .lf text{fill:var(--muted)}
+.pp .done{fill:var(--teal);stroke:var(--teal)}
+.pp .doneh{fill:var(--bg)}.pp .dones{fill:var(--bg);opacity:.85}
+.pp .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pp .cardg>rect{stroke-width:1}
+@keyframes pp-walk{0%,16.5%{offset-distance:0.00%}30.0%,46.5%{offset-distance:34.42%}60.0%,73.8%{offset-distance:68.36%}85.0%,100%{offset-distance:100.00%}}
+.pp .tok{fill:var(--clay);stroke:var(--card);stroke-width:2.5;offset-path:path('M149 205 L434 205 L715 205 L715 467');offset-rotate:0deg;animation:pp-walk 24s linear infinite}
+@keyframes pp-st0{0%,0.0%{stroke:var(--line);stroke-width:1}0.0%,29.9%{stroke:var(--accent);stroke-width:2}30.0%,100%{stroke:var(--line);stroke-width:1}}
+.pp .st0>rect{animation:pp-st0 24s linear infinite}
+@keyframes pp-in0{0%,0.0%{opacity:0}0.5%,100%{opacity:1}}
+.pp .tl0,.pp .lf0{animation:pp-in0 24s linear infinite}
+@keyframes pp-st1{0%,29.9%{stroke:var(--line);stroke-width:1}30.0%,59.9%{stroke:var(--accent);stroke-width:2}60.0%,100%{stroke:var(--line);stroke-width:1}}
+.pp .st1>rect{animation:pp-st1 24s linear infinite}
+@keyframes pp-in1{0%,29.9%{opacity:0}30.5%,100%{opacity:1}}
+.pp .tl1,.pp .lf1{animation:pp-in1 24s linear infinite}
+@keyframes pp-st2{0%,59.9%{stroke:var(--line);stroke-width:1}60.0%,84.9%{stroke:var(--accent);stroke-width:2}85.0%,100%{stroke:var(--line);stroke-width:1}}
+.pp .st2>rect{animation:pp-st2 24s linear infinite}
+@keyframes pp-in2{0%,59.9%{opacity:0}60.5%,100%{opacity:1}}
+.pp .tl2,.pp .lf2{animation:pp-in2 24s linear infinite}
+@keyframes pp-st3{0%,84.9%{stroke:var(--line);stroke-width:1}85.0%,99.9%{stroke:var(--accent);stroke-width:2}100.0%,100%{stroke:var(--line);stroke-width:1}}
+.pp .st3>rect{animation:pp-st3 24s linear infinite}
+@keyframes pp-in3{0%,84.9%{opacity:0}85.5%,100%{opacity:1}}
+.pp .tl3,.pp .lf3{animation:pp-in3 24s linear infinite}
+@keyframes pp-ex0{0%,7.9%{opacity:.35}8.0%,29.9%{opacity:1}30.0%,100%{opacity:.35}}
+.pp .ex0{animation:pp-ex0 24s linear infinite}
+@keyframes pp-ex1{0%,37.9%{opacity:.35}38.0%,59.9%{opacity:1}60.0%,100%{opacity:.35}}
+.pp .ex1{animation:pp-ex1 24s linear infinite}
+@keyframes pp-ex2{0%,67.9%{opacity:.35}68.0%,84.9%{opacity:1}85.0%,100%{opacity:.35}}
+.pp .ex2{animation:pp-ex2 24s linear infinite}
+@media (prefers-reduced-motion:reduce){.pp *{animation:none!important}.pp .tok{display:none}.pp .tl,.pp .lf,.pp .ex0,.pp .ex1,.pp .ex2,.pp .ex3,.pp .ex4,.pp .ex5,.pp .ex6,.pp .ex7,.pp .ex8,.pp .ex9,.pp .ex10,.pp .ex11{opacity:1}}
+</style>
+<defs><filter id="pp-sh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="pp-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<text class="ttl" x="24" y="30" style="font-size:16px">Post</text>
+<text x="24" y="49">Proof before posting. A false positive costs a round, a thread, and the author’s trust, so doubt is recorded now.</text>
+<g filter="url(#pp-sh)"><rect class="term" x="24" y="62" width="812" height="76" rx="9"/></g>
+<text class="mono tl tl0" x="36" y="82"><tspan class="tm">filter:</tspan> demoted 1 of 5</text>
+<text class="mono tl tl1" x="36" y="100"><tspan class="tm">prove-suggestions:</tspan> 3 proven, 1 withdrawn</text>
+<text class="mono tl tl2" x="36" y="118"><tspan class="tm">post-review:</tspan> 4 posted inline, 1 in the summary, round 1</text>
+<text class="tm" x="826" y="132" text-anchor="end" style="font-size:9.5px">what the orchestrating session sees</text>
+<g class="cardg st0" data-step="0"><rect class="cm" x="24" y="170" width="250" height="70" rx="9"/>
+<text class="h hm" x="36" y="190" style="font-size:12.5px">Filter</text>
+<text class="sm" x="36" y="206" style="font-size:10.5px">re-reads the cited code cold</text>
+<text class="sm" x="36" y="221" style="font-size:10.5px">demotes to the summary, never drops</text>
+</g>
+<g class="cardg st1" data-step="1"><rect class="c" x="304" y="170" width="260" height="70" rx="9"/>
+<text class="h" x="316" y="190" style="font-size:12.5px">prove-suggestions</text>
+<text x="316" y="206" style="font-size:10.5px">each fence applied in a scratch tree</text>
+<text x="316" y="221" style="font-size:10.5px">the project’s check decides</text>
+</g>
+<g class="cardg st2" data-step="2"><rect class="c" x="594" y="170" width="242" height="70" rx="9"/>
+<text class="h" x="606" y="190" style="font-size:12.5px">post-review</text>
+<text x="606" y="206" style="font-size:10.5px">one inline thread per finding</text>
+<text x="606" y="221" style="font-size:10.5px">demoted ones in the summary</text>
+</g>
+<path class="ar" d="M274 205 L302 205" marker-end="url(#pp-a)"/>
+<path class="ar" d="M564 205 L592 205" marker-end="url(#pp-a)"/>
+<g class="cardg"><rect class="c" x="24" y="262" width="250" height="134" rx="9"/>
+<text class="h" x="36" y="282" style="font-size:12.5px">One question per record</text>
+<text x="36" y="298" style="font-size:10.5px">does the code show exactly this?</text>
+<text x="36" y="313" style="font-size:10.5px">callers and definitions read, not prose</text>
+<text x="36" y="328" style="font-size:10.5px">blocker or major: demote only on a</text>
+<text x="36" y="343" style="font-size:10.5px">plain contradiction</text>
+<text x="36" y="358" style="font-size:10.5px">support counts are context, never verdict</text>
+<text x="36" y="373" style="font-size:10.5px">a demoted record is still addressed</text>
+</g>
+<g class="cardg"><rect class="c" x="304" y="262" width="260" height="134" rx="9"/>
+<text class="h" x="316" y="282" style="font-size:12.5px">A fence is a proof, not a guess</text>
+<text x="316" y="298" style="font-size:10.5px">apply the suggestion in a scratch worktree</text>
+<text x="316" y="313" style="font-size:10.5px">run the check command there</text>
+<text x="316" y="328" style="font-size:10.5px">pass → it posts as a suggestion</text>
+<text x="316" y="343" style="font-size:10.5px">fail or no command → withdrawn,</text>
+<text x="316" y="358" style="font-size:10.5px">the finding’s prose stays</text>
+<text x="316" y="373" style="font-size:10.5px">a Check line that runs is never a fence</text>
+</g>
+<g class="cardg"><rect class="c" x="594" y="262" width="242" height="134" rx="9"/>
+<text class="h" x="606" y="282" style="font-size:12.5px">What reaches the pull request</text>
+<text x="606" y="298" style="font-size:10.5px">inline thread: path, line, side, body</text>
+<text x="606" y="313" style="font-size:10.5px">the round summary: demoted findings,</text>
+<text x="606" y="328" style="font-size:10.5px">with the filter’s reason</text>
+<text x="606" y="343" style="font-size:10.5px">thread ids written to the records</text>
+<text x="606" y="358" style="font-size:10.5px">reruns are safe: nothing posts twice</text>
+<text x="606" y="373" style="font-size:10.5px">every write goes through one script</text>
+</g>
+<g class="chip note ex0"><rect x="24" y="408" width="247.913" height="19" rx="9.5"/>
+<text x="147.957" y="421.5" text-anchor="middle" style="font-size:10.5px">thin evidence → the summary, with the reason</text>
+</g>
+<g class="chip note ex1"><rect x="304" y="408" width="231.061" height="19" rx="9.5"/>
+<text x="419.53" y="421.5" text-anchor="middle" style="font-size:10.5px">unproven fence → withdrawn, finding stays</text>
+</g>
+<g class="chip bad ex2"><rect x="574.976" y="408" width="261.024" height="19" rx="9.5"/>
+<text x="705.488" y="421.5" text-anchor="middle" style="font-size:10.5px">a fork that refuses edits → review-only, stop here</text>
+</g>
+<g class="cardg st3" data-step="3"><rect class="cg" x="594" y="440" width="242" height="54" rx="9"/>
+<text class="h hg2" x="606" y="460" style="font-size:12.5px">Pull request #128</text>
+<text class="sg" x="606" y="476" style="font-size:10.5px">4 threads, 1 summary comment</text>
+</g>
+<path class="ar" d="M715 396 L715 438" marker-end="url(#pp-a)"/>
+<rect class="lane" x="24" y="508" width="812" height="64" rx="9"/>
+<text class="k" x="36" y="525" style="font-size:9.5px">written to the ledger</text>
+<g class="lf lf0"><rect x="36" y="536" width="8" height="8" rx="2"/><text class="mono" x="49" y="544" style="font-size:10px">findings/F003: placement, Filter note</text></g>
+<g class="lf lf1"><rect x="287.74" y="536" width="8" height="8" rx="2"/><text class="mono" x="300.74" y="544" style="font-size:10px">proof worktree (scratch)</text></g>
+<g class="lf lf1"><rect x="461.22" y="536" width="8" height="8" rx="2"/><text class="mono" x="474.22" y="544" style="font-size:10px">fence kept or withdrawn</text></g>
+<g class="lf lf2"><rect x="628.68" y="536" width="8" height="8" rx="2"/><text class="mono" x="641.68" y="544" style="font-size:10px">thread ids on records</text></g>
+<g class="lf lf2"><rect x="36" y="554" width="8" height="8" rx="2"/><text class="mono" x="49" y="562" style="font-size:10px">round summary comment</text></g>
+<circle class="tok" r="7"/>
+</svg>

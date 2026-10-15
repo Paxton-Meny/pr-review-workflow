@@ -109,7 +109,7 @@ footer{border-top:1px solid var(--line);margin-top:64px;padding:24px 0 34px}
 <div class="wrap bar">
 <a class="mark" href="#top">pr-review-workflow</a>
 <nav aria-label="Sections">
-<a href="#run">How it runs</a>
+<a href="#run">How it runs</a><a href="#phases">Phases</a>
 <a href="#findings">Findings</a>
 <a href="#honesty">Honesty</a>
 <a href="#settings">Settings</a>
@@ -164,6 +164,37 @@ GitHub</a>
 <figure>
 <div class="card"><img src="assets/information-flow.svg" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, and verifier each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></div>
 <figcaption>The diff is read from GitHub once, lives on disk, and never enters the orchestrating context.</figcaption>
+</figure>
+</section>
+
+<div class="spacer"></div>
+
+<section id="phases">
+<h2 class="display">Inside each phase</h2>
+<p class="sub">The figures above show the shape; these show the parts. Each phase is drawn in the form that fits it, a rail, a fan, a sieve, a ring, a loop, a gate, with the one line each script prints at the top, what it writes to the ledger at the bottom, and every exit labelled with its code and who decides. The token walks one run; with reduced motion on, every step shows at once.</p>
+<figure id="phase-stage">
+<div class="card"><img src="assets/phase-stage.svg" alt="Phase 1, Stage: eleven scripts set up one pull request with no model. A terminal strip shows the one line each prints; cards show what each does and writes; exits show the trust approval, the clone fallback, the overlap question, and a failing baseline disarming the gate."></div>
+<figcaption><b>Stage.</b> Eleven scripts and no model: tools, ledger, settings from five sources, sweep, the diff from the API or the clone, probes, classification, the open pull requests beside it, a detached worktree, local standards, and the check baseline that arms the gate.</figcaption>
+</figure>
+<figure id="phase-review">
+<div class="card"><img src="assets/phase-review.svg" alt="Phase 2, Review: a fan-out from one plan to parallel reviewers and back into one ledger, with the routing ladder and a finding record's anatomy beside."></div>
+<figcaption><b>Review.</b> A plan into shards and seams, a rung and an effort per group from the routing ladder, reviewers in parallel, records banked and deduplicated, and a gap pass over the seams; a clean ledger skips straight to the merge gate. The record anatomy shows the contract every finding carries.</figcaption>
+</figure>
+<figure id="phase-post">
+<div class="card"><img src="assets/phase-post.svg" alt="Phase 3, Post: a sieve of three stations, the filter, the proof of suggestions, and the posting script, with the pull request receiving threads at the end."></div>
+<figcaption><b>Post.</b> A cold re-read demotes thin findings to the summary and never drops one; every suggestion fence is applied in a scratch worktree and must pass the project's check; then one inline thread per finding and one summary comment. A fork that refuses edits stops here.</figcaption>
+</figure>
+<figure id="phase-fix">
+<div class="card"><img src="assets/phase-fix.svg" alt="Phase 4, Fix loop: eight stations around a ring with the round number in the middle, the editing ladder and separation of powers beside, and the exits to repair, arbitration, park, and convergence."></div>
+<figcaption><b>Fix loop.</b> A ring of at most four rounds: the counter, a rung per finding from the editing ladder, the editor's commit per finding, the check gate with one repair, the verifier executing contracts, the skim for unasked changes, and the count that loops, arbitrates once, or converges.</figcaption>
+</figure>
+<figure id="phase-land">
+<div class="card"><img src="assets/phase-land.svg" alt="Phase 5, Land: four stations in a loop, the merge method, base sync, awaiting the checks, and the editor's repair, each with its exit codes, ending at green checks."></div>
+<figcaption><b>Land.</b> Between a clean ledger and the merge gate: the merge method is decided, the branch brought up to date by it at most three times, the checks awaited in slices under a budget, and a failed check repaired by the editor from a digest, then reviewed, looping until green.</figcaption>
+</figure>
+<figure id="phase-merge">
+<div class="card"><img src="assets/phase-merge.svg" alt="Phase 6, Merge: the merge method refreshed, who opens the gate, four doors with their exits, the merge with the head matched, the branch afterwards, what a person confirms, and the four bookkeeping scripts."></div>
+<figcaption><b>Merge.</b> Four doors in order, each refusal writing nothing and naming who decides: open and not a draft; mergeable, or back to base sync; no migrations, or four checks a person confirms; nothing landed beside the hunks, or the drift lines and a verdict. Then the merge by method, the branch's fate, and the bookkeeping.</figcaption>
 </figure>
 </section>
 
