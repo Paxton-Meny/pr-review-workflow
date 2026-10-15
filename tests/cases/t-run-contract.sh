@@ -4,6 +4,9 @@ set -eu
 
 dir="$SCRATCH/state"
 mkdir -p "$dir/findings" "$dir/worktree"
+. "$REPO_ROOT/tests/fixture-identity.sh"
+# The signed-in account's own pull request: its code may run.
+printf 'author %s\nself_login %s\n' "$fixture_login" "$fixture_login" >"$dir/meta.txt"
 
 mkrec() {
 	printf 'id: F001\nstatus: open\ncategory: correctness\nseverity: minor\npath: a.sh\nline: 1\nend_line:\nside: RIGHT\nplacement:\ncomment_id:\ncommit:\nround: 1\nreopens: 0\ntitle: T\n---\nevidence\nFix: do.\n%s\nResolution: done.\n' "$1" >"$dir/findings/F001"
@@ -131,3 +134,15 @@ mkrec 'Check: sh check.sh tests/test_migrations_doc.py prisma generate'
 out=$(sh "$REPO_ROOT/scripts/run-contract.sh" "$dir" F001 'sh check.sh')
 [ "$out" = "run-contract: F001 verdict satisfied" ]
 [ -e "$dir/worktree/ran" ]
+
+# Another account's fork: no contract runs on its code, policy included.
+mkrec 'Check: sh check.sh one'
+printf '#!/bin/sh\ntouch untrusted-ran\n' >"$dir/worktree/check.sh"
+printf 'author someone-else\nself_login %s\ncross_repo true\n' "$fixture_login" >"$dir/meta.txt"
+for flag in '' --policy; do
+	rc=0
+	out=$(sh "$REPO_ROOT/scripts/run-contract.sh" $flag "$dir" F001 'sh check.sh') || rc=$?
+	[ "$rc" -eq 4 ]
+	[ "$out" = "run-contract: F001 verdict not-executable reason untrusted-author" ]
+done
+[ ! -e "$dir/worktree/untrusted-ran" ]

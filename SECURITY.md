@@ -64,8 +64,16 @@ When you configure a check command, the plugin runs it against a scratch copy
 of the pull request head to verify suggested changes, and again in the
 review worktree after fixes are committed. Both execute the pull
 request's code with your local privileges, exactly as running its tests
-yourself would. Leave the option empty for repositories whose contributors
-you do not trust that far.
+yourself would.
+
+So the command, suggestion proving, and a finding's Check line run only
+on code from an author who can push to the repository: your own pull
+requests, an author with write, maintain, or admin permission, or a
+branch in the repository itself when GitHub cannot say. For anyone
+else, a fork from outside the team, the run asks you once per pull
+request whether to run their code, and runs nothing until you say yes;
+unattended, it skips the check and says so. Leave the option empty for
+repositories whose own contributors you do not trust that far.
 
 A repository's committed settings file may name a check command too, but
 it runs only after you approve that exact command, once per change. The

@@ -1,7 +1,10 @@
 #!/bin/sh
 # Prove every pending suggestion fence by applying it, or withdraw it.
 # Usage: sh scripts/prove-suggestions.sh <state-dir> [check-command]
-# Without a command, the run's resolved check_command is used.
+# Without a command, the run's resolved check_command is used. The
+# command runs the pull request's code, so it runs only when
+# author-trust.sh --exec allows it; otherwise a fence is proven by
+# applying alone, as without a command.
 set -eu
 
 dir=${1:?usage: prove-suggestions.sh <state-dir> [check-command]}
@@ -17,6 +20,11 @@ worktree="$dir/worktree"
 	echo "prove-suggestions: no worktree in $dir, run checkout-pr.sh first" >&2
 	exit 1
 }
+skipped=''
+if [ -n "$check" ] && ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+	check=''
+	skipped=", check skipped for an untrusted author"
+fi
 repo_root=$(sed -n 's/^repo_root //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 [ -n "$repo_root" ] || {
@@ -104,4 +112,4 @@ for record in "$dir/findings"/F*; do
 	fi
 done
 
-echo "prove-suggestions: $proven proven, $withdrawn withdrawn"
+echo "prove-suggestions: $proven proven, $withdrawn withdrawn$skipped"
