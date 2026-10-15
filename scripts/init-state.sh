@@ -79,10 +79,26 @@ esac
 
 dir="$data_root/state/${owner}__${repo}__${number}"
 mkdir -p "$dir"
+# The head the review last covered. Once the ledger holds findings it
+# carries over from the previous invocation, never from GitHub, so
+# commits pushed since stay unreviewed until reviewed-head.sh says so
+# and the review reads them; a ledger from before this field falls
+# back to the head it last recorded.
+reviewed=''
+for f in "$dir/findings"/F*; do
+	[ -f "$f" ] || continue
+	if [ -f "$dir/meta.txt" ]; then
+		reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
+		[ -n "$reviewed" ] || reviewed=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
+	fi
+	break
+done
+[ -n "$reviewed" ] || reviewed=$(printf '%s\n' "$meta" | sed -n 's/^head_sha //p')
 tmp=$(mktemp "$dir/.meta.XXXXXX")
 {
 	printf 'owner %s\nrepo %s\npr %s\n' "$owner" "$repo" "$number"
 	printf '%s\n' "$meta" | sed '/^state /d'
+	printf 'reviewed_head %s\n' "$reviewed"
 	printf 'self_login %s\nself_email %s\n' "$self_login" "$self_email"
 	printf 'repo_root %s\n' "$repo_root"
 } >"$tmp"
