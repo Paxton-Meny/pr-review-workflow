@@ -200,8 +200,10 @@ path as usual.
   `Check:` line: the project's check command narrowed to the relevant
   test or target (for example the check command plus one test path or
   selector). It must start with the project's own check command or a
-  configured prefix and contain no shell metacharacters, or it will not
-  run and the verifier falls back to reading. A Check line naming
+  configured prefix and contain no shell metacharacters; its arguments
+  stay inside the worktree (no absolute, `~`, or `..` paths) and need
+  no quoting (no quotes, globs, brackets, braces, parentheses, `#`, or
+  `!`), or it will not run and the verifier falls back to reading. A Check line naming
   migration tooling never runs either: migrations are judged by reading.
   An executable contract is the strongest Resolution there is; a Check
   line that only rebuilds everything the check command already runs adds
