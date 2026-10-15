@@ -178,6 +178,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   author for the pull request (`author-trust.sh --approve`); unattended
   runs skip the check and say so.
 
+- Finding fields are read from the record's header only. A body
+  quoting a line such as `status: ready` from a YAML file stopped the
+  run in `count-findings.sh`, and a quoted `path:` line hid an edit to
+  that file from the incremental review; every reader now stops at the
+  header's `---`, and `update-finding.sh` rewrites header lines only.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

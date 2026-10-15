@@ -46,21 +46,21 @@ same_retries=0 same_retries_verified=0
 for f in "$dir/findings"/F*; do
 	[ -f "$f" ] || continue
 	total=$((total + 1))
-	case "$(sed -n 's/^status: //p' "$f")" in
+	case "$(sed -n '/^---$/q; s/^status: //p' "$f")" in
 	verified) verified=$((verified + 1)) ;;
 	wont-fix) wontfix=$((wontfix + 1)) ;;
 	open | addressed) open=$((open + 1)) ;;
 	esac
-	r=$(sed -n 's/^reopens: //p' "$f")
+	r=$(sed -n '/^---$/q; s/^reopens: //p' "$f")
 	[ "${r:-0}" -gt "$reopens" ] && reopens=$r
 	grep -q '^Filter: ' "$f" && demoted=$((demoted + 1))
 	grep -q '^Check: ' "$f" && contracts=$((contracts + 1))
-	s=$(sed -n 's/^support: [0-9]*\///p' "$f" | head -n 1)
+	s=$(sed -n '/^---$/q; s/^support: [0-9]*\///p' "$f" | head -n 1)
 	[ "${s:-1}" -gt "$samples" ] && samples=$s
 	# Retries by what changed, as "model verified effort verified same
 	# verified". A pinned note ran at its pinned level, and an unapplied
 	# note at the editor's own level, whatever either routed.
-	set -- $(awk -v status="$(sed -n 's/^status: //p' "$f")" '
+	set -- $(awk -v status="$(sed -n '/^---$/q; s/^status: //p' "$f")" '
 		/^Route: / {
 			if ($3 != round) { k++; round = $3 }
 			m[k] = $7; e[k] = ($10 == "pinned" || $10 == "unapplied") ? $11 : ($8 == "effort") ? $9 : ""

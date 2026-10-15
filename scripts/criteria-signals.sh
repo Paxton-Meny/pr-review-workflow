@@ -14,9 +14,9 @@ others=0
 notes=0
 for f in "$findings"/F*; do
 	[ -f "$f" ] || continue
-	id=$(sed -n 's/^id: //p' "$f")
-	if [ "$(sed -n 's/^category: //p' "$f")" = "other" ]; then
-		echo "other $id: $(sed -n 's/^title: //p' "$f")"
+	id=$(sed -n '/^---$/q; s/^id: //p' "$f")
+	if [ "$(sed -n '/^---$/q; s/^category: //p' "$f")" = "other" ]; then
+		echo "other $id: $(sed -n '/^---$/q; s/^title: //p' "$f")"
 		others=$((others + 1))
 	fi
 	while IFS= read -r note; do
