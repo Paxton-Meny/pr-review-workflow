@@ -174,6 +174,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `local-diff.sh` does, and falls back to the fork's branch only when
   that lacks the head; every branch fetch puts `--` before the remote.
 
+- A team's shared file raises review samples only with consent. Each
+  sample is another full reviewer pass, so a committed `review_samples
+  3` tripled the first review's cost on every teammate's bill. A raise
+  above what the user's own sources give now joins the check command
+  and contract prefixes in the trust-on-first-use hash, reported as
+  `settings: trust pending <hash> review_samples <n>` and applied once
+  approved; an unattended run keeps the user's value.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
