@@ -451,6 +451,12 @@ PRWF_SETTINGS_END
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
+    - merge-pr exit 7: nothing merged, because the author cannot push
+      to the repository and only a person merges their pull request.
+      Attended: relay its line and ask merge or hold; merge runs
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>` without
+      `--approve`, hold as above. Unattended: park (step 9) with its
+      line.
     - merge-pr exit 6: nothing merged, because someone pushed after
       the review: run `reviewed-head.sh <dir>` and, on exit 3, the
       moved-head review from step 2, then go back to step 11a, or to

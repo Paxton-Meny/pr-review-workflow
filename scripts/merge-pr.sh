@@ -7,6 +7,9 @@
 # has verified the migrations outside the pull request.
 # Exit 5: refused, writing nothing, because the base branch moved: the
 # pull request is conflicting or behind, and must be brought up to date.
+# Exit 7: refused, writing nothing, under --approve when author-trust.sh
+# does not trust the author: an automatic merge needs an author who can
+# push to the repository, and anyone else's merge needs a person.
 # Exit 6: refused, writing nothing, because the head is not the one the
 # review covered: someone pushed since, and reviewed-head.sh leads to
 # reviewing those commits first.
@@ -126,6 +129,13 @@ if [ "$checked" -eq 0 ]; then
 		printf '%s\n' "$migrations" | sed 's/^/migration /'
 		exit 4
 	fi
+fi
+
+if [ "$approve" = "--approve" ]; then
+	trust=$(sh "$(dirname -- "$0")/author-trust.sh" "$dir") || {
+		echo "merge-pr: ${trust:-the author could not be checked}; an automatic merge needs a person"
+		exit 7
+	}
 fi
 
 branch='branch deleted'
