@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 552" width="860" role="img" aria-labelledby="lpt lpd" class="fg">
 <title id="lpt">The review loop, from above</title>
-<desc id="lpd">One thorough first review feeds open findings into a ring: editor, check gate, verifier, then the question of whether anything is open. A reopened finding goes around again past the round counter, whose budget of four rounds is kept on disk and parks the run when spent; a clean verdict exits to a proven merge. The animation shows a run converging on its second lap.</desc>
+<desc id="lpd">One thorough first review feeds open findings into a ring: editor, check gate, verifier, then the question of whether anything is open. A reopened finding goes around again past the round counter, whose budget of four rounds is kept on disk and parks the run when spent; a clean verdict exits through the checks, base sync, and the overlap guard to a proven merge. The animation shows a run converging on its second lap.</desc>
 <style>
 .fg{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
 @media (prefers-color-scheme:dark){.fg{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--clay:#D97757;--term:#141413;--term-line:#44433F;--shadow:.3}}
@@ -63,6 +63,7 @@
 <path class="re" d="M386.4 423.2A120 120 0 0 1 282.1 326.3"/><path class="reh" d="M280.8 317.6L287.9 327.3L277.1 329.6z"/>
 <path class="seg" d="M198 304H262"/><path class="segh" d="M271 304l-9 -5v10z"/>
 <path class="exit" d="M529 304H676"/><path class="exh" d="M686 304l-10 -5.5v11z"/>
+<text class="mid" x="640" y="356" style="font-size:10.5px">then checks, base sync,</text><text class="mid" x="640" y="370" style="font-size:10.5px">and the overlap guard</text>
 <path class="ar" stroke-dasharray="3 4" d="M482 473H556" marker-end="url(#lpa)"/>
 <circle class="nd" cx="280" cy="304" r="6.5"/>
 <circle class="nd" cx="315.1" cy="219.1" r="6.5"/>
