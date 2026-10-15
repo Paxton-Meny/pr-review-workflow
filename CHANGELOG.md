@@ -58,6 +58,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the user's git configuration says. The head is fetched through
   `refs/pull/<n>/head` when the clone lacks it, which outlives a
   deleted fork, then through the head branch as the checkout does.
+- Continuous integration. `.github/workflows/tests.yml` runs the
+  offline suite (`sh tests/run.sh`) on every pull request and every
+  push to main, with nothing from outside the repository: no actions,
+  packages, or caches. Its token only reads, reaches git through the
+  environment rather than argv or `.git/config`, and never reaches the
+  suite; fork pull requests run unprivileged. `t-ci-workflow.sh` fails
+  the gate if the workflow gains outside code, a privileged trigger, a
+  wider permission, or an expression inside a script.
 
 ### Changed
 
