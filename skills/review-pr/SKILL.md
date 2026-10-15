@@ -148,11 +148,13 @@ PRWF_SETTINGS_END
 
    The project's shared file (`.claude/pr-review-workflow.conf` on the
    base branch) may name a check command and contract prefixes, which
-   run on this machine, so they apply only once approved. For each
-   `settings: trust pending <hash> <key> <value>` group: attended, show
-   the user the exact commands, say they come from the repository's
-   shared settings file, and ask whether to trust them for this
-   repository; on yes run
+   run on this machine, and may raise `review_samples`, which
+   multiplies what the first review costs, so they apply only once
+   approved. For each `settings: trust pending <hash> <key> <value>`
+   group: attended, show the user the exact lines (for a
+   `review_samples` line, that each sample is another full reviewer
+   pass), say they come from the repository's shared settings file, and
+   ask whether to trust them for this repository; on yes run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh <dir> --approve <hash>`
    and resolve again with the block above; on no, carry on without
    them. Unattended, carry on without them; the final report says
