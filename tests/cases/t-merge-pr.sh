@@ -18,7 +18,7 @@ method() {
 	# method <name> [delete_branch_on_merge]
 	printf 'method %s\nreason setting\nallowed merge squash rebase\ndelete_branch_on_merge %s\nhistory merge 0 squash 0 rebase 0 either 0\n' "$1" "${2:-false}" >"$dir/pr-context/merge-method.txt"
 }
-clean='state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n'
+clean='state OPEN\ndraft false\nhead abc123\nmergeable MERGEABLE\nmerge_state CLEAN\n'
 
 # No decided method, nothing happens.
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
@@ -107,7 +107,7 @@ sed -i '/^cross_repo /d' "$dir/meta.txt"
 # A base that moved is a distinct refusal, writing nothing.
 for status in 'mergeable CONFLICTING\nmerge_state DIRTY' 'mergeable MERGEABLE\nmerge_state BEHIND'; do
 	rm -f "$stub"/pr-view.* "$stub/calls.log"
-	printf "state OPEN\ndraft false\n$status\n" >"$stub/pr-view.1"
+	printf "state OPEN\ndraft false\nhead abc123\n$status\n" >"$stub/pr-view.1"
 	rc=0
 	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 	[ "$rc" -eq 5 ]
@@ -125,7 +125,7 @@ for status in 'mergeable CONFLICTING\nmerge_state DIRTY' 'mergeable MERGEABLE\nm
 done
 
 rm -f "$stub"/pr-view.*
-printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state BLOCKED\n' >"$stub/pr-view.1"
+printf 'state OPEN\ndraft false\nhead abc123\nmergeable MERGEABLE\nmerge_state BLOCKED\n' >"$stub/pr-view.1"
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected refusal of a blocked merge state" >&2
 	exit 1
@@ -142,7 +142,7 @@ grep -q "reported success but the pull request is OPEN" "$SCRATCH/err"
 
 export MERGE_PR_SETTLE_SECONDS=0
 rm -f "$stub"/pr-view.*
-printf 'state OPEN\ndraft false\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.1"
+printf 'state OPEN\ndraft false\nhead abc123\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 printf "$clean" >"$stub/pr-view.2"
 : >"$stub/pr-comment"
 printf 'MERGED\n' >"$stub/pr-view.3"
@@ -150,7 +150,7 @@ sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
 
 rm -f "$stub"/pr-view.*
 for n in 1 2 3 4 5; do
-	printf 'state OPEN\ndraft false\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.$n"
+	printf 'state OPEN\ndraft false\nhead abc123\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.$n"
 done
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected failure when mergeability never settles" >&2
@@ -191,6 +191,30 @@ if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
 	echo "an incomplete file list must write nothing to the pull request" >&2
 	exit 1
 fi
+
+# A head the review did not cover never merges, whatever head_sha a
+# resumed init-state took from GitHub: the reviewed head decides, and
+# the merge is pinned to it.
+for meta_head in abc123 def456; do
+	rm -f "$stub"/pr-view.* "$stub/calls.log"
+	sed -i -e '/^reviewed_head /d' -e "s/^head_sha .*/head_sha $meta_head/" "$dir/meta.txt"
+	printf 'reviewed_head abc123\n' >>"$dir/meta.txt"
+	printf 'state OPEN\ndraft false\nhead def456\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.1"
+	rc=0
+	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
+	[ "$rc" -eq 6 ]
+	[ "$out" = "merge-pr: the head is def456, not abc123 that the review covered; review what was pushed since first" ]
+	if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+		echo "an unreviewed head must write nothing to the pull request" >&2
+		exit 1
+	fi
+done
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
+grep -q '^pr merge 7 .* --match-head-commit abc123' "$stub/calls.log"
+sed -i -e '/^reviewed_head /d' -e 's/^head_sha .*/head_sha abc123/' "$dir/meta.txt"
 
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve --checked 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown argument" >&2
