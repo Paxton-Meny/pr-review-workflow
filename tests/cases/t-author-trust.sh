@@ -43,3 +43,43 @@ if sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" 2>/dev/null; then
 	echo "expected failure without meta.txt" >&2
 	exit 1
 fi
+
+# Running the author's code: trusted authors, or an untrusted one the
+# user approved for this pull request, and nobody else.
+trust "$other" read true
+rc=0
+out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --exec) || rc=$?
+[ "$rc" -eq 3 ] && [ "$out" = "author-trust: code does not run, $other read permission" ]
+trust "$other" write true
+out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --exec)
+[ "$out" = "author-trust: code runs, $other write permission" ]
+trust "$other" none true
+[ "$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --approve)" = "author-trust: approved running $other's code for this pull request" ]
+out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --exec)
+[ "$out" = "author-trust: code runs, approved for $other" ]
+# The approval is for running code only: the author stays untrusted to merge.
+rc=0
+out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir") || rc=$?
+[ "$rc" -eq 3 ]
+[ "$out" = "$(printf 'author-trust: untrusted %s none permission\nauthor-trust: you approved running this author'"'"'s code here' "$other")" ]
+# An approval names its author: a different author is not covered.
+sed -i "s/^author .*/author ${other}2/" "$dir/meta.txt"
+rc=0
+sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --exec >/dev/null || rc=$?
+[ "$rc" -eq 3 ]
+rm -f "$dir/exec-approved.txt"
+# With a check command configured, the untrusted line says it will not run.
+data="$SCRATCH/data"
+run="$data/state/${fixture_owner}__widgets__7"
+mkdir -p "$run"
+printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nauthor_permission read\ncross_repo true\n' \
+	"$fixture_owner" "$other" "$fixture_login" >"$run/meta.txt"
+printf 'check_command make check\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$run" >/dev/null
+rc=0
+out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$run") || rc=$?
+[ "$rc" -eq 3 ]
+printf '%s\n' "$out" | grep -qx 'author-trust: the check command and contracts will not run on this code unless you approve it'
+if sh "$REPO_ROOT/scripts/author-trust.sh" "$run" --merge 2>/dev/null; then
+	echo "expected refusal of an unknown argument" >&2
+	exit 1
+fi

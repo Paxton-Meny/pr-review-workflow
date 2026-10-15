@@ -34,7 +34,7 @@ done
 data="$SCRATCH/data"
 dir="$data/state/o__r__1"
 mkdir -p "$dir/pr-context" "$dir/worktree" "$dir/findings"
-printf 'owner o\nrepo r\npr 1\n' >"$dir/meta.txt"
+printf 'owner o\nrepo r\npr 1\nauthor me\nself_login me\n' >"$dir/meta.txt"
 printf 'check_command echo checked > ran.txt\nkeep_ledgers 3\ncontract_commands make t\n' |
 	sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir")" = "run-check: pass" ]

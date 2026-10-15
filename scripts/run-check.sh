@@ -9,7 +9,9 @@
 # baseline passed for this same command: a baseline that failed disarms
 # the gate (exit 0, "gate disarmed"), and a missing baseline, or one
 # taken for a different command, is taken again at the worktree's
-# current commit first. Exit 3 means the check fails.
+# current commit first. Exit 3 means the check fails. The command runs
+# the pull request's code, so it runs only when author-trust.sh --exec
+# allows it; otherwise the check is skipped (exit 0) as if unset.
 set -eu
 
 dir=${1:?usage: run-check.sh <state-dir> [--baseline | --gate] [command]}
@@ -38,6 +40,10 @@ ctx="$dir/pr-context"
 rm -f "$ctx/check-failure.txt"
 if [ -z "$cmd" ]; then
 	echo "run-check: no command configured"
+	exit 0
+fi
+if ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+	echo "run-check: skipped, the pull request's author is not trusted to run code here (author-trust.sh)"
 	exit 0
 fi
 

@@ -18,7 +18,7 @@ sha=$(git -C "$clone" rev-parse HEAD)
 dir="$SCRATCH/state"
 mkdir -p "$dir"
 printf '0\n' >"$dir/round.txt"
-printf 'owner Paxton-Meny\nrepo widgets\npr 7\nhead_branch main\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$sha" "$clone" >"$dir/meta.txt"
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nauthor Paxton-Meny\nself_login Paxton-Meny\nhead_branch main\nhead_sha %s\ncross_repo false\nrepo_root %s\n' "$sha" "$clone" >"$dir/meta.txt"
 git -C "$clone" worktree add --quiet --detach "$dir/worktree" "$sha"
 
 sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'
@@ -102,3 +102,26 @@ renamed
 REC
 out=$(sh "$REPO_ROOT/scripts/prove-suggestions.sh" "$dir")
 [ "$out" = "prove-suggestions: 1 proven, 0 withdrawn" ]
+
+# Another account's fork: the check would run its code, so it does not
+# run, and the fence is proven by applying alone.
+sed -e 's/^author .*/author someone-else/' -e 's/^cross_repo .*/cross_repo true/' "$dir/meta.txt" >"$dir/meta.txt.new"
+mv "$dir/meta.txt.new" "$dir/meta.txt"
+sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'
+=== finding
+category: correctness
+severity: nit
+path: tail.txt
+line: 1
+side: RIGHT
+title: Another rename
+---
+Rename it again.
+Resolution: the file reads again.
+```suggestion
+again
+```
+REC
+out=$(sh "$REPO_ROOT/scripts/prove-suggestions.sh" "$dir" "touch $SCRATCH/ran-untrusted; false")
+[ "$out" = "prove-suggestions: 2 proven, 0 withdrawn, check skipped for an untrusted author" ]
+[ ! -e "$SCRATCH/ran-untrusted" ]

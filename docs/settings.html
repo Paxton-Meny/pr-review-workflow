@@ -401,7 +401,7 @@
 <div><dt>ACCEPTS</dt><dd>a shell command</dd></div>
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">after approval</a></dd></div>
 </dl>
-<p class="lead">The command your project already uses to check itself: its test suite, or tests plus lint. The plugin runs it inside its own copy of the pull request, never in your checkout, and three behaviours depend on it.</p>
+<p class="lead">The command your project already uses to check itself: its test suite, or tests plus lint. The plugin runs it inside its own copy of the pull request, never in your checkout, and three behaviours depend on it. It runs the pull request's code, so on a pull request whose author cannot push to the repository it runs only once you approve that author for that pull request.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">For example, set it to</span>

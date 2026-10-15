@@ -217,6 +217,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   outside its role. `append-note.sh` refuses a note that adds a Check,
   Resolution, or Fix line or a suggestion fence.
 
+- The check command, suggestion proving, and contracts run only on code
+  from an author who can push to the repository. For anyone else
+  `run-check.sh` skips, `prove-suggestions.sh` proves fences by applying
+  alone, `run-contract.sh` judges by reading (`untrusted-author`), and
+  routing stops counting on the gate, until the user approves that
+  author for the pull request (`author-trust.sh --approve`); unattended
+  runs skip the check and say so.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
