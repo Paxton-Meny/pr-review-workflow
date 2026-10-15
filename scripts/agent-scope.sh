@@ -36,7 +36,7 @@ root=${CLAUDE_PLUGIN_ROOT:-$(CDPATH= cd -- "$here/.." && pwd)}
 
 decide() {
 	# decide <reason>: deny the call, saying why on one line
-	reason=$(printf '%s' "$1" | tr '\n\t\r' '   ' | sed 's/\\/\\\\/g; s/"/\\"/g')
+	reason=$(printf '%s' "$1" | tr '\n\t\r' '   ' | tr -d '\000-\037' | sed 's/\\/\\\\/g; s/"/\\"/g')
 	printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}\n' "$reason"
 	exit 0
 }
