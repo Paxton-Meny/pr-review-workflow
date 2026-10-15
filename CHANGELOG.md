@@ -147,6 +147,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   any of `'"*?[]{}()#!`, are now refused as `unsafe-argument` and the
   finding is judged by reading; `./...` package patterns still run.
 
+- Local standards come only from files git does not track.
+  `extract-standards.sh` read any file a configured glob matched, so a
+  committed file, which anyone who can commit could write, was applied
+  as the user's own standards. Tracked files are now skipped with an
+  `extract-standards: skipped <path>: tracked by git` line, as
+  `resolve-settings.sh` already skips a tracked personal file.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

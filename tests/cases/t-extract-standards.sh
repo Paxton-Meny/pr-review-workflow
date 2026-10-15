@@ -66,3 +66,19 @@ if grep -qx 'Rule one.' "$dir/pr-context/standards.txt"; then
 	echo "the current worktree copy must win over the main one" >&2
 	exit 1
 fi
+
+# A file git tracks is the repository's, not the user's: skipped, said
+# once, while an untracked match still reads.
+git -C "$clone" add DEPS_RULES.md
+git -C "$clone" -c user.name=t -c user.email=t@example.invalid commit -qm "Track the rules"
+out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" 'HOUSE_RULES.md' '*_RULES.md')
+[ "$out" = "extract-standards: skipped DEPS_RULES.md: tracked by git
+extract-standards: 1 files, 2 lines" ]
+if grep -q 'Pin everything.' "$dir/pr-context/standards.txt"; then
+	echo "a tracked file must be skipped" >&2
+	exit 1
+fi
+out=$(sh "$REPO_ROOT/scripts/extract-standards.sh" "$dir" 'DEPS_RULES.md')
+[ "$out" = "extract-standards: skipped DEPS_RULES.md: tracked by git
+extract-standards: no files matched" ]
+[ ! -f "$dir/pr-context/standards.txt" ]

@@ -516,7 +516,7 @@
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
 <p class="lead">Some projects keep their rules in files that are not committed: a standards document, a team checklist. Name those files here and every review applies them. Their substance shapes the findings; their file names and wording never appear on the pull request.</p>
-<p class="sub">A pattern is a path relative to your clone. A <code>*</code> stands for any run of characters in a file name, so <code>docs/rules/*.md</code> matches every Markdown file in that folder.</p>
+<p class="sub">A pattern is a path relative to your clone. A <code>*</code> stands for any run of characters in a file name, so <code>docs/rules/*.md</code> matches every Markdown file in that folder. A matching file that git tracks is skipped and the review says so: committed files belong to whoever can commit, not to you.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">For example, set it to</span>
