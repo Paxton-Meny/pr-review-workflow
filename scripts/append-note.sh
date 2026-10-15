@@ -20,6 +20,12 @@ if printf '%s\n' "$note" | grep -qx -e '=== finding'; then
 	echo "append-note: a note may not contain the record separator" >&2
 	exit 1
 fi
+# A note records what happened; the contract lines are the reviewer's.
+# One that added a Check line would choose what run-contract executes.
+if printf '%s\n' "$note" | grep -Eq '^(Check|Resolution|Fix): |^```suggestion$'; then
+	echo "append-note: a note may not add a Check, Resolution, or Fix line or a suggestion fence" >&2
+	exit 1
+fi
 
 tmp=$(mktemp "$dir/findings/.$id.XXXXXX")
 {
