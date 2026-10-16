@@ -134,3 +134,57 @@ out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
 	exit 1
 }
 grep -q "Filtered away" "$stub/bodies.log"
+
+# A fence posts only once prove-suggestions proved it at the head the
+# comment anchors to; otherwise nothing is posted or changed.
+sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<'REC'
+=== finding
+category: correctness
+severity: nit
+path: src/app.py
+line: 2
+side: RIGHT
+title: Fenced inline
+---
+Evidence.
+Resolution: line two reads fixed.
+```suggestion
+fixed
+```
+=== finding
+category: correctness
+severity: nit
+path: docs/other.md
+line: 1
+side: RIGHT
+title: Fenced summary
+---
+Evidence.
+Resolution: line one reads fixed.
+```suggestion
+fixed
+```
+REC
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F007 placement=summary >/dev/null
+rm -f "$stub/calls.log"
+cp -r "$dir/findings" "$SCRATCH/before"
+refused() {
+	rc=0
+	out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir") || rc=$?
+	[ "$rc" -eq 4 ] && [ "$out" = "$(printf 'post-review: suggestion fences not proven at the head, run prove-suggestions.sh first\n%s' "$1")" ] || {
+		echo "expected an unproven refusal naming $1, got $rc: $out" >&2
+		exit 1
+	}
+	[ ! -f "$stub/calls.log" ]
+	[ "$(cat "$dir/round.txt")" = 3 ]
+}
+refused "$(printf 'unproven F006\nunproven F007')"
+diff -r "$SCRATCH/before" "$dir/findings"
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F006 proven=abc123 >/dev/null
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F007 proven=0ld >/dev/null
+refused 'unproven F007'
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F007 proven=abc123 >/dev/null
+printf '9003\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments.3"
+out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
+[ "$out" = "post-review: 1 posted inline, 0 in the summary, round 4" ]
+grep -qx 'placement: inline' "$dir/findings/F006"

@@ -70,6 +70,11 @@ if grep -q '^```suggestion$' "$dir/findings/F002"; then
 	echo "left-side suggestion must be withdrawn" >&2
 	exit 1
 fi
+grep -qx "proven: $sha" "$dir/findings/F001"
+if grep -q '^proven: ' "$dir/findings/F002"; then
+	echo "a withdrawn fence is not marked proven" >&2
+	exit 1
+fi
 grep -q 'cannot replace deleted lines' "$dir/findings/F002"
 grep -q 'does not exist at the pull request head' "$dir/findings/F003"
 grep -qx 'alpha' "$dir/worktree/file.txt"
@@ -102,6 +107,7 @@ renamed
 REC
 out=$(sh "$REPO_ROOT/scripts/prove-suggestions.sh" "$dir")
 [ "$out" = "prove-suggestions: 1 proven, 0 withdrawn" ]
+grep -qx "proven: $tail_sha" "$dir/findings/F004"
 
 # Another account's fork: the check would run its code, so it does not
 # run, and the fence is proven by applying alone.

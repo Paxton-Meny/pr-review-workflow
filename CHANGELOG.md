@@ -86,6 +86,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   baseline clears. After a base sync that pushed, the run takes the
   check gate again. `update-finding.sh` changes header lines only, so a
   body line that looks like a header field is never rewritten.
+- A suggestion fence posts only once it is proven. `prove-suggestions.sh`
+  marks each record whose fence applied and passed the check with
+  `proven: <head sha>`, and `post-review.sh` refuses with exit 4, posting
+  and changing nothing, while a record it would post, inline or in the
+  round's summary, carries a fence not proven at the head the comments
+  anchor to; one `unproven <id>` line names each.
 - `merge-pr.sh` merges by the decided method instead of always by
   rebase, names the head the run last saw so an unseen push refuses the
   merge, and deletes the head branch only when the repository does not
