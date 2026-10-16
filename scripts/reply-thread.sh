@@ -23,7 +23,8 @@ pr=$(sed -n 's/^pr //p' "$dir/meta.txt")
 tmp=$(mktemp "$dir/.reply.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
 cat >"$tmp"
-masked=$(sh "$(dirname -- "$0")/redact.sh" "$tmp" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
+out=$(sh "$(dirname -- "$0")/redact.sh" "$tmp")
+masked=$(printf '%s\n' "$out" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
 reply_id=$(gh api "repos/$owner/$repo/pulls/$pr/comments/$comment_id/replies" \
 	-F body=@"$tmp" --jq .id)
 tail=''

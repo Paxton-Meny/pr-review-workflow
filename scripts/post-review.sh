@@ -27,7 +27,8 @@ unposted() { [ "$(field "$1" status)" = "open" ] && [ -z "$(field "$1" placement
 masked=0
 redact() {
 	# redact <file>: mask credentials in place, counting them
-	n=$(sh "$here/redact.sh" "$1" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
+	out=$(sh "$here/redact.sh" "$1")
+	n=$(printf '%s\n' "$out" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
 	masked=$((masked + ${n:-0}))
 }
 
