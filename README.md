@@ -348,7 +348,7 @@ beyond the hunks under `near`.
 
 - Reasoning effort is routed beside the model, independent of your
   session's level. Each agent starts at its definition's level (the
-  reviewer high, the editor and the verifier medium, the filter low;
+  reviewer high, the editor and the verifier medium, the filter and the comparer low;
   arbitration runs the verifier at high) and moves one level per
   signal: up for a wide search (large or coupled code unless a stronger
   model takes it, a shard on a seam, a gap pass over seams) or high
