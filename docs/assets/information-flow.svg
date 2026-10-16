@@ -47,9 +47,9 @@
 <rect class="sq" x="246" y="277" width="9" height="9" rx="2.5" fill="var(--coral)"/><text class="mono nm" x="264" y="286">findings/</text><text x="364" y="286">F001 to F005: Fix, Resolution, notes</text>
 <rect class="sq" x="246" y="307" width="9" height="9" rx="2.5" fill="var(--rule)"/><text class="mono nm" x="264" y="316">rounds.txt</text><text x="364" y="316">the round budget, so a resume cannot reset it</text>
 <rect class="sq" x="246" y="337" width="9" height="9" rx="2.5" fill="var(--accent)"/><text class="mono nm" x="264" y="346">worktree/</text><text x="364" y="346">the PR head, detached, where edits happen</text>
-<g filter="url(#nfsh)"><rect class="cg" x="24" y="204" width="166" height="92" rx="9"/></g><text class="h hg2" x="38" y="237.5">GitHub</text><text class="sg" x="38" y="254.5">diff, threads, checks, and</text><text class="sg" x="38" y="269.5">nearby pull requests, via gh</text>
+<g filter="url(#nfsh)"><rect class="cg" x="24" y="204" width="166" height="92" rx="9"/></g><text class="h hg2" x="38" y="237.5">GitHub</text><text class="sg" x="38" y="254.5">diff, threads, checks,</text><text class="sg" x="38" y="269.5">and open PRs, via gh</text>
 <path class="ar" d="M193 250H225" marker-end="url(#nfa)"/>
-<g filter="url(#nfsh)"><rect class="c" x="670" y="204" width="166" height="92" rx="9"/></g><text class="h" x="684" y="237.5">Your clone</text><text class="" x="684" y="254.5">worktree, rules, the base as</text><text class="" x="684" y="269.5">it moves; checkout untouched</text>
+<g filter="url(#nfsh)"><rect class="c" x="670" y="204" width="166" height="92" rx="9"/></g><text class="h" x="684" y="237.5">Your clone</text><text class="" x="684" y="254.5">worktree, rules, live base</text><text class="" x="684" y="269.5">your checkout untouched</text>
 <path class="ar" d="M667 250H635" marker-end="url(#nfa)"/>
 <path class="ar" d="M430 366V390"/><path class="ar" d="M215.5 390H644.5"/>
 <path class="ar" d="M215.5 390V411" marker-end="url(#nfa)"/>
