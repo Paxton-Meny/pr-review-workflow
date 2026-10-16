@@ -3,6 +3,9 @@
 # Usage: sh scripts/post-review.sh <state-dir>
 # Every body passes through redact.sh first; the result line counts
 # what it masked when anything was.
+# Exit 4: refused, posting and changing nothing, because a record about
+# to be posted carries a suggestion fence prove-suggestions.sh has not
+# proven at the head the comments anchor to ("unproven <id>" lines).
 set -eu
 
 dir=${1:?usage: post-review.sh <state-dir>}
@@ -31,6 +34,25 @@ redact() {
 	n=$(printf '%s\n' "$out" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
 	masked=$((masked + ${n:-0}))
 }
+# Every fence this run would post, inline or in this round's summary,
+# must have been proven at the head first.
+unproven=''
+for record in "$dir/findings"/F*; do
+	[ -f "$record" ] && [ "$(field "$record" status)" = open ] || continue
+	case "$(field "$record" placement)" in
+	'') ;;
+	summary) [ "$(field "$record" round)" = "$round" ] || continue ;;
+	*) continue ;;
+	esac
+	grep -q '^```suggestion$' "$record" || continue
+	[ "$(sed '/^---$/q' "$record" | sed -n 's/^proven: //p')" = "$head_sha" ] ||
+		unproven="$unproven
+unproven $(field "$record" id)"
+done
+if [ -n "$unproven" ]; then
+	echo "post-review: suggestion fences not proven at the head, run prove-suggestions.sh first$unproven"
+	exit 4
+fi
 
 demoted=0
 for record in "$dir/findings"/F*; do

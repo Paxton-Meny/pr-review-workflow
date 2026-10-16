@@ -2,7 +2,7 @@
 # Update header fields of one finding record, enforcing status transitions.
 # Usage: sh scripts/update-finding.sh <state-dir> <id> <field>=<value>...
 # Only header lines change, never the body; a field the record does not
-# carry yet (accepted) is added at the end of the header.
+# carry yet (accepted, proven) is added at the end of the header.
 set -eu
 
 dir=${1:?usage: update-finding.sh <state-dir> <id> <field>=<value>...}
@@ -40,7 +40,7 @@ for arg in "$@"; do
 		esac
 		new_status=$value
 		;;
-	comment_id | commit)
+	comment_id | commit | proven)
 		case "$value" in
 		*[!A-Za-z0-9]*)
 			echo "update-finding: $field must be alphanumeric: $value" >&2

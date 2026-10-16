@@ -5,6 +5,8 @@
 # command runs the pull request's code, so it runs only when
 # author-trust.sh --exec allows it; otherwise a fence is proven by
 # applying alone, as without a command.
+# A proven fence's record gains "proven: <head sha>", the commit it was
+# proven at; post-review.sh posts no fence without it.
 set -eu
 
 dir=${1:?usage: prove-suggestions.sh <state-dir> [check-command]}
@@ -105,6 +107,7 @@ for record in "$dir/findings"/F*; do
 	git -C "$scratch" checkout --quiet -- "$path"
 
 	if [ "$ok" -eq 1 ]; then
+		sh "$(dirname "$0")/update-finding.sh" "$dir" "$id" "proven=$head_sha" >/dev/null
 		proven=$((proven + 1))
 	else
 		withdraw "$record" "the check command failed with it applied"
