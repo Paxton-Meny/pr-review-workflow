@@ -826,7 +826,7 @@ compare)
 			[ -n "$(printf '%s\n' "$paths" | sh "$(dirname "$0")/match-paths.sh" "$dir" "$key")" ] && stakes=1
 		done
 	fi
-	if [ "$stakes" -eq 1 ]; then
+	if [ "$stakes" -eq 1 ] && [ "$routing" != fixed ]; then
 		emit "$label" base "$reviewer" "$(moved "$comparer_effort" 1)" stakes-file
 	else
 		emit "$label" base "$verifier" "$(moved "$comparer_effort" 0)" role-model

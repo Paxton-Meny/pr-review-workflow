@@ -435,7 +435,7 @@ probes ''
 printf 'sensitive\tsrc/app.py\n' >"$ctx/probe-files.txt"
 [ "$(route compare $ARGS overlap=judged -- base)" = "route compare base rung base model inherit effort medium reason stakes-file" ]
 [ "$(route compare routing=auto reviewer=opus overlap=judged -- base)" = "route compare base rung base model opus effort medium reason stakes-file" ]
-[ "$(route compare routing=fixed reviewer=opus overlap=judged -- base)" = "route compare base rung base model opus effort low reason stakes-file" ]
+[ "$(route compare routing=fixed reviewer=opus overlap=judged -- base)" = "route compare base rung base model sonnet effort low reason role-model" ]
 : >"$ctx/probe-files.txt"
 awk 'BEGIN { for (i = 1; i <= 401; i++) print "+line " i }' >"$bundle/theirs.diff"
 [ "$(route compare $ARGS overlap=judged -- base)" = "route compare all skip reason too-large" ]
