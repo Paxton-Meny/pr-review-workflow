@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1096" width="860" role="img" aria-labelledby="pmt pmd" class="pm">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1124" width="860" role="img" aria-labelledby="pmt pmd" class="pm">
 <title id="pmt">Phase 6, Merge: four doors, then the merge and the bookkeeping</title>
 <desc id="pmd">The merge method is refreshed: the setting, else the one method the repository allows, else the one its recent merged pull requests used, and mixed evidence asks you. Auto-approve merges on its own; attended, you are asked to merge or hold; unattended with auto-approve off, a converged status comment is posted and nothing merges. merge-pr then passes four doors in order and writes nothing when one refuses: the pull request must be open and not a draft; mergeable, or exit 5 sends the run back to base sync; free of migration files, or exit 4 hands you four checks to confirm; and clear of commits landed beside the reviewed hunks, or exit 6 shows the drift lines and any verdict for you to decide, an independent verdict on that same base merging on its own. The merge runs by the decided method with the head matched, the branch is deleted or kept with the reason, and the run records its statistics, drops the worktree, sweeps closed runs, and reports with its criteria signals.</desc>
 <style>
-.pm{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
-@media (prefers-color-scheme:dark){.pm{--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;--shade:.35}}
+.pm{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pm{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
 .pm text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
 .pm .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 .pm .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
@@ -56,6 +56,11 @@
 .pm .c1{font-weight:700;fill:var(--ink)}.pm .c2{fill:var(--muted)}
 .pm .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pm .tok-halo{fill:var(--clay);opacity:.18}
 .pm .cardg>rect{stroke-width:1}
+.pm .canvas{fill:var(--canvas)}
+.pm .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.pm .rtag text{fill:var(--accent);font-weight:700}
+.pm .ctx-rule{stroke:var(--accent-line);stroke-width:1}.pm .io-rule{stroke:var(--line);stroke-width:1}
+.pm .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.pm .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.pm .ctx-t{fill:var(--accent-ink)}.pm .io-t{fill:var(--muted)}
 .pm .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
 .pm .rung{stroke-width:4.5;stroke-linecap:round}.pm .rung-s{stroke:var(--accent)}.pm .rung-b{stroke:var(--wire)}.pm .rung-c{stroke:var(--teal)}
 .pm .seg{fill:var(--card);stroke:var(--line)}.pm .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
@@ -63,6 +68,9 @@
 .pm .sheet{fill:var(--card);stroke:var(--line)}.pm .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
 .pm .rv{fill:var(--ink)}.pm .rb{fill:var(--muted)}.pm .kk{fill:var(--faint)}
 .pm .kf{fill:var(--accent);font-weight:700}.pm .kr{fill:var(--coral);font-weight:700}.pm .kc{fill:var(--teal);font-weight:700}
+.pm .fz{fill:var(--accent-ink)}.pm .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.pm .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.pm .fz-t{fill:var(--accent);font-weight:700}.pm .pr-rule{stroke:var(--teal-line);stroke-width:1}
 .pm .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
 .pm .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pm .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
 .pm .mk-proven{fill:var(--teal)}.pm .mk-withdrawn{fill:var(--coral)}
@@ -139,6 +147,7 @@
 @media (prefers-reduced-motion:reduce){.pm *{animation:none!important}.pm .tok{display:none}.pm .tl,.pm .lf,.pm .ex0,.pm .ex1,.pm .ex2,.pm .ex3,.pm .ex4,.pm .ex5,.pm .ex6,.pm .ex7,.pm .ex8,.pm .ex9,.pm .ex10,.pm .ex11,.pm .ex12{opacity:1}}
 </style>
 <defs><filter id="pm-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pm-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="1124" rx="16"/>
 <rect class="gate" x="226" y="498" width="284" height="296" rx="12"/>
 <text class="mono k" x="240" y="516">merge-pr</text>
 <text class="fine" x="496" y="516" text-anchor="end" style="font-size:10.5px">four doors, in order</text>
@@ -156,6 +165,7 @@
 <path class="w wd" d="M496 755 L529.5 755" marker-end="url(#pm-ad)"/>
 <path class="w" d="M368 780 L368 809" marker-end="url(#pm-a)"/>
 <path class="w wo" d="M496 838 L529.5 838" marker-end="url(#pm-ao)"/>
+<path class="w wl" d="M212 755 L239 755" stroke-dasharray="4 4" marker-end="url(#pm-al)"/>
 <path class="w" d="M368 866L368 884Q368 894 358 894L130.2 894Q121.8 894 121.8 902.5L121.8 911" marker-end="url(#pm-a)"/>
 <path class="w" d="M215.5 940 L232.5 940" marker-end="url(#pm-a)"/>
 <path class="w" d="M421 940 L438 940" marker-end="url(#pm-a)"/>
@@ -227,38 +237,36 @@
 <text class="h hd" x="271" y="831" style="font-size:12.5px">Merged</text>
 <text class="s sd" x="252" y="850">by the method, the head matched</text>
 </g>
-<rect class="panel" x="28" y="300" width="180" height="96" rx="10"/>
+<rect class="panel" x="28" y="300" width="184" height="117.5" rx="10"/>
 <text class="k" x="42" y="321" style="font-size:9.5px;letter-spacing:1.4px">NEVER ON ITS OWN</text>
-<circle class="dot" cx="45" cy="336.5" r="1.6"/>
+<circle class="dot" cx="45" cy="336.2" r="2"/>
 <text class="s" x="53" y="340">--migrations-checked and</text>
-<circle class="dot" cx="45" cy="351.5" r="1.6"/>
-<text class="s" x="53" y="355">--overlap-checked follow</text>
-<circle class="dot" cx="45" cy="366.5" r="1.6"/>
-<text class="s" x="53" y="370">your answer in this run,</text>
-<circle class="dot" cx="45" cy="381.5" r="1.6"/>
-<text class="s" x="53" y="385">never a verdict alone</text>
-<rect class="panel" x="28" y="594" width="180" height="126" rx="10"/>
-<text class="k" x="42" y="615" style="font-size:9.5px;letter-spacing:1.4px">WHAT YOU CONFIRM</text>
-<circle class="dot" cx="45" cy="630.5" r="1.6"/>
-<text class="s" x="53" y="634">no newer migrations on</text>
-<circle class="dot" cx="45" cy="645.5" r="1.6"/>
-<text class="s" x="53" y="649">the base, none in other</text>
-<circle class="dot" cx="45" cy="660.5" r="1.6"/>
-<text class="s" x="53" y="664">open PRs, running code</text>
-<circle class="dot" cx="45" cy="675.5" r="1.6"/>
-<text class="s" x="53" y="679">still works, nothing</text>
-<circle class="dot" cx="45" cy="690.5" r="1.6"/>
-<text class="s" x="53" y="694">shipped was edited;</text>
-<circle class="dot" cx="45" cy="705.5" r="1.6"/>
-<text class="s" x="53" y="709">overlap: the drift lines</text>
-<rect class="panel" x="28" y="772" width="180" height="81" rx="10"/>
-<text class="k" x="42" y="793" style="font-size:9.5px;letter-spacing:1.4px">THE BRANCH STAYS</text>
-<circle class="dot" cx="45" cy="808.5" r="1.6"/>
-<text class="s" x="53" y="812">when it is a fork’s,</text>
-<circle class="dot" cx="45" cy="823.5" r="1.6"/>
-<text class="s" x="53" y="827">the repo deletes it,</text>
-<circle class="dot" cx="45" cy="838.5" r="1.6"/>
-<text class="s" x="53" y="842">or a PR bases on it</text>
+<text class="s" x="53" y="354.5">--overlap-checked follow your</text>
+<text class="s" x="53" y="369">answer in this run.</text>
+<circle class="dot" cx="45" cy="384.7" r="2"/>
+<text class="s" x="53" y="388.5">A verdict alone never adds</text>
+<text class="s" x="53" y="403">them.</text>
+<rect class="panel" x="28" y="433.5" width="184" height="151.5" rx="10"/>
+<text class="k" x="42" y="454.5" style="font-size:9.5px;letter-spacing:1.4px">WHAT YOU CONFIRM</text>
+<circle class="dot" cx="45" cy="469.7" r="2"/>
+<text class="s" x="53" y="473.5">No newer migrations on the</text>
+<text class="s" x="53" y="488">base, and none in other open</text>
+<text class="s" x="53" y="502.5">PRs.</text>
+<circle class="dot" cx="45" cy="518.2" r="2"/>
+<text class="s" x="53" y="522">Running code still works, and</text>
+<text class="s" x="53" y="536.5">nothing shipped was edited.</text>
+<circle class="dot" cx="45" cy="552.2" r="2"/>
+<text class="s" x="53" y="556">For an overlap: the drift lines</text>
+<text class="s" x="53" y="570.5">and any verdict.</text>
+<g class="cardg st5"><rect class="cm" x="28" y="718" width="184" height="88" rx="9"/>
+<path class="ico-m" d="M46 729c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="59" y="739" style="font-size:12.5px">Comparer</text>
+<text class="s sm" x="40" y="758">reads the drift beside</text>
+<text class="s sm" x="40" y="773">the hunks; one verdict</text>
+<path class="ctx-rule" d="M29 784H211"/>
+<path class="ctx-i" d="M40 790h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="56" y="798.5" style="font-size:9.5px">both sets of hunks</text>
+</g>
 <g class="cardg st7"><rect class="c" x="28" y="912" width="187.5" height="56" rx="9"/>
 <path class="ico" d="M40 924l4 3.6l-4 3.6M46 932h5.5"/>
 <text class="h mono" x="59" y="933" style="font-size:12px">run-stats</text>
@@ -332,22 +340,27 @@
 <circle class="bg-ok" cx="540" cy="838" r="9.5"/>
 <g class="bg-ok-m"><path class="bm-s" d="M536 838l2.8 2.8l5 -5.6"/></g>
 <text class="c1" x="556" y="842">the branch: deleted, or kept</text>
-<text class="c2" x="556" y="856" style="font-size:10.5px">the line says which, and why</text>
+<text class="c2" x="556" y="856" style="font-size:10.5px">kept for a fork or a stack; the line says why</text>
 </g>
+<g class="rtag"><rect x="126.4" y="710" width="73.6" height="16" rx="8"/><text class="mono" x="133.4" y="721.3" style="font-size:9px">cheap · low</text></g>
 <rect class="c" x="28" y="1071" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="1080" style="font-size:10px">script, no model</text>
-<rect class="cm" x="142.6" y="1071" width="16" height="12" rx="3"/>
-<text class="fine" x="164.6" y="1080" style="font-size:10px">model agent</text>
-<circle class="bg-ok" cx="248.6" cy="1077" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M245.7 1077l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="261.6" y="1080" style="font-size:10px">carries on</text>
-<circle class="bg-note" cx="334.5" cy="1077" r="7"/>
-<g class="bg-note-m"><path class="bm-s" d="M337.5 1075.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M335.7 1075.1l2.5 -1.2l0.1 2.7z"/></g>
-<text class="fine" x="347.5" y="1080" style="font-size:10px">a fallback, the run goes on</text>
-<circle class="bg-ask" cx="493.8" cy="1077" r="7"/>
-<g class="bg-ask-m"><circle class="bm-f" cx="493.8" cy="1075.2" r="1.7"/><path class="bm-f" d="M490.6 1080.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
-<text class="fine" x="506.8" y="1080" style="font-size:10px">a person decides</text>
-<circle class="bg-stop" cx="612" cy="1077" r="7"/>
-<text class="bm mono bg-stop-t" x="612" y="1079.7" text-anchor="middle" style="font-size:7.7px">5</text>
-<text class="fine" x="625" y="1080" style="font-size:10px">stops or parks; the number is the exit code</text>
+<text class="fine" x="50" y="1080" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="1071" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="1080" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="1069" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="1080.3" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="1080" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 1091h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="1100" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="1097" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 1097l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="1100" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="252.3" cy="1097" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M255.2 1095.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M253.5 1095.1l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="265.3" y="1100" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-ask" cx="411.6" cy="1097" r="7"/>
+<g class="bg-ask-m"><circle class="bm-f" cx="411.6" cy="1095.2" r="1.7"/><path class="bm-f" d="M408.3 1100.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
+<text class="fine" x="424.6" y="1100" style="font-size:10px">a person decides</text>
+<circle class="bg-stop" cx="529.7" cy="1097" r="7"/>
+<text class="bm mono bg-stop-t" x="529.7" y="1099.7" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="542.7" y="1100" style="font-size:10px">stops or parks; a number is the exit code</text>
 </svg>
