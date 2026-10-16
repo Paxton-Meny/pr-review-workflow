@@ -61,3 +61,25 @@ if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 placement=everywhere 2>
 	exit 1
 fi
 grep -q "placement must be inline or summary" "$SCRATCH/err"
+
+# Acceptance is a header field only a wont-fix record takes; a field the
+# record lacks is added to the header, and the body is never rewritten.
+printf '=== finding\ncategory: correctness\nseverity: major\npath: c.c\nline: 5\nside: RIGHT\ntitle: Third\n---\nplacement: quoted in the body\nFix: done.\nResolution: done.\n' \
+	| sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null
+if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F003 accepted=yes 2>"$SCRATCH/err"; then
+	echo "expected refusal to accept an open finding" >&2
+	exit 1
+fi
+grep -q "only a wont-fix finding can be accepted, F003 is open" "$SCRATCH/err"
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F003 status=wont-fix placement=summary >/dev/null
+if sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F003 accepted=maybe 2>"$SCRATCH/err"; then
+	echo "expected refusal of an acceptance other than yes" >&2
+	exit 1
+fi
+grep -q "accepted must be yes" "$SCRATCH/err"
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F003 accepted=yes >/dev/null
+[ "$(sed '/^---$/q' "$dir/findings/F003" | tail -n 2 | head -n 1)" = 'accepted: yes' ]
+grep -qx 'placement: summary' "$dir/findings/F003"
+grep -qx 'placement: quoted in the body' "$dir/findings/F003"
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F003 accepted=yes >/dev/null
+[ "$(grep -c '^accepted: ' "$dir/findings/F003")" -eq 1 ]

@@ -1,6 +1,8 @@
 #!/bin/sh
 # Update header fields of one finding record, enforcing status transitions.
 # Usage: sh scripts/update-finding.sh <state-dir> <id> <field>=<value>...
+# Only header lines change, never the body; a field the record does not
+# carry yet (accepted) is added at the end of the header.
 set -eu
 
 dir=${1:?usage: update-finding.sh <state-dir> <id> <field>=<value>...}
@@ -60,6 +62,18 @@ for arg in "$@"; do
 			;;
 		esac
 		;;
+	accepted)
+		# A person accepted the wont-fix reasoning; merge-pr.sh merges
+		# over no wont-fix record without it.
+		[ "$value" = yes ] || {
+			echo "update-finding: accepted must be yes: $value" >&2
+			exit 1
+		}
+		[ "$current" = wont-fix ] || {
+			echo "update-finding: only a wont-fix finding can be accepted, $id is $current" >&2
+			exit 1
+		}
+		;;
 	*)
 		echo "update-finding: unknown field: $field" >&2
 		exit 1
@@ -68,15 +82,30 @@ for arg in "$@"; do
 done
 
 tmp=$(mktemp "$dir/findings/.$id.XXXXXX")
-trap 'rm -f "$tmp"' EXIT
-cp "$record" "$tmp"
+trap 'rm -f "$tmp" "$tmp.u"' EXIT
 for arg in "$@"; do
-	field=${arg%%=*}
-	value=$(printf '%s' "${arg#*=}" | tr -d '\n')
-	# The header only: a body line that looks like a field stays as written.
-	sed "1,/^---\$/s|^$field:.*|$field: $value|" "$tmp" >"$tmp.2"
-	mv "$tmp.2" "$tmp"
-done
+	printf '%s\t%s\n' "${arg%%=*}" "$(printf '%s' "${arg#*=}" | tr -d '\n')"
+done >"$tmp.u"
+awk -v updates="$tmp.u" '
+BEGIN {
+	while ((getline u < updates) > 0) {
+		k = substr(u, 1, index(u, "\t") - 1)
+		if (!(k in val)) order[++n] = k
+		val[k] = substr(u, index(u, "\t") + 1)
+	}
+	head = 1
+}
+head && /^---$/ {
+	for (i = 1; i <= n; i++) if (!(order[i] in seen)) print order[i] ": " val[order[i]]
+	head = 0
+}
+head && match($0, /^[a-z_]+:/) {
+	k = substr($0, 1, RLENGTH - 1)
+	if (k in val) { print k ": " val[k]; seen[k] = 1; next }
+}
+{ print }
+' "$record" >"$tmp"
+rm -f "$tmp.u"
 if [ "$reopen" -eq 1 ]; then
 	count=$(sed -n '/^---$/q; s/^reopens: //p' "$tmp")
 	sed "1,/^---\$/s|^reopens:.*|reopens: $((count + 1))|" "$tmp" >"$tmp.2"
