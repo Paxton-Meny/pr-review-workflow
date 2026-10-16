@@ -324,6 +324,21 @@ if grep -q '^pr merge' "$stub/calls.log"; then
 fi
 git -C "$clone" fetch --quiet origin "+refs/heads/main:refs/remotes/origin/main"
 
+# An independent verdict carries nothing when the base could only be read
+# from an earlier fetch: the ref is kept but the fetch fails.
+printf 'verdict base independent: unrelated.\n' | sh "$REPO_ROOT/scripts/save-verdict.sh" "$dir" base >/dev/null
+mv "$remote" "$remote.gone"
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+mv "$remote.gone" "$remote"
+[ "$rc" -eq 6 ]
+if grep -q '^pr merge' "$stub/calls.log"; then
+	echo "a base read from an earlier fetch must not be waved through by a verdict" >&2
+	exit 1
+fi
+
 # Migrations are asked about before drift.
 rm -f "$stub"/pr-view.* "$stub/calls.log"
 printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 2\nfile src/app.py\nfile db/migrate/001_x.rb\n' >"$stub/pr-view.1"

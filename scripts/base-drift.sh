@@ -8,7 +8,8 @@
 # Those that this pull request also changes (lockfiles and generated
 # output aside) are compared hunk by hunk in the merge base's own
 # coordinates, which both diffs share, so an intersection is exact.
-# Writes pr-context/drift.txt (facts, per-file lines, level), and when
+# Writes pr-context/drift.txt (facts, per-file lines, level; a base read
+# from an earlier fetch records nothing), and when
 # any hunk is near or same, pr-context/overlap/base/ with ours.diff
 # (the annotated per-file diffs), theirs.diff (the landed diff for the
 # shared files), and summary.txt, for a person or the comparer to read.
@@ -95,14 +96,11 @@ finish() {
 	[ "$aside" -eq 0 ] || aside_note=", $aside docs or config set aside"
 	summary="base-drift: $landed commits landed, $2 files shared${aside_note}, level $1$approx$freshness"
 	# A base read from an earlier fetch cannot show whether it moved, so
-	# a quiet level there is refused without recording a drift.
+	# no level there is recorded as a drift and no verdict can carry it.
 	if [ -n "$freshness" ]; then
-		case "$1" in
-		none | disjoint)
-			echo "$summary"
-			exit 5
-			;;
-		esac
+		echo "$summary"
+		[ -z "${3:-}" ] || printf '%s\n' "$3"
+		exit 5
 	fi
 	mv "$out" "$ctx/drift.txt"
 	echo "$summary"
