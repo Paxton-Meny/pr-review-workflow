@@ -170,7 +170,6 @@ under() {
 in_worktree() {
 	# in_worktree <resolved path>: inside a review worktree
 	case "$1" in
-	"$data"/wt/?*) return 0 ;;
 	"$data"/state/*/worktree/*)
 		rest=${1#"$data"/state/}
 		case "${rest#*/}" in worktree/*) return 0 ;; esac
