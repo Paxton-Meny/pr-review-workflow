@@ -64,12 +64,14 @@ setup current behind rebase update
 printf 'mergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view"
 [ "$(sync)" = "sync-branch: current" ]
 [ "$(origin_feat)" = "$head" ]
+[ "$(tail -n 1 "$dir/steps.txt")" = "sync current $head" ]
 setup off conflict rebase off
 printf 'mergeable CONFLICTING\nmerge_state DIRTY\n' >"$stub/pr-view"
 rc=0
 out=$(sync) || rc=$?
 [ "$rc" -eq 4 ]
 [ "$out" = "sync-branch: off, pull request is CONFLICTING, a person decides" ]
+[ "$(tail -n 1 "$dir/steps.txt")" = "sync stuck $head" ]
 [ "$(origin_feat)" = "$head" ]
 [ "$(git -C "$wt" rev-parse HEAD)" = "$head" ]
 [ ! -f "$dir/sync.txt" ]
@@ -87,8 +89,10 @@ grep -qx "head_sha $new" "$dir/meta.txt"
 grep -qx "prev_head $head" "$dir/meta.txt"
 [ ! -s "$dir/pr-context/sync-changed.txt" ]
 grep -qx "update rebase $head $new" "$dir/sync.txt"
+[ "$(tail -n 2 "$dir/steps.txt")" = "$(printf 'push %s\nsync update %s' "$new" "$new")" ]
 printf 'mergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view"
 [ "$(sync)" = "sync-branch: current" ]
+[ "$(tail -n 1 "$dir/steps.txt")" = "sync current $new" ]
 [ "$(grep -c '^update ' "$dir/sync.txt")" -eq 1 ]
 
 # The base editing another region of a file the branch changed leaves
@@ -130,6 +134,7 @@ out=$(sync) || rc=$?
 [ "$(origin_feat)" = "$head" ]
 grep -qx 'conflicts 1 files' "$dir/sync.txt"
 [ ! -f "$dir/pr-context/conflicts.txt" ]
+[ "$(tail -n 1 "$dir/steps.txt")" = "sync conflicts $head" ]
 
 # Under resolve the worktree holds the rebase for the editor; continue
 # refuses markers, then finishes, pushes with the lease, and names the
@@ -225,6 +230,7 @@ setup abort conflict rebase resolve
 printf 'mergeable CONFLICTING\nmerge_state DIRTY\n' >"$stub/pr-view"
 sync >/dev/null || true
 [ "$(sync --abort)" = "sync-branch: aborted, the worktree is back at $head" ]
+[ "$(tail -n 1 "$dir/steps.txt")" = "sync abort" ]
 [ -z "$(git -C "$wt" status --porcelain)" ]
 [ ! -f "$dir/pr-context/conflicts.txt" ]
 [ "$(sync --abort)" = "sync-branch: nothing to abort" ]

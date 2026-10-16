@@ -14,6 +14,8 @@ sh "$REPO_ROOT/scripts/round-counter.sh" "$dir" next 3 2>"$SCRATCH/err" || rc=$?
 [ "$rc" -eq 3 ]
 grep -q "round cap of 3 reached" "$SCRATCH/err"
 grep -qx '3' "$dir/rounds.txt"
+# Each round and the cap are journaled for next-step.sh.
+[ "$(cat "$dir/steps.txt")" = "$(printf 'round 1\nround 2\nround 3\nround cap')" ]
 
 if sh "$REPO_ROOT/scripts/round-counter.sh" "$dir" wat 3 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown operation" >&2
@@ -36,3 +38,4 @@ sh "$REPO_ROOT/scripts/round-counter.sh" "$run" next ci 2>"$SCRATCH/err" || rc=$
 grep -q "ci round cap of 2 reached" "$SCRATCH/err"
 grep -qx '2' "$run/ci-rounds.txt"
 grep -qx '1' "$run/rounds.txt"
+[ "$(cat "$run/steps.txt")" = "$(printf 'ci-round 1\nround 1\nci-round 2\nci-round cap')" ]

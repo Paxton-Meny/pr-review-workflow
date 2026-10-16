@@ -40,6 +40,7 @@ printf 'pending\tbuild\t%s\tCI\t\n' "$run" >"$stub/pr-checks.1"
 printf 'pass\tbuild\t%s\tCI\t\nskipping\tdocs\t%s\tCI\t\n' "$run" "$run" >"$stub/pr-checks.2"
 [ "$(await)" = "await-checks: pass 2 checks" ]
 [ "$(cat "$dir/ci-result.txt")" = "pass abc123" ]
+[ "$(cat "$dir/steps.txt")" = "$(printf 'checks off abc123\nchecks pass abc123')" ]
 grep -q '^abc123 [0-9]* [0-9]*$' "$dir/ci-wait.txt"
 [ "$(grep -c '^pr checks 7 --repo o/r --json' "$stub/calls.log")" -eq 2 ]
 

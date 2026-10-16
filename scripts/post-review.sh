@@ -10,6 +10,8 @@
 # a shard or sample unsaved, a dedup or gap pass not run, as the lines
 # from review-progress.sh name. Posting then would close the round
 # before its findings are all in.
+# A run that posts, or finds nothing left to post, journals "post" in
+# steps.txt for next-step.sh.
 set -eu
 
 dir=${1:?usage: post-review.sh <state-dir>}
@@ -171,6 +173,7 @@ for record in "$dir/findings"/F*; do
 	posted=$((posted + 1))
 done
 
+printf 'post\n' >>"$dir/steps.txt"
 if [ "$summarized" -eq 0 ] && [ "$posted" -eq 0 ]; then
 	echo "post-review: nothing to post, round $((round - 1)) unchanged"
 	exit 0
