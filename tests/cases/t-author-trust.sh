@@ -54,7 +54,11 @@ trust "$other" write true
 out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --exec)
 [ "$out" = "author-trust: code runs, $other write permission" ]
 trust "$other" none true
-[ "$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --approve)" = "author-trust: approved running $other's code for this pull request" ]
+[ "$(sh "$REPO_ROOT/scripts/approve-author.sh" "$dir")" = "approve-author: approved running $other's code for this pull request" ]
+if sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --approve 2>/dev/null; then
+	echo "author-trust.sh still accepts --approve" >&2
+	exit 1
+fi
 out=$(sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --exec)
 [ "$out" = "author-trust: code runs, approved for $other" ]
 # The approval is for running code only: the author stays untrusted to merge.
