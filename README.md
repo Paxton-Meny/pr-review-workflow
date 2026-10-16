@@ -132,7 +132,7 @@ which also proves their layout. The site shows them with motion at
 <details>
 <summary>Open the six figures</summary>
 
-<p align="center"><img src="docs/assets/phase-stage.svg" width="860" alt="Phase 1, Stage: eleven scripts set up one pull request with no model. A terminal strip shows the one line each prints; cards show what each does and writes; exits show the trust approval, the clone fallback, the overlap question, and a failing baseline disarming the gate."></p>
+<p align="center"><img src="docs/assets/phase-stage.svg" width="860" alt="Phase 1, Stage: eleven scripts set up one pull request with no model, on a rail that snakes through three bands, the ledger, the read, and the check-out. A terminal shows the one line each prints and the ledger what each writes; exits hang below their scripts: the project command you approve, the diff built from the clone, the size warning and the overlap you decide on, a fork in review-only mode or gone, and a failing baseline disarming the gate."></p>
 
 **Stage.** Eleven scripts and no model: tools, ledger, settings from five sources, sweep, the diff from the API or the clone, probes, classification, the open pull requests beside it, a detached worktree, local standards, and the check baseline that arms the gate.
 
@@ -140,15 +140,15 @@ which also proves their layout. The site shows them with motion at
 
 **Review.** A plan into shards and seams, a rung and an effort per group from the routing ladder, reviewers in parallel, records banked and deduplicated, and a gap pass over the seams; a clean ledger skips straight to the merge gate. The record anatomy shows the contract every finding carries.
 
-<p align="center"><img src="docs/assets/phase-post.svg" width="860" alt="Phase 3, Post: a sieve of three stations, the filter, the proof of suggestions, and the posting script, with the pull request receiving threads at the end."></p>
+<p align="center"><img src="docs/assets/phase-post.svg" width="860" alt="Phase 3, Post: five findings drawn as lines through three stations to the pull request. The filter demotes one to the summary, the proof withdraws one fence while its finding stays, and posting opens four threads and one summary comment; open findings go on to the fix loop, and a fork that refuses edits stops here."></p>
 
 **Post.** A cold re-read demotes thin findings to the summary and never drops one; every suggestion fence is applied in a scratch worktree and must pass the project's check; then one inline thread per finding and one summary comment. A fork that refuses edits stops here.
 
-<p align="center"><img src="docs/assets/phase-fix.svg" width="860" alt="Phase 4, Fix loop: eight stations around a ring with the round number in the middle, the editing ladder and separation of powers beside, and the exits to repair, arbitration, park, and convergence."></p>
+<p align="center"><img src="docs/assets/phase-fix.svg" width="860" alt="Phase 4, Fix loop: seven stations around a ring with the round and its budget of four in the middle, every way out on the right, a repair, a park, a reopen, a skim, convergence, and arbitration, and the editing ladder and the separation of powers below."></p>
 
 **Fix loop.** A ring of at most four rounds: the counter, a rung per finding from the editing ladder, the editor's commit per finding, the check gate with one repair, the verifier executing contracts, the skim for unasked changes, and the count that loops, arbitrates once, or converges.
 
-<p align="center"><img src="docs/assets/phase-land.svg" width="860" alt="Phase 5, Land: four stations in a loop, the merge method, base sync, awaiting the checks, and the editor's repair, each with its exit codes, ending at green checks."></p>
+<p align="center"><img src="docs/assets/phase-land.svg" width="860" alt="Phase 5, Land: the merge method, base sync, and the wait for checks down a spine, each exit code on the right with who decides, the editor's repair on the left looping back to the top, ending at green checks."></p>
 
 **Land.** Between a clean ledger and the merge gate: the merge method is decided, the branch brought up to date by it at most three times, the checks awaited in slices under a budget, and a failed check repaired by the editor from a digest, then reviewed, looping until green.
 
