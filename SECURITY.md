@@ -72,6 +72,8 @@ requests, an author with write, maintain, or admin permission, or a
 branch in the repository itself when GitHub cannot say. For anyone
 else, a fork from outside the team, the run asks you once per pull
 request whether to run their code, and runs nothing until you say yes;
+the approval is its own script, outside the skill's pre-granted
+commands, so Claude Code's permission prompt asks you every time;
 unattended, it skips the check and says so. Leave the option empty for
 repositories whose own contributors you do not trust that far.
 

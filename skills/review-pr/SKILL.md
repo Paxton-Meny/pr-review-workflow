@@ -210,8 +210,8 @@ PRWF_SETTINGS_END
    run on this code unless you approve it: attended, tell the user
    that running the check executes code this author wrote on their
    machine and ask whether to run it for this pull request; on yes run
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh <dir> --approve`.
-   Never approve on your own. Unattended, carry on: the scripts skip
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/approve-author.sh <dir>`, which is not pre-granted so
+   the user is asked again. Never approve on your own. Unattended, carry on: the scripts skip
    the check, and the final report says so. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir>`
    (it expands any configured globs inside the clone itself, skipping

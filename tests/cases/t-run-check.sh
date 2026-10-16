@@ -62,6 +62,6 @@ for mode in '' --baseline --gate; do
 	[ "$out" = "run-check: skipped, the pull request's author is not trusted to run code here (author-trust.sh)" ]
 done
 [ ! -e "$SCRATCH/ran" ]
-sh "$REPO_ROOT/scripts/author-trust.sh" "$dir" --approve >/dev/null
+sh "$REPO_ROOT/scripts/approve-author.sh" "$dir" >/dev/null
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" "touch $SCRATCH/ran")" = "run-check: pass" ]
 [ -e "$SCRATCH/ran" ]
