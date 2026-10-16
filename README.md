@@ -133,9 +133,9 @@ which also proves their layout. The site shows them with motion at
 <details>
 <summary>Open the six figures</summary>
 
-<p align="center"><img src="docs/assets/phase-stage.svg" width="860" alt="Phase 1, Stage: eleven scripts set up one pull request with no model, on a rail that snakes through three bands, the ledger, the read, and the check-out. A terminal shows the one line each prints and the ledger what each writes; exits hang below their scripts: the project command you approve, the diff built from the clone, the size warning and the overlap you decide on, a fork in review-only mode or gone, and a failing baseline disarming the gate."></p>
+<p align="center"><img src="docs/assets/phase-stage.svg" width="860" alt="Phase 1, Stage: eleven scripts set up one pull request with no model by default, on a rail that snakes through three bands, the ledger, the read, and the check-out. A terminal shows the one line each prints and the ledger what each writes; exits hang below their scripts: the project command you approve, the diff built from the clone, the size warning and the overlap you decide on, a fork in review-only mode or gone, and a failing baseline disarming the gate."></p>
 
-**Stage.** Eleven scripts and no model: tools, ledger, settings from five sources, sweep, the diff from the API or the clone, probes, classification, the open pull requests beside it, a detached worktree, local standards, and the check baseline that arms the gate.
+**Stage.** Eleven scripts, and a model only to judge an overlap: tools, ledger, settings from five sources, sweep, the diff from the API or the clone, probes, classification, the open pull requests beside it, a detached worktree, local standards, and the check baseline that arms the gate.
 
 <p align="center"><img src="docs/assets/phase-review.svg" width="860" alt="Phase 2, Review: a fan-out from one plan to parallel reviewers and back into one ledger, with the routing ladder and a finding record's anatomy beside."></p>
 
