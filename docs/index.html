@@ -173,8 +173,8 @@ GitHub</a>
 <div class="split">
 <div>
 <h2 class="display">Every finding is a contract</h2>
-<p class="sub" style="max-width:none">The <strong>Resolution</strong> line is a testable acceptance criterion: the editor edits until it holds and the verifier judges it verbatim. Where one command can prove it, a <strong>Check</strong> line makes verification an execution instead of an opinion, contained to the project's own check command and prefixes you approve.</p>
-<p class="sub" style="max-width:none">The <strong>Fix</strong> line banks the reviewer's reading, paths, exact spans, helpers, and test locations, so nobody pays to rediscover the project. A suggestion fence is a proof, not a guess: it posts only after being applied in a scratch worktree and passing the check command.</p>
+<p class="sub" style="max-width:none">The <strong>Resolution</strong> line is a testable acceptance criterion: the editor edits until it holds and the verifier judges it verbatim. Where one command can prove it, a <strong>Check</strong> line makes verification an execution instead of an opinion, contained to the project's own check command and prefixes you approve, and run on an outside author's code (one who cannot push to the repository) only after you approve that author.</p>
+<p class="sub" style="max-width:none">The <strong>Fix</strong> line banks the reviewer's reading, paths, exact spans, helpers, and test locations, so nobody pays to rediscover the project. A suggestion fence is a proof, not a guess: it posts only after being applied in a scratch worktree and passing the check command, which runs on an outside author's code only after you approve that author.</p>
 </div>
 <div class="card" style="padding:0;overflow:hidden">
 <div class="rec-head">findings/F003</div>
@@ -227,7 +227,7 @@ to the caller, and the retry test asserts it.</code></pre>
 <tr><td><a href="settings.html#review-repairs">Review repairs</a></td><td>on</td><td>The reviewer reads what a repair touched before the merge gate.</td></tr>
 <tr><td><a href="settings.html#branch-sync">Base sync</a></td><td>update</td><td>Bring the branch up to date when the base moved, by the mechanism the merge method needs; conflicts stay yours unless resolve. Only you can set it.</td></tr>
 <tr><td><a href="settings.html#self-start">Self-started reviews</a></td><td>ask</td><td>When Claude starts a review on its own: ask first, or auto when the pull request is ready.</td></tr>
-<tr><td><a href="settings.html#check-command">Check command</a></td><td>empty</td><td>The reviewed repository's own check. It proves suggestions, gates every editing round, and anchors executable contracts.</td></tr>
+<tr><td><a href="settings.html#check-command">Check command</a></td><td>empty</td><td>The reviewed repository's own check. It proves suggestions, gates every editing round, and anchors executable contracts. On an outside author's code (one who cannot push to the repository) it runs only after you approve that author.</td></tr>
 <tr><td><a href="settings.html#local-standards">Local standards files</a></td><td>empty</td><td>Globs for untracked rule files in your clone. Their substance guides review; their names never reach the pull request.</td></tr>
 <tr><td><a href="settings.html#double-review">Second review pass</a></td><td>risky</td><td>When the gap pass runs on single-reviewer runs: off, risky, or always. Sharded reviews always get one.</td></tr>
 <tr><td><a href="settings.html#keep-ledgers">Ledgers kept</a></td><td>20</td><td>Finished finding ledgers retained per repository; older ones are pruned at the start of each review and after each merge.</td></tr>
