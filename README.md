@@ -139,7 +139,7 @@ which also proves their layout. The site shows them with motion at
 
 <p align="center"><img src="docs/assets/phase-review.svg" width="860" alt="Phase 2, Review: a fan-out from one plan to parallel reviewers and back into one ledger, with the routing ladder and a finding record's anatomy beside."></p>
 
-**Review.** A plan into shards and seams, a rung and an effort per group from the routing ladder, reviewers in parallel, records banked and deduplicated, and a gap pass over the seams; a clean ledger skips straight to the merge gate. The record anatomy shows the contract every finding carries.
+**Review.** A plan into shards and seams, a rung and an effort per group from the routing ladder, reviewers in parallel, records banked and deduplicated, and a gap pass over the seams; a clean ledger skips posting and the fix loop, and goes through convergence to Land. The record anatomy shows the contract every finding carries.
 
 <p align="center"><img src="docs/assets/phase-post.svg" width="860" alt="Phase 3, Post: five records from the review drawn as lines through three stations to the pull request. The filter re-reads the cited code and demotes one, moving it from the inline threads to the round's summary comment, still open; the proof applies each suggestion fence in a scratch worktree, keeps three, and withdraws one whose finding posts as prose; posting opens four threads and one summary comment. Open findings go on to the fix loop, and a fork that refuses edits stops here."></p>
 
