@@ -850,14 +850,15 @@ def lead_right(f: Fig, x0: float, y: float, bx: float, kind: str = "lead") -> No
 def phase_stage() -> Fig:
     """Steps 1 to 4: a serpentine rail of eleven scripts in three bands,
     turning at the margins, each exit hanging below the script it leaves."""
-    f = Fig("ps", "Phase 1, Stage: eleven scripts set up one pull request with no model",
-            "Eleven scripts run in order with no model, in three bands. The ledger band checks the "
+    f = Fig("ps", "Phase 1, Stage: eleven scripts set up one pull request with no model by default",
+            "Eleven scripts run in order with no model by default, in three bands. The ledger band checks the "
             "tools, creates the ledger, resolves settings from five sources, a project file allowed "
             "only to raise, add, or set and any command it brings held for your approval, and sweeps "
             "closed runs. The read band fetches the diff from the API, or builds it from the clone "
             "when GitHub serves none, splits it per file, runs deterministic probes whose hits are "
             "leads, classifies the change and its size, asking or parking when it is over the "
-            "warning, and names open pull requests touching the same hunks, asking whether to go on. "
+            "warning, and names open pull requests touching the same hunks, asking whether to go on, "
+            "where a cheap comparer judges an overlapping pull request when one is found. "
             "The check-out band makes a detached worktree, review-only for a fork that refuses edits "
             "and a stop when the fork is gone, gathers local standards, and runs the project's check "
             "once as the baseline that arms the fix loop's gate. A terminal shows the line each "
