@@ -34,17 +34,22 @@ git -C "$dir/worktree" init -q 2>/dev/null || true
 out=$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --baseline "grep -q x file.txt")
 [ "$out" = "run-check: pass" ]
 grep -q '^pass ' "$dir/check-baseline.txt"
+[ ! -f "$dir/check-gate.txt" ]
 out=$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate "grep -q x file.txt")
 [ "$out" = "run-check: pass" ]
+# Each gate run records its outcome for merge-pr, a new baseline clears it.
+grep -q '^pass ' "$dir/check-gate.txt"
 printf 'y\n' >"$dir/worktree/file.txt"
 rc=0
 sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate "grep -q x file.txt" >/dev/null || rc=$?
 [ "$rc" -eq 3 ]
+grep -q '^fail ' "$dir/check-gate.txt"
 
 # A baseline that failed disarms the gate for that command.
 out=$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --baseline "grep -q x file.txt")
 [ "$out" = "run-check: fail, output tail in pr-context/check-failure.txt" ]
 grep -q '^fail ' "$dir/check-baseline.txt"
+[ ! -f "$dir/check-gate.txt" ]
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate "grep -q x file.txt")" = "run-check: gate disarmed, the baseline failed" ]
 
 # A changed command, or no baseline at all, is baselined again first.
