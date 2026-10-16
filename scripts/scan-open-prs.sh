@@ -41,6 +41,7 @@ pr=$(sed -n 's/^pr //p' "$dir/meta.txt")
 author=$(sed -n 's/^author //p' "$dir/meta.txt")
 base_branch=$(sed -n 's/^base_branch //p' "$dir/meta.txt")
 head_branch=$(sed -n 's/^head_branch //p' "$dir/meta.txt")
+cross_repo=$(sed -n 's/^cross_repo //p' "$dir/meta.txt")
 [ -n "$owner" ] && [ -n "$repo" ] && [ -n "$pr" ] || {
 	echo "scan-open-prs: meta.txt in $dir is incomplete" >&2
 	exit 1
@@ -63,8 +64,8 @@ done
 # touch the disk, only whether they name this pull request does.
 mention="(^|[^0-9#])#$pr([^0-9]|\$)"
 if ! gh pr list --repo "$owner/$repo" --state open --limit "$LIST_LIMIT" \
-	--json number,author,isDraft,baseRefName,headRefName,updatedAt,files,title,body \
-	--jq ".[] | \"pr \\(.number)\\t\\(.author.login)\\t\\(.isDraft)\\t\\(.baseRefName)\\t\\(.headRefName)\\t\\(.updatedAt)\\t\\(((.title // \"\") + \" \" + (.body // \"\")) | test(\"$mention\"))\", (.files[] | \"file \\(.path)\")" >"$work/list" 2>/dev/null; then
+	--json number,author,isDraft,baseRefName,headRefName,updatedAt,isCrossRepository,files,title,body \
+	--jq ".[] | \"pr \\(.number)\\t\\(.author.login)\\t\\(.isDraft)\\t\\(.baseRefName)\\t\\(.headRefName)\\t\\(.updatedAt)\\t\\(((.title // \"\") + \" \" + (.body // \"\")) | test(\"$mention\"))\\t\\(.isCrossRepository)\", (.files[] | \"file \\(.path)\")" >"$work/list" 2>/dev/null; then
 	printf 'overlap: unavailable\n' >"$ctx/overlap.txt"
 	echo "scan-open-prs: could not list open pull requests for $owner/$repo; nothing compared"
 	exit 0
@@ -81,7 +82,7 @@ cut -f1 "$ctx/files.txt" | sort -u >"$work/ours.all"
 grep -vxF -f "$work/excluded" "$work/ours.all" | grep -xF -f "$work/allowed" >"$work/ours.paths" || true
 
 # Candidates: number, login, draft, updated, mentions-us, shared count.
-awk -F '\t' -v me="$pr" -v base="$base_branch" -v head="$head_branch" \
+awk -F '\t' -v me="$pr" -v base="$base_branch" -v head="$head_branch" -v mycross="$cross_repo" \
 	-v ours="$work/ours.paths" -v excluded="$work/excluded" '
 BEGIN {
 	while ((getline l < ours) > 0) mine[l] = 1
@@ -90,9 +91,9 @@ BEGIN {
 function flush() { if (num != "" && keep && shared > 0) printf "%s\t%s\t%s\t%s\t%s\t%d\n", num, login, draft, updated, mentions, shared }
 /^pr / {
 	flush()
-	num = substr($1, 4); login = $2; draft = $3; theirbase = $4; theirhead = $5; updated = $6; mentions = $7
+	num = substr($1, 4); login = $2; draft = $3; theirbase = $4; theirhead = $5; updated = $6; mentions = $7; theirfork = $8
 	shared = 0; split("", seen)
-	keep = (num != me && theirbase == base && theirbase != head && theirhead != base)
+	keep = (num != me && theirbase == base && (mycross == "true" || theirbase != head) && (theirfork == "true" || theirhead != base))
 	next
 }
 /^file / {
