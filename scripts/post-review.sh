@@ -1,6 +1,9 @@
 #!/bin/sh
 # Post a new round's summary, then unposted findings as inline review comments.
 # Usage: sh scripts/post-review.sh <state-dir>
+# Exit 4: refused, posting and changing nothing, because a record about
+# to be posted carries a suggestion fence prove-suggestions.sh has not
+# proven at the head the comments anchor to ("unproven <id>" lines).
 set -eu
 
 dir=${1:?usage: post-review.sh <state-dir>}
@@ -20,6 +23,26 @@ tab=$(printf '\t')
 field() { sed -n "s/^$2: //p" "$1"; }
 body_of() { awk 'f && !/^Criteria note: / { print } /^---$/ { f = 1 }' "$1"; }
 unposted() { [ "$(field "$1" status)" = "open" ] && [ -z "$(field "$1" placement)" ]; }
+
+# Every fence this run would post, inline or in this round's summary,
+# must have been proven at the head first.
+unproven=''
+for record in "$dir/findings"/F*; do
+	[ -f "$record" ] && [ "$(field "$record" status)" = open ] || continue
+	case "$(field "$record" placement)" in
+	'') ;;
+	summary) [ "$(field "$record" round)" = "$round" ] || continue ;;
+	*) continue ;;
+	esac
+	grep -q '^```suggestion$' "$record" || continue
+	[ "$(sed '/^---$/q' "$record" | sed -n 's/^proven: //p')" = "$head_sha" ] ||
+		unproven="$unproven
+unproven $(field "$record" id)"
+done
+if [ -n "$unproven" ]; then
+	echo "post-review: suggestion fences not proven at the head, run prove-suggestions.sh first$unproven"
+	exit 4
+fi
 
 demoted=0
 for record in "$dir/findings"/F*; do

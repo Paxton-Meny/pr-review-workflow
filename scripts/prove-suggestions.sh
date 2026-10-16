@@ -2,6 +2,8 @@
 # Prove every pending suggestion fence by applying it, or withdraw it.
 # Usage: sh scripts/prove-suggestions.sh <state-dir> [check-command]
 # Without a command, the run's resolved check_command is used.
+# A proven fence's record gains "proven: <head sha>", the commit it was
+# proven at; post-review.sh posts no fence without it.
 set -eu
 
 dir=${1:?usage: prove-suggestions.sh <state-dir> [check-command]}
@@ -97,6 +99,7 @@ for record in "$dir/findings"/F*; do
 	git -C "$scratch" checkout --quiet -- "$path"
 
 	if [ "$ok" -eq 1 ]; then
+		sh "$(dirname "$0")/update-finding.sh" "$dir" "$id" "proven=$head_sha" >/dev/null
 		proven=$((proven + 1))
 	else
 		withdraw "$record" "the check command failed with it applied"
