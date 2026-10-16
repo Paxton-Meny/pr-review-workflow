@@ -5,7 +5,10 @@
 # report belongs to the review phase: "all" or "group-<n>" for a step 5
 # reviewer (one call per sample), "gap" for the gap pass, and
 # "saved <unit> <count>" is appended to the ledger's review.txt once the
-# records are in place, for review-progress.sh.
+# records are in place, for review-progress.sh. "incremental" is the
+# review of files a round, a repair, or a base sync changed: it is not
+# part of the review phase, so its "saved incremental <count>" goes to
+# the step journal steps.txt instead, for next-step.sh.
 set -eu
 
 usage='usage: save-findings.sh <state-dir> [--unit <unit>]'
@@ -20,7 +23,7 @@ case "${2:-}" in
 	;;
 esac
 case "$unit" in
-'' | all | gap | group-[1-9]) ;;
+'' | all | gap | incremental | group-[1-9]) ;;
 group-[1-9]*)
 	case "${unit#group-}" in
 	*[!0-9]*) unit=bad ;;
@@ -29,7 +32,7 @@ group-[1-9]*)
 *) unit=bad ;;
 esac
 [ "$unit" != bad ] && { [ -n "$unit" ] || [ -z "${2:-}" ]; } || {
-	echo "save-findings: the unit must be all, gap, or group-<n>: ${3:-}" >&2
+	echo "save-findings: the unit must be all, gap, group-<n>, or incremental: ${3:-}" >&2
 	exit 1
 }
 [ -f "$dir/round.txt" ] || {
@@ -37,6 +40,8 @@ esac
 	exit 1
 }
 round=$(($(cat "$dir/round.txt") + 1))
+progress="$dir/review.txt"
+[ "$unit" != incremental ] || progress="$dir/steps.txt"
 
 findings="$dir/findings"
 mkdir -p "$findings"
@@ -54,7 +59,7 @@ trap 'rm -rf "$spool"' EXIT
 
 cat >"$spool/.in"
 if [ "$(awk 'NF' "$spool/.in" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')" = 'no findings' ]; then
-	[ -z "$unit" ] || printf 'saved %s 0\n' "$unit" >>"$dir/review.txt"
+	[ -z "$unit" ] || printf 'saved %s 0\n' "$unit" >>"$progress"
 	echo "save-findings: no findings${unit:+ for $unit}"
 	exit 0
 fi
@@ -145,6 +150,6 @@ rm -f "$spool/.count"
 for f in "$spool"/F*; do
 	mv "$f" "$findings/${f##*/}"
 done
-[ -z "$unit" ] || printf 'saved %s %d\n' "$unit" "$count" >>"$dir/review.txt"
+[ -z "$unit" ] || printf 'saved %s %d\n' "$unit" "$count" >>"$progress"
 
 echo "save-findings: $count findings saved, next id F$(printf '%03d' $((next + count)))"

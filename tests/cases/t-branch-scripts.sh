@@ -54,6 +54,7 @@ new_sha=$(git -C "$wt" rev-parse HEAD)
 grep -qx "head_sha $new_sha" "$dir/meta.txt"
 grep -qx "prev_head $sha" "$dir/meta.txt"
 grep -qx "reviewed_head $new_sha" "$dir/meta.txt"
+[ "$(tail -n 1 "$dir/steps.txt")" = "push $new_sha" ]
 
 # A push made while an outside arrival is unreviewed does not mark it reviewed.
 sed -i -e "s/^reviewed_head .*/reviewed_head $sha/" "$dir/meta.txt"
@@ -69,6 +70,7 @@ new_sha=$fix_sha
 sed -i -e "/^arrived_base /d" -e "s/^reviewed_head .*/reviewed_head $new_sha/" "$dir/meta.txt"
 
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" | grep -q "ledger kept"
+[ "$(tail -n 1 "$dir/steps.txt")" = cleanup ]
 [ ! -d "$dir/worktree" ]
 [ -f "$dir/meta.txt" ]
 git -C "$clone" worktree list | grep -qv "$dir/worktree"

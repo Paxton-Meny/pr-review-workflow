@@ -3,7 +3,8 @@
 # Usage: sh scripts/push-branch.sh <state-dir> [--force-with-lease]
 # --force-with-lease rewrites the branch, leased on the head meta.txt
 # recorded, so a push the run never saw refuses it; only sync-branch.sh
-# passes it, after a rebase onto the base. Exit 3 means the worktree
+# passes it, after a rebase onto the base. Each push is journaled in
+# steps.txt as "push <sha>" for next-step.sh. Exit 3 means the worktree
 # holds nothing new to push, or, on a plain push, lacks the commit an
 # addressed finding records.
 set -eu
@@ -83,5 +84,6 @@ tmp=$(mktemp "$dir/.meta.XXXXXX")
 sed -e "s/^head_sha .*/head_sha $local_sha/" -e "/^prev_head /d" -e "/^reviewed_head /d" "$dir/meta.txt" >"$tmp"
 printf 'prev_head %s\nreviewed_head %s\n' "$old_head" "$reviewed" >>"$tmp"
 mv "$tmp" "$dir/meta.txt"
+printf 'push %s\n' "$local_sha" >>"$dir/steps.txt"
 
 echo "push-branch: $head_branch at $local_sha"

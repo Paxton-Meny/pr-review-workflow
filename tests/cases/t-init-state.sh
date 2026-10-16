@@ -29,6 +29,8 @@ grep -qx 'maintainer_can_modify true' "$dir/meta.txt"
 grep -q '^head_repo_url https://github.com/Paxton-Meny/widgets.git$' "$dir/meta.txt"
 grep -qx '0' "$dir/round.txt"
 ! grep -q '^state ' "$dir/meta.txt"
+# Each invocation opens in the step journal.
+[ "$(cat "$dir/steps.txt")" = invoke ]
 
 printf 'write\n' >"$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
