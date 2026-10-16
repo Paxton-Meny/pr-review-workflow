@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 883" width="860" role="img" aria-labelledby="plt pld" class="pl">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 973" width="860" role="img" aria-labelledby="plt pld" class="pl">
 <title id="plt">Phase 5, Land: checks awaited, the base followed, failures repaired</title>
 <desc id="pld">After convergence the run decides the merge method, since an update follows it, asking you when the history is mixed; brings the branch up to date only when the forge reports it conflicting or behind a base that requires it, by a rebase with a leased push or a merge of the base, at most three times, handing conflicts to you or, under resolve, to the editor; and waits for the head's checks in slices under a wait budget kept on disk, rerunning a cancelled run once, running again while they are pending, and asking whether to extend when the budget is spent. A failed check under fix writes a digest for the editor, who diagnoses, posts a paragraph, repairs, and pushes; a repeated failure moves one lever, ci_fix_rounds caps the repairs, the check gate and a review of every file the repair touched follow, and the loop returns to the top until the checks pass.</desc>
 <style>
-.pl{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
-@media (prefers-color-scheme:dark){.pl{--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;--shade:.35}}
+.pl{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pl{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
 .pl text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
 .pl .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 .pl .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
@@ -56,6 +56,11 @@
 .pl .c1{font-weight:700;fill:var(--ink)}.pl .c2{fill:var(--muted)}
 .pl .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pl .tok-halo{fill:var(--clay);opacity:.18}
 .pl .cardg>rect{stroke-width:1}
+.pl .canvas{fill:var(--canvas)}
+.pl .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.pl .rtag text{fill:var(--accent);font-weight:700}
+.pl .ctx-rule{stroke:var(--accent-line);stroke-width:1}.pl .io-rule{stroke:var(--line);stroke-width:1}
+.pl .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.pl .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.pl .ctx-t{fill:var(--accent-ink)}.pl .io-t{fill:var(--muted)}
 .pl .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
 .pl .rung{stroke-width:4.5;stroke-linecap:round}.pl .rung-s{stroke:var(--accent)}.pl .rung-b{stroke:var(--wire)}.pl .rung-c{stroke:var(--teal)}
 .pl .seg{fill:var(--card);stroke:var(--line)}.pl .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
@@ -63,6 +68,9 @@
 .pl .sheet{fill:var(--card);stroke:var(--line)}.pl .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
 .pl .rv{fill:var(--ink)}.pl .rb{fill:var(--muted)}.pl .kk{fill:var(--faint)}
 .pl .kf{fill:var(--accent);font-weight:700}.pl .kr{fill:var(--coral);font-weight:700}.pl .kc{fill:var(--teal);font-weight:700}
+.pl .fz{fill:var(--accent-ink)}.pl .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.pl .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.pl .fz-t{fill:var(--accent);font-weight:700}.pl .pr-rule{stroke:var(--teal-line);stroke-width:1}
 .pl .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
 .pl .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pl .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
 .pl .mk-proven{fill:var(--teal)}.pl .mk-withdrawn{fill:var(--coral)}
@@ -76,8 +84,8 @@
 .pl .pip{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}.pl .pip.on{fill:var(--clay);stroke:var(--clay)}
 .pl .ok-t{fill:var(--teal)}.pl .x-t{fill:var(--coral)}
 .pl .gate{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:6 5}
-@keyframes pl-walk{0%,6.0%{offset-distance:0.00%}10.0%,16.0%{offset-distance:9.10%}20.0%,29.6%{offset-distance:18.20%}36.0%,44.4%{offset-distance:36.39%}50.0%,52.4%{offset-distance:54.59%}54.0%,60.0%{offset-distance:72.78%}64.0%,70.0%{offset-distance:81.88%}74.0%,83.6%{offset-distance:90.98%}90.0%,100.0%{offset-distance:100.00%}}
-.pl .tok{offset-path:path('M354 321 L354 441 L354 561 L114 561 L114 321 L354 321 L354 441 L354 561 L354 680');offset-rotate:0deg;animation:pl-walk 32s linear infinite}
+@keyframes pl-walk{0%,6.0%{offset-distance:0.00%}10.0%,16.0%{offset-distance:8.39%}20.0%,29.6%{offset-distance:16.77%}36.0%,44.4%{offset-distance:37.46%}50.0%,52.4%{offset-distance:54.23%}54.0%,60.0%{offset-distance:74.91%}64.0%,70.0%{offset-distance:83.30%}74.0%,83.6%{offset-distance:91.68%}90.0%,100.0%{offset-distance:100.00%}}
+.pl .tok{offset-path:path('M354 321 L354 441 L354 561 L58 561 L58 321 L354 321 L354 441 L354 561 L354 680');offset-rotate:0deg;animation:pl-walk 32s linear infinite}
 @keyframes pl-st0{0%,0.0%{stroke-width:1}0.0%,9.9%{stroke:var(--accent);stroke-width:2.2}10.0%,100%{stroke-width:1}}
 .pl .st0>rect{animation:pl-st0 32s linear infinite}
 @keyframes pl-in0{0%,0.0%{opacity:0}0.6%,100%{opacity:1}}
@@ -109,11 +117,12 @@
 @media (prefers-reduced-motion:reduce){.pl *{animation:none!important}.pl .tok{display:none}.pl .tl,.pl .lf,.pl .ex0,.pl .ex1,.pl .ex2,.pl .ex3,.pl .ex4,.pl .ex5,.pl .ex6{opacity:1}}
 </style>
 <defs><filter id="pl-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pl-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pl-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pl-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pl-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pl-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="973" rx="16"/>
 <path class="w" d="M354 356 L354 405" marker-end="url(#pl-a)"/>
 <path class="w" d="M354 476 L354 525" marker-end="url(#pl-a)"/>
 <path class="w wo" d="M354 596 L354 651" marker-end="url(#pl-ao)"/>
 <path class="w wx" d="M236 561 L201 561" marker-end="url(#pl-ax)"/>
-<path class="w wl" d="M114 526L114 333Q114 321 126 321L235 321" stroke-dasharray="4 4" marker-end="url(#pl-al)"/>
+<path class="w wl" d="M58 526L58 333Q58 321 70 321L235 321" stroke-dasharray="4 4" marker-end="url(#pl-al)"/>
 <path class="w wd" d="M472 321 L501.5 321" marker-end="url(#pl-ad)"/>
 <path class="w wd" d="M472 422 L501.5 422" marker-end="url(#pl-ad)"/>
 <path class="w wd" d="M472 462 L501.5 462" marker-end="url(#pl-ad)"/>
@@ -175,43 +184,46 @@
 <text class="h hd" x="267" y="673" style="font-size:12.5px">Checks green</text>
 <text class="s sd" x="248" y="692">the head passes; on to Merge</text>
 </g>
-<g class="cardg st3"><rect class="cm" x="28" y="526" width="172" height="70" rx="9"/>
+<g class="cardg st3"><rect class="cm" x="28" y="526" width="172" height="88" rx="9"/>
 <path class="ico-m" d="M46 537c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
 <text class="h hm" x="59" y="547" style="font-size:12.5px">Editor</text>
-<text class="s sm" x="40" y="566">reads the CI digest, fixes,</text>
-<text class="s sm" x="40" y="581">pushes, posts a paragraph</text>
+<text class="s sm" x="40" y="566">diagnoses, fixes, pushes,</text>
+<text class="s sm" x="40" y="581">posts a paragraph</text>
+<path class="ctx-rule" d="M29 592H199"/>
+<path class="ctx-i" d="M40 598h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="56" y="606.5" style="font-size:9.5px">ci-failure.txt, tree</text>
 </g>
 <text class="ok-t" x="364" y="630" style="font-size:10px">0  every check passed</text>
 <text class="x-t mono" x="218" y="553" text-anchor="middle" style="font-size:10.5px">3</text>
-<text class="loop-t" x="126" y="312" style="font-size:10.5px">loop to the top</text>
-<text class="s" x="126" y="343" style="font-size:10.5px">the base may have</text>
-<text class="s" x="126" y="357" style="font-size:10.5px">moved meanwhile</text>
-<rect class="panel" x="28" y="614" width="172" height="141" rx="10"/>
-<text class="k" x="42" y="635" style="font-size:9.5px;letter-spacing:1.4px">THE REPAIR</text>
-<circle class="dot" cx="45" cy="650.5" r="1.6"/>
-<text class="s" x="53" y="654">a repeat: one lever up</text>
-<circle class="dot" cx="45" cy="665.5" r="1.6"/>
-<text class="s" x="53" y="669">ci_fix_rounds caps it</text>
-<circle class="dot" cx="45" cy="680.5" r="1.6"/>
-<text class="s" x="53" y="684">then the gate, and</text>
-<circle class="dot" cx="45" cy="695.5" r="1.6"/>
-<text class="s" x="53" y="699">round-diff --all reviews</text>
-<circle class="dot" cx="45" cy="710.5" r="1.6"/>
-<text class="s" x="53" y="714">every file it touched</text>
-<circle class="dot" cx="45" cy="725.5" r="1.6"/>
-<text class="s" x="53" y="729">under wait: a comment,</text>
-<circle class="dot" cx="45" cy="740.5" r="1.6"/>
-<text class="s" x="53" y="744">no repair</text>
-<rect class="ledger" x="28" y="777" width="804" height="62" rx="10"/>
-<path class="folder" d="M42 803h5l2 2h8v9h-15z"/>
-<text class="k" x="64" y="809" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
-<text class="fine" x="64" y="821" style="font-size:9.5px">on disk, per PR</text>
-<g class="lf lf0"><path class="doc" d="M160 793h6l3 3v8h-9z"/><text class="mono" x="175" y="802" style="font-size:10.5px">pr-context/merge-method.txt</text></g>
-<g class="lf lf1"><path class="doc" d="M364.7 793h6l3 3v8h-9z"/><text class="mono" x="379.7" y="802" style="font-size:10.5px">sync-changed.txt</text></g>
-<g class="lf lf2"><path class="doc" d="M499.8 793h6l3 3v8h-9z"/><text class="mono" x="514.8" y="802" style="font-size:10.5px">ci-wait.txt</text></g>
-<g class="lf lf2"><path class="doc" d="M603.3 793h6l3 3v8h-9z"/><text class="mono" x="618.3" y="802" style="font-size:10.5px">ci-attempts.txt</text></g>
-<g class="lf lf3"><path class="doc" d="M160 813h6l3 3v8h-9z"/><text class="mono" x="175" y="822" style="font-size:10.5px">ci-failure.txt</text></g>
-<g class="lf lf3"><path class="doc" d="M282.5 813h6l3 3v8h-9z"/><text class="mono" x="297.5" y="822" style="font-size:10.5px">ci-rounds.txt</text></g>
+<text class="loop-t" x="70" y="312" style="font-size:10.5px">loop to the top</text>
+<text class="s" x="70" y="343" style="font-size:10.5px">the base may have</text>
+<text class="s" x="70" y="357" style="font-size:10.5px">moved meanwhile</text>
+<rect class="panel" x="28" y="632" width="172" height="185.5" rx="10"/>
+<text class="k" x="42" y="653" style="font-size:9.5px;letter-spacing:1.4px">THE REPAIR</text>
+<circle class="dot" cx="45" cy="668.2" r="2"/>
+<text class="s" x="53" y="672">The same failure again</text>
+<text class="s" x="53" y="686.5">moves one lever up.</text>
+<circle class="dot" cx="45" cy="702.2" r="2"/>
+<text class="s" x="53" y="706">ci_fix_rounds caps the</text>
+<text class="s" x="53" y="720.5">repairs.</text>
+<circle class="dot" cx="45" cy="736.2" r="2"/>
+<text class="s" x="53" y="740">Then the gate, and a</text>
+<text class="s" x="53" y="754.5">review of every file the</text>
+<text class="s" x="53" y="769">repair touched.</text>
+<circle class="dot" cx="45" cy="784.7" r="2"/>
+<text class="s" x="53" y="788.5">Under ci_checks wait: a</text>
+<text class="s" x="53" y="803">comment, no repair.</text>
+<rect class="ledger" x="28" y="839.5" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 865.5h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="871.5" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="883.5" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 855.5h6l3 3v8h-9z"/><text class="mono" x="175" y="864.5" style="font-size:10.5px">pr-context/merge-method.txt</text></g>
+<g class="lf lf1"><path class="doc" d="M364.7 855.5h6l3 3v8h-9z"/><text class="mono" x="379.7" y="864.5" style="font-size:10.5px">sync-changed.txt</text></g>
+<g class="lf lf2"><path class="doc" d="M499.8 855.5h6l3 3v8h-9z"/><text class="mono" x="514.8" y="864.5" style="font-size:10.5px">ci-wait.txt</text></g>
+<g class="lf lf2"><path class="doc" d="M603.3 855.5h6l3 3v8h-9z"/><text class="mono" x="618.3" y="864.5" style="font-size:10.5px">ci-attempts.txt</text></g>
+<g class="lf lf3"><path class="doc" d="M160 875.5h6l3 3v8h-9z"/><text class="mono" x="175" y="884.5" style="font-size:10.5px">ci-failure.txt</text></g>
+<g class="lf lf3"><path class="doc" d="M282.5 875.5h6l3 3v8h-9z"/><text class="mono" x="297.5" y="884.5" style="font-size:10.5px">ci-rounds.txt</text></g>
+<g class="rtag"><rect x="114.4" y="518" width="73.6" height="16" rx="8"/><text class="mono" x="121.4" y="529.3" style="font-size:9px">base · high</text></g>
 <g class="call ex0">
 <circle class="bg-ask" cx="512" cy="321" r="9.5"/>
 <text class="bm mono bg-ask-t" x="512" y="324.6" text-anchor="middle" style="font-size:10.5px">4</text>
@@ -246,20 +258,24 @@
 <g class="bg-ok-m"><path class="bm-s" d="M508 680h7.5m-3 -3l3 3l-3 3"/></g>
 <text class="c1" x="528" y="684">on to the merge gate</text>
 </g>
-<rect class="c" x="28" y="858" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="867" style="font-size:10px">script, no model</text>
-<rect class="cm" x="142.6" y="858" width="16" height="12" rx="3"/>
-<text class="fine" x="164.6" y="867" style="font-size:10px">model agent</text>
-<circle class="bg-ok" cx="248.6" cy="864" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M245.7 864l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="261.6" y="867" style="font-size:10px">carries on</text>
-<circle class="bg-note" cx="334.5" cy="864" r="7"/>
-<g class="bg-note-m"><path class="bm-s" d="M337.5 862.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M335.7 862.1l2.5 -1.2l0.1 2.7z"/></g>
-<text class="fine" x="347.5" y="867" style="font-size:10px">a fallback, the run goes on</text>
-<circle class="bg-ask" cx="493.8" cy="864" r="7"/>
-<g class="bg-ask-m"><circle class="bm-f" cx="493.8" cy="862.2" r="1.7"/><path class="bm-f" d="M490.6 867.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
-<text class="fine" x="506.8" y="867" style="font-size:10px">a person decides</text>
-<circle class="bg-stop" cx="612" cy="864" r="7"/>
-<text class="bm mono bg-stop-t" x="612" y="866.7" text-anchor="middle" style="font-size:7.7px">5</text>
-<text class="fine" x="625" y="867" style="font-size:10px">stops or parks; the number is the exit code</text>
+<rect class="c" x="28" y="920.5" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="929.5" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="920.5" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="929.5" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="918.5" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="929.8" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="929.5" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 940.5h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="949.5" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="946.5" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 946.5l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="949.5" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="252.3" cy="946.5" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M255.2 945.4a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M253.5 944.6l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="265.3" y="949.5" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-ask" cx="411.6" cy="946.5" r="7"/>
+<g class="bg-ask-m"><circle class="bm-f" cx="411.6" cy="944.7" r="1.7"/><path class="bm-f" d="M408.3 949.9q0-4.2 3.2-4.2t3.2 4.2z"/></g>
+<text class="fine" x="424.6" y="949.5" style="font-size:10px">a person decides</text>
+<circle class="bg-stop" cx="529.7" cy="946.5" r="7"/>
+<text class="bm mono bg-stop-t" x="529.7" y="949.2" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="542.7" y="949.5" style="font-size:10px">stops or parks; a number is the exit code</text>
 </svg>

@@ -38,8 +38,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   landing, and a gate with four doors for the merge. Each shows the one
   line every script prints, what it writes to the ledger, and every exit
   as a badge carrying its code, coloured by whether the run goes on, falls
-  back, stops, or waits for a person; the token walks one run, and reduced
-  motion shows every step at once. `docs/tools/phase-figures.py` generates
+  back, stops, or waits for a person. Every agent card carries the rung
+  and effort a script routed it to and a strip naming what it reads, and
+  dark mode has its own contrasted theme. The token walks one run, and
+  reduced motion shows every step at once. `docs/tools/phase-figures.py` generates
   them (`uv run docs/tools/phase-figures.py`) and `--check` proves their
   geometry, no label, card, callout, or wire colliding and every wire
   landing on an edge, and that the files are current; a test case runs it.
