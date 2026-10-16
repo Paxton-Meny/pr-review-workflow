@@ -45,6 +45,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   them (`uv run docs/tools/phase-figures.py`) and `--check` proves their
   geometry, no label, card, callout, or wire colliding and every wire
   landing on an edge, and that the files are current; a test case runs it.
+  The four overview figures share the dark theme, and all ten tell the
+  one run the scripts produce, every label checked against them.
+- `docs/tools/social-card.py` renders the social card from the hero trail
+  and the favicon with a headless Chromium, so the card no longer goes
+  stale behind the hero; its docstring names the Debian packages it needs.
 - Overlap awareness. A new `overlap_check` setting (off, near, judged;
   default near; a project may only raise it) makes the review notice
   work landing beside the pull request. At the start, open pull
