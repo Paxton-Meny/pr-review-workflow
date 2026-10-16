@@ -128,8 +128,8 @@
 <text class="k2" x="46" y="342"><tspan class="k accent">FIXES</tspan><tspan class="d" dx="9">one commit per finding, nothing else touched</tspan></text>
 <g class="a2"><g filter="url(#hg-sh)"><rect class="card" x="46" y="354" width="406" height="54" rx="10"/></g>
 <text class="mono sha" x="60" y="377">c4f1a92</text>
-<text class="t2" x="118" y="377">Raise the last attempt’s error (F003)</text>
-<text class="d" x="60" y="395">pushed to retry-backoff · replied in the thread</text></g>
+<text class="t2" x="118" y="377">Raise the last attempt’s error</text>
+<text class="d" x="60" y="395">Addresses F003. · pushed to retry-backoff · replied in the thread</text></g>
 
 <circle class="n n3" cx="20" cy="440" r="7"/>
 <text class="k3" x="46" y="444"><tspan class="k teal">PROVES</tspan><tspan class="d" dx="9">runs the check instead of judging prose</tspan></text>

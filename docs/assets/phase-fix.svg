@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 978" width="860" role="img" aria-labelledby="pft pfd" class="pf">
 <title id="pft">Phase 4, Fix loop: a bounded ring with gates</title>
-<desc id="pfd">Open findings go around a ring at most four times, the budget kept on disk. The round counter opens a round; routing gives each finding a rung on the editing ladder, cheap for a minor finding with a proven fence, never cheap for a blocker, a security finding, or a flagged file, one lever up on a retry; the editor makes one commit per finding, replies, and pushes; the project's check gate must pass, with one repair allowed and a second failure parking the run; the verifier executes Check lines and judges each Resolution verbatim, resolving threads or reopening them with notes; a skim sends files no finding named to an incremental review; and the count decides: open findings go around again, a finding reopened past the limit gets one arbitration and then parks, four spent rounds park with a status comment, and none open converges, a wont-fix needing your yes before anything merges.</desc>
+<desc id="pfd">Open findings go around a ring at most four times, the budget kept on disk. The round counter opens a round; routing gives each finding a rung on the editing ladder, cheap in round one for a minor or nit with a proven fence, never cheap for a blocker, a security finding, or a flagged file, one lever up on a retry; the editor makes one commit per finding, replies, and pushes; the project's check gate must pass, with one repair allowed and a second failure parking the run; the verifier executes Check lines and judges each Resolution verbatim, resolving threads or reopening them with notes; a skim sends files no finding named to an incremental review; and the count decides: open findings go around again, a finding reopened past the limit gets one arbitration and parks if still open, four spent rounds park with a status comment, and none open converges, a wont-fix needing your yes before anything merges.</desc>
 <style>
 .pf{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
 @media (prefers-color-scheme:dark){.pf{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
@@ -168,7 +168,7 @@
 <circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
 <text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
 <text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">round</tspan><tspan class="term-t"> 2 of 4</tspan></text>
-<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> edit all rung cheap model sonnet effort medium reason mechanical ids F001 F004</tspan></text>
+<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> edit all rung base model inherit effort high reason more-effort ids F001</tspan></text>
 <text class="mono tl tl3" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">run-check:</tspan><tspan class="term-t"> pass</tspan></text>
 <text class="mono tl tl5" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">round-diff:</tspan><tspan class="term-t"> clean</tspan></text>
 <text class="mono tl tl6" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">open</tspan><tspan class="term-t"> 0 addressed 0 verified 5 wont-fix 0 max_reopens 1</tspan></text>
@@ -232,12 +232,12 @@
 <rect class="panel" x="28" y="718.8" width="380" height="108" rx="10"/>
 <text class="k" x="42" y="739.8" style="font-size:9.5px;letter-spacing:1.4px">THE EDITING LADDER</text>
 <circle class="dot" cx="45" cy="755" r="2"/>
-<text class="s" x="53" y="758.8">A minor or nit with a proven fence starts on the cheap rung.</text>
+<text class="s" x="53" y="758.8">In round one, a minor or nit with a proven fence starts cheap.</text>
 <circle class="dot" cx="45" cy="774.5" r="2"/>
 <text class="s" x="53" y="778.3">A blocker, a security finding, or a flagged file never starts cheap.</text>
 <circle class="dot" cx="45" cy="794" r="2"/>
-<text class="s" x="53" y="797.8">A retry moves one lever, effort first, then the model, under the</text>
-<text class="s" x="53" y="812.3">posture.</text>
+<text class="s" x="53" y="797.8">A retry moves one lever: off cheap first, else effort to the cap, then the</text>
+<text class="s" x="53" y="812.3">model.</text>
 <rect class="panel" x="424" y="718.8" width="408" height="93.5" rx="10"/>
 <text class="k" x="438" y="739.8" style="font-size:9.5px;letter-spacing:1.4px">SEPARATION OF POWERS</text>
 <circle class="dot" cx="441" cy="755" r="2"/>
@@ -245,7 +245,7 @@
 <circle class="dot" cx="441" cy="774.5" r="2"/>
 <text class="s" x="449" y="778.3">The skim reviews changes no finding asked for.</text>
 <circle class="dot" cx="441" cy="794" r="2"/>
-<text class="s" x="449" y="797.8">Arbitration is one strong pass, once a run.</text>
+<text class="s" x="449" y="797.8">Arbitration is one high-effort pass, once a run.</text>
 <rect class="ledger" x="28" y="844.8" width="804" height="62" rx="10"/>
 <path class="folder" d="M42 870.8h5l2 2h8v9h-15z"/>
 <text class="k" x="64" y="876.8" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
@@ -257,8 +257,8 @@
 <g class="lf lf4"><path class="doc" d="M160 880.8h6l3 3v8h-9z"/><text class="mono" x="175" y="889.8" style="font-size:10.5px">threads resolved or reopened</text></g>
 <g class="lf lf5"><path class="doc" d="M371 880.8h6l3 3v8h-9z"/><text class="mono" x="386" y="889.8" style="font-size:10.5px">incremental review</text></g>
 <g class="lf lf6"><path class="doc" d="M518.8 880.8h6l3 3v8h-9z"/><text class="mono" x="533.8" y="889.8" style="font-size:10.5px">count, capped_ids</text></g>
-<g class="rtag"><rect x="107.1" y="318.2" width="89.9" height="16" rx="8"/><text class="mono" x="114.1" y="329.5" style="font-size:9px">cheap · medium</text></g>
-<g class="rtag"><rect x="473.6" y="333.6" width="84.4" height="16" rx="8"/><text class="mono" x="480.6" y="344.9" style="font-size:9px">base · medium</text></g>
+<g class="rtag"><rect x="107.1" y="318.2" width="73.6" height="16" rx="8"/><text class="mono" x="114.1" y="329.5" style="font-size:9px">base · high</text></g>
+<g class="rtag"><rect x="489.9" y="333.6" width="68.2" height="16" rx="8"/><text class="mono" x="496.9" y="344.9" style="font-size:9px">base · low</text></g>
 <g class="call ex3">
 <circle class="bg-note" cx="646" cy="298.6" r="9.5"/>
 <g class="bg-note-m"><path class="bm-s" d="M650 297.1a4.2 4.2 0 1 0 0.4 3.4"/><path class="bm-f" d="M647.6 296l3.4 -1.6l0.2 3.6z"/></g>
@@ -293,7 +293,7 @@
 <circle class="bg-stop" cx="646" cy="637.6" r="9.5"/>
 <g class="bg-stop-m"><rect class="bm-f" x="642.8" y="634.4" width="6.4" height="6.4" rx="1"/></g>
 <text class="c1" x="662" y="641.6">reopened past the limit</text>
-<text class="c2" x="662" y="655.6" style="font-size:10.5px">one arbitration, then park</text>
+<text class="c2" x="662" y="655.6" style="font-size:10.5px">one arbitration; still open → park</text>
 </g>
 <g class="call ex0">
 <circle class="bg-stop" cx="121.1" cy="678.8" r="9.5"/>

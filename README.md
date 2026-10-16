@@ -18,9 +18,9 @@ until nothing remains open. Then it merges, or asks you first.
 [Development](#development) &#183;
 [License](#license-and-attribution)
 
-<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request with no model; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; after convergence the run waits for the checks and repairs failures, brings the branch up to date by the merge method, and refuses to merge over commits that landed beside the reviewed hunks; a merge gate asks first, then merges by the decided method."></p>
+<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request, with no model by default; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; after convergence the run brings the branch up to date by the merge method, then waits for the checks and repairs failures; a merge gate asks first, its doors refuse a merge over commits that landed beside the reviewed hunks until someone decides they are independent, and the run merges by the decided method."></p>
 
-<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits through the checks, base sync, and the overlap guard to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
+<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits through base sync, the checks, and the merge gate’s doors to the merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
 
 ## Status
 
@@ -501,7 +501,7 @@ State is keyed by repository and pull request, so every worktree of a
 clone shares it, and local rule files are found from a linked worktree
 by looking in the main one. Run one review per pull request at a time.
 
-<p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, and verifier each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></p>
+<p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, verifier, and comparer each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></p>
 
 ### Limits
 

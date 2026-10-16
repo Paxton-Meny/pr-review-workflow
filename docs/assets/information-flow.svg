@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 528" width="860" role="img" aria-labelledby="nft nfd" class="fg">
 <title id="nft">Where information lives and moves</title>
-<desc id="nfd">The orchestrating session sees one line per script: counts and ids, never the diff. Below that line, GitHub's diff, threads, checks, and the pull requests open beside it, read once, and your clone's worktree, local rules, and the base branch as it moves feed a per-pull-request ledger on disk holding the annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree. Reviewer, filter, editor, and verifier each read their own slice in an isolated context, and pushes, replies, resolutions, and the merge flow back to GitHub.</desc>
+<desc id="nfd">The orchestrating session sees one line per script: counts and ids, never the diff. Below that line, GitHub's diff, threads, checks, and the pull requests open beside it, read once, and your clone's worktree, local rules, and the base branch as it moves feed a per-pull-request ledger on disk holding the annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree. Reviewer, filter, editor, verifier, and comparer each read their own slice in an isolated context, and pushes, replies, resolutions, and the merge flow back to GitHub.</desc>
 <style>
 .fg{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
 @media (prefers-color-scheme:dark){.fg{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--clay:#F28B62;--term:#0A0B0F;--term-line:#2C313C;--shadow:.5}}
@@ -36,9 +36,9 @@
 <rect class="canvas" width="860" height="528" rx="16"/>
 <text class="k mid" x="430" y="28">THE ORCHESTRATING SESSION SEES ONLY THIS</text>
 <g filter="url(#nfsh)"><rect class="term" x="150" y="40" width="560" height="78" rx="10"/></g>
-<text class="mono tl tt" x="166" y="63"><tspan class="tm">fetch-pr:</tspan> 14 files, 612 additions, 88 deletions</text>
-<text class="mono tl tt" x="166" y="82"><tspan class="tm">save-findings:</tspan> 5 findings saved, next id F006</text>
-<text class="mono tl tt" x="166" y="101"><tspan class="tm"></tspan>open 0 addressed 0 verified 5 wont-fix 0 max_reopens 0</text>
+<text class="mono tl tt" x="166" y="63"><tspan class="tp">›</tspan> <tspan class="tm">fetch-pr:</tspan> 41 files, 2904 additions, 388 deletions</text>
+<text class="mono tl tt" x="166" y="82"><tspan class="tp">›</tspan> <tspan class="tm">save-findings:</tspan> 2 findings saved, next id F006</text>
+<text class="mono tl tt" x="166" y="101"><tspan class="tp">›</tspan> open 0 addressed 0 verified 5 wont-fix 0 max_reopens 1</text>
 <path class="wall" d="M24 143.5H246M614 143.5H836"/>
 <text class="mid coral" x="430" y="147.5" style="font-weight:600">one line per script crosses; the diff never does</text>
 <path class="ar dash" d="M430 172V124" marker-end="url(#nfa)"/>
@@ -54,16 +54,18 @@
 <path class="ar" d="M193 250H225" marker-end="url(#nfa)"/>
 <g filter="url(#nfsh)"><rect class="c" x="670" y="204" width="166" height="92" rx="9"/></g><text class="h" x="684" y="237.5">Your clone</text><text class="" x="684" y="254.5">worktree, rules, live base</text><text class="" x="684" y="269.5">your checkout untouched</text>
 <path class="ar" d="M667 250H635" marker-end="url(#nfa)"/>
-<path class="ar" d="M430 366V390"/><path class="ar" d="M215.5 390H644.5"/>
-<path class="ar" d="M215.5 390V411" marker-end="url(#nfa)"/>
-<path class="ar" d="M358.5 390V411" marker-end="url(#nfa)"/>
-<path class="ar" d="M501.5 390V411" marker-end="url(#nfa)"/>
-<path class="ar" d="M644.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M430 366V390"/><path class="ar" d="M213.5 390H769.5"/>
+<path class="ar" d="M213.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M352.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M491.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M630.5 390V411" marker-end="url(#nfa)"/>
+<path class="ar" d="M769.5 390V411" marker-end="url(#nfa)"/>
 <text x="442" y="382">each agent reads its own slice, in its own context</text>
-<g filter="url(#nfsh)"><rect class="cm" x="150" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="164" y="442.5">Reviewer</text><text class="sm" x="164" y="459.5">reads diffs and rules</text><text class="sm" x="164" y="474.5">returns records</text>
-<g filter="url(#nfsh)"><rect class="cm" x="293" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="307" y="442.5">Filter</text><text class="sm" x="307" y="459.5">re-reads cited code</text><text class="sm" x="307" y="474.5">demotes with a note</text>
-<g filter="url(#nfsh)"><rect class="cm" x="436" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="450" y="442.5">Editor</text><text class="sm" x="450" y="459.5">edits the worktree</text><text class="sm" x="450" y="474.5">commits per finding</text>
-<g filter="url(#nfsh)"><rect class="cm" x="579" y="416" width="131" height="78" rx="9"/></g><text class="h hm" x="593" y="442.5">Verifier</text><text class="sm" x="593" y="459.5">runs the contracts</text><text class="sm" x="593" y="474.5">closes or reopens</text>
+<g filter="url(#nfsh)"><rect class="cm" x="150" y="416" width="127" height="78" rx="9"/></g><text class="h hm" x="164" y="442.5">Reviewer</text><text class="sm" x="164" y="459.5">reads diffs and rules</text><text class="sm" x="164" y="474.5">returns records</text>
+<g filter="url(#nfsh)"><rect class="cm" x="289" y="416" width="127" height="78" rx="9"/></g><text class="h hm" x="303" y="442.5">Filter</text><text class="sm" x="303" y="459.5">re-reads cited code</text><text class="sm" x="303" y="474.5">demotes with a note</text>
+<g filter="url(#nfsh)"><rect class="cm" x="428" y="416" width="127" height="78" rx="9"/></g><text class="h hm" x="442" y="442.5">Editor</text><text class="sm" x="442" y="459.5">edits the worktree</text><text class="sm" x="442" y="474.5">commits per finding</text>
+<g filter="url(#nfsh)"><rect class="cm" x="567" y="416" width="127" height="78" rx="9"/></g><text class="h hm" x="581" y="442.5">Verifier</text><text class="sm" x="581" y="459.5">runs the contracts</text><text class="sm" x="581" y="474.5">closes or reopens</text>
+<g filter="url(#nfsh)"><rect class="cm" x="706" y="416" width="127" height="78" rx="9" stroke-dasharray="5 4"/></g><text class="h hm" x="720" y="442.5">Comparer</text><text class="sm" x="720" y="459.5">reads two hunk sets</text><text class="sm" x="720" y="474.5">returns one verdict</text>
 <path class="ar" d="M146 455H107V301" marker-end="url(#nfa)"/>
 <text class="end" x="96" y="330">pushes,</text><text class="end" x="96" y="345">replies,</text><text class="end" x="96" y="360">resolutions,</text><text class="end" x="96" y="375">the merge</text>
 </svg>

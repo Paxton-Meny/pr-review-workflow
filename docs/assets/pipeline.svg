@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1256" width="860" role="img" aria-labelledby="plt pld" class="fg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1334" width="860" role="img" aria-labelledby="plt pld" class="fg">
 <title id="plt">The shape of a run, in three lanes</title>
-<desc id="pld">Scripts run down the center as the backbone: one command stages the pull request from GitHub with no model, plans the read, and delegates to a reviewer, up to four in parallel, then a gap pass; findings are banked, filtered, proven, and posted as inline threads. A loop of at most four rounds opens a round, hands the editor one commit per finding, runs the project's check gate, executes the contracts for the verifier, and skims the round for unasked changes. After convergence the run waits for the head's checks and repairs what fails, brings the branch up to date by the merge method, and refuses to merge over commits that landed beside the reviewed hunks unless a person, or a cheap comparer, says they are independent. A merge gate asks first, then merges by the decided method; a run that does not converge parks with a status comment and resumes later.</desc>
+<desc id="pld">Scripts run down the center as the backbone: one command stages the pull request from GitHub, with no model by default, plans the read, and delegates to reviewers, up to four shards in parallel, then a gap pass; findings are banked, filtered, proven, and posted as inline threads and a summary comment. A loop of at most four rounds opens a round, hands the editor one commit per finding, runs the project's check gate, executes the contracts for the verifier, and skims the round for unasked changes. After convergence the run brings the branch up to date by the merge method, then waits for the head's checks and repairs what fails. A merge gate asks first, then four doors refuse a merge over commits that landed beside the reviewed hunks unless a person, or a comparer, says they are independent, and the merge runs by the decided method with the head matched; a run that does not converge parks with a status comment and resumes later.</desc>
 <style>
 .fg{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
 @media (prefers-color-scheme:dark){.fg{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--clay:#F28B62;--term:#0A0B0F;--term-line:#2C313C;--shadow:.5}}
@@ -37,15 +37,15 @@
 .fg .canvas{fill:var(--canvas)}
 </style>
 <defs><filter id="plsh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="pla" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
-<rect class="canvas" width="860" height="1256" rx="16"/>
-<rect class="lane" x="146" y="16" width="176" height="1224" rx="14"/>
-<rect class="lane" x="334" y="16" width="256" height="1224" rx="14"/>
-<rect class="lane" x="602" y="16" width="238" height="1224" rx="14"/>
+<rect class="canvas" width="860" height="1334" rx="16"/>
+<rect class="lane" x="146" y="16" width="176" height="1302" rx="14"/>
+<rect class="lane" x="334" y="16" width="256" height="1302" rx="14"/>
+<rect class="lane" x="602" y="16" width="238" height="1302" rx="14"/>
 <text class="k mid teal" x="234" y="44">GITHUB</text><text class="mid" x="234" y="61">the pull request</text>
 <text class="k mid " x="462" y="44">SCRIPTS</text><text class="mid" x="462" y="61">deterministic shell, zero tokens</text>
 <text class="k mid accent" x="721" y="44">MODELS</text><text class="mid" x="721" y="61">isolated contexts, judgment only</text>
-<path class="spine" d="M462 122V1054"/>
-<path class="spine" stroke-dasharray="3 5" d="M462 1108V1132"/>
+<path class="spine" d="M462 122V1132"/>
+<path class="spine" stroke-dasharray="3 5" d="M462 1186V1210"/>
 <path class="chev" d="M458 132l4 4 4-4"/>
 <path class="chev" d="M458 210l4 4 4-4"/>
 <path class="chev" d="M458 288l4 4 4-4"/>
@@ -56,15 +56,16 @@
 <path class="chev" d="M458 698l4 4 4-4"/>
 <path class="chev" d="M458 786l4 4 4-4"/>
 <path class="chev" d="M458 864l4 4 4-4"/>
-<path class="chev" d="M458 942l4 4 4-4"/>
-<path class="chev" d="M458 1030l4 4 4-4"/>
+<path class="chev" d="M458 952l4 4 4-4"/>
+<path class="chev" d="M458 1040l4 4 4-4"/>
+<path class="chev" d="M458 1118l4 4 4-4"/>
 <rect class="loop" x="140.5" y="462" width="705" height="320" rx="14"/>
 <g filter="url(#plsh)"><rect class="term" x="344" y="84" width="236" height="38" rx="9"/></g><text class="mono cmd tt" x="357" y="107"><tspan class="tp">›</tspan> /pr-review-workflow:review-pr 128</text>
 <text x="24" y="101"><tspan class="num">0</tspan><tspan class="ph " dx="7">INVOKE</tspan></text><text x="24" y="118">one command</text>
-<text x="24" y="171"><tspan class="num">1</tspan><tspan class="ph " dx="7">STAGE</tspan></text><text x="24" y="188">no model yet</text>
+<text x="24" y="171"><tspan class="num">1</tspan><tspan class="ph " dx="7">STAGE</tspan></text><text x="24" y="188">no model by default</text>
 <g filter="url(#plsh)"><rect class="cg" x="156" y="146" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="168">Pull request #128</text><text class="sg" x="170" y="185">diff and threads, once</text>
 <path class="ar" d="M315 173.0H339" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="c" x="344" y="146" width="236" height="54" rx="9"/></g><text class="h" x="358" y="168">Stage</text><text class="" x="358" y="185">fetch · probe · classify · check out</text>
+<g filter="url(#plsh)"><rect class="c" x="344" y="146" width="236" height="54" rx="9"/></g><text class="h" x="358" y="168">Stage</text><text class="" x="358" y="185">fetch · probe · classify · scan · check out</text>
 <text x="24" y="249"><tspan class="num">2</tspan><tspan class="ph " dx="7">REVIEW</tspan></text><text x="24" y="266">once, thoroughly</text>
 <g filter="url(#plsh)"><rect class="c" x="344" y="224" width="236" height="54" rx="9"/></g><text class="h" x="358" y="246">Plan the read</text><text class="" x="358" y="263">shards and seams for a large diff</text>
 <path class="ar" d="M583 251.0H609" marker-end="url(#pla)"/>
@@ -75,7 +76,7 @@
 <path class="ar" d="M611 329.0H585" marker-end="url(#pla)"/>
 <g filter="url(#plsh)"><rect class="cm" x="614" y="302" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="324">Gap pass</text><text class="sm" x="628" y="341">seams first, then what was missed</text>
 <text x="24" y="405"><tspan class="num">3</tspan><tspan class="ph " dx="7">POST</tspan></text><text x="24" y="422">proof before posting</text>
-<g filter="url(#plsh)"><rect class="cg" x="156" y="380" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="402">Inline threads</text><text class="sg" x="170" y="419">one per finding</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="380" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="402">Inline threads</text><text class="sg" x="170" y="419">one per kept finding</text>
 <path class="ar" d="M341 407.0H317" marker-end="url(#pla)"/>
 <g filter="url(#plsh)"><rect class="c" x="344" y="380" width="236" height="54" rx="9"/></g><text class="h" x="358" y="402">Prove and post</text><text class="" x="358" y="419">suggestions post only after passing</text>
 <path class="ar" d="M583 407.0H609" marker-end="url(#pla)"/>
@@ -96,26 +97,27 @@
 <g filter="url(#plsh)"><rect class="cm" x="614" y="634" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="656">Verifier</text><text class="sm" x="628" y="673">judges each Resolution verbatim</text>
 <g filter="url(#plsh)"><rect class="c" x="344" y="712" width="236" height="54" rx="9"/></g><text class="h" x="358" y="734">Skim the round</text><text class="" x="358" y="751">unasked changes get their own review</text>
 <text x="24" y="835"><tspan class="num">5</tspan><tspan class="ph " dx="7">LAND</tspan></text><text x="24" y="852">after convergence</text>
-<g filter="url(#plsh)"><rect class="cg" x="156" y="810" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="832">Checks</text><text class="sg" x="170" y="849">the head’s CI, awaited</text>
-<path class="ar" d="M315 837.0H339" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="c" x="344" y="810" width="236" height="54" rx="9"/></g><text class="h" x="358" y="832">Await the checks</text><text class="" x="358" y="849">repair what fails, at most twice</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="810" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="832">Branch updated</text><text class="sg" x="170" y="849">pushed, by the method</text>
+<path class="ar" d="M341 837.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="810" width="236" height="54" rx="9"/></g><text class="h" x="358" y="832">Base sync</text><text class="" x="358" y="849">up to date, by the merge method</text>
 <path class="ar" d="M583 837.0H609" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="cm" x="614" y="810" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="832">Editor</text><text class="sm" x="628" y="849">diagnoses, repairs, pushes</text>
-<g filter="url(#plsh)"><rect class="cg" x="156" y="888" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="910">Branch updated</text><text class="sg" x="170" y="927">pushed with a lease</text>
-<path class="ar" d="M341 915.0H317" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="c" x="344" y="888" width="236" height="54" rx="9"/></g><text class="h" x="358" y="910">Base sync</text><text class="" x="358" y="927">up to date, by the merge method</text>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="810" width="214" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h hm" x="628" y="832">Editor</text><text class="sm" x="628" y="849">resolves conflicts, if you allow it</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="888" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="910">Checks</text><text class="sg" x="170" y="927">the head’s CI, awaited</text>
+<path class="ar" d="M315 915.0H339" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="888" width="236" height="54" rx="9"/></g><text class="h" x="358" y="910">Await the checks</text><text class="" x="358" y="927">repair what fails, at most twice</text>
 <path class="ar" d="M583 915.0H609" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="cm" x="614" y="888" width="214" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h hm" x="628" y="910">Editor</text><text class="sm" x="628" y="927">resolves conflicts, if you allow it</text>
-<g filter="url(#plsh)"><rect class="cg" x="156" y="966" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="988">What landed</text><text class="sg" x="170" y="1005">on the base, beside your hunks</text>
-<path class="ar" d="M315 993.0H339" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="c" x="344" y="966" width="236" height="54" rx="9"/></g><text class="h" x="358" y="988">Overlap guard</text><text class="" x="358" y="1005">a person decides, or a cheap read</text>
-<path class="ar" d="M583 993.0H609" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="cm" x="614" y="966" width="214" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h hm" x="628" y="988">Comparer</text><text class="sm" x="628" y="1005">independent or not, under judged</text>
-<text x="24" y="1079"><tspan class="num">6</tspan><tspan class="ph teal" dx="7">MERGE</tspan></text><text x="24" y="1096">by the decided method</text>
-<g filter="url(#plsh)"><rect class="done" x="156" y="1054" width="156" height="54" rx="9"/></g><path class="tick" d="M171 1073l3.5 3.5 6.5-7.5"/><text class="h doneh" x="189" y="1077">Merged</text><text class="dones" x="170" y="1094">proven merge</text>
-<path class="ar" d="M341 1081.0H317" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="c" x="344" y="1054" width="236" height="54" rx="9"/></g><text class="h" x="358" y="1076">Merge gate</text><text class="" x="358" y="1093">asks first unless auto-approve is on</text>
-<g filter="url(#plsh)"><rect class="c" x="156" y="1132" width="156" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="170" y="1154">Status comment</text><text class="" x="170" y="1171">resumable later</text>
-<path class="ar" stroke-dasharray="3 4" d="M341 1159.0H317" marker-end="url(#pla)"/>
-<g filter="url(#plsh)"><rect class="c" x="344" y="1132" width="236" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="358" y="1154">Or park</text><text class="" x="358" y="1171">the budget is spent: stop, never spin</text>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="888" width="214" height="54" rx="9"/></g><text class="h hm" x="628" y="910">Editor</text><text class="sm" x="628" y="927">diagnoses, repairs, pushes</text>
+<text x="24" y="1001"><tspan class="num">6</tspan><tspan class="ph teal" dx="7">MERGE</tspan></text><text x="24" y="1018">by the decided method</text>
+<g filter="url(#plsh)"><rect class="c" x="344" y="976" width="236" height="54" rx="9"/></g><text class="h" x="358" y="998">Merge gate</text><text class="" x="358" y="1015">asks first unless auto-approve is on</text>
+<g filter="url(#plsh)"><rect class="cg" x="156" y="1054" width="156" height="54" rx="9"/></g><text class="h hg2" x="170" y="1076">What landed</text><text class="sg" x="170" y="1093">beside your hunks</text>
+<path class="ar" d="M315 1081.0H339" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="1054" width="236" height="54" rx="9"/></g><text class="h" x="358" y="1076">Four doors, in order</text><text class="" x="358" y="1093">the last: commits beside your hunks</text>
+<path class="ar" d="M583 1081.0H609" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="cm" x="614" y="1054" width="214" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h hm" x="628" y="1076">Comparer</text><text class="sm" x="628" y="1093">independent or not, under judged</text>
+<g filter="url(#plsh)"><rect class="done" x="156" y="1132" width="156" height="54" rx="9"/></g><path class="tick" d="M171 1151l3.5 3.5 6.5-7.5"/><text class="h doneh" x="189" y="1155">Merged</text><text class="dones" x="170" y="1172">proven merge</text>
+<path class="ar" d="M341 1159.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="1132" width="236" height="54" rx="9"/></g><text class="h" x="358" y="1154">Merge</text><text class="" x="358" y="1171">by the method, the head matched</text>
+<g filter="url(#plsh)"><rect class="c" x="156" y="1210" width="156" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="170" y="1232">Status comment</text><text class="" x="170" y="1249">resumable later</text>
+<path class="ar" stroke-dasharray="3 4" d="M341 1237.0H317" marker-end="url(#pla)"/>
+<g filter="url(#plsh)"><rect class="c" x="344" y="1210" width="236" height="54" rx="9" stroke-dasharray="5 4"/></g><text class="h" x="358" y="1232">Or park</text><text class="" x="358" y="1249">the budget is spent: stop, never spin</text>
 </svg>

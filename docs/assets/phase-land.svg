@@ -193,7 +193,7 @@
 <path class="ctx-i" d="M40 598h6l3 3v8h-9z"/>
 <text class="mono ctx-t" x="56" y="606.5" style="font-size:9.5px">ci-failure.txt, tree</text>
 </g>
-<text class="ok-t" x="364" y="630" style="font-size:10px">0  every check passed</text>
+<text class="ok-t" x="364" y="630" style="font-size:10px">0  passed, none, or off</text>
 <text class="x-t mono" x="218" y="553" text-anchor="middle" style="font-size:10.5px">3</text>
 <text class="loop-t" x="70" y="312" style="font-size:10.5px">loop to the top</text>
 <text class="s" x="70" y="343" style="font-size:10.5px">the base may have</text>
@@ -217,12 +217,12 @@
 <path class="folder" d="M42 865.5h5l2 2h8v9h-15z"/>
 <text class="k" x="64" y="871.5" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
 <text class="fine" x="64" y="883.5" style="font-size:9.5px">on disk, per PR</text>
-<g class="lf lf0"><path class="doc" d="M160 855.5h6l3 3v8h-9z"/><text class="mono" x="175" y="864.5" style="font-size:10.5px">pr-context/merge-method.txt</text></g>
-<g class="lf lf1"><path class="doc" d="M364.7 855.5h6l3 3v8h-9z"/><text class="mono" x="379.7" y="864.5" style="font-size:10.5px">sync-changed.txt</text></g>
-<g class="lf lf2"><path class="doc" d="M499.8 855.5h6l3 3v8h-9z"/><text class="mono" x="514.8" y="864.5" style="font-size:10.5px">ci-wait.txt</text></g>
-<g class="lf lf2"><path class="doc" d="M603.3 855.5h6l3 3v8h-9z"/><text class="mono" x="618.3" y="864.5" style="font-size:10.5px">ci-attempts.txt</text></g>
-<g class="lf lf3"><path class="doc" d="M160 875.5h6l3 3v8h-9z"/><text class="mono" x="175" y="884.5" style="font-size:10.5px">ci-failure.txt</text></g>
-<g class="lf lf3"><path class="doc" d="M282.5 875.5h6l3 3v8h-9z"/><text class="mono" x="297.5" y="884.5" style="font-size:10.5px">ci-rounds.txt</text></g>
+<g class="lf lf2"><path class="doc" d="M160 855.5h6l3 3v8h-9z"/><text class="mono" x="175" y="864.5" style="font-size:10.5px">ci-wait.txt</text></g>
+<g class="lf lf2"><path class="doc" d="M263.5 855.5h6l3 3v8h-9z"/><text class="mono" x="278.5" y="864.5" style="font-size:10.5px">ci-attempts.txt</text></g>
+<g class="lf lf3"><path class="doc" d="M392.3 855.5h6l3 3v8h-9z"/><text class="mono" x="407.3" y="864.5" style="font-size:10.5px">ci-rounds.txt</text></g>
+<g class="lf lf0"><path class="doc" d="M508.5 855.5h6l3 3v8h-9z"/><text class="mono" x="523.5" y="864.5" style="font-size:10.5px">pr-context/merge-method.txt</text></g>
+<g class="lf lf1"><path class="doc" d="M160 875.5h6l3 3v8h-9z"/><text class="mono" x="175" y="884.5" style="font-size:10.5px">sync-changed.txt</text></g>
+<g class="lf lf2"><path class="doc" d="M295.1 875.5h6l3 3v8h-9z"/><text class="mono" x="310.1" y="884.5" style="font-size:10.5px">ci-failure.txt</text></g>
 <g class="rtag"><rect x="114.4" y="518" width="73.6" height="16" rx="8"/><text class="mono" x="121.4" y="529.3" style="font-size:9px">base · high</text></g>
 <g class="call ex0">
 <circle class="bg-ask" cx="512" cy="321" r="9.5"/>
