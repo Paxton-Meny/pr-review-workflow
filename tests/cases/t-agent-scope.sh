@@ -155,6 +155,7 @@ refuse editor Edit file_path "$dir/settings.txt"
 refuse editor Write file_path "$CLAUDE_PLUGIN_DATA/trust/runs/acme__widgets__7.hash"
 refuse editor Write file_path "$clone/src/app.py"
 refuse editor Write file_path "$wt/escape/secret"
+refuse editor Write file_path "$CLAUDE_PLUGIN_DATA/wt/app/src/new.py"
 
 # The user's own session, other agents, and an unplaced data directory pass.
 pass - Bash command "cat $HOME/.ssh/id_rsa"
