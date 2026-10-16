@@ -1,6 +1,6 @@
 #!/bin/sh
 # Merge the pull request by the method merge-method.sh decided, after proving it is mergeable.
-# Usage: sh scripts/merge-pr.sh <state-dir> [--approve] [--migrations-checked]
+# Usage: sh scripts/merge-pr.sh <state-dir> [--approve] [--migrations-checked] [--overlap-checked]
 # Exit 4: refused, writing nothing, because the pull request changes
 # migration files (one "migration <path>" line each) or the forge listed
 # fewer files than changed, unless --migrations-checked says a person
@@ -10,16 +10,23 @@
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
+# Exit 6: refused, writing nothing, because commits that landed on the
+# base since the review touch the reviewed hunks (base-drift.sh's lines
+# follow), unless --overlap-checked says a person has decided, or the
+# comparer's verdict on that same base is independent. Off under the
+# overlap_check setting.
 set -eu
 
-dir=${1:?usage: merge-pr.sh <state-dir> [--approve] [--migrations-checked]}
+dir=${1:?usage: merge-pr.sh <state-dir> [--approve] [--migrations-checked] [--overlap-checked]}
 shift
 approve=''
 checked=0
+overlap_checked=0
 for arg in "$@"; do
 	case "$arg" in
 	--approve) approve=--approve ;;
 	--migrations-checked) checked=1 ;;
+	--overlap-checked) overlap_checked=1 ;;
 	*)
 		echo "merge-pr: unknown argument: $arg" >&2
 		exit 1
@@ -115,6 +122,32 @@ if [ "$checked" -eq 0 ]; then
 		echo "merge-pr: migrations changed, a person decides"
 		printf '%s\n' "$migrations" | sed 's/^/migration /'
 		exit 4
+	fi
+fi
+
+if [ "$overlap_checked" -eq 0 ] && [ "$(sh "$(dirname -- "$0")/setting.sh" "$dir" overlap_check)" != off ]; then
+	rc=0
+	drift=$(sh "$(dirname -- "$0")/base-drift.sh" "$dir") || rc=$?
+	if [ "$rc" -eq 5 ]; then
+		# A verdict stands only for the base it judged.
+		verdict_file="$dir/pr-context/overlap/base/verdict.txt"
+		verdict=''
+		drift_base=$(sed -n 's/^base //p' "$dir/pr-context/drift.txt" 2>/dev/null || true)
+		if [ -f "$verdict_file" ] && [ -n "$drift_base" ] &&
+			[ "$(sed -n 's/^base //p' "$verdict_file")" = "$drift_base" ]; then
+			verdict=$(sed -n 's/^verdict base \([a-z]*\):.*/\1/p' "$verdict_file")
+		fi
+		if [ "$verdict" = independent ]; then
+			echo "merge-pr: base moved under the review; the comparer judged the overlap independent, continuing"
+		else
+			echo "merge-pr: base moved under the review and touches the reviewed hunks, a person decides"
+			printf '%s\n' "$drift"
+			[ -z "$verdict" ] || sed -n 's/^verdict base /verdict /p' "$verdict_file"
+			exit 6
+		fi
+	elif [ "$rc" -ne 0 ]; then
+		echo "merge-pr: base-drift failed" >&2
+		exit 1
 	fi
 fi
 

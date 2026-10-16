@@ -101,3 +101,9 @@ if grep -q 'yarn.lock' "$ctx/commentable.txt"; then
 	echo "a deleted lockfile must not be commentable" >&2
 	exit 1
 fi
+
+# --excluded prints the paths the split keeps out, from a list on stdin.
+printf 'src/app.py\npackage-lock.json\n\nvendor/lib/x.js\nbuild.snap\ndocs/readme.md\n' |
+	sh "$REPO_ROOT/scripts/split-diff.sh" --excluded >"$SCRATCH/excluded"
+[ "$(cat "$SCRATCH/excluded")" = "$(printf 'package-lock.json\nvendor/lib/x.js\nbuild.snap')" ]
+[ -z "$(printf 'src/app.py\n' | sh "$REPO_ROOT/scripts/split-diff.sh" --excluded)" ]

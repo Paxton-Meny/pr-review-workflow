@@ -18,9 +18,9 @@ until nothing remains open. Then it merges, or asks you first.
 [Development](#development) &#183;
 [License](#license-and-attribution)
 
-<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request with no model; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; a merge gate asks first, and a run that does not converge parks with a status comment."></p>
+<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request with no model; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; after convergence the run waits for the checks and repairs failures, brings the branch up to date by the merge method, and refuses to merge over commits that landed beside the reviewed hunks; a merge gate asks first, then merges by the decided method."></p>
 
-<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
+<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits through the checks, base sync, and the overlap guard to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
 
 ## Status
 
@@ -166,7 +166,7 @@ pull request, and says when to choose it.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold. |
+| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations, or commits landed on the base touch the reviewed hunks and the comparer has not judged them independent (unless Overlap check is off). When off, you get a prompt: merge now or hold. |
 | Merge method | auto | How the pull request merges: merge, squash, or rebase. auto takes the one method the repository allows, else the method its recent merged pull requests into the same base used, judged among pull requests of the same shape (one commit or several); mixed evidence asks you, and parks an unattended run. A project's shared file may set it. |
 | CI checks | fix | After convergence, when the repository reports checks: off waits for nothing; wait waits, and on a failure comments and stops; fix has the editor read the failure digest, post its diagnosis, repair, push, and wait again, up to the fix rounds, escalating the routing when the same failure repeats. Never edits a workflow or weakens a test. A project's shared file may raise it. |
 | CI fix rounds | 2 | Repairs of failing checks per pull request before the run parks, kept on disk. |
@@ -182,6 +182,7 @@ pull request, and says when to choose it.
 | Model routing | auto | auto picks cheaper models where the work is mechanical: a small docs-only or config-only change with no risk probes gets a sonnet reviewer, a first editing round whose findings are all minor and fence-backed gets a sonnet editor, and a finding reopened past the limit gets one strong arbitration pass before the run parks, since repeated reopens sometimes mean the cheap verifier is wrong. With a strong model set, large code changes, code whose changed files reference one another, and probe-flagged sensitive code climb above the session model. The gap pass never routes down. fixed always uses the configured models. |
 | Strong model | empty | Model that auto routing climbs to for large code changes, code whose changed files reference one another, probe-flagged sensitive code (concurrency, crypto, auth, injection surfaces), and arbitration. Example: opus. Empty caps routing at the reviewer model. |
 | Sensitive paths | empty | Space-separated globs for files where a defect costs most. A change touching one is treated as high stakes: the reviewer may climb, no fix there starts cheap, and the second review pass runs under risky. A project's shared file adds to this list. |
+| Overlap check | near | How the review treats work landing beside this pull request. near: open pull requests whose hunks touch this change (within 12 lines, or in the same function) are named at the start, and the merge waits for a person when commits that landed on the base since the review touch its hunks that closely; disjoint changes to the same files pass silently, and only code and test files count. judged: as near, plus a cheap agent reads the touching hunks first; independent ones merge on their own, the rest go to you with the verdict. off: neither. A project's shared file may only raise it; see Working beside other pull requests. |
 | Migration paths | common layouts | Space-separated globs for database migration files (default `*[Mm]igrations/* *[Mm]igration/* *db/migrate/* *alembic/versions/*`). A change touching one is treated as high stakes, judged for harm to databases and code teammates already run, and never merged without a person; see Migration safety. Your value replaces the default; a project's shared file adds to it. |
 | Cost posture | balanced | Which way routing leans where the change itself does not settle a decision; it never pins a model. economy counts more changes as small enough for the cheap reviewer (under 500 lines, tests-only included), fewer as large enough for the strong one (over 1,200 lines of code), splits into shards over 2,250 changed lines, and starts any fix cheap once a check command gates the round. quality counts small under 150 and large over 400, splits over 1,000, starts only proven-suggestion fixes cheap, adds one review sample where a stakes probe fired, and is the only posture that lets reasoning effort reach xhigh. balanced keeps 300, 800, and 1,500 and also starts fixes cheap whose Check line will execute. High-stakes findings never start cheap; a failed fix tries again one lever up. Fixed routing keeps every model and sample count as set; the shard limit and the effort cap still follow the posture. |
 | Review samples | 1 | Independent reviewer passes per shard on the first review. Above 1, duplicates merge into the richest record with a support count the filter weighs; recall rises at roughly that multiple of the review cost. For repositories where an escaped defect is expensive. |
@@ -301,11 +302,53 @@ shares the name, such as a migration guide under `docs/`. It never
 offers migration or database tooling (`dotnet ef`, `sqlcmd`,
 `sqlpackage`, `alembic`, and the like) as a check command.
 
+### Working beside other pull requests
+
+The review reads one pull request, and what lands beside it is where
+two developers fixing the same thing in two ways goes unnoticed: the
+other branch merges first, GitHub still reports the branch mergeable
+when the lines differ, and a rebase merge lands a combination nobody
+reviewed. Several people editing the same files at once is normal, so
+file overlap alone is not a signal; the plugin compares hunks, in the
+coordinates both diffs share, and reacts only when they are within 12
+lines of each other or inside the same function. Only code and test
+files count: a changelog or a dependency list is where every concurrent
+change meets, and a clash there is not a defect. When the branch has
+been brought up to date since the review, by its author or by base
+sync, the comparison runs from the base the review started on, since
+the merge base would otherwise hide what landed.
+
+At the start of a review, the open pull requests on the same base that
+share files are compared hunk by hunk (the five sharing the most files,
+each diff against its own merge base, so approximately), and the ones
+that touch this change are named with their author, whether they are
+drafts, whether they are yours, and whether either description names
+the other. You are asked whether to continue; unattended, the review
+continues and the names go into the status comment and the report.
+
+Before any merge, the base is fetched again and the commits that landed
+since the review are compared the same way, exactly this time, in the
+merge base's coordinates. Nothing landed, or only changes elsewhere in
+the shared files: the merge goes ahead. Something close: the merge
+refuses, says what landed where, and asks you, or parks unattended.
+Under `judged`, a cheap agent reads both sets of hunks first and
+classifies them as independent, complementary, duplicate, or
+contradictory; independent merges on its own, and the rest reach you
+with the verdict. A verdict stands only for the base it judged. A verdict
+never edits, closes, or retargets anything and never substitutes for
+`--overlap-checked`; its one effect on a merge is that an independent
+verdict on the very base it judged lets the merge proceed without a
+question. The editor never sees any of it.
+
+Not covered: a branch with no pull request, two fixes that share no
+file (one in a caller, one in a callee), and any reading of intent
+beyond the hunks under `near`.
+
 ### Cost notes
 
 - Reasoning effort is routed beside the model, independent of your
   session's level. Each agent starts at its definition's level (the
-  reviewer high, the editor and the verifier medium, the filter low;
+  reviewer high, the editor and the verifier medium, the filter and the comparer low;
   arbitration runs the verifier at high) and moves one level per
   signal: up for a wide search (large or coupled code unless a stronger
   model takes it, a shard on a seam, a gap pass over seams) or high
@@ -424,7 +467,10 @@ by looking in the main one. Run one review per pull request at a time.
   it holds the run.
 - Unattended runs never merge unless auto-approve is on; they park with a
   status comment instead.
-- Migration conflicts with the base branch or other open pull requests
+- Work landing beside this pull request is detected by hunk proximity
+  only, and judged only under `overlap_check judged`; two fixes that
+  share no file, and branches without a pull request, are not seen.
+  Migration conflicts with the base branch or other open pull requests
   are not detected; the merge gate hands them to you as a checklist.
 
 ## Development
@@ -452,7 +498,7 @@ every change goes through.
 - `skills/status/`: read-only view of recorded runs and their statistics.
 - `skills/setup/`: writes a repository's settings file from what the clone states.
 - `skills/finding-records/`: the finding record format, preloaded into the agents.
-- `agents/`: reviewer, filter, editor, and verifier definitions, plus the
+- `agents/`: reviewer, filter, editor, verifier, and comparer definitions, plus the
   cartographer and assembler that setup spawns to map a repository.
 - `hooks/`: the check that runs before Claude starts a review itself.
 - `scripts/`: POSIX sh, one proven step each.

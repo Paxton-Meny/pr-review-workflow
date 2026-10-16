@@ -1,20 +1,11 @@
 #!/bin/sh
 # Split a fetched diff into annotated per-file diffs and a commentable index.
 # Usage: sh scripts/split-diff.sh <state-dir>
+#        sh scripts/split-diff.sh --excluded < paths
+# --excluded reads one path per line and prints the ones this split
+# would keep out (lockfiles, generated output), so other scripts share
+# the one list instead of carrying a copy.
 set -eu
-
-dir=${1:?usage: split-diff.sh <state-dir>}
-patch="$dir/pr-context/diff.patch"
-[ -f "$patch" ] || {
-	echo "split-diff: no diff.patch in $dir/pr-context, run fetch-pr.sh first" >&2
-	exit 1
-}
-
-files_dir="$dir/pr-context/files"
-rm -rf "$files_dir"
-rm -f "$dir/pr-context/diff-index.txt" "$dir/pr-context/commentable.txt" \
-	"$dir/pr-context/excluded.txt"
-mkdir -p "$files_dir"
 
 excluded_path() {
 	case "$1" in
@@ -28,6 +19,27 @@ excluded_path() {
 	esac
 	return 1
 }
+
+if [ "${1:-}" = --excluded ]; then
+	while IFS= read -r path; do
+		[ -n "$path" ] || continue
+		excluded_path "$path" && printf '%s\n' "$path"
+	done
+	exit 0
+fi
+
+dir=${1:?usage: split-diff.sh <state-dir>}
+patch="$dir/pr-context/diff.patch"
+[ -f "$patch" ] || {
+	echo "split-diff: no diff.patch in $dir/pr-context, run fetch-pr.sh first" >&2
+	exit 1
+}
+
+files_dir="$dir/pr-context/files"
+rm -rf "$files_dir"
+rm -f "$dir/pr-context/diff-index.txt" "$dir/pr-context/commentable.txt" \
+	"$dir/pr-context/excluded.txt"
+mkdir -p "$files_dir"
 
 exclusions=$(mktemp "$dir/pr-context/.excl.XXXXXX")
 awk '/^(\+\+\+|---) / { p = $0; sub(/^(\+\+\+|---) /, "", p); sub(/^[ab]\//, "", p); if (p != "/dev/null") print p }' "$patch" |
