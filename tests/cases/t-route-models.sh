@@ -187,6 +187,8 @@ printf 'sensitive\tsrc/auth.py\nadded\tdocs/b.md\n' >"$ctx/probe-files.txt"
 classify code 250 180
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort medium reason docs-only-small samples 1
 route review group-2 rung strong model opus effort high reason risky-probe samples 1" ]
+# The plan goes to the ledger for review-progress.sh.
+[ "$(tail -n 3 "$dir/review.txt")" = "$(printf 'plan\nplanned group-1 samples 1\nplanned group-2 samples 1')" ]
 [ "$(route gap routing=auto reviewer=inherit strong=opus)" = "route gap all rung strong model opus effort high reason follows-reviewer" ]
 printf 'docs/a.md and src/util.py split across groups 1 and 2 (shared name: util)\n' >"$ctx/seams.txt"
 [ "$(route review routing=auto reviewer=inherit strong=opus)" = "route review group-1 rung cheap model sonnet effort high reason docs-only-small samples 1
@@ -202,6 +204,7 @@ rm -f "$ctx/shards.txt"
 probes ''
 [ "$(route gap $ARGS double=off)" = "route gap all skip reason double-review-off" ]
 [ "$(route gap $ARGS double=risky)" = "route gap all skip reason no-risk-signal" ]
+[ "$(tail -n 1 "$dir/review.txt")" = 'gap skip no-risk-signal' ]
 probes 'sensitive'
 [ "$(route gap $ARGS double=risky)" = "route gap all rung base model inherit effort high reason follows-reviewer" ]
 probes 'automation'

@@ -92,6 +92,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and changing nothing, while a record it would post, inline or in the
   round's summary, carries a fence not proven at the head the comments
   anchor to; one `unproven <id>` line names each.
+- A run that stopped mid-review resumes the review instead of skipping
+  past it. The ledger's `review.txt` records the review plan
+  (`route-models.sh review`), every report saved
+  (`save-findings.sh --unit <unit>`, which now takes a `no findings`
+  report too), every dedup, and a skipped gap pass, and the new
+  `scripts/review-progress.sh` reads it back: exit 0 when the phase is
+  complete, exit 3 with one line per reviewer unit still owed, a dedup
+  not run, or a gap pass not run. The skill routes every invocation by
+  it, so shards that had not saved, the dedup, and the gap pass run
+  after a crash, and a resumed run whose worktree was cleaned up
+  checks out again first. `post-review.sh` refuses with exit 5 and
+  `merge-pr.sh` with exit 6 while the phase is incomplete. A ledger
+  from before the record counts as complete once it holds findings.
 - `merge-pr.sh` merges by the decided method instead of always by
   rebase, names the head the run last saw so an unseen push refuses the
   merge, and deletes the head branch only when the repository does not
