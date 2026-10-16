@@ -16,6 +16,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/review-progress.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
@@ -168,14 +169,25 @@ PRWF_SETTINGS_END
    request closed since, and prunes finished ledgers past keep_ledgers.
    The current run is never touched.
 
-   If `<dir>/findings/` already has records, this is a resume: run
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
+   Then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/review-progress.sh <dir>`,
+   relaying its lines; it reads from the ledger what the review phase
+   (steps 5 and 6) still owes, never from memory. Exit 3, pending: a
+   fresh run (`review not planned`) or one that stopped mid-review.
+   Continue at step 3, and in steps 5 and 6 do only what it lists:
+   spawn reviewers only for the units it names, as many as each line's
+   `needs` count; run dedup-findings when it lists `dedup not run`;
+   run the gap pass when it lists `gap not run`.
+   Exit 0, complete: this is a resume past the review. When
+   `<dir>/worktree` is gone (a held run was cleaned up), run steps 3
+   and 4 first, since every later step needs them. Then run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
+   (when `<dir>/findings/` has records),
    report the counts, and continue at the step they imply. Open findings:
    step 7 first, because a run may have stopped between saving and
    posting, and prove-suggestions and post-review are both rerun-safe;
-   then step 8. None open: step 10. The `--list` lines give the ids every
-   later step needs, and the round cap survives on disk, so a resumed run
-   cannot restart its budget.
+   then step 8. None open, or no findings at all: step 10. The `--list`
+   lines give the ids every later step needs, and the round cap
+   survives on disk, so a resumed run cannot restart its budget.
 3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh <dir>`,
@@ -233,12 +245,14 @@ PRWF_SETTINGS_END
    reviewer_model; a reason of `strong-wanted-unset` means the change
    deserved a stronger model and none is configured, which the final
    report must say.
-   Pipe each report verbatim into
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir>` via a heredoc,
-   unless it is exactly `no findings`. Every reviewer returning `no
-   findings` means the first pass found nothing; continue, since the
-   gap pass still applies. When `samples` was greater than 1 and any
-   report was saved, finish with
+   Pipe each report verbatim, `no findings` included, into
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir> --unit <unit>`
+   via a heredoc, as soon as it arrives, where `<unit>` is the route
+   line's unit (`all`, or `group-<n>` for a shard group): one call per
+   reviewer, so the ledger knows which reviewers are in. Every reviewer
+   returning `no findings` means the first pass found nothing; continue,
+   since the gap pass still applies. When `samples` was greater than 1
+   and any report held findings, finish with
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh <dir>`,
    relaying its one-line result: duplicates merge into the richest
    record, and every survivor carries a support header the filter
@@ -257,9 +271,12 @@ PRWF_SETTINGS_END
    `Review the pull request. State directory: <dir>. Gap pass: read the existing findings first and report only defects they miss.`
    When shard-plan reported more than zero seams, append exactly:
    ` Seams first: pr-context/seams.txt lists the couplings no single shard saw.`
-   Pipe its records into save-findings as in step 5. When the ledger
-   holds no findings after this step, the change is clean: skip to
-   step 10.
+   Pipe its report into save-findings as in step 5, with `--unit gap`.
+   Then run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/review-progress.sh <dir>`:
+   it must print `review-progress: complete`; when it lists anything,
+   do that item as steps 5 and 6 describe and run it again. When the
+   ledger holds no findings after this step, the change is clean: skip
+   to step 10.
 7. When the ledger holds open findings not yet posted, run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter`;
    unless it prints a `skip` line, spawn `pr-review-workflow:filter`
@@ -271,7 +288,9 @@ PRWF_SETTINGS_END
    exit 4 means it posted nothing because a suggestion fence it would
    post was not proven at the head (one `unproven` line each): run
    prove-suggestions and then post-review once more; a second exit 4
-   stops the run as a failing script does.
+   stops the run as a failing script does. Exit 5 means it posted
+   nothing because the review phase is incomplete: do what its lines
+   name, as step 2 describes for a pending review, then continue here.
    In review-only mode, stop after posting: add one `gh pr comment` status
    comment saying the findings stand for the author to address (proven
    suggestions can be committed from the GitHub interface), run
@@ -451,7 +470,10 @@ PRWF_SETTINGS_END
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
     - merge-pr exit 6: nothing merged and nothing asked of the forge,
-      because the ledger does not allow it; relay its lines. `open`
+      because the ledger does not allow it; relay its lines. `review`,
+      `dedup`, or `gap` lines: the review phase is incomplete; do what
+      they name, as step 2 describes for a pending review, then step 7
+      onward. `open`
       lines: back to step 8. `unaccepted` lines: step 10. A `check`
       line: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`
       as step 8c describes, repair included, then run the same
