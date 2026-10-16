@@ -1,0 +1,321 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 978" width="860" role="img" aria-labelledby="pft pfd" class="pf">
+<title id="pft">Phase 4, Fix loop: a bounded ring with gates</title>
+<desc id="pfd">Open findings go around a ring at most four times, the budget kept on disk. The round counter opens a round; routing gives each finding a rung on the editing ladder, cheap in round one for a minor or nit with a proven fence, never cheap for a blocker, a security finding, or a flagged file, one lever up on a retry; the editor makes one commit per finding, replies, and pushes; the project's check gate must pass, with one repair allowed and a second failure parking the run; the verifier executes Check lines and judges each Resolution verbatim, resolving threads or reopening them with notes; a skim sends files no finding named to an incremental review; and the count decides: open findings go around again, a finding reopened past the limit gets one arbitration and parks if still open, four spent rounds park with a status comment, and none open converges, a wont-fix needing your yes before anything merges.</desc>
+<style>
+.pf{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pf{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
+.pf text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
+.pf .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.pf .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
+.pf .kick{fill:var(--coral);font-weight:700}
+.pf .sub{fill:var(--muted)}
+.pf .rail{stroke:var(--line);stroke-width:2;fill:none}.pf .rail-done{stroke:var(--rule);stroke-width:2;fill:none}
+.pf .rail-past{fill:var(--rule)}.pf .rail-next{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}
+.pf .rail-now{fill:var(--clay)}.pf .rail-ring{fill:var(--bg);stroke:var(--clay);stroke-width:1.5}
+.pf .rail-lbl{fill:var(--faint)}.pf .rail-lbl.now{fill:var(--ink);font-weight:700}
+.pf .h{font-size:12.5px;font-weight:700;fill:var(--ink)}.pf .h.mono{font-size:12px}
+.pf .s{fill:var(--muted)}
+.pf .k{font-weight:700;fill:var(--ink)}
+.pf .fine{fill:var(--faint)}
+.pf .num{fill:var(--faint)}
+.pf .c{fill:var(--card);stroke:var(--line)}
+.pf .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pf .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.pf .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pf .cd{fill:var(--teal);stroke:var(--teal)}
+.pf .hm{fill:var(--accent-ink)}.pf .sm{fill:var(--accent)}
+.pf .hg{fill:var(--teal-ink)}.pf .sg{fill:var(--teal)}
+.pf .hp{fill:var(--coral-ink)}.pf .sp{fill:var(--coral)}
+.pf .hd{fill:var(--bg)}.pf .sd{fill:var(--bg);opacity:.85}
+.pf .ico{fill:none;stroke:var(--faint);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pf .ico .knob{fill:var(--faint);stroke:none}
+.pf .ico-m{fill:var(--accent)}
+.pf .ico-g{fill:none;stroke:var(--teal);stroke-width:1.5;stroke-linecap:round}
+.pf .ico-p{fill:none;stroke:var(--coral);stroke-width:1.5;stroke-linecap:round}
+.pf .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pf .panel{fill:var(--lane);stroke:none}
+.pf .dot{fill:var(--rule)}
+.pf .band{fill:var(--lane)}.pf .bandn{fill:var(--clay);font-weight:700}
+.pf .w{fill:none;stroke:var(--wire);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pf .wx{stroke:var(--coral);opacity:.8}.pf .wl{stroke:var(--accent)}.pf .wo{stroke:var(--teal)}
+.pf .wd{stroke:var(--rule);stroke-width:1.3}
+.pf .ring{stroke:var(--rule);stroke-width:2.5}
+.pf .jn{fill:var(--wire)}
+.pf .ah{fill:var(--wire)}.pf .ahx{fill:var(--coral)}.pf .ahl{fill:var(--accent)}.pf .aho{fill:var(--teal)}.pf .ahd{fill:var(--rule)}
+.pf .term{fill:var(--term)}.pf .term-bar{fill:var(--term-bar)}
+.pf .term-cap{fill:var(--term-dim)}
+.pf .tl{font-size:11px}.pf .term-p{fill:var(--clay);font-weight:700}.pf .term-n{fill:#E8A58C;font-weight:700}.pf .term-t{fill:var(--term-ink)}
+.pf .ledger{fill:var(--lane);stroke:var(--line);stroke-dasharray:3 3}
+.pf .folder{fill:none;stroke:var(--clay);stroke-width:1.4;stroke-linejoin:round}
+.pf .lf .doc{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}.pf .lf text{fill:var(--muted)}
+.pf .bg-stop{fill:var(--coral)}.pf .bg-stop-t{fill:var(--bg)}.pf .bg-stop-m .bm-f{fill:var(--bg)}.pf .bg-stop-m .bm-s{stroke:var(--bg)}
+.pf .bg-ask{fill:var(--card);stroke:var(--coral);stroke-width:1.6}.pf .bg-ask-t{fill:var(--coral)}.pf .bg-ask-m .bm-f{fill:var(--coral)}.pf .bg-ask-m .bm-s{stroke:var(--coral)}
+.pf .bg-ok{fill:var(--teal)}.pf .bg-ok-t{fill:var(--bg)}.pf .bg-ok-m .bm-f{fill:var(--bg)}.pf .bg-ok-m .bm-s{stroke:var(--bg)}
+.pf .bg-note{fill:var(--card);stroke:var(--wire);stroke-width:1.4}.pf .bg-note-t{fill:var(--muted)}.pf .bg-note-m .bm-f{fill:var(--muted)}.pf .bg-note-m .bm-s{stroke:var(--muted)}
+.pf .bm{font-weight:700}.pf .bm-s{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pf .c1{font-weight:700;fill:var(--ink)}.pf .c2{fill:var(--muted)}
+.pf .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pf .tok-halo{fill:var(--clay);opacity:.18}
+.pf .cardg>rect{stroke-width:1}
+.pf .canvas{fill:var(--canvas)}
+.pf .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.pf .rtag text{fill:var(--accent);font-weight:700}
+.pf .ctx-rule{stroke:var(--accent-line);stroke-width:1}.pf .io-rule{stroke:var(--line);stroke-width:1}
+.pf .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.pf .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.pf .ctx-t{fill:var(--accent-ink)}.pf .io-t{fill:var(--muted)}
+.pf .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
+.pf .rung{stroke-width:4.5;stroke-linecap:round}.pf .rung-s{stroke:var(--accent)}.pf .rung-b{stroke:var(--wire)}.pf .rung-c{stroke:var(--teal)}
+.pf .seg{fill:var(--card);stroke:var(--line)}.pf .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pf .segt{fill:var(--faint)}.pf .segt.on{fill:var(--accent-ink);font-weight:700}
+.pf .sheet{fill:var(--card);stroke:var(--line)}.pf .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
+.pf .rv{fill:var(--ink)}.pf .rb{fill:var(--muted)}.pf .kk{fill:var(--faint)}
+.pf .kf{fill:var(--accent);font-weight:700}.pf .kr{fill:var(--coral);font-weight:700}.pf .kc{fill:var(--teal);font-weight:700}
+.pf .fz{fill:var(--accent-ink)}.pf .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.pf .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.pf .fz-t{fill:var(--accent);font-weight:700}.pf .pr-rule{stroke:var(--teal-line);stroke-width:1}
+.pf .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
+.pf .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pf .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
+.pf .mk-proven{fill:var(--teal)}.pf .mk-withdrawn{fill:var(--coral)}
+.pf .mk-m{fill:none;stroke:var(--bg);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pf .mk-thread{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.3;stroke-linejoin:round}
+.pf .mk-sum{fill:var(--card);stroke:var(--wire);stroke-width:1.3;stroke-linejoin:round}
+.pf .mk-t{fill:var(--faint);font-style:italic}
+.pf .chev{fill:none;stroke:var(--wire);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.pf .chev-l{stroke:var(--accent)}
+.pf .again{stroke-width:2.5}.pf .loop-t{fill:var(--accent)}
+.pf .big{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:56px;font-weight:700;fill:var(--ink)}
+.pf .pip{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}.pf .pip.on{fill:var(--clay);stroke:var(--clay)}
+.pf .ok-t{fill:var(--teal)}.pf .x-t{fill:var(--coral)}
+.pf .gate{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:6 5}
+@keyframes pf-walk{0%,7.5%{offset-distance:0.00%}12.5%,20.0%{offset-distance:12.07%}25.0%,32.5%{offset-distance:23.17%}37.5%,45.0%{offset-distance:38.13%}50.0%,57.5%{offset-distance:51.92%}62.5%,70.0%{offset-distance:64.04%}75.0%,82.5%{offset-distance:76.01%}87.5%,100.0%{offset-distance:100.00%}}
+.pf .tok{offset-path:path('M174.1 600.8A212 168 0 1 1 473.9 363.2A212 168 0 1 1 174.1 600.8');offset-rotate:0deg;animation:pf-walk 36s linear infinite}
+@keyframes pf-st0{0%,0.0%{stroke-width:1}0.0%,12.4%{stroke:var(--accent);stroke-width:2.2}12.5%,100%{stroke-width:1}}
+.pf .st0>rect{animation:pf-st0 36s linear infinite}
+@keyframes pf-in0{0%,0.0%{opacity:0}0.6%,100%{opacity:1}}
+.pf .tl0,.pf .lf0{animation:pf-in0 36s linear infinite}
+@keyframes pf-st1{0%,12.4%{stroke-width:1}12.5%,24.9%{stroke:var(--accent);stroke-width:2.2}25.0%,100%{stroke-width:1}}
+.pf .st1>rect{animation:pf-st1 36s linear infinite}
+@keyframes pf-in1{0%,12.4%{opacity:0}13.1%,100%{opacity:1}}
+.pf .tl1,.pf .lf1{animation:pf-in1 36s linear infinite}
+@keyframes pf-st2{0%,24.9%{stroke-width:1}25.0%,37.4%{stroke:var(--accent);stroke-width:2.2}37.5%,100%{stroke-width:1}}
+.pf .st2>rect{animation:pf-st2 36s linear infinite}
+@keyframes pf-in2{0%,24.9%{opacity:0}25.6%,100%{opacity:1}}
+.pf .tl2,.pf .lf2{animation:pf-in2 36s linear infinite}
+@keyframes pf-st3{0%,37.4%{stroke-width:1}37.5%,49.9%{stroke:var(--accent);stroke-width:2.2}50.0%,100%{stroke-width:1}}
+.pf .st3>rect{animation:pf-st3 36s linear infinite}
+@keyframes pf-in3{0%,37.4%{opacity:0}38.1%,100%{opacity:1}}
+.pf .tl3,.pf .lf3{animation:pf-in3 36s linear infinite}
+@keyframes pf-st4{0%,49.9%{stroke-width:1}50.0%,62.4%{stroke:var(--accent);stroke-width:2.2}62.5%,100%{stroke-width:1}}
+.pf .st4>rect{animation:pf-st4 36s linear infinite}
+@keyframes pf-in4{0%,49.9%{opacity:0}50.6%,100%{opacity:1}}
+.pf .tl4,.pf .lf4{animation:pf-in4 36s linear infinite}
+@keyframes pf-st5{0%,62.4%{stroke-width:1}62.5%,74.9%{stroke:var(--accent);stroke-width:2.2}75.0%,100%{stroke-width:1}}
+.pf .st5>rect{animation:pf-st5 36s linear infinite}
+@keyframes pf-in5{0%,62.4%{opacity:0}63.1%,100%{opacity:1}}
+.pf .tl5,.pf .lf5{animation:pf-in5 36s linear infinite}
+@keyframes pf-st6{0%,74.9%{stroke-width:1}75.0%,99.9%{stroke:var(--accent);stroke-width:2.2}100.0%,100%{stroke-width:1}}
+.pf .st6>rect{animation:pf-st6 36s linear infinite}
+@keyframes pf-in6{0%,74.9%{opacity:0}75.6%,100%{opacity:1}}
+.pf .tl6,.pf .lf6{animation:pf-in6 36s linear infinite}
+@keyframes pf-ex0{0%,1.9%{opacity:.5}2.0%,12.4%{opacity:1}12.5%,100%{opacity:.5}}
+.pf .ex0{animation:pf-ex0 36s linear infinite}
+@keyframes pf-ex3{0%,39.4%{opacity:.5}39.5%,49.9%{opacity:1}50.0%,100%{opacity:.5}}
+.pf .ex3{animation:pf-ex3 36s linear infinite}
+@keyframes pf-ex4{0%,51.9%{opacity:.5}52.0%,62.4%{opacity:1}62.5%,100%{opacity:.5}}
+.pf .ex4{animation:pf-ex4 36s linear infinite}
+@keyframes pf-ex5{0%,64.4%{opacity:.5}64.5%,74.9%{opacity:1}75.0%,100%{opacity:.5}}
+.pf .ex5{animation:pf-ex5 36s linear infinite}
+@keyframes pf-ex6{0%,76.9%{opacity:.5}77.0%,87.4%{opacity:1}87.5%,100%{opacity:.5}}
+.pf .ex6{animation:pf-ex6 36s linear infinite}
+@media (prefers-reduced-motion:reduce){.pf *{animation:none!important}.pf .tok{display:none}.pf .tl,.pf .lf,.pf .ex0,.pf .ex1,.pf .ex2,.pf .ex3,.pf .ex4,.pf .ex5,.pf .ex6,.pf .ex7,.pf .ex8{opacity:1}}
+</style>
+<defs><filter id="pf-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pf-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="978" rx="16"/>
+<ellipse class="w ring" cx="324" cy="482" rx="212" ry="168"/>
+<path class="w wl again" d="M445.6 619.6A212 168 0 0 1 174.1 600.8"/>
+<path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(126.8 543.6) rotate(-116.4)"/>
+<path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(129.6 415) rotate(-61.2)"/>
+<path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(251.5 324.1) rotate(-16.1)"/>
+<path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(425.2 334.4) rotate(23.3)"/>
+<path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(529.7 441.4) rotate(72.5)"/>
+<path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(502.8 572.3) rotate(128.8)"/>
+<path class="chev chev-l" d="M-4 -4.5L3 0L-4 4.5" transform="translate(305.5 649.4) rotate(-176)"/>
+<path class="w wd" d="M421.5 298.6 L635.5 298.6" marker-end="url(#pf-ad)"/>
+<path class="w wd" d="M421.5 314.6L606 314.6Q612 314.6 612 320.6L612 330.6Q612 336.6 618 336.6L635.5 336.6" marker-end="url(#pf-ad)"/>
+<path class="w wd" d="M570.1 382.6 L635.5 382.6" marker-end="url(#pf-ad)"/>
+<path class="w wd" d="M611.8 515.2 L635.5 515.2" marker-end="url(#pf-ad)"/>
+<path class="w wd" d="M524.6 603.6 L635.5 603.6" marker-end="url(#pf-ad)"/>
+<path class="w wd" d="M524.6 637.6 L635.5 637.6" marker-end="url(#pf-ad)"/>
+<path class="w wd" d="M121.1 626.8 L121.1 668.3" marker-end="url(#pf-ad)"/>
+<circle class="tok tok-halo" r="11"/><circle class="tok tok-dot" r="5.5"/>
+<text class="kick" x="28" y="34" style="font-size:10px;letter-spacing:1.6px">PHASE 4 OF 6  ·  STEPS 8 – 10</text>
+<text class="ttl" x="28" y="70">Fix loop</text>
+<text class="sub" x="28" y="94" style="font-size:12.5px">The agent that writes code cannot close findings; the agent that closes them cannot write code.</text>
+<path class="rail" d="M588 32H818"/>
+<path class="rail-done" d="M588 32H726"/>
+<circle class="rail-past" cx="588" cy="32" r="4"/>
+<text class="rail-lbl" x="588" y="56" text-anchor="middle" style="font-size:10px">Stage</text>
+<circle class="rail-past" cx="634" cy="32" r="4"/>
+<text class="rail-lbl" x="634" y="56" text-anchor="middle" style="font-size:10px">Review</text>
+<circle class="rail-past" cx="680" cy="32" r="4"/>
+<text class="rail-lbl" x="680" y="56" text-anchor="middle" style="font-size:10px">Post</text>
+<circle class="rail-ring" cx="726" cy="32" r="9"/><circle class="rail-now" cx="726" cy="32" r="5"/>
+<text class="rail-lbl now" x="726" y="56" text-anchor="middle" style="font-size:10px">Fix</text>
+<circle class="rail-next" cx="772" cy="32" r="4"/>
+<text class="rail-lbl" x="772" y="56" text-anchor="middle" style="font-size:10px">Land</text>
+<circle class="rail-next" cx="818" cy="32" r="4"/>
+<text class="rail-lbl" x="818" y="56" text-anchor="middle" style="font-size:10px">Merge</text>
+<g filter="url(#pf-sh)"><rect class="term" x="28" y="112" width="804" height="128" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
+<circle cx="44" cy="124" r="4" fill="#E0715A" opacity=".9"/>
+<circle cx="58" cy="124" r="4" fill="#E2B341" opacity=".9"/>
+<circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
+<text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
+<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">round</tspan><tspan class="term-t"> 2 of 4</tspan></text>
+<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> edit all rung base model inherit effort high reason more-effort ids F001</tspan></text>
+<text class="mono tl tl3" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">run-check:</tspan><tspan class="term-t"> pass</tspan></text>
+<text class="mono tl tl5" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">round-diff:</tspan><tspan class="term-t"> clean</tspan></text>
+<text class="mono tl tl6" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">open</tspan><tspan class="term-t"> 0 addressed 0 verified 5 wont-fix 0 max_reopens 1</tspan></text>
+<g class="cardg st0"><rect class="c" x="95.1" y="574.8" width="158" height="52" rx="9"/>
+<path class="ico" d="M107.1 586.8l4 3.6l-4 3.6M113.1 594.8h5.5"/>
+<text class="h mono" x="126.1" y="595.8" style="font-size:12px">round-counter</text>
+<text class="num mono" x="242.1" y="594.8" text-anchor="end" style="font-size:9.5px">01</text>
+<text class="s" x="107.1" y="614.8">opens a round, four at most</text>
+</g>
+<g class="cardg st1"><rect class="c" x="33.1" y="450.1" width="158" height="52" rx="9"/>
+<path class="ico" d="M45.1 462.1l4 3.6l-4 3.6M51.1 470.1h5.5"/>
+<text class="h mono" x="64.1" y="471.1" style="font-size:12px">route-models</text>
+<text class="num mono" x="180.1" y="470.1" text-anchor="end" style="font-size:9.5px">02</text>
+<text class="s" x="45.1" y="490.1">edit: a rung per finding</text>
+</g>
+<g class="cardg st2"><rect class="cm" x="95.1" y="326.2" width="158" height="74" rx="9"/>
+<path class="ico-m" d="M113.1 337.2c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="126.1" y="347.2" style="font-size:12.5px">Editor</text>
+<text class="num mono" x="242.1" y="346.2" text-anchor="end" style="font-size:9.5px">03</text>
+<text class="s sm" x="107.1" y="366.2">a commit per finding, push</text>
+<path class="ctx-rule" d="M96.1 378.2H252.1"/>
+<path class="ctx-i" d="M107.1 384.2h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="123.1" y="392.7" style="font-size:9.5px">Fix lines, the tree</text>
+</g>
+<g class="cardg st3"><rect class="c" x="263.5" y="288.6" width="158" height="52" rx="9"/>
+<path class="ico" d="M275.5 300.6l4 3.6l-4 3.6M281.5 308.6h5.5"/>
+<text class="h mono" x="294.5" y="309.6" style="font-size:12px">run-check</text>
+<text class="num mono" x="410.5" y="308.6" text-anchor="end" style="font-size:9.5px">04</text>
+<text class="s mono" x="275.5" y="328.6" style="font-size:10.5px">--gate: the check</text>
+</g>
+<g class="cardg st4"><rect class="cm" x="412.1" y="341.6" width="158" height="74" rx="9"/>
+<path class="ico-m" d="M430.1 352.6c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="443.1" y="362.6" style="font-size:12.5px">Verifier</text>
+<text class="num mono" x="559.1" y="361.6" text-anchor="end" style="font-size:9.5px">05</text>
+<text class="s sm" x="424.1" y="381.6">judges every Resolution</text>
+<path class="ctx-rule" d="M413.1 393.6H569.1"/>
+<path class="ctx-i" d="M424.1 399.6h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="440.1" y="408.1" style="font-size:9.5px">Resolution, Check</text>
+</g>
+<g class="cardg st5"><rect class="c" x="453.8" y="485.2" width="158" height="52" rx="9"/>
+<path class="ico" d="M465.8 497.2l4 3.6l-4 3.6M471.8 505.2h5.5"/>
+<text class="h mono" x="484.8" y="506.2" style="font-size:12px">round-diff</text>
+<text class="num mono" x="600.8" y="505.2" text-anchor="end" style="font-size:9.5px">06</text>
+<text class="s" x="465.8" y="525.2">unasked changes reviewed</text>
+</g>
+<g class="cardg st6"><rect class="c" x="366.6" y="593.6" width="158" height="52" rx="9"/>
+<path class="ico" d="M378.6 605.6l4 3.6l-4 3.6M384.6 613.6h5.5"/>
+<text class="h mono" x="397.6" y="614.6" style="font-size:11.5px">count-findings</text>
+<text class="num mono" x="513.6" y="613.6" text-anchor="end" style="font-size:9.5px">07</text>
+<text class="s" x="378.6" y="633.6">open? capped? converged?</text>
+</g>
+<text class="loop-t" x="312" y="606" text-anchor="middle" style="font-size:10.5px">open findings</text>
+<text class="loop-t" x="312" y="620" text-anchor="middle" style="font-size:10.5px">go around again</text>
+<text class="k" x="324" y="442" text-anchor="middle" style="font-size:10px;letter-spacing:2px">ROUND</text>
+<text class="big" x="324" y="496" text-anchor="middle">2</text>
+<text class="s" x="324" y="516" text-anchor="middle">of four, kept on disk</text>
+<circle class="pip on" cx="303" cy="534" r="4.5"/>
+<circle class="pip on" cx="317" cy="534" r="4.5"/>
+<circle class="pip" cx="331" cy="534" r="4.5"/>
+<circle class="pip" cx="345" cy="534" r="4.5"/>
+<rect class="panel" x="28" y="718.8" width="380" height="108" rx="10"/>
+<text class="k" x="42" y="739.8" style="font-size:9.5px;letter-spacing:1.4px">THE EDITING LADDER</text>
+<circle class="dot" cx="45" cy="755" r="2"/>
+<text class="s" x="53" y="758.8">In round one, a minor or nit with a proven fence starts cheap.</text>
+<circle class="dot" cx="45" cy="774.5" r="2"/>
+<text class="s" x="53" y="778.3">A blocker, a security finding, or a flagged file never starts cheap.</text>
+<circle class="dot" cx="45" cy="794" r="2"/>
+<text class="s" x="53" y="797.8">A retry moves one lever: off cheap first, else effort to the cap, then the</text>
+<text class="s" x="53" y="812.3">model.</text>
+<rect class="panel" x="424" y="718.8" width="408" height="93.5" rx="10"/>
+<text class="k" x="438" y="739.8" style="font-size:9.5px;letter-spacing:1.4px">SEPARATION OF POWERS</text>
+<circle class="dot" cx="441" cy="755" r="2"/>
+<text class="s" x="449" y="758.8">The editor cannot resolve a thread; the verifier cannot edit a file.</text>
+<circle class="dot" cx="441" cy="774.5" r="2"/>
+<text class="s" x="449" y="778.3">The skim reviews changes no finding asked for.</text>
+<circle class="dot" cx="441" cy="794" r="2"/>
+<text class="s" x="449" y="797.8">Arbitration is one high-effort pass, once a run.</text>
+<rect class="ledger" x="28" y="844.8" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 870.8h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="876.8" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="888.8" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 860.8h6l3 3v8h-9z"/><text class="mono" x="175" y="869.8" style="font-size:10.5px">rounds.txt</text></g>
+<g class="lf lf1"><path class="doc" d="M257.2 860.8h6l3 3v8h-9z"/><text class="mono" x="272.2" y="869.8" style="font-size:10.5px">findings: Route notes</text></g>
+<g class="lf lf2"><path class="doc" d="M424 860.8h6l3 3v8h-9z"/><text class="mono" x="439" y="869.8" style="font-size:10.5px">commits, replies</text></g>
+<g class="lf lf3"><path class="doc" d="M559.1 860.8h6l3 3v8h-9z"/><text class="mono" x="574.1" y="869.8" style="font-size:10.5px">pr-context/check-failure.txt</text></g>
+<g class="lf lf4"><path class="doc" d="M160 880.8h6l3 3v8h-9z"/><text class="mono" x="175" y="889.8" style="font-size:10.5px">threads resolved or reopened</text></g>
+<g class="lf lf5"><path class="doc" d="M371 880.8h6l3 3v8h-9z"/><text class="mono" x="386" y="889.8" style="font-size:10.5px">incremental review</text></g>
+<g class="lf lf6"><path class="doc" d="M518.8 880.8h6l3 3v8h-9z"/><text class="mono" x="533.8" y="889.8" style="font-size:10.5px">count, capped_ids</text></g>
+<g class="rtag"><rect x="107.1" y="318.2" width="73.6" height="16" rx="8"/><text class="mono" x="114.1" y="329.5" style="font-size:9px">base · high</text></g>
+<g class="rtag"><rect x="489.9" y="333.6" width="68.2" height="16" rx="8"/><text class="mono" x="496.9" y="344.9" style="font-size:9px">base · low</text></g>
+<g class="call ex3">
+<circle class="bg-note" cx="646" cy="298.6" r="9.5"/>
+<g class="bg-note-m"><path class="bm-s" d="M650 297.1a4.2 4.2 0 1 0 0.4 3.4"/><path class="bm-f" d="M647.6 296l3.4 -1.6l0.2 3.6z"/></g>
+<text class="c1" x="662" y="302.6">the gate fails → one repair</text>
+<text class="c2" x="662" y="316.6" style="font-size:10.5px">the editor again, one lever up</text>
+</g>
+<g class="call ex3">
+<circle class="bg-stop" cx="646" cy="336.6" r="9.5"/>
+<g class="bg-stop-m"><rect class="bm-f" x="642.8" y="333.4" width="6.4" height="6.4" rx="1"/></g>
+<text class="c1" x="662" y="340.6">it fails again → park</text>
+<text class="c2" x="662" y="354.6" style="font-size:10.5px">never merges over a red gate</text>
+</g>
+<g class="call ex4">
+<circle class="bg-note" cx="646" cy="382.6" r="9.5"/>
+<g class="bg-note-m"><path class="bm-s" d="M650 381.1a4.2 4.2 0 1 0 0.4 3.4"/><path class="bm-f" d="M647.6 380l3.4 -1.6l0.2 3.6z"/></g>
+<text class="c1" x="662" y="386.6">reopened → around again</text>
+<text class="c2" x="662" y="400.6" style="font-size:10.5px">a note says what still fails</text>
+</g>
+<g class="call ex5">
+<circle class="bg-note" cx="646" cy="515.2" r="9.5"/>
+<g class="bg-note-m"><path class="bm-s" d="M650 513.7a4.2 4.2 0 1 0 0.4 3.4"/><path class="bm-f" d="M647.6 512.6l3.4 -1.6l0.2 3.6z"/></g>
+<text class="c1" x="662" y="519.2">files no finding named</text>
+<text class="c2" x="662" y="533.2" style="font-size:10.5px">reviewed; new findings join</text>
+</g>
+<g class="call ex6">
+<circle class="bg-ok" cx="646" cy="603.6" r="9.5"/>
+<g class="bg-ok-m"><path class="bm-s" d="M642 603.6l2.8 2.8l5 -5.6"/></g>
+<text class="c1" x="662" y="607.6">0 open → converged</text>
+<text class="c2" x="662" y="621.6" style="font-size:10.5px">a wont-fix needs your yes first</text>
+</g>
+<g class="call ex6">
+<circle class="bg-stop" cx="646" cy="637.6" r="9.5"/>
+<g class="bg-stop-m"><rect class="bm-f" x="642.8" y="634.4" width="6.4" height="6.4" rx="1"/></g>
+<text class="c1" x="662" y="641.6">reopened past the limit</text>
+<text class="c2" x="662" y="655.6" style="font-size:10.5px">one arbitration; still open → park</text>
+</g>
+<g class="call ex0">
+<circle class="bg-stop" cx="121.1" cy="678.8" r="9.5"/>
+<g class="bg-stop-m"><rect class="bm-f" x="117.9" y="675.6" width="6.4" height="6.4" rx="1"/></g>
+<text class="c1" x="137.1" y="682.8">four rounds spent → park</text>
+<text class="c2" x="137.1" y="696.8" style="font-size:10.5px">a status comment names what is open</text>
+</g>
+<rect class="c" x="28" y="925.8" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="934.8" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="925.8" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="934.8" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="923.8" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="935.1" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="934.8" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 945.8h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="954.8" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="951.8" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 951.8l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="954.8" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="252.3" cy="951.8" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M255.2 950.7a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M253.5 949.9l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="265.3" y="954.8" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-stop" cx="411.6" cy="951.8" r="7"/>
+<text class="bm mono bg-stop-t" x="411.6" y="954.4" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="424.6" y="954.8" style="font-size:10px">stops or parks; a number is the exit code</text>
+</svg>

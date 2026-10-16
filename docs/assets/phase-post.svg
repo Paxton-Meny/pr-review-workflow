@@ -1,0 +1,311 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1004" width="860" role="img" aria-labelledby="ppt ppd" class="pp">
+<title id="ppt">Phase 3, Post: a cold re-read, proof, then threads</title>
+<desc id="ppd">Five finding records banked by the review travel as lines through three stations to the pull request; four end with a suggestion fence, the exact replacement lines a reviewer may write instead of a Fix line. A filter agent, on the verifier's model at low effort, re-reads the code each record cites, fresh from the worktree, and demotes a finding whose evidence it cannot reproduce: demoted means it leaves the inline threads for the round's summary comment, with the filter's reason, and stays open for the fix loop. prove-suggestions applies every fence in a scratch worktree and runs the project's check command; three pass and post as one-click suggestions, one fails and is withdrawn while its finding posts as prose. post-review opens one inline thread per finding and one summary comment per round, holding the counts by severity and every demoted finding in full, and writes the comment ids back to the records. Open findings go on to the fix loop; a fork that refuses maintainer edits stops after posting in review-only mode.</desc>
+<style>
+.pp{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pp{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
+.pp text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
+.pp .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.pp .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
+.pp .kick{fill:var(--coral);font-weight:700}
+.pp .sub{fill:var(--muted)}
+.pp .rail{stroke:var(--line);stroke-width:2;fill:none}.pp .rail-done{stroke:var(--rule);stroke-width:2;fill:none}
+.pp .rail-past{fill:var(--rule)}.pp .rail-next{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}
+.pp .rail-now{fill:var(--clay)}.pp .rail-ring{fill:var(--bg);stroke:var(--clay);stroke-width:1.5}
+.pp .rail-lbl{fill:var(--faint)}.pp .rail-lbl.now{fill:var(--ink);font-weight:700}
+.pp .h{font-size:12.5px;font-weight:700;fill:var(--ink)}.pp .h.mono{font-size:12px}
+.pp .s{fill:var(--muted)}
+.pp .k{font-weight:700;fill:var(--ink)}
+.pp .fine{fill:var(--faint)}
+.pp .num{fill:var(--faint)}
+.pp .c{fill:var(--card);stroke:var(--line)}
+.pp .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pp .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.pp .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pp .cd{fill:var(--teal);stroke:var(--teal)}
+.pp .hm{fill:var(--accent-ink)}.pp .sm{fill:var(--accent)}
+.pp .hg{fill:var(--teal-ink)}.pp .sg{fill:var(--teal)}
+.pp .hp{fill:var(--coral-ink)}.pp .sp{fill:var(--coral)}
+.pp .hd{fill:var(--bg)}.pp .sd{fill:var(--bg);opacity:.85}
+.pp .ico{fill:none;stroke:var(--faint);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pp .ico .knob{fill:var(--faint);stroke:none}
+.pp .ico-m{fill:var(--accent)}
+.pp .ico-g{fill:none;stroke:var(--teal);stroke-width:1.5;stroke-linecap:round}
+.pp .ico-p{fill:none;stroke:var(--coral);stroke-width:1.5;stroke-linecap:round}
+.pp .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pp .panel{fill:var(--lane);stroke:none}
+.pp .dot{fill:var(--rule)}
+.pp .band{fill:var(--lane)}.pp .bandn{fill:var(--clay);font-weight:700}
+.pp .w{fill:none;stroke:var(--wire);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pp .wx{stroke:var(--coral);opacity:.8}.pp .wl{stroke:var(--accent)}.pp .wo{stroke:var(--teal)}
+.pp .wd{stroke:var(--rule);stroke-width:1.3}
+.pp .ring{stroke:var(--rule);stroke-width:2.5}
+.pp .jn{fill:var(--wire)}
+.pp .ah{fill:var(--wire)}.pp .ahx{fill:var(--coral)}.pp .ahl{fill:var(--accent)}.pp .aho{fill:var(--teal)}.pp .ahd{fill:var(--rule)}
+.pp .term{fill:var(--term)}.pp .term-bar{fill:var(--term-bar)}
+.pp .term-cap{fill:var(--term-dim)}
+.pp .tl{font-size:11px}.pp .term-p{fill:var(--clay);font-weight:700}.pp .term-n{fill:#E8A58C;font-weight:700}.pp .term-t{fill:var(--term-ink)}
+.pp .ledger{fill:var(--lane);stroke:var(--line);stroke-dasharray:3 3}
+.pp .folder{fill:none;stroke:var(--clay);stroke-width:1.4;stroke-linejoin:round}
+.pp .lf .doc{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}.pp .lf text{fill:var(--muted)}
+.pp .bg-stop{fill:var(--coral)}.pp .bg-stop-t{fill:var(--bg)}.pp .bg-stop-m .bm-f{fill:var(--bg)}.pp .bg-stop-m .bm-s{stroke:var(--bg)}
+.pp .bg-ask{fill:var(--card);stroke:var(--coral);stroke-width:1.6}.pp .bg-ask-t{fill:var(--coral)}.pp .bg-ask-m .bm-f{fill:var(--coral)}.pp .bg-ask-m .bm-s{stroke:var(--coral)}
+.pp .bg-ok{fill:var(--teal)}.pp .bg-ok-t{fill:var(--bg)}.pp .bg-ok-m .bm-f{fill:var(--bg)}.pp .bg-ok-m .bm-s{stroke:var(--bg)}
+.pp .bg-note{fill:var(--card);stroke:var(--wire);stroke-width:1.4}.pp .bg-note-t{fill:var(--muted)}.pp .bg-note-m .bm-f{fill:var(--muted)}.pp .bg-note-m .bm-s{stroke:var(--muted)}
+.pp .bm{font-weight:700}.pp .bm-s{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pp .c1{font-weight:700;fill:var(--ink)}.pp .c2{fill:var(--muted)}
+.pp .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pp .tok-halo{fill:var(--clay);opacity:.18}
+.pp .cardg>rect{stroke-width:1}
+.pp .canvas{fill:var(--canvas)}
+.pp .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.pp .rtag text{fill:var(--accent);font-weight:700}
+.pp .ctx-rule{stroke:var(--accent-line);stroke-width:1}.pp .io-rule{stroke:var(--line);stroke-width:1}
+.pp .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.pp .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.pp .ctx-t{fill:var(--accent-ink)}.pp .io-t{fill:var(--muted)}
+.pp .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
+.pp .rung{stroke-width:4.5;stroke-linecap:round}.pp .rung-s{stroke:var(--accent)}.pp .rung-b{stroke:var(--wire)}.pp .rung-c{stroke:var(--teal)}
+.pp .seg{fill:var(--card);stroke:var(--line)}.pp .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pp .segt{fill:var(--faint)}.pp .segt.on{fill:var(--accent-ink);font-weight:700}
+.pp .sheet{fill:var(--card);stroke:var(--line)}.pp .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
+.pp .rv{fill:var(--ink)}.pp .rb{fill:var(--muted)}.pp .kk{fill:var(--faint)}
+.pp .kf{fill:var(--accent);font-weight:700}.pp .kr{fill:var(--coral);font-weight:700}.pp .kc{fill:var(--teal);font-weight:700}
+.pp .fz{fill:var(--accent-ink)}.pp .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.pp .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.pp .fz-t{fill:var(--accent);font-weight:700}.pp .pr-rule{stroke:var(--teal-line);stroke-width:1}
+.pp .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
+.pp .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pp .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
+.pp .mk-proven{fill:var(--teal)}.pp .mk-withdrawn{fill:var(--coral)}
+.pp .mk-m{fill:none;stroke:var(--bg);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pp .mk-thread{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.3;stroke-linejoin:round}
+.pp .mk-sum{fill:var(--card);stroke:var(--wire);stroke-width:1.3;stroke-linejoin:round}
+.pp .mk-t{fill:var(--faint);font-style:italic}
+.pp .chev{fill:none;stroke:var(--wire);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.pp .chev-l{stroke:var(--accent)}
+.pp .again{stroke-width:2.5}.pp .loop-t{fill:var(--accent)}
+.pp .big{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:56px;font-weight:700;fill:var(--ink)}
+.pp .pip{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}.pp .pip.on{fill:var(--clay);stroke:var(--clay)}
+.pp .ok-t{fill:var(--teal)}.pp .x-t{fill:var(--coral)}
+.pp .gate{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:6 5}
+@keyframes pp-walk{0%,18.0%{offset-distance:0.00%}30.0%,48.0%{offset-distance:29.10%}60.0%,73.2%{offset-distance:58.19%}82.0%,84.4%{offset-distance:87.12%}86.0%,100.0%{offset-distance:100.00%}}
+.pp .tok{offset-path:path('M235 277 L409 277 L583 277 L756 277 L756 354');offset-rotate:0deg;animation:pp-walk 24s linear infinite}
+@keyframes pp-st0{0%,0.0%{stroke-width:1}0.0%,29.9%{stroke:var(--accent);stroke-width:2.2}30.0%,100%{stroke-width:1}}
+.pp .st0>rect{animation:pp-st0 24s linear infinite}
+@keyframes pp-in0{0%,0.0%{opacity:0}0.6%,100%{opacity:1}}
+.pp .tl0,.pp .lf0{animation:pp-in0 24s linear infinite}
+@keyframes pp-st1{0%,29.9%{stroke-width:1}30.0%,59.9%{stroke:var(--accent);stroke-width:2.2}60.0%,100%{stroke-width:1}}
+.pp .st1>rect{animation:pp-st1 24s linear infinite}
+@keyframes pp-in1{0%,29.9%{opacity:0}30.6%,100%{opacity:1}}
+.pp .tl1,.pp .lf1{animation:pp-in1 24s linear infinite}
+@keyframes pp-st2{0%,59.9%{stroke-width:1}60.0%,85.9%{stroke:var(--accent);stroke-width:2.2}86.0%,100%{stroke-width:1}}
+.pp .st2>rect{animation:pp-st2 24s linear infinite}
+@keyframes pp-in2{0%,59.9%{opacity:0}60.6%,100%{opacity:1}}
+.pp .tl2,.pp .lf2{animation:pp-in2 24s linear infinite}
+@keyframes pp-st3{0%,85.9%{stroke-width:1}86.0%,99.9%{stroke:var(--accent);stroke-width:2.2}100.0%,100%{stroke-width:1}}
+.pp .st3>rect{animation:pp-st3 24s linear infinite}
+@keyframes pp-in3{0%,85.9%{opacity:0}86.6%,100%{opacity:1}}
+.pp .tl3,.pp .lf3{animation:pp-in3 24s linear infinite}
+@keyframes pp-ex3{0%,85.9%{opacity:.5}86.0%,99.9%{opacity:1}100.0%,100%{opacity:.5}}
+.pp .ex3{animation:pp-ex3 24s linear infinite}
+@media (prefers-reduced-motion:reduce){.pp *{animation:none!important}.pp .tok{display:none}.pp .tl,.pp .lf,.pp .ex0,.pp .ex1,.pp .ex2,.pp .ex3,.pp .ex4,.pp .ex5{opacity:1}}
+</style>
+<defs><filter id="pp-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="1004" rx="16"/>
+<path class="guide" d="M235 326V562"/>
+<path class="guide" d="M409 326V562"/>
+<path class="guide" d="M583 326V562"/>
+<path class="w" d="M314 277 L329 277" marker-end="url(#pp-a)"/>
+<path class="w" d="M488 277 L503 277" marker-end="url(#pp-a)"/>
+<path class="w" d="M144 384 L679 384" marker-end="url(#pp-a)"/>
+<path class="w" d="M144 414 L679 414" marker-end="url(#pp-a)"/>
+<path class="w" d="M144 444 L679 444" marker-end="url(#pp-a)"/>
+<path class="w" d="M144 474 L679 474" marker-end="url(#pp-a)"/>
+<path class="w" d="M144 504L243 504Q253 504 253 514L253 538Q253 548 263 548L679 548" marker-end="url(#pp-a)"/>
+<path class="w wd" d="M756 590 L756 605.5" marker-end="url(#pp-ad)"/>
+<path class="w wd" d="M756 626.5 L756 641.5" marker-end="url(#pp-ad)"/>
+<circle class="tok tok-halo" r="11"/><circle class="tok tok-dot" r="5.5"/>
+<text class="kick" x="28" y="34" style="font-size:10px;letter-spacing:1.6px">PHASE 3 OF 6  ·  STEP 7</text>
+<text class="ttl" x="28" y="70">Post</text>
+<text class="sub" x="28" y="94" style="font-size:12.5px">Proof before posting. A false positive costs a round, a thread, and the author’s trust.</text>
+<path class="rail" d="M588 32H818"/>
+<path class="rail-done" d="M588 32H680"/>
+<circle class="rail-past" cx="588" cy="32" r="4"/>
+<text class="rail-lbl" x="588" y="56" text-anchor="middle" style="font-size:10px">Stage</text>
+<circle class="rail-past" cx="634" cy="32" r="4"/>
+<text class="rail-lbl" x="634" y="56" text-anchor="middle" style="font-size:10px">Review</text>
+<circle class="rail-ring" cx="680" cy="32" r="9"/><circle class="rail-now" cx="680" cy="32" r="5"/>
+<text class="rail-lbl now" x="680" y="56" text-anchor="middle" style="font-size:10px">Post</text>
+<circle class="rail-next" cx="726" cy="32" r="4"/>
+<text class="rail-lbl" x="726" y="56" text-anchor="middle" style="font-size:10px">Fix</text>
+<circle class="rail-next" cx="772" cy="32" r="4"/>
+<text class="rail-lbl" x="772" y="56" text-anchor="middle" style="font-size:10px">Land</text>
+<circle class="rail-next" cx="818" cy="32" r="4"/>
+<text class="rail-lbl" x="818" y="56" text-anchor="middle" style="font-size:10px">Merge</text>
+<g filter="url(#pp-sh)"><rect class="term" x="28" y="112" width="804" height="92" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
+<circle cx="44" cy="124" r="4" fill="#E0715A" opacity=".9"/>
+<circle cx="58" cy="124" r="4" fill="#E2B341" opacity=".9"/>
+<circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
+<text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
+<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">filter:</tspan><tspan class="term-t"> demoted 1 of 5</tspan></text>
+<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">prove-suggestions:</tspan><tspan class="term-t"> 3 proven, 1 withdrawn</tspan></text>
+<text class="mono tl tl2" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">post-review:</tspan><tspan class="term-t"> 4 posted inline, 0 in the summary, round 1</tspan></text>
+<g class="cardg st0"><rect class="cm" x="156" y="232" width="158" height="90" rx="9"/>
+<path class="ico-m" d="M174 243c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="187" y="253" style="font-size:12.5px">Filter</text>
+<text class="s sm" x="168" y="272">re-reads the cited code</text>
+<text class="s sm" x="168" y="287">and doubts the thin</text>
+<path class="ctx-rule" d="M157 300H313"/>
+<path class="ctx-i" d="M168 306h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="184" y="314.5" style="font-size:9.5px">record + cited code</text>
+</g>
+<g class="cardg st1"><rect class="c" x="330" y="232" width="158" height="90" rx="9"/>
+<path class="ico" d="M342 244l4 3.6l-4 3.6M348 252h5.5"/>
+<text class="h mono" x="361" y="253" style="font-size:11.4px">prove-suggestions</text>
+<text class="s" x="342" y="272">applies each fence in</text>
+<text class="s" x="342" y="287">a scratch worktree</text>
+<path class="io-rule" d="M331 300H487"/>
+<path class="io-i" d="M342 306h6l3 3v8h-9z"/>
+<text class="mono io-t" x="358" y="314.5" style="font-size:9.5px">fence, check_command</text>
+</g>
+<g class="cardg st2"><rect class="c" x="504" y="232" width="158" height="90" rx="9"/>
+<path class="ico" d="M516 244l4 3.6l-4 3.6M522 252h5.5"/>
+<text class="h mono" x="535" y="253" style="font-size:12px">post-review</text>
+<text class="s" x="516" y="272">a thread per finding,</text>
+<text class="s" x="516" y="287">a comment per round</text>
+<path class="io-rule" d="M505 300H661"/>
+<path class="io-i" d="M516 306h6l3 3v8h-9z"/>
+<text class="mono io-t" x="532" y="314.5" style="font-size:9.5px">records → gh</text>
+</g>
+<text class="k" x="28" y="244" style="font-size:9.5px;letter-spacing:1.4px">FROM REVIEW</text>
+<text class="fine" x="28" y="260" style="font-size:10px">records in</text>
+<text class="fine mono" x="28" y="273" style="font-size:10px">findings/</text>
+<text class="fine" x="28" y="362" style="font-size:9.5px">id · severity</text>
+<path class="doc-r" d="M28 378h6l3 3v8h-9z"/>
+<text class="mono k" x="42" y="388" style="font-size:10.5px">F001</text>
+<text class="s" x="73.3" y="388" style="font-size:10px">major</text>
+<text class="fz-t mono" x="104.3" y="388" style="font-size:9px">fence</text>
+<path class="doc-r" d="M28 408h6l3 3v8h-9z"/>
+<text class="mono k" x="42" y="418" style="font-size:10.5px">F002</text>
+<text class="s" x="73.3" y="418" style="font-size:10px">minor</text>
+<text class="fz-t mono" x="104.3" y="418" style="font-size:9px">fence</text>
+<path class="doc-r" d="M28 438h6l3 3v8h-9z"/>
+<text class="mono k" x="42" y="448" style="font-size:10.5px">F003</text>
+<text class="s" x="73.3" y="448" style="font-size:10px">major</text>
+<text class="fz-t mono" x="104.3" y="448" style="font-size:9px">fence</text>
+<path class="doc-r" d="M28 468h6l3 3v8h-9z"/>
+<text class="mono k" x="42" y="478" style="font-size:10.5px">F004</text>
+<text class="s" x="73.3" y="478" style="font-size:10px">nit</text>
+<text class="fz-t mono" x="89.8" y="478" style="font-size:9px">fence</text>
+<path class="doc-r" d="M28 498h6l3 3v8h-9z"/>
+<text class="mono k" x="42" y="508" style="font-size:10.5px">F005</text>
+<text class="s" x="73.3" y="508" style="font-size:10px">minor</text>
+<g class="cardg st3"><rect class="cg" x="680" y="324" width="152" height="266" rx="9"/>
+<g class="ico-g"><circle cx="694" cy="337" r="2"/><circle cx="694" cy="345" r="2"/><circle cx="702" cy="345" r="2"/><path d="M694 339v4M702 343v-3q0-2-2-2h-3"/></g>
+<text class="h hg" x="711" y="345" style="font-size:12.5px">PR #128</text>
+</g>
+<text class="k sg" x="692" y="362" style="font-size:9px;letter-spacing:1.2px">INLINE THREADS</text>
+<path class="mk-thread" d="M692 378h12v8h-7l-3 2.6v-2.6h-2z"/>
+<text class="sg" x="710" y="388" style="font-size:10.5px">+ suggestion</text>
+<path class="mk-thread" d="M692 408h12v8h-7l-3 2.6v-2.6h-2z"/>
+<text class="sg" x="710" y="418" style="font-size:10.5px">prose only</text>
+<path class="mk-thread" d="M692 438h12v8h-7l-3 2.6v-2.6h-2z"/>
+<text class="sg" x="710" y="448" style="font-size:10.5px">+ suggestion</text>
+<path class="mk-thread" d="M692 468h12v8h-7l-3 2.6v-2.6h-2z"/>
+<text class="sg" x="710" y="478" style="font-size:10.5px">+ suggestion</text>
+<path class="pr-rule" d="M681 526H831"/>
+<text class="k sg" x="692" y="539.5" style="font-size:9px;letter-spacing:1.2px">SUMMARY COMMENT</text>
+<text class="sg" x="692" y="560" style="font-size:10.5px">round 1 counts,</text>
+<text class="sg" x="692" y="574" style="font-size:10.5px">then F005 in full</text>
+<rect class="panel" x="28" y="686" width="257.3" height="137" rx="10"/>
+<text class="k" x="42" y="707" style="font-size:9.5px;letter-spacing:1.4px">DEMOTED, NOT DROPPED</text>
+<circle class="dot" cx="45" cy="722.2" r="2"/>
+<text class="s" x="53" y="726">The filter re-reads the cited code; evidence it</text>
+<text class="s" x="53" y="740.5">cannot reproduce leaves the inline threads.</text>
+<circle class="dot" cx="45" cy="756.2" r="2"/>
+<text class="s" x="53" y="760">The finding moves to the summary comment</text>
+<text class="s" x="53" y="774.5">with the filter’s reason, and is still fixed.</text>
+<circle class="dot" cx="45" cy="790.2" r="2"/>
+<text class="s" x="53" y="794">post-review demotes a line the diff cannot</text>
+<text class="s" x="53" y="808.5">anchor the same way.</text>
+<rect class="panel" x="301.3" y="686" width="257.3" height="166" rx="10"/>
+<text class="k" x="315.3" y="707" style="font-size:9.5px;letter-spacing:1.4px">WHERE A FENCE COMES FROM</text>
+<circle class="dot" cx="318.3" cy="722.2" r="2"/>
+<text class="s" x="326.3" y="726">A reviewer may end a record with a</text>
+<text class="s" x="326.3" y="740.5">suggestion fence: the exact lines to put in</text>
+<text class="s" x="326.3" y="755">place.</text>
+<circle class="dot" cx="318.3" cy="770.7" r="2"/>
+<text class="s" x="326.3" y="774.5">It is applied in a scratch worktree and the</text>
+<text class="s" x="326.3" y="789">project’s check runs there.</text>
+<circle class="dot" cx="318.3" cy="804.7" r="2"/>
+<text class="s" x="326.3" y="808.5">Pass, or no check to run: a one-click</text>
+<text class="s" x="326.3" y="823">suggestion. Fail: the fence goes, the prose</text>
+<text class="s" x="326.3" y="837.5">stays.</text>
+<rect class="panel" x="574.7" y="686" width="257.3" height="137" rx="10"/>
+<text class="k" x="588.7" y="707" style="font-size:9.5px;letter-spacing:1.4px">WHAT REACHES THE PR</text>
+<circle class="dot" cx="591.7" cy="722.2" r="2"/>
+<text class="s" x="599.7" y="726">One inline thread per finding, at its path and</text>
+<text class="s" x="599.7" y="740.5">line.</text>
+<circle class="dot" cx="591.7" cy="756.2" r="2"/>
+<text class="s" x="599.7" y="760">One comment per round: counts by severity,</text>
+<text class="s" x="599.7" y="774.5">then every demoted finding in full.</text>
+<circle class="dot" cx="591.7" cy="790.2" r="2"/>
+<text class="s" x="599.7" y="794">Comment ids go back on the records; a</text>
+<text class="s" x="599.7" y="808.5">rerun never posts twice.</text>
+<rect class="ledger" x="28" y="870" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 896h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="902" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="914" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 886h6l3 3v8h-9z"/><text class="mono" x="175" y="895" style="font-size:10.5px">findings/F005: placement summary</text></g>
+<g class="lf lf0"><path class="doc" d="M396.3 886h6l3 3v8h-9z"/><text class="mono" x="411.3" y="895" style="font-size:10.5px">Filter: note</text></g>
+<g class="lf lf1"><path class="doc" d="M506.1 886h6l3 3v8h-9z"/><text class="mono" x="521.1" y="895" style="font-size:10.5px">proof worktree (scratch)</text></g>
+<g class="lf lf1"><path class="doc" d="M160 906h6l3 3v8h-9z"/><text class="mono" x="175" y="915" style="font-size:10.5px">fences kept or withdrawn</text></g>
+<g class="lf lf2"><path class="doc" d="M345.7 906h6l3 3v8h-9z"/><text class="mono" x="360.7" y="915" style="font-size:10.5px">comment ids on records</text></g>
+<g class="rtag"><rect x="233.8" y="224" width="68.2" height="16" rx="8"/><text class="mono" x="240.8" y="235.3" style="font-size:9px">base · low</text></g>
+<text class="mk-t" x="265" y="540" style="font-size:9.5px">demoted: to the round’s summary comment</text>
+<circle class="mk mk-keep tl0" cx="235" cy="384" r="5"/>
+<circle class="mk mk-keep tl0" cx="235" cy="414" r="5"/>
+<circle class="mk mk-keep tl0" cx="235" cy="444" r="5"/>
+<circle class="mk mk-keep tl0" cx="235" cy="474" r="5"/>
+<circle class="mk mk-demote tl0" cx="235" cy="504" r="5"/>
+<g class="tl1"><rect class="mk mk-proven" x="402" y="377" width="14" height="14" rx="3.5"/><path class="mk-m" d="M405.6 384l2.4 2.4l4.4-4.8"/></g>
+<g class="tl1"><rect class="mk mk-withdrawn" x="402" y="407" width="14" height="14" rx="3.5"/><path class="mk-m" d="M406 411l6 6m0-6l-6 6"/></g>
+<g class="tl1"><rect class="mk mk-proven" x="402" y="437" width="14" height="14" rx="3.5"/><path class="mk-m" d="M405.6 444l2.4 2.4l4.4-4.8"/></g>
+<g class="tl1"><rect class="mk mk-proven" x="402" y="467" width="14" height="14" rx="3.5"/><path class="mk-m" d="M405.6 474l2.4 2.4l4.4-4.8"/></g>
+<text class="mk-t" x="421" y="431" style="font-size:9.5px">fails the check: prose only</text>
+<path class="mk mk-thread tl2" d="M576 378h14v9h-8l-3.5 3v-3h-2.5z"/>
+<path class="mk mk-thread tl2" d="M576 408h14v9h-8l-3.5 3v-3h-2.5z"/>
+<path class="mk mk-thread tl2" d="M576 438h14v9h-8l-3.5 3v-3h-2.5z"/>
+<path class="mk mk-thread tl2" d="M576 468h14v9h-8l-3.5 3v-3h-2.5z"/>
+<path class="mk mk-sum tl2" d="M577 541h9l3 3v11h-12z"/>
+<circle class="mk mk-keep" cx="34" cy="588" r="5"/>
+<text class="fine" x="46" y="592" style="font-size:10px">stays an inline thread</text>
+<circle class="mk mk-demote" cx="166.49" cy="588" r="5"/>
+<text class="fine" x="178.5" y="592" style="font-size:10px">demoted, still open</text>
+<rect class="mk mk-proven" x="282.42" y="582" width="12" height="12" rx="3"/>
+<text class="fine" x="300.4" y="592" style="font-size:10px">fence proven: a suggestion</text>
+<rect class="mk mk-withdrawn" x="440.49" y="582" width="12" height="12" rx="3"/>
+<text class="fine" x="458.5" y="592" style="font-size:10px">fence withdrawn: prose</text>
+<g class="call ex3">
+<circle class="bg-ok" cx="756" cy="616" r="9.5"/>
+<g class="bg-ok-m"><path class="bm-s" d="M752 616h7.5m-3 -3l3 3l-3 3"/></g>
+<text class="c1" x="740" y="620" text-anchor="end">open findings → the fix loop</text>
+<text class="c2" x="740" y="634" text-anchor="end" style="font-size:10.5px">demoted ones included</text>
+</g>
+<g class="call ex3">
+<circle class="bg-stop" cx="756" cy="652" r="9.5"/>
+<g class="bg-stop-m"><rect class="bm-f" x="752.8" y="648.8" width="6.4" height="6.4" rx="1"/></g>
+<text class="c1" x="740" y="656" text-anchor="end">a fork refusing edits: review-only</text>
+<text class="c2" x="740" y="670" text-anchor="end" style="font-size:10.5px">the findings stand; the run stops</text>
+</g>
+<rect class="c" x="28" y="951" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="960" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="951" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="960" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="949" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="960.3" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="960" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 971h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="980" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="977" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 977l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="980" style="font-size:10px">carries on</text>
+<circle class="bg-stop" cx="252.3" cy="977" r="7"/>
+<text class="bm mono bg-stop-t" x="252.3" y="979.7" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="265.3" y="980" style="font-size:10px">stops or parks; a number is the exit code</text>
+</svg>

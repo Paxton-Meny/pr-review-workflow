@@ -18,9 +18,9 @@ until nothing remains open. Then it merges, or asks you first.
 [Development](#development) &#183;
 [License](#license-and-attribution)
 
-<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request with no model; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; after convergence the run waits for the checks and repairs failures, brings the branch up to date by the merge method, and refuses to merge over commits that landed beside the reviewed hunks; a merge gate asks first, then merges by the decided method."></p>
+<p align="center"><img src="docs/assets/pipeline.svg" width="860" alt="The shape of a run in three lanes: scripts run down the center as the backbone, GitHub on the left, models on the right. One command stages the pull request, with no model by default; the reviewer reads once, in up to four parallel shards, then a gap pass; findings are banked, filtered, proven, and posted as inline threads; a loop of at most four rounds runs the editor, the check gate, the verifier over executed contracts, and a skim; after convergence the run brings the branch up to date by the merge method, then waits for the checks and repairs failures; a merge gate asks first, its doors refuse a merge over commits that landed beside the reviewed hunks until someone decides they are independent, and the run merges by the decided method."></p>
 
-<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits through the checks, base sync, and the overlap guard to a proven merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
+<p align="center"><img src="docs/assets/loop.svg" width="860" alt="Animated: the review-revise cycle from above. One thorough first review feeds a ring of editor, gate and verifier, and a decision point; a reopened finding sends the token around again, a clean verdict exits through base sync, the checks, and the merge gate’s doors to the merge, and a four-round budget bounds the cycle before it parks. The animation shows a run converging on its second lap."></p>
 
 ## Status
 
@@ -119,6 +119,44 @@ or, where it allows several, the one its recent merged pull requests
 used; see the `merge_method` setting. The head branch is deleted only
 when the repository does not delete it itself and no open pull request
 bases on it.
+
+### Inside each phase
+
+Six figures, one per phase, drawn in the form that fits each: the one line
+every script prints at the top, what it writes to the ledger at the bottom,
+and every exit labelled with its code and who decides. They are generated
+by `docs/tools/phase-figures.py` (`uv run docs/tools/phase-figures.py`),
+which also proves their layout. The site shows them with motion at
+[Inside each phase](https://paxton-meny.github.io/pr-review-workflow/#phases).
+
+<details>
+<summary>Open the six figures</summary>
+
+<p align="center"><img src="docs/assets/phase-stage.svg" width="860" alt="Phase 1, Stage: eleven scripts set up one pull request with no model by default, on a rail that snakes through three bands, the ledger, the read, and the check-out. A terminal shows the one line each prints and the ledger what each writes; exits hang below their scripts: the project command you approve, the diff built from the clone, the size warning and the overlap you decide on, a fork in review-only mode or gone, and a failing baseline disarming the gate."></p>
+
+**Stage.** Eleven scripts, and a model only to judge an overlap: tools, ledger, settings from five sources, sweep, the diff from the API or the clone, probes, classification, the open pull requests beside it, a detached worktree, local standards, and the check baseline that arms the gate.
+
+<p align="center"><img src="docs/assets/phase-review.svg" width="860" alt="Phase 2, Review: a fan-out from one plan to parallel reviewers and back into one ledger, with the routing ladder and a finding record's anatomy beside."></p>
+
+**Review.** A plan into shards and seams, a rung and an effort per group from the routing ladder, reviewers in parallel, records banked and deduplicated, and a gap pass over the seams; a clean ledger skips posting and the fix loop, and goes through convergence to Land. The record anatomy shows the contract every finding carries.
+
+<p align="center"><img src="docs/assets/phase-post.svg" width="860" alt="Phase 3, Post: five records from the review drawn as lines through three stations to the pull request. The filter re-reads the cited code and demotes one, moving it from the inline threads to the round's summary comment, still open; the proof applies each suggestion fence in a scratch worktree, keeps three, and withdraws one whose finding posts as prose; posting opens four threads and one summary comment. Open findings go on to the fix loop, and a fork that refuses edits stops here."></p>
+
+**Post.** A cold re-read demotes thin findings to the summary and never drops one; every suggestion fence is applied in a scratch worktree and must pass the project's check; then one inline thread per finding and one summary comment. A fork that refuses edits stops here.
+
+<p align="center"><img src="docs/assets/phase-fix.svg" width="860" alt="Phase 4, Fix loop: seven stations around a ring with the round and its budget of four in the middle, every way out on the right, a repair, a park, a reopen, a skim, convergence, and arbitration, and the editing ladder and the separation of powers below."></p>
+
+**Fix loop.** A ring of at most four rounds: the counter, a rung per finding from the editing ladder, the editor's commit per finding, the check gate with one repair, the verifier executing contracts, the skim for unasked changes, and the count that loops, arbitrates once, or converges.
+
+<p align="center"><img src="docs/assets/phase-land.svg" width="860" alt="Phase 5, Land: the merge method, base sync, and the wait for checks down a spine, each exit code on the right with who decides, the editor's repair on the left looping back to the top, ending at green checks."></p>
+
+**Land.** Between a clean ledger and the merge gate: the merge method is decided, the branch brought up to date by it at most three times, the checks awaited in slices under a budget, and a failed check repaired by the editor from a digest, then reviewed, looping until green.
+
+<p align="center"><img src="docs/assets/phase-merge.svg" width="860" alt="Phase 6, Merge: the merge method refreshed, who opens the gate, four doors with their exits, the merge with the head matched, the branch afterwards, what a person confirms, and the four bookkeeping scripts."></p>
+
+**Merge.** Four doors in order, each refusal writing nothing and naming who decides: open and not a draft; mergeable, or back to base sync; no migrations, or four checks a person confirms; nothing landed beside the hunks, or the drift lines and a verdict. Then the merge by method, the branch's fate, and the bookkeeping.
+
+</details>
 
 ### Base sync
 
@@ -447,7 +485,7 @@ State is keyed by repository and pull request, so every worktree of a
 clone shares it, and local rule files are found from a linked worktree
 by looking in the main one. Run one review per pull request at a time.
 
-<p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, and verifier each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></p>
+<p align="center"><img src="docs/assets/information-flow.svg" width="860" alt="Where information lives and moves: the orchestrating session sees one line per script, counts and ids only, never the diff; below that line, GitHub's diff and your clone feed a per-pull-request ledger on disk holding annotated diffs and probes, the finding records with their Fix and Resolution, the round budget, and a detached worktree; reviewer, filter, editor, verifier, and comparer each read their own slice; pushes, replies, resolutions, and the merge flow back to GitHub."></p>
 
 ### Limits
 

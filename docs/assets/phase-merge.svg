@@ -1,0 +1,365 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1124" width="860" role="img" aria-labelledby="pmt pmd" class="pm">
+<title id="pmt">Phase 6, Merge: four doors, then the merge and the bookkeeping</title>
+<desc id="pmd">The merge method is refreshed: the setting, else the one method the repository allows, else the one its recent merged pull requests used, and mixed evidence asks you. Auto-approve merges on its own; attended, you are asked to merge or hold; unattended with auto-approve off, a converged status comment is posted and nothing merges. merge-pr then passes four doors in order and writes nothing when one refuses: the pull request must be open and not a draft; mergeable, or exit 5 sends the run back to base sync; free of migration files, or exit 4 hands you four checks to confirm; and clear of commits landed beside the reviewed hunks, or exit 6 shows the drift lines and any verdict for you to decide, an independent verdict on that same base merging on its own. The merge runs by the decided method with the head matched, the branch is deleted or kept with the reason, and the run records its statistics, drops the worktree, sweeps closed runs, and reports with its criteria signals.</desc>
+<style>
+.pm{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pm{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
+.pm text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
+.pm .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.pm .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
+.pm .kick{fill:var(--coral);font-weight:700}
+.pm .sub{fill:var(--muted)}
+.pm .rail{stroke:var(--line);stroke-width:2;fill:none}.pm .rail-done{stroke:var(--rule);stroke-width:2;fill:none}
+.pm .rail-past{fill:var(--rule)}.pm .rail-next{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}
+.pm .rail-now{fill:var(--clay)}.pm .rail-ring{fill:var(--bg);stroke:var(--clay);stroke-width:1.5}
+.pm .rail-lbl{fill:var(--faint)}.pm .rail-lbl.now{fill:var(--ink);font-weight:700}
+.pm .h{font-size:12.5px;font-weight:700;fill:var(--ink)}.pm .h.mono{font-size:12px}
+.pm .s{fill:var(--muted)}
+.pm .k{font-weight:700;fill:var(--ink)}
+.pm .fine{fill:var(--faint)}
+.pm .num{fill:var(--faint)}
+.pm .c{fill:var(--card);stroke:var(--line)}
+.pm .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pm .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
+.pm .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pm .cd{fill:var(--teal);stroke:var(--teal)}
+.pm .hm{fill:var(--accent-ink)}.pm .sm{fill:var(--accent)}
+.pm .hg{fill:var(--teal-ink)}.pm .sg{fill:var(--teal)}
+.pm .hp{fill:var(--coral-ink)}.pm .sp{fill:var(--coral)}
+.pm .hd{fill:var(--bg)}.pm .sd{fill:var(--bg);opacity:.85}
+.pm .ico{fill:none;stroke:var(--faint);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pm .ico .knob{fill:var(--faint);stroke:none}
+.pm .ico-m{fill:var(--accent)}
+.pm .ico-g{fill:none;stroke:var(--teal);stroke-width:1.5;stroke-linecap:round}
+.pm .ico-p{fill:none;stroke:var(--coral);stroke-width:1.5;stroke-linecap:round}
+.pm .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pm .panel{fill:var(--lane);stroke:none}
+.pm .dot{fill:var(--rule)}
+.pm .band{fill:var(--lane)}.pm .bandn{fill:var(--clay);font-weight:700}
+.pm .w{fill:none;stroke:var(--wire);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pm .wx{stroke:var(--coral);opacity:.8}.pm .wl{stroke:var(--accent)}.pm .wo{stroke:var(--teal)}
+.pm .wd{stroke:var(--rule);stroke-width:1.3}
+.pm .ring{stroke:var(--rule);stroke-width:2.5}
+.pm .jn{fill:var(--wire)}
+.pm .ah{fill:var(--wire)}.pm .ahx{fill:var(--coral)}.pm .ahl{fill:var(--accent)}.pm .aho{fill:var(--teal)}.pm .ahd{fill:var(--rule)}
+.pm .term{fill:var(--term)}.pm .term-bar{fill:var(--term-bar)}
+.pm .term-cap{fill:var(--term-dim)}
+.pm .tl{font-size:11px}.pm .term-p{fill:var(--clay);font-weight:700}.pm .term-n{fill:#E8A58C;font-weight:700}.pm .term-t{fill:var(--term-ink)}
+.pm .ledger{fill:var(--lane);stroke:var(--line);stroke-dasharray:3 3}
+.pm .folder{fill:none;stroke:var(--clay);stroke-width:1.4;stroke-linejoin:round}
+.pm .lf .doc{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}.pm .lf text{fill:var(--muted)}
+.pm .bg-stop{fill:var(--coral)}.pm .bg-stop-t{fill:var(--bg)}.pm .bg-stop-m .bm-f{fill:var(--bg)}.pm .bg-stop-m .bm-s{stroke:var(--bg)}
+.pm .bg-ask{fill:var(--card);stroke:var(--coral);stroke-width:1.6}.pm .bg-ask-t{fill:var(--coral)}.pm .bg-ask-m .bm-f{fill:var(--coral)}.pm .bg-ask-m .bm-s{stroke:var(--coral)}
+.pm .bg-ok{fill:var(--teal)}.pm .bg-ok-t{fill:var(--bg)}.pm .bg-ok-m .bm-f{fill:var(--bg)}.pm .bg-ok-m .bm-s{stroke:var(--bg)}
+.pm .bg-note{fill:var(--card);stroke:var(--wire);stroke-width:1.4}.pm .bg-note-t{fill:var(--muted)}.pm .bg-note-m .bm-f{fill:var(--muted)}.pm .bg-note-m .bm-s{stroke:var(--muted)}
+.pm .bm{font-weight:700}.pm .bm-s{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pm .c1{font-weight:700;fill:var(--ink)}.pm .c2{fill:var(--muted)}
+.pm .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pm .tok-halo{fill:var(--clay);opacity:.18}
+.pm .cardg>rect{stroke-width:1}
+.pm .canvas{fill:var(--canvas)}
+.pm .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.pm .rtag text{fill:var(--accent);font-weight:700}
+.pm .ctx-rule{stroke:var(--accent-line);stroke-width:1}.pm .io-rule{stroke:var(--line);stroke-width:1}
+.pm .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.pm .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.pm .ctx-t{fill:var(--accent-ink)}.pm .io-t{fill:var(--muted)}
+.pm .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
+.pm .rung{stroke-width:4.5;stroke-linecap:round}.pm .rung-s{stroke:var(--accent)}.pm .rung-b{stroke:var(--wire)}.pm .rung-c{stroke:var(--teal)}
+.pm .seg{fill:var(--card);stroke:var(--line)}.pm .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pm .segt{fill:var(--faint)}.pm .segt.on{fill:var(--accent-ink);font-weight:700}
+.pm .sheet{fill:var(--card);stroke:var(--line)}.pm .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
+.pm .rv{fill:var(--ink)}.pm .rb{fill:var(--muted)}.pm .kk{fill:var(--faint)}
+.pm .kf{fill:var(--accent);font-weight:700}.pm .kr{fill:var(--coral);font-weight:700}.pm .kc{fill:var(--teal);font-weight:700}
+.pm .fz{fill:var(--accent-ink)}.pm .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.pm .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.pm .fz-t{fill:var(--accent);font-weight:700}.pm .pr-rule{stroke:var(--teal-line);stroke-width:1}
+.pm .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
+.pm .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pm .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
+.pm .mk-proven{fill:var(--teal)}.pm .mk-withdrawn{fill:var(--coral)}
+.pm .mk-m{fill:none;stroke:var(--bg);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pm .mk-thread{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.3;stroke-linejoin:round}
+.pm .mk-sum{fill:var(--card);stroke:var(--wire);stroke-width:1.3;stroke-linejoin:round}
+.pm .mk-t{fill:var(--faint);font-style:italic}
+.pm .chev{fill:none;stroke:var(--wire);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.pm .chev-l{stroke:var(--accent)}
+.pm .again{stroke-width:2.5}.pm .loop-t{fill:var(--accent)}
+.pm .big{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:56px;font-weight:700;fill:var(--ink)}
+.pm .pip{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}.pm .pip.on{fill:var(--clay);stroke:var(--clay)}
+.pm .ok-t{fill:var(--teal)}.pm .x-t{fill:var(--coral)}
+.pm .gate{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:6 5}
+@keyframes pm-walk{0%,6.0%{offset-distance:0.00%}10.0%,16.0%{offset-distance:6.81%}20.0%,26.0%{offset-distance:14.72%}30.0%,36.0%{offset-distance:19.35%}40.0%,46.0%{offset-distance:23.98%}50.0%,56.0%{offset-distance:28.62%}60.0%,63.6%{offset-distance:34.27%}66.0%,66.6%{offset-distance:38.09%}67.0%,68.8%{offset-distance:54.86%}70.0%,74.8%{offset-distance:58.00%}78.0%,82.8%{offset-distance:72.00%}86.0%,90.2%{offset-distance:86.00%}93.0%,100.0%{offset-distance:100.00%}}
+.pm .tok{offset-path:path('M368 335 L368 435 L368 551 L368 619 L368 687 L368 755 L368 838 L368 894 L121.8 894 L121.8 940 L327.2 940 L532.8 940 L738.2 940');offset-rotate:0deg;animation:pm-walk 36s linear infinite}
+@keyframes pm-st0{0%,0.0%{stroke-width:1}0.0%,9.9%{stroke:var(--accent);stroke-width:2.2}10.0%,100%{stroke-width:1}}
+.pm .st0>rect{animation:pm-st0 36s linear infinite}
+@keyframes pm-in0{0%,0.0%{opacity:0}0.6%,100%{opacity:1}}
+.pm .tl0,.pm .lf0{animation:pm-in0 36s linear infinite}
+@keyframes pm-st1{0%,9.9%{stroke-width:1}10.0%,19.9%{stroke:var(--accent);stroke-width:2.2}20.0%,100%{stroke-width:1}}
+.pm .st1>rect{animation:pm-st1 36s linear infinite}
+@keyframes pm-in1{0%,9.9%{opacity:0}10.6%,100%{opacity:1}}
+.pm .tl1,.pm .lf1{animation:pm-in1 36s linear infinite}
+@keyframes pm-st2{0%,19.9%{stroke-width:1}20.0%,29.9%{stroke:var(--accent);stroke-width:2.2}30.0%,100%{stroke-width:1}}
+.pm .st2>rect{animation:pm-st2 36s linear infinite}
+@keyframes pm-in2{0%,19.9%{opacity:0}20.6%,100%{opacity:1}}
+.pm .tl2,.pm .lf2{animation:pm-in2 36s linear infinite}
+@keyframes pm-st3{0%,29.9%{stroke-width:1}30.0%,39.9%{stroke:var(--accent);stroke-width:2.2}40.0%,100%{stroke-width:1}}
+.pm .st3>rect{animation:pm-st3 36s linear infinite}
+@keyframes pm-in3{0%,29.9%{opacity:0}30.6%,100%{opacity:1}}
+.pm .tl3,.pm .lf3{animation:pm-in3 36s linear infinite}
+@keyframes pm-st4{0%,39.9%{stroke-width:1}40.0%,49.9%{stroke:var(--accent);stroke-width:2.2}50.0%,100%{stroke-width:1}}
+.pm .st4>rect{animation:pm-st4 36s linear infinite}
+@keyframes pm-in4{0%,39.9%{opacity:0}40.6%,100%{opacity:1}}
+.pm .tl4,.pm .lf4{animation:pm-in4 36s linear infinite}
+@keyframes pm-st5{0%,49.9%{stroke-width:1}50.0%,59.9%{stroke:var(--accent);stroke-width:2.2}60.0%,100%{stroke-width:1}}
+.pm .st5>rect{animation:pm-st5 36s linear infinite}
+@keyframes pm-in5{0%,49.9%{opacity:0}50.6%,100%{opacity:1}}
+.pm .tl5,.pm .lf5{animation:pm-in5 36s linear infinite}
+@keyframes pm-st6{0%,59.9%{stroke-width:1}60.0%,69.9%{stroke:var(--accent);stroke-width:2.2}70.0%,100%{stroke-width:1}}
+.pm .st6>rect{animation:pm-st6 36s linear infinite}
+@keyframes pm-in6{0%,59.9%{opacity:0}60.6%,100%{opacity:1}}
+.pm .tl6,.pm .lf6{animation:pm-in6 36s linear infinite}
+@keyframes pm-st7{0%,69.9%{stroke-width:1}70.0%,77.9%{stroke:var(--accent);stroke-width:2.2}78.0%,100%{stroke-width:1}}
+.pm .st7>rect{animation:pm-st7 36s linear infinite}
+@keyframes pm-in7{0%,69.9%{opacity:0}70.6%,100%{opacity:1}}
+.pm .tl7,.pm .lf7{animation:pm-in7 36s linear infinite}
+@keyframes pm-st8{0%,77.9%{stroke-width:1}78.0%,85.9%{stroke:var(--accent);stroke-width:2.2}86.0%,100%{stroke-width:1}}
+.pm .st8>rect{animation:pm-st8 36s linear infinite}
+@keyframes pm-in8{0%,77.9%{opacity:0}78.6%,100%{opacity:1}}
+.pm .tl8,.pm .lf8{animation:pm-in8 36s linear infinite}
+@keyframes pm-st9{0%,85.9%{stroke-width:1}86.0%,92.9%{stroke:var(--accent);stroke-width:2.2}93.0%,100%{stroke-width:1}}
+.pm .st9>rect{animation:pm-st9 36s linear infinite}
+@keyframes pm-in9{0%,85.9%{opacity:0}86.6%,100%{opacity:1}}
+.pm .tl9,.pm .lf9{animation:pm-in9 36s linear infinite}
+@keyframes pm-st10{0%,92.9%{stroke-width:1}93.0%,99.9%{stroke:var(--accent);stroke-width:2.2}100.0%,100%{stroke-width:1}}
+.pm .st10>rect{animation:pm-st10 36s linear infinite}
+@keyframes pm-in10{0%,92.9%{opacity:0}93.6%,100%{opacity:1}}
+.pm .tl10,.pm .lf10{animation:pm-in10 36s linear infinite}
+@keyframes pm-ex0{0%,1.9%{opacity:.5}2.0%,9.9%{opacity:1}10.0%,100%{opacity:.5}}
+.pm .ex0{animation:pm-ex0 36s linear infinite}
+@keyframes pm-ex1{0%,11.9%{opacity:.5}12.0%,19.9%{opacity:1}20.0%,100%{opacity:.5}}
+.pm .ex1{animation:pm-ex1 36s linear infinite}
+@keyframes pm-ex2{0%,21.9%{opacity:.5}22.0%,29.9%{opacity:1}30.0%,100%{opacity:.5}}
+.pm .ex2{animation:pm-ex2 36s linear infinite}
+@keyframes pm-ex3{0%,31.9%{opacity:.5}32.0%,39.9%{opacity:1}40.0%,100%{opacity:.5}}
+.pm .ex3{animation:pm-ex3 36s linear infinite}
+@keyframes pm-ex4{0%,41.9%{opacity:.5}42.0%,49.9%{opacity:1}50.0%,100%{opacity:.5}}
+.pm .ex4{animation:pm-ex4 36s linear infinite}
+@keyframes pm-ex5{0%,51.9%{opacity:.5}52.0%,59.9%{opacity:1}60.0%,100%{opacity:.5}}
+.pm .ex5{animation:pm-ex5 36s linear infinite}
+@keyframes pm-ex6{0%,61.9%{opacity:.5}62.0%,69.9%{opacity:1}70.0%,100%{opacity:.5}}
+.pm .ex6{animation:pm-ex6 36s linear infinite}
+@media (prefers-reduced-motion:reduce){.pm *{animation:none!important}.pm .tok{display:none}.pm .tl,.pm .lf,.pm .ex0,.pm .ex1,.pm .ex2,.pm .ex3,.pm .ex4,.pm .ex5,.pm .ex6,.pm .ex7,.pm .ex8,.pm .ex9,.pm .ex10,.pm .ex11,.pm .ex12{opacity:1}}
+</style>
+<defs><filter id="pm-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pm-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pm-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="1124" rx="16"/>
+<rect class="gate" x="226" y="498" width="284" height="296" rx="12"/>
+<text class="mono k" x="240" y="516">merge-pr</text>
+<text class="fine" x="496" y="516" text-anchor="end" style="font-size:10.5px">four doors, in order</text>
+<path class="w" d="M368 370 L368 399" marker-end="url(#pm-a)"/>
+<path class="w wd" d="M496 335 L529.5 335" marker-end="url(#pm-ad)"/>
+<path class="w wd" d="M496 418 L529.5 418" marker-end="url(#pm-ad)"/>
+<path class="w wd" d="M496 456 L529.5 456" marker-end="url(#pm-ad)"/>
+<path class="w" d="M368 470 L368 525" marker-end="url(#pm-a)"/>
+<path class="w wx" d="M496 551 L529.5 551" marker-end="url(#pm-ax)"/>
+<path class="w" d="M368 576 L368 593" marker-end="url(#pm-a)"/>
+<path class="w wd" d="M496 619 L529.5 619" marker-end="url(#pm-ad)"/>
+<path class="w" d="M368 644 L368 661" marker-end="url(#pm-a)"/>
+<path class="w wd" d="M496 687 L529.5 687" marker-end="url(#pm-ad)"/>
+<path class="w" d="M368 712 L368 729" marker-end="url(#pm-a)"/>
+<path class="w wd" d="M496 755 L529.5 755" marker-end="url(#pm-ad)"/>
+<path class="w" d="M368 780 L368 809" marker-end="url(#pm-a)"/>
+<path class="w wo" d="M496 838 L529.5 838" marker-end="url(#pm-ao)"/>
+<path class="w wl" d="M212 755 L239 755" stroke-dasharray="4 4" marker-end="url(#pm-al)"/>
+<path class="w" d="M368 866L368 884Q368 894 358 894L130.2 894Q121.8 894 121.8 902.5L121.8 911" marker-end="url(#pm-a)"/>
+<path class="w" d="M215.5 940 L232.5 940" marker-end="url(#pm-a)"/>
+<path class="w" d="M421 940 L438 940" marker-end="url(#pm-a)"/>
+<path class="w" d="M626.5 940 L643.5 940" marker-end="url(#pm-a)"/>
+<circle class="tok tok-halo" r="11"/><circle class="tok tok-dot" r="5.5"/>
+<text class="kick" x="28" y="34" style="font-size:10px;letter-spacing:1.6px">PHASE 6 OF 6  ·  STEPS 12 – 13</text>
+<text class="ttl" x="28" y="70">Merge</text>
+<text class="sub" x="28" y="94" style="font-size:12.5px">Every refusal writes nothing and names who decides. The merge is the one step that cannot be undone.</text>
+<path class="rail" d="M588 32H818"/>
+<path class="rail-done" d="M588 32H818"/>
+<circle class="rail-past" cx="588" cy="32" r="4"/>
+<text class="rail-lbl" x="588" y="56" text-anchor="middle" style="font-size:10px">Stage</text>
+<circle class="rail-past" cx="634" cy="32" r="4"/>
+<text class="rail-lbl" x="634" y="56" text-anchor="middle" style="font-size:10px">Review</text>
+<circle class="rail-past" cx="680" cy="32" r="4"/>
+<text class="rail-lbl" x="680" y="56" text-anchor="middle" style="font-size:10px">Post</text>
+<circle class="rail-past" cx="726" cy="32" r="4"/>
+<text class="rail-lbl" x="726" y="56" text-anchor="middle" style="font-size:10px">Fix</text>
+<circle class="rail-past" cx="772" cy="32" r="4"/>
+<text class="rail-lbl" x="772" y="56" text-anchor="middle" style="font-size:10px">Land</text>
+<circle class="rail-ring" cx="818" cy="32" r="9"/><circle class="rail-now" cx="818" cy="32" r="5"/>
+<text class="rail-lbl now" x="818" y="56" text-anchor="middle" style="font-size:10px">Merge</text>
+<g filter="url(#pm-sh)"><rect class="term" x="28" y="112" width="804" height="146" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
+<circle cx="44" cy="124" r="4" fill="#E0715A" opacity=".9"/>
+<circle cx="58" cy="124" r="4" fill="#E2B341" opacity=".9"/>
+<circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
+<text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
+<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">merge-method:</tspan><tspan class="term-t"> rebase reason allowed-only</tspan></text>
+<text class="mono tl tl6" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">merge-pr:</tspan><tspan class="term-t"> Paxton-Meny/api#128 merged by rebase, branch deleted</tspan></text>
+<text class="mono tl tl7" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">run-stats:</tspan><tspan class="term-t"> run Paxton-Meny/api#128 outcome merged rounds 2 findings 5 …</tspan></text>
+<text class="mono tl tl8" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">cleanup-state:</tspan><tspan class="term-t"> worktree and context removed, ledger kept</tspan></text>
+<text class="mono tl tl9" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">sweep-state:</tspan><tspan class="term-t"> stale 0 pruned 1 kept 20</tspan></text>
+<text class="mono tl tl10" x="42" y="246"><tspan class="term-p">›</tspan> <tspan class="term-n">criteria-signals:</tspan><tspan class="term-t"> other 1 notes 1</tspan></text>
+<g class="cardg st0"><rect class="c" x="240" y="300" width="256" height="70" rx="9"/>
+<path class="ico" d="M252 312l4 3.6l-4 3.6M258 320h5.5"/>
+<text class="h mono" x="271" y="321" style="font-size:12px">merge-method --refresh</text>
+<text class="s" x="252" y="340">the setting, else the repo’s one</text>
+<text class="s" x="252" y="355">method, else recent history</text>
+</g>
+<g class="cardg st1"><rect class="cp" x="240" y="400" width="256" height="70" rx="9"/>
+<g class="ico-p"><circle cx="258" cy="414" r="2.8"/><path d="M253 423q0-5 5-5t5 5"/></g>
+<text class="h hp" x="271" y="421" style="font-size:12.5px">Who opens the gate</text>
+<text class="s sp" x="252" y="440">auto-approve: it merges on its own</text>
+<text class="s sp" x="252" y="455">attended: merge now, or hold?</text>
+</g>
+<g class="cardg st2"><rect class="c" x="240" y="526" width="256" height="50" rx="9"/>
+<g class="ico"><path d="M253 549h10M254.5 549V537h7v12"/><circle class="knob" cx="259.6" cy="543.5" r="1"/></g>
+<text class="h" x="271" y="547" style="font-size:12.5px">Open, not a draft</text>
+<text class="s" x="252" y="566">the pull request as it is now</text>
+</g>
+<g class="cardg st3"><rect class="c" x="240" y="594" width="256" height="50" rx="9"/>
+<g class="ico"><path d="M253 617h10M254.5 617V605h7v12"/><circle class="knob" cx="259.6" cy="611.5" r="1"/></g>
+<text class="h" x="271" y="615" style="font-size:12.5px">Mergeable</text>
+<text class="s" x="252" y="634">the forge’s own verdict</text>
+</g>
+<g class="cardg st4"><rect class="c" x="240" y="662" width="256" height="50" rx="9"/>
+<g class="ico"><path d="M253 685h10M254.5 685V673h7v12"/><circle class="knob" cx="259.6" cy="679.5" r="1"/></g>
+<text class="h" x="271" y="683" style="font-size:12.5px">No migration files</text>
+<text class="s" x="252" y="702">or too few files listed</text>
+</g>
+<g class="cardg st5"><rect class="c" x="240" y="730" width="256" height="50" rx="9"/>
+<g class="ico"><path d="M253 753h10M254.5 753V741h7v12"/><circle class="knob" cx="259.6" cy="747.5" r="1"/></g>
+<text class="h" x="271" y="751" style="font-size:12.5px">Nothing landed beside it</text>
+<text class="s" x="252" y="770">the base fetched fresh</text>
+</g>
+<g class="cardg st6"><rect class="cd" x="240" y="810" width="256" height="56" rx="9"/>
+<path class="tick" d="M253 827l3.4 3.4l6.6-7"/>
+<text class="h hd" x="271" y="831" style="font-size:12.5px">Merged</text>
+<text class="s sd" x="252" y="850">by the method, the head matched</text>
+</g>
+<rect class="panel" x="28" y="300" width="184" height="117.5" rx="10"/>
+<text class="k" x="42" y="321" style="font-size:9.5px;letter-spacing:1.4px">NEVER ON ITS OWN</text>
+<circle class="dot" cx="45" cy="336.2" r="2"/>
+<text class="s" x="53" y="340">--migrations-checked and</text>
+<text class="s" x="53" y="354.5">--overlap-checked follow your</text>
+<text class="s" x="53" y="369">answer in this run.</text>
+<circle class="dot" cx="45" cy="384.7" r="2"/>
+<text class="s" x="53" y="388.5">A verdict alone never adds</text>
+<text class="s" x="53" y="403">them.</text>
+<rect class="panel" x="28" y="433.5" width="184" height="151.5" rx="10"/>
+<text class="k" x="42" y="454.5" style="font-size:9.5px;letter-spacing:1.4px">WHAT YOU CONFIRM</text>
+<circle class="dot" cx="45" cy="469.7" r="2"/>
+<text class="s" x="53" y="473.5">No newer migrations on the</text>
+<text class="s" x="53" y="488">base, and none in other open</text>
+<text class="s" x="53" y="502.5">PRs.</text>
+<circle class="dot" cx="45" cy="518.2" r="2"/>
+<text class="s" x="53" y="522">Running code still works, and</text>
+<text class="s" x="53" y="536.5">nothing shipped was edited.</text>
+<circle class="dot" cx="45" cy="552.2" r="2"/>
+<text class="s" x="53" y="556">For an overlap: the drift lines</text>
+<text class="s" x="53" y="570.5">and any verdict.</text>
+<g class="cardg st5"><rect class="cm" x="28" y="718" width="184" height="88" rx="9"/>
+<path class="ico-m" d="M46 729c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="59" y="739" style="font-size:12.5px">Comparer</text>
+<text class="s sm" x="40" y="758">reads the drift beside</text>
+<text class="s sm" x="40" y="773">the hunks; one verdict</text>
+<path class="ctx-rule" d="M29 784H211"/>
+<path class="ctx-i" d="M40 790h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="56" y="798.5" style="font-size:9.5px">both sets of hunks</text>
+</g>
+<g class="cardg st7"><rect class="c" x="28" y="912" width="187.5" height="56" rx="9"/>
+<path class="ico" d="M40 924l4 3.6l-4 3.6M46 932h5.5"/>
+<text class="h mono" x="59" y="933" style="font-size:12px">run-stats</text>
+<text class="s" x="40" y="952">one line per finished run</text>
+</g>
+<g class="cardg st8"><rect class="c" x="233.5" y="912" width="187.5" height="56" rx="9"/>
+<path class="ico" d="M245.5 924l4 3.6l-4 3.6M251.5 932h5.5"/>
+<text class="h mono" x="264.5" y="933" style="font-size:12px">cleanup-state</text>
+<text class="s" x="245.5" y="952">worktree gone, ledger kept</text>
+</g>
+<g class="cardg st9"><rect class="c" x="439" y="912" width="187.5" height="56" rx="9"/>
+<path class="ico" d="M451 924l4 3.6l-4 3.6M457 932h5.5"/>
+<text class="h mono" x="470" y="933" style="font-size:12px">sweep-state</text>
+<text class="s" x="451" y="952">closed runs reaped</text>
+</g>
+<g class="cardg st10"><rect class="c" x="644.5" y="912" width="187.5" height="56" rx="9"/>
+<text class="h" x="656.5" y="933" style="font-size:12.5px">The report</text>
+<text class="s" x="656.5" y="952">rounds, findings, signals</text>
+</g>
+<rect class="ledger" x="28" y="990" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 1016h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="1022" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="1034" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 1006h6l3 3v8h-9z"/><text class="mono" x="175" y="1015" style="font-size:10.5px">pr-context/merge-method.txt</text></g>
+<g class="lf lf5"><path class="doc" d="M364.7 1006h6l3 3v8h-9z"/><text class="mono" x="379.7" y="1015" style="font-size:10.5px">drift.txt</text></g>
+<g class="lf lf5"><path class="doc" d="M455.6 1006h6l3 3v8h-9z"/><text class="mono" x="470.6" y="1015" style="font-size:10.5px">overlap/base/verdict.txt</text></g>
+<g class="lf lf7"><path class="doc" d="M641.3 1006h6l3 3v8h-9z"/><text class="mono" x="656.3" y="1015" style="font-size:10.5px">../stats.txt, all runs</text></g>
+<g class="lf lf8"><path class="doc" d="M160 1026h6l3 3v8h-9z"/><text class="mono" x="175" y="1035" style="font-size:10.5px">ledger kept for keep_ledgers runs</text></g>
+<g class="call ex0">
+<circle class="bg-ask" cx="540" cy="335" r="9.5"/>
+<text class="bm mono bg-ask-t" x="540" y="338.6" text-anchor="middle" style="font-size:10.5px">4</text>
+<text class="c1" x="556" y="339">mixed evidence → you pick</text>
+<text class="c2" x="556" y="353" style="font-size:10.5px">unattended, the run parks</text>
+</g>
+<g class="call ex1">
+<circle class="bg-stop" cx="540" cy="418" r="9.5"/>
+<g class="bg-stop-m"><rect class="bm-f" x="536.8" y="414.8" width="6.4" height="6.4" rx="1"/></g>
+<text class="c1" x="556" y="422">unattended, approval off</text>
+<text class="c2" x="556" y="436" style="font-size:10.5px">a status comment; nothing merges</text>
+</g>
+<g class="call ex1">
+<circle class="bg-ask" cx="540" cy="456" r="9.5"/>
+<g class="bg-ask-m"><circle class="bm-f" cx="540" cy="453.6" r="2.3"/><path class="bm-f" d="M535.6 460.6q0-4.2 4.4-4.2t4.4 4.2z"/></g>
+<text class="c1" x="556" y="460">you hold → stats, cleanup</text>
+<text class="c2" x="556" y="474" style="font-size:10.5px">the PR stays open with its trail</text>
+</g>
+<g class="call ex2">
+<circle class="bg-stop" cx="540" cy="551" r="9.5"/>
+<text class="bm mono bg-stop-t" x="540" y="554.6" text-anchor="middle" style="font-size:10.5px">1</text>
+<text class="c1" x="556" y="555">closed, or a draft: stop</text>
+</g>
+<g class="call ex3">
+<circle class="bg-note" cx="540" cy="619" r="9.5"/>
+<text class="bm mono bg-note-t" x="540" y="622.6" text-anchor="middle" style="font-size:10.5px">5</text>
+<text class="c1" x="556" y="623">conflicting or behind</text>
+<text class="c2" x="556" y="637" style="font-size:10.5px">back to base sync, in Land</text>
+</g>
+<g class="call ex4">
+<circle class="bg-ask" cx="540" cy="687" r="9.5"/>
+<text class="bm mono bg-ask-t" x="540" y="690.6" text-anchor="middle" style="font-size:10.5px">4</text>
+<text class="c1" x="556" y="691">migrations → four checks</text>
+<text class="c2" x="556" y="705" style="font-size:10.5px">you confirm them, then merge</text>
+</g>
+<g class="call ex5">
+<circle class="bg-ask" cx="540" cy="755" r="9.5"/>
+<text class="bm mono bg-ask-t" x="540" y="758.6" text-anchor="middle" style="font-size:10.5px">6</text>
+<text class="c1" x="556" y="759">drift beside the hunks</text>
+<text class="c2" x="556" y="773" style="font-size:10.5px">an independent verdict merges; else you</text>
+</g>
+<g class="call ex6">
+<circle class="bg-ok" cx="540" cy="838" r="9.5"/>
+<g class="bg-ok-m"><path class="bm-s" d="M536 838l2.8 2.8l5 -5.6"/></g>
+<text class="c1" x="556" y="842">the branch: deleted, or kept</text>
+<text class="c2" x="556" y="856" style="font-size:10.5px">kept: a fork, a stack, or the repo deletes it</text>
+</g>
+<g class="rtag"><rect x="131.8" y="710" width="68.2" height="16" rx="8"/><text class="mono" x="138.8" y="721.3" style="font-size:9px">base · low</text></g>
+<rect class="c" x="28" y="1071" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="1080" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="1071" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="1080" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="1069" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="1080.3" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="1080" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 1091h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="1100" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="1097" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 1097l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="1100" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="252.3" cy="1097" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M255.2 1095.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M253.5 1095.1l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="265.3" y="1100" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-ask" cx="411.6" cy="1097" r="7"/>
+<g class="bg-ask-m"><circle class="bm-f" cx="411.6" cy="1095.2" r="1.7"/><path class="bm-f" d="M408.3 1100.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
+<text class="fine" x="424.6" y="1100" style="font-size:10px">a person decides</text>
+<circle class="bg-stop" cx="529.7" cy="1097" r="7"/>
+<text class="bm mono bg-stop-t" x="529.7" y="1099.7" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="542.7" y="1100" style="font-size:10px">stops or parks; a number is the exit code</text>
+</svg>
