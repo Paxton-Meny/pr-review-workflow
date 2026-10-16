@@ -108,6 +108,8 @@ bash_no editor "sh $root/scripts/update-finding.sh $dir F001 status=verified"
 bash_no editor "sh $root/scripts/push-branch.sh $dir --force-with-lease"
 bash_no editor "sh $root/scripts/sync-branch.sh $dir --abort"
 bash_no editor "sh $root/scripts/run-contract.sh $dir F001 2>/dev/null"
+bash_no editor "sh $root/scripts/run-contract.sh $dir F001 sh"
+bash_no verifier "sh $root/scripts/run-contract.sh $dir F001 make 'make'"
 bash_no editor "sh $root/scripts/append-note.sh $dir F001 <<NOTE
 \$(id)
 NOTE"
