@@ -84,11 +84,19 @@ def main() -> int:
         src = Path(tmp) / "card.html"
         src.write_text(page(pagella))
         shot = Path(tmp) / "card.png"
-        subprocess.run([browser, "--headless", "--hide-scrollbars", "--force-device-scale-factor=1",
-                        f"--window-size={W},{H}", "--host-resolver-rules=MAP * ~NOTFOUND",
-                        "--disable-background-networking", "--force-color-profile=srgb",
-                        f"--user-data-dir={tmp}/profile", f"--screenshot={shot}", src.as_uri()],
-                       check=True, capture_output=True, timeout=60)
+        try:
+            subprocess.run([browser, "--headless", "--hide-scrollbars", "--force-device-scale-factor=1",
+                            f"--window-size={W},{H}", "--host-resolver-rules=MAP * ~NOTFOUND",
+                            "--disable-background-networking", "--force-color-profile=srgb",
+                            f"--user-data-dir={tmp}/profile", f"--screenshot={shot}", src.as_uri()],
+                           check=True, capture_output=True, text=True, timeout=60)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            err = e.stderr or ""
+            if isinstance(err, bytes):
+                err = err.decode(errors="replace")
+            tail = "\n".join(err.strip().splitlines()[-10:])
+            print(f"social-card: the browser failed ({e.__class__.__name__})\n{tail}".rstrip(), file=sys.stderr)
+            return 1
         if not shot.is_file() or shot.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
             print("social-card: the browser wrote no PNG", file=sys.stderr)
             return 1
