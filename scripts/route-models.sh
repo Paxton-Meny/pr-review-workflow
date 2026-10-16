@@ -86,6 +86,11 @@
 # as a retry does. The conflict stage, for the editor resolving an
 # update that stopped on conflicts, is the editor's rung one level up:
 # a wrong resolution drops code.
+# The review stage also records its plan in the ledger's review.txt (a
+# "plan" line, then "planned <unit> samples <n>" per line printed), and
+# a skipped gap pass records "gap skip <reason>" there, so
+# review-progress.sh can tell a resumed run what the review phase still
+# owes.
 set -eu
 
 dir=${1:?usage: route-models.sh <state-dir> <stage> [key=value ...] [-- <ids>]}
@@ -586,6 +591,7 @@ batches() {
 
 case "$stage" in
 review)
+	printf 'plan\n' >>"$dir/review.txt"
 	if [ -s "$ctx/shards.txt" ] && [ -f "$ctx/files-kind.txt" ]; then
 		# One decision per group, on that group's own files.
 		[ -f "$ctx/probe-files.txt" ] || : >"$ctx/probe-files.txt"
@@ -598,13 +604,17 @@ review)
 			gc=${rest%% *}
 			gs=${rest#"$gc"}
 			set -- $(review_rung "$gk" "$gl" "$gc" "$gs" "$gi")
+			n=$(samples_for "$gs")
 			emit "group-$gi" "$1" "$(model_for "$1" "$reviewer")" \
-				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi" "$1")" "$2 samples $(samples_for "$gs")"
+				"$(review_effort "$gk" "$gl" "$gc" "$gs" "$gi" "$1")" "$2 samples $n"
+			printf 'planned group-%s samples %s\n' "$gi" "$n" >>"$dir/review.txt"
 		done <"$ctx/shards.txt"
 	else
 		set -- $(review_rung "$kind" "$lines" "$code_lines" "$slugs")
+		n=$(samples_for "$slugs")
 		emit all "$1" "$(model_for "$1" "$reviewer")" \
-			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs" "" "$1")" "$2 samples $(samples_for "$slugs")"
+			"$(review_effort "$kind" "$lines" "$code_lines" "$slugs" "" "$1")" "$2 samples $n"
+		printf 'planned all samples %s\n' "$n" >>"$dir/review.txt"
 	fi
 	;;
 gap)
@@ -622,6 +632,7 @@ gap)
 	fi
 	if [ -n "${skip_gap:-}" ]; then
 		skip "$skip_gap"
+		printf 'gap skip %s\n' "$skip_gap" >>"$dir/review.txt"
 		exit 0
 	fi
 	# The highest rung and effort any review unit used, never below the

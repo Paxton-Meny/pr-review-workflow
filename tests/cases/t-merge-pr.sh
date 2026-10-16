@@ -14,6 +14,7 @@ mkdir -p "$dir/pr-context"
 printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\n' "$fixture_owner" "$author" "$fixture_login" >"$dir/meta.txt"
 : | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
 printf '0\n' >"$dir/round.txt"
+printf 'plan\nplanned all samples 1\nsaved all 0\ngap skip no-risk-signal\n' >"$dir/review.txt"
 method() {
 	# method <name> [delete_branch_on_merge]
 	printf 'method %s\nreason setting\nallowed merge squash rebase\ndelete_branch_on_merge %s\nhistory merge 0 squash 0 rebase 0 either 0\n' "$1" "${2:-false}" >"$dir/pr-context/merge-method.txt"

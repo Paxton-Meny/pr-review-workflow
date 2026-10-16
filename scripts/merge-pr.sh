@@ -10,8 +10,10 @@
 # Exit 6: refused, writing nothing and asking the forge nothing, because
 # the ledger does not allow a merge: one line each for a finding still
 # open ("open <id>"), a wont-fix finding no person accepted
-# ("unaccepted <id>"), and, when the check gate is armed, a head the
-# check has not passed at ("check <reason>").
+# ("unaccepted <id>"), each item of a review phase review-progress.sh
+# reports incomplete ("review ...", "dedup ...", "gap ..."), and, when
+# the check gate is armed, a head the check has not passed at
+# ("check <reason>").
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
@@ -63,6 +65,14 @@ delete_on_merge=$(sed -n 's/^delete_branch_on_merge //p' "$record")
 # a merge.
 here=$(dirname -- "$0")
 refused=''
+rc=0
+progress=$(sh "$here/review-progress.sh" "$dir") || rc=$?
+case "$rc" in
+0) ;;
+3) refused="$refused
+$(printf '%s\n' "$progress" | sed 1d)" ;;
+*) exit 1 ;;
+esac
 if [ -d "$dir/findings" ]; then
 	rc=0
 	counts=$(sh "$here/count-findings.sh" "$dir" --list) || rc=$?

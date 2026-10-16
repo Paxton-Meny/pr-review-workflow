@@ -1,9 +1,37 @@
 #!/bin/sh
 # Validate reviewer finding records from stdin and write them to the ledger.
-# Usage: sh scripts/save-findings.sh <state-dir>
+# Usage: sh scripts/save-findings.sh <state-dir> [--unit <unit>]
+# A report that is exactly "no findings" saves nothing. With --unit, the
+# report belongs to the review phase: "all" or "group-<n>" for a step 5
+# reviewer (one call per sample), "gap" for the gap pass, and
+# "saved <unit> <count>" is appended to the ledger's review.txt once the
+# records are in place, for review-progress.sh.
 set -eu
 
-dir=${1:?usage: save-findings.sh <state-dir>}
+usage='usage: save-findings.sh <state-dir> [--unit <unit>]'
+dir=${1:?$usage}
+unit=''
+case "${2:-}" in
+'') ;;
+--unit) unit=${3:-} ;;
+*)
+	echo "$usage" >&2
+	exit 1
+	;;
+esac
+case "$unit" in
+'' | all | gap | group-[1-9]) ;;
+group-[1-9]*)
+	case "${unit#group-}" in
+	*[!0-9]*) unit=bad ;;
+	esac
+	;;
+*) unit=bad ;;
+esac
+[ "$unit" != bad ] && { [ -n "$unit" ] || [ -z "${2:-}" ]; } || {
+	echo "save-findings: the unit must be all, gap, or group-<n>: ${3:-}" >&2
+	exit 1
+}
 [ -f "$dir/round.txt" ] || {
 	echo "save-findings: no round.txt in $dir, run init-state.sh first" >&2
 	exit 1
@@ -23,6 +51,13 @@ done
 
 spool=$(mktemp -d "$dir/.save.XXXXXX")
 trap 'rm -rf "$spool"' EXIT
+
+cat >"$spool/.in"
+if [ "$(awk 'NF' "$spool/.in" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')" = 'no findings' ]; then
+	[ -z "$unit" ] || printf 'saved %s 0\n' "$unit" >>"$dir/review.txt"
+	echo "save-findings: no findings${unit:+ for $unit}"
+	exit 0
+fi
 
 awk -v spool="$spool" -v first="$next" -v round="$round" '
 function fail(msg) {
@@ -102,12 +137,14 @@ END {
 	}
 	printf "%d\n", rec > (spool "/.count")
 }
-'
+' "$spool/.in"
+rm -f "$spool/.in"
 
 count=$(cat "$spool/.count")
 rm -f "$spool/.count"
 for f in "$spool"/F*; do
 	mv "$f" "$findings/${f##*/}"
 done
+[ -z "$unit" ] || printf 'saved %s %d\n' "$unit" "$count" >>"$dir/review.txt"
 
 echo "save-findings: $count findings saved, next id F$(printf '%03d' $((next + count)))"
