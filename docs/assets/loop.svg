@@ -2,8 +2,8 @@
 <title id="lpt">The review loop, from above</title>
 <desc id="lpd">One thorough first review feeds open findings into a ring: editor, check gate, verifier, then the question of whether anything is open. A reopened finding goes around again past the round counter, whose budget of four rounds is kept on disk and parks the run when spent; a clean verdict exits through the checks, base sync, and the overlap guard to a proven merge. The animation shows a run converging on its second lap.</desc>
 <style>
-.fg{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
-@media (prefers-color-scheme:dark){.fg{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--clay:#D97757;--term:#141413;--term-line:#44433F;--shadow:.3}}
+.fg{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A;--shadow:.09}
+@media (prefers-color-scheme:dark){.fg{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--clay:#F28B62;--term:#0A0B0F;--term-line:#2C313C;--shadow:.5}}
 .fg text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
 .fg .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 .fg .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
@@ -20,6 +20,7 @@
 .fg .arh{fill:var(--faint)}
 .fg .term{fill:var(--term);stroke:var(--term-line)}
 .fg .tt{fill:#F1EFE8}.fg .tm{fill:#B4B2A9}.fg .tp{fill:#D97757;font-weight:700}.fg .tok{fill:#5DCAA5;font-weight:700}
+@media (prefers-color-scheme:dark){.fg .tt{fill:#ECEFF4}.fg .tm{fill:#B4B9C5}.fg .tp{fill:#F28B62}.fg .tok{fill:#4CD9B0}}
 .fg .ttl{font-size:16px;font-weight:700;fill:var(--ink)}
 .fg .seg{fill:none;stroke:var(--rule);stroke-width:3.5}
 .fg .segh{fill:var(--rule)}
@@ -51,8 +52,10 @@
 @keyframes lp-p2{0%,51%{fill:transparent}53%,98%{fill:var(--clay)}100%{fill:transparent}}
 @keyframes lp-exit{0%,86%{opacity:.3}89%,98%{opacity:1}100%{opacity:.3}}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none}}
+.fg .canvas{fill:var(--canvas)}
 </style>
 <defs><filter id="lpsh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="lpa" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
+<rect class="canvas" width="860" height="552" rx="16"/>
 <text class="ttl" x="30" y="32">The loop, from above</text>
 <text x="30" y="52" style="font-size:12.5px">Review once; revise in a cycle until every contract holds. Bounded, never endless.</text>
 <path class="seg" d="M280.8 290.4A120 120 0 0 1 300.9 236.4"/><path class="segh" d="M306.1 229.3L304.2 241.2L295 235.2z"/>
