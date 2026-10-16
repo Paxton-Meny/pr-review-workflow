@@ -88,7 +88,7 @@ grep -qx 'candidate 9 bob near files 1' "$ctx/overlap.txt"
 grep -qx 'candidate 8 alice disjoint files 1 same-author linked' "$ctx/overlap.txt"
 grep -qx 'candidate 15 hal disjoint files 1' "$ctx/overlap.txt"
 grep -qx 'candidate 16 ida disjoint files 1' "$ctx/overlap.txt"
-! grep -q 'candidate 1[0134]\|candidate 17\|unavailable' "$ctx/overlap.txt"
+if grep -q 'candidate 1[0134]\|candidate 17\|unavailable' "$ctx/overlap.txt"; then echo 'overlap.txt lists a dropped or capped candidate' >&2; exit 1; fi
 grep -q "^file	9	near	src/app.py	10-12	20-20	def alpha():$" "$ctx/overlap.txt"
 grep -q "^file	12	same	src/app.py	10-12	11-11	def alpha():$" "$ctx/overlap.txt"
 grep -qx 'overlap: 5 candidates, 1 near, 1 same, approximate' "$ctx/overlap.txt"
@@ -104,10 +104,10 @@ grep -qx 'flags none' "$ctx/overlap/pr-9/summary.txt"
 grep -qx 'flags draft linked' "$ctx/overlap/pr-12/summary.txt"
 grep -qx 'level near files 1 near 1 same 0' "$ctx/overlap/pr-9/summary.txt"
 grep -qx '+    a20 = 200' "$ctx/overlap/pr-9/theirs.diff"
-! grep -q 'package-lock' "$ctx/overlap/pr-9/theirs.diff"
+if grep -q 'package-lock' "$ctx/overlap/pr-9/theirs.diff"; then echo 'lockfile left in theirs.diff' >&2; exit 1; fi
 grep -qx 'path: src/app.py' "$ctx/overlap/pr-9/ours.diff"
 grep -qx 'R10 +    a10 = 100' "$ctx/overlap/pr-9/ours.diff"
-! grep -q 'package-lock' "$ctx/overlap/pr-9/ours.diff"
+if grep -q 'package-lock' "$ctx/overlap/pr-9/ours.diff"; then echo 'lockfile left in ours.diff' >&2; exit 1; fi
 
 # A rerun clears the earlier bundles before writing new ones.
 rm -f "$stub"/pr-diff.* "$stub/calls.log"
@@ -155,7 +155,7 @@ diff_for 's/^    b45 = 45$/    b45 = 450/' >"$stub/pr-diff.2"
 [ "$(scan)" = "scan-open-prs: overlap: 2 candidates, 0 near, 0 same, approximate" ]
 grep -qx 'candidate 20 bob disjoint files 1' "$ctx/overlap.txt"
 grep -qx 'candidate 21 carol disjoint files 1' "$ctx/overlap.txt"
-! grep -q 'candidate 22' "$ctx/overlap.txt"
+if grep -q 'candidate 22' "$ctx/overlap.txt"; then echo 'same-repository main row not dropped' >&2; exit 1; fi
 
 # From a same-repository head the listing gives the same candidates: the
 # collision still drops only the same-repository row from main.
