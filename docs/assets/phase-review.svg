@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1002" width="860" role="img" aria-labelledby="prt prd" class="pr">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1038" width="860" role="img" aria-labelledby="prt prd" class="pr">
 <title id="prt">Phase 2, Review: one plan, parallel reviewers, one ledger</title>
-<desc id="prd">A diff over the cost posture's limit is planned into shards that keep coupled files together, and the couplings no shard can see are recorded as seams. A script, not a model, routes each group to a rung on a ladder, the strong model for large, coupled, or risky code, the role's own model by default, a cheaper one for a small change with no risk signal, and to an effort from low to xhigh; a retry moves one lever at a time and the posture leans every rung. Reviewers run in parallel, one per group, times the review samples, each reading only its group's diffs and the worktree; each report is saved verbatim with ids assigned, duplicates merge into the richest record, and a gap pass reads the findings and the seams and reports only what was missed, never below the reviewer's rung. Findings go on to Post; none at all means the change is clean. A finding record shows the header, the Fix, Resolution, and Check lines, and the suggestion fence a reviewer may write instead of a Fix line.</desc>
+<desc id="prd">A diff over the cost posture's limit is planned into shards that keep coupled files together, and the couplings no shard can see are recorded as seams. A script, not a model, routes each group to a rung on a ladder, the strong model for large, coupled, or risky code, the role's own model by default, a cheaper one for small docs or config with no risk signal, and to an effort from low to xhigh; a retry moves one lever at a time and the posture leans every rung. Reviewers run in parallel, one per group, times the review samples, each reading only its group's diffs and the worktree; each report is saved verbatim with ids assigned, duplicates merge into the richest record, and a gap pass reads the findings and the seams and reports only what was missed, never below the reviewer's rung. Findings go on to Post; none at all means the change is clean. A finding record shows the header, the Fix, Resolution, and Check lines, and the suggestion fence a reviewer may write instead of a Fix line.</desc>
 <style>
 .pr{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
 @media (prefers-color-scheme:dark){.pr{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
@@ -119,7 +119,7 @@
 @media (prefers-reduced-motion:reduce){.pr *{animation:none!important}.pr .tok{display:none}.pr .tl,.pr .lf,.pr .ex0,.pr .ex1,.pr .ex2,.pr .ex3,.pr .ex4,.pr .ex5,.pr .ex6,.pr .ex7,.pr .ex8{opacity:1}}
 </style>
 <defs><filter id="pr-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
-<rect class="canvas" width="860" height="1002" rx="16"/>
+<rect class="canvas" width="860" height="1038" rx="16"/>
 <path class="w" d="M262 304 L305 304" marker-end="url(#pr-a)"/>
 <path class="w" d="M423 346L423 370Q423 378 415 378L72 378Q64 378 64 386L64 403" marker-end="url(#pr-a)"/>
 <path class="w" d="M423 346L423 370Q423 378 415 378L248 378Q240 378 240 386L240 403" marker-end="url(#pr-a)"/>
@@ -151,16 +151,15 @@
 <text class="rail-lbl" x="772" y="56" text-anchor="middle" style="font-size:10px">Land</text>
 <circle class="rail-next" cx="818" cy="32" r="4"/>
 <text class="rail-lbl" x="818" y="56" text-anchor="middle" style="font-size:10px">Merge</text>
-<g filter="url(#pr-sh)"><rect class="term" x="28" y="112" width="804" height="128" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
+<g filter="url(#pr-sh)"><rect class="term" x="28" y="112" width="804" height="110" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
 <circle cx="44" cy="124" r="4" fill="#E0715A" opacity=".9"/>
 <circle cx="58" cy="124" r="4" fill="#E2B341" opacity=".9"/>
 <circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
 <text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
-<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">shard-plan:</tspan><tspan class="term-t"> groups 3 seams 1 couplings 3 limit 1500</tspan></text>
-<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> review g1 rung strong model opus effort high reason coupled samples 1</tspan></text>
-<text class="mono tl tl3" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">save-findings:</tspan><tspan class="term-t"> 5 findings saved, next id F006</tspan></text>
-<text class="mono tl tl4" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">dedup-findings:</tspan><tspan class="term-t"> kept 5 merged 0</tspan></text>
-<text class="mono tl tl5" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> gap all rung strong model opus effort high reason follows-reviewer</tspan></text>
+<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">shard-plan:</tspan><tspan class="term-t"> groups 3 seams 1 couplings 5 limit 1500</tspan></text>
+<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> review group-1 rung strong model opus effort high reason coupled samples 1</tspan></text>
+<text class="mono tl tl3" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">save-findings:</tspan><tspan class="term-t"> 2 findings saved, next id F006</tspan></text>
+<text class="mono tl tl5" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> gap all rung strong model opus effort high reason follows-reviewer</tspan></text>
 <g class="cardg st0"><rect class="c" x="28" y="262" width="234" height="84" rx="9"/>
 <path class="ico" d="M40 274l4 3.6l-4 3.6M46 282h5.5"/>
 <text class="h mono" x="59" y="283" style="font-size:12px">shard-plan</text>
@@ -244,7 +243,7 @@
 <text class="s" x="626" y="372" style="font-size:10.5px">the role’s own model, the default</text>
 <path class="rung rung-c" d="M588 394H612"/>
 <text class="k" x="626" y="398">cheap</text>
-<text class="s" x="626" y="412" style="font-size:10.5px">a small change, no risk signal</text>
+<text class="s" x="626" y="412" style="font-size:10.5px">small docs or config, no risk signal</text>
 <text class="k" x="580" y="434" style="font-size:9px;letter-spacing:1.4px">EFFORT</text>
 <rect class="seg" x="581" y="442" width="57.5" height="18" rx="4"/>
 <text class="segt" x="609.8" y="455" text-anchor="middle" style="font-size:10px">low</text>
@@ -256,40 +255,43 @@
 <text class="segt" x="788.2" y="455" text-anchor="middle" style="font-size:10px">xhigh</text>
 <text class="s" x="580" y="480" style="font-size:10.5px">depth climbs the model, breadth the effort</text>
 <text class="s" x="580" y="495" style="font-size:10.5px">a retry moves one lever; the posture leans all</text>
-<g filter="url(#pr-sh)"><path class="sheet" d="M566 536a10 10 0 0 1 10 -10H816l16 16V838a10 10 0 0 1 -10 10H576a10 10 0 0 1 -10 -10z"/></g><path class="fold" d="M816 526v16h16"/>
-<rect class="fence" x="574" y="793" width="250" height="45" rx="5"/>
+<g filter="url(#pr-sh)"><path class="sheet" d="M566 536a10 10 0 0 1 10 -10H816l16 16V894a10 10 0 0 1 -10 10H576a10 10 0 0 1 -10 -10z"/></g><path class="fold" d="M816 526v16h16"/>
+<rect class="fence" x="574" y="835" width="250" height="59" rx="5"/>
 <text class="mono k" x="580" y="547" style="font-size:10.5px">findings/F003</text>
-<text class="fine" x="808" y="547" text-anchor="end" style="font-size:10px">one record</text>
+<text class="fine" x="808" y="547" text-anchor="end" style="font-size:10px">one record, abridged</text>
 <text class="mono rv" x="580" y="566" style="font-size:10px"><tspan class="kk">id:</tspan> F003</text>
 <text class="mono rv" x="580" y="580" style="font-size:10px"><tspan class="kk">status:</tspan> open   round: 1</text>
 <text class="mono rv" x="580" y="594" style="font-size:10px"><tspan class="kk">category:</tspan> correctness</text>
 <text class="mono rv" x="580" y="608" style="font-size:10px"><tspan class="kk">severity:</tspan> major</text>
 <text class="mono rv" x="580" y="622" style="font-size:10px"><tspan class="kk">path:</tspan> src/retry.py  line: 42</text>
 <text class="mono rv" x="580" y="636" style="font-size:10px"><tspan class="kk">side:</tspan> RIGHT</text>
-<text class="mono rv" x="580" y="650" style="font-size:10px"><tspan class="kk">title:</tspan> Retry drops the last error</text>
-<text class="mono fine" x="580" y="664" style="font-size:10px">---</text>
-<text class="mono rb" x="580" y="678" style="font-size:10px">The loop exits before the last</text>
-<text class="mono rb" x="580" y="692" style="font-size:10px">attempt’s error is raised.</text>
-<text class="mono rv" x="580" y="706" style="font-size:10px"><tspan class="kf">Fix:</tspan> re-raise after the loop, as</text>
-<text class="mono rb" x="580" y="720" style="font-size:10px">  fetch() does at src/http.py:88</text>
-<text class="mono rv" x="580" y="734" style="font-size:10px"><tspan class="kr">Resolution:</tspan> the final error</text>
-<text class="mono rb" x="580" y="748" style="font-size:10px">  propagates; a test asserts it</text>
-<text class="mono rv" x="580" y="762" style="font-size:10px"><tspan class="kc">Check:</tspan> pytest tests/test_retry.py</text>
-<text class="mono fine" x="580" y="776" style="font-size:10px">or, small and mechanical: a fence</text>
-<text class="mono fine" x="580" y="790" style="font-size:10px">in place of the Fix line</text>
-<text class="mono fz" x="580" y="804" style="font-size:10px">```suggestion</text>
-<text class="mono fz" x="580" y="818" style="font-size:10px">        raise last_error</text>
-<text class="mono fz" x="580" y="832" style="font-size:10px">```</text>
-<rect class="ledger" x="28" y="868" width="804" height="62" rx="10"/>
-<path class="folder" d="M42 894h5l2 2h8v9h-15z"/>
-<text class="k" x="64" y="900" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
-<text class="fine" x="64" y="912" style="font-size:9.5px">on disk, per PR</text>
-<g class="lf lf0"><path class="doc" d="M160 884h6l3 3v8h-9z"/><text class="mono" x="175" y="893" style="font-size:10.5px">pr-context/shards.txt</text></g>
-<g class="lf lf0"><path class="doc" d="M326.7 884h6l3 3v8h-9z"/><text class="mono" x="341.7" y="893" style="font-size:10.5px">seams.txt</text></g>
-<g class="lf lf1"><path class="doc" d="M417.6 884h6l3 3v8h-9z"/><text class="mono" x="432.6" y="893" style="font-size:10.5px">routes.txt</text></g>
-<g class="lf lf3"><path class="doc" d="M514.8 884h6l3 3v8h-9z"/><text class="mono" x="529.8" y="893" style="font-size:10.5px">findings/F001 … F005</text></g>
-<g class="lf lf4"><path class="doc" d="M675.3 884h6l3 3v8h-9z"/><text class="mono" x="690.3" y="893" style="font-size:10.5px">support headers</text></g>
-<g class="lf lf5"><path class="doc" d="M160 904h6l3 3v8h-9z"/><text class="mono" x="175" y="913" style="font-size:10.5px">routes.txt (gap)</text></g>
+<text class="mono rv" x="580" y="650" style="font-size:10px"><tspan class="kk">title:</tspan> Retry loop drops the final</text>
+<text class="mono rb" x="580" y="664" style="font-size:10px">  attempt’s error</text>
+<text class="mono fine" x="580" y="678" style="font-size:10px">---</text>
+<text class="mono rb" x="580" y="692" style="font-size:10px">Each NetError lands in err and the</text>
+<text class="mono rb" x="580" y="706" style="font-size:10px">loop ends without raising it.</text>
+<text class="mono rv" x="580" y="720" style="font-size:10px"><tspan class="kf">Fix:</tspan> raise err after the loop, as</text>
+<text class="mono rb" x="580" y="734" style="font-size:10px">  fetch() does at src/http.py:88</text>
+<text class="mono rv" x="580" y="748" style="font-size:10px"><tspan class="kr">Resolution:</tspan> the last attempt’s</text>
+<text class="mono rb" x="580" y="762" style="font-size:10px">  exception propagates to the</text>
+<text class="mono rb" x="580" y="776" style="font-size:10px">  caller; the retry test asserts it</text>
+<text class="mono rv" x="580" y="790" style="font-size:10px"><tspan class="kc">Check:</tspan> pytest tests/test_client.py</text>
+<text class="mono rb" x="580" y="804" style="font-size:10px">  ::test_exhausted</text>
+<text class="mono fine" x="580" y="818" style="font-size:10px">or, small and mechanical: a fence</text>
+<text class="mono fine" x="580" y="832" style="font-size:10px">in place of a Fix, at the end</text>
+<text class="mono fz" x="580" y="846" style="font-size:10px">```suggestion</text>
+<text class="mono fz" x="580" y="860" style="font-size:10px">    except NetError as e: err = e</text>
+<text class="mono fz" x="580" y="874" style="font-size:10px">raise err</text>
+<text class="mono fz" x="580" y="888" style="font-size:10px">```</text>
+<rect class="ledger" x="28" y="924" width="804" height="42" rx="10"/>
+<path class="folder" d="M42 940h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="946" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="958" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf3"><path class="doc" d="M160 940h6l3 3v8h-9z"/><text class="mono" x="175" y="949" style="font-size:10.5px">findings/F001 … F005</text></g>
+<g class="lf lf0"><path class="doc" d="M320.4 940h6l3 3v8h-9z"/><text class="mono" x="335.4" y="949" style="font-size:10.5px">pr-context/shards.txt</text></g>
+<g class="lf lf0"><path class="doc" d="M487.2 940h6l3 3v8h-9z"/><text class="mono" x="502.2" y="949" style="font-size:10.5px">seams.txt</text></g>
+<g class="lf lf1"><path class="doc" d="M578 940h6l3 3v8h-9z"/><text class="mono" x="593" y="949" style="font-size:10.5px">routes.txt</text></g>
+<g class="lf lf5"><path class="doc" d="M675.3 940h6l3 3v8h-9z"/><text class="mono" x="690.3" y="949" style="font-size:10.5px">routes.txt (gap)</text></g>
 <g class="rtag"><rect x="91.6" y="396" width="84.4" height="16" rx="8"/><text class="mono" x="98.6" y="407.3" style="font-size:9px">strong · high</text></g>
 <g class="rtag"><rect x="278.4" y="396" width="73.6" height="16" rx="8"/><text class="mono" x="285.4" y="407.3" style="font-size:9px">base · high</text></g>
 <g class="rtag"><rect x="438.1" y="396" width="89.9" height="16" rx="8"/><text class="mono" x="445.1" y="407.3" style="font-size:9px">cheap · medium</text></g>
@@ -306,15 +308,15 @@
 <text class="c1" x="346" y="800">none at all → clean</text>
 <text class="c2" x="346" y="814" style="font-size:10.5px">convergence, then Land</text>
 </g>
-<rect class="c" x="28" y="949" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="958" style="font-size:10px">script: deterministic, prints one line</text>
-<rect class="cm" x="225.4" y="949" width="16" height="12" rx="3"/>
-<text class="fine" x="247.4" y="958" style="font-size:10px">agent: a model with its own context</text>
-<g class="rtag"><rect x="425" y="947" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="958.3" style="font-size:9px">strong · high</text></g>
-<text class="fine" x="515.4" y="958" style="font-size:10px">its model rung and effort, routed by a script</text>
-<path class="ctx-i" d="M29 969h6l3 3v8h-9z"/>
-<text class="fine" x="44" y="978" style="font-size:10px">what the agent reads</text>
-<circle class="bg-ok" cx="166.4" cy="975" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M163.4 975l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="179.4" y="978" style="font-size:10px">carries on</text>
+<rect class="c" x="28" y="985" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="994" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="985" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="994" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="983" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="994.3" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="994" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 1005h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="1014" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="1011" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 1011l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="1014" style="font-size:10px">carries on</text>
 </svg>

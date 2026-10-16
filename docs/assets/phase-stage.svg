@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 970" width="860" role="img" aria-labelledby="pst psd" class="ps">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 990" width="860" role="img" aria-labelledby="pst psd" class="ps">
 <title id="pst">Phase 1, Stage: eleven scripts set up one pull request with no model</title>
 <desc id="psd">Eleven scripts run in order with no model, in three bands. The ledger band checks the tools, creates the ledger, resolves settings from five sources, a project file allowed only to raise, add, or set and any command it brings held for your approval, and sweeps closed runs. The read band fetches the diff from the API, or builds it from the clone when GitHub serves none, splits it per file, runs deterministic probes whose hits are leads, classifies the change and its size, asking or parking when it is over the warning, and names open pull requests touching the same hunks, asking whether to go on. The check-out band makes a detached worktree, review-only for a fork that refuses edits and a stop when the fork is gone, gathers local standards, and runs the project's check once as the baseline that arms the fix loop's gate. A terminal shows the line each script prints; the ledger shows what each writes.</desc>
 <style>
@@ -149,7 +149,7 @@
 @media (prefers-reduced-motion:reduce){.ps *{animation:none!important}.ps .tok{display:none}.ps .tl,.ps .lf,.ps .ex0,.ps .ex1,.ps .ex2,.ps .ex3,.ps .ex4,.ps .ex5,.ps .ex6,.ps .ex7,.ps .ex8,.ps .ex9,.ps .ex10,.ps .ex11,.ps .ex12,.ps .ex13{opacity:1}}
 </style>
 <defs><filter id="ps-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="ps-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
-<rect class="canvas" width="860" height="970" rx="16"/>
+<rect class="canvas" width="860" height="990" rx="16"/>
 <rect class="band" x="28" y="276" width="804" height="166" rx="12"/>
 <text class="bandn" x="44" y="298" style="font-size:10px">1</text>
 <text class="k" x="57.9" y="298" style="font-size:10px;letter-spacing:1.6px">LEDGER</text>
@@ -205,8 +205,8 @@
 <text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
 <text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">check-tools:</tspan><tspan class="term-t"> git and gh ready</tspan></text>
 <text class="mono tl tl2" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">settings:</tspan><tspan class="term-t"> resolved 24 default 21 user 1 project 1 local 1 run 0 ignored 0</tspan></text>
-<text class="mono tl tl4" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">fetch-pr:</tspan><tspan class="term-t"> 14 files, 612 additions, 88 deletions</tspan></text>
-<text class="mono tl tl5" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">probe-diff:</tspan><tspan class="term-t"> 2 sections (deps, sensitive)</tspan></text>
+<text class="mono tl tl4" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">fetch-pr:</tspan><tspan class="term-t"> 41 files, 2904 additions, 388 deletions</tspan></text>
+<text class="mono tl tl5" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">probe-diff:</tspan><tspan class="term-t"> 2 sections (deps sensitive)</tspan></text>
 <text class="mono tl tl7" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">scan-open-prs:</tspan><tspan class="term-t"> overlap: 2 candidates, 1 near, 0 same, approximate</tspan></text>
 <text class="mono tl tl10" x="42" y="246"><tspan class="term-p">›</tspan> <tspan class="term-n">run-check:</tspan><tspan class="term-t"> pass</tspan></text>
 <g class="cardg st0"><rect class="c" x="52" y="312" width="174" height="68" rx="9"/>
@@ -248,7 +248,7 @@
 <path class="ico" d="M452 502l4 3.6l-4 3.6M458 510h5.5"/>
 <text class="h mono" x="471" y="511" style="font-size:12px">probe-diff</text>
 <text class="num mono" x="603" y="510" text-anchor="end" style="font-size:9.5px">06</text>
-<text class="s" x="452" y="530">eight deterministic probes</text>
+<text class="s" x="452" y="530">fourteen deterministic probes</text>
 <text class="s" x="452" y="545">a hit is a lead only</text>
 </g>
 <g class="cardg st6"><rect class="c" x="246" y="490" width="174" height="68" rx="9"/>
@@ -292,21 +292,21 @@
 <text class="s sd" x="646" y="708">every input is on disk</text>
 <text class="s sd" x="646" y="723">the reviewer reads next</text>
 </g>
-<rect class="ledger" x="28" y="856" width="804" height="62" rx="10"/>
-<path class="folder" d="M42 882h5l2 2h8v9h-15z"/>
-<text class="k" x="64" y="888" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
-<text class="fine" x="64" y="900" style="font-size:9.5px">on disk, per PR</text>
+<rect class="ledger" x="28" y="856" width="804" height="82" rx="10"/>
+<path class="folder" d="M42 892h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="898" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="910" style="font-size:9.5px">on disk, per PR</text>
 <g class="lf lf1"><path class="doc" d="M160 872h6l3 3v8h-9z"/><text class="mono" x="175" y="881" style="font-size:10.5px">meta.txt</text></g>
 <g class="lf lf1"><path class="doc" d="M244.6 872h6l3 3v8h-9z"/><text class="mono" x="259.6" y="881" style="font-size:10.5px">overrides.txt</text></g>
 <g class="lf lf2"><path class="doc" d="M360.7 872h6l3 3v8h-9z"/><text class="mono" x="375.7" y="881" style="font-size:10.5px">settings.txt</text></g>
-<g class="lf lf4"><path class="doc" d="M470.6 872h6l3 3v8h-9z"/><text class="mono" x="485.6" y="881" style="font-size:10.5px">pr-context/diff.patch</text></g>
-<g class="lf lf4"><path class="doc" d="M637.3 872h6l3 3v8h-9z"/><text class="mono" x="652.3" y="881" style="font-size:10.5px">files/001.diff</text></g>
-<g class="lf lf5"><path class="doc" d="M160 892h6l3 3v8h-9z"/><text class="mono" x="175" y="901" style="font-size:10.5px">probes.txt</text></g>
-<g class="lf lf6"><path class="doc" d="M257.2 892h6l3 3v8h-9z"/><text class="mono" x="272.2" y="901" style="font-size:10.5px">class.txt</text></g>
-<g class="lf lf7"><path class="doc" d="M348.1 892h6l3 3v8h-9z"/><text class="mono" x="363.1" y="901" style="font-size:10.5px">overlap.txt</text></g>
-<g class="lf lf8"><path class="doc" d="M451.6 892h6l3 3v8h-9z"/><text class="mono" x="466.6" y="901" style="font-size:10.5px">worktree/</text></g>
-<g class="lf lf9"><path class="doc" d="M542.5 892h6l3 3v8h-9z"/><text class="mono" x="557.5" y="901" style="font-size:10.5px">standards.txt</text></g>
-<g class="lf lf10"><path class="doc" d="M658.7 892h6l3 3v8h-9z"/><text class="mono" x="673.7" y="901" style="font-size:10.5px">check-baseline.txt</text></g>
+<g class="lf lf8"><path class="doc" d="M470.6 872h6l3 3v8h-9z"/><text class="mono" x="485.6" y="881" style="font-size:10.5px">worktree/</text></g>
+<g class="lf lf10"><path class="doc" d="M561.5 872h6l3 3v8h-9z"/><text class="mono" x="576.5" y="881" style="font-size:10.5px">check-baseline.txt</text></g>
+<g class="lf lf4"><path class="doc" d="M160 892h6l3 3v8h-9z"/><text class="mono" x="175" y="901" style="font-size:10.5px">pr-context/diff.patch</text></g>
+<g class="lf lf4"><path class="doc" d="M326.7 892h6l3 3v8h-9z"/><text class="mono" x="341.7" y="901" style="font-size:10.5px">files/001.diff</text></g>
+<g class="lf lf5"><path class="doc" d="M449.2 892h6l3 3v8h-9z"/><text class="mono" x="464.2" y="901" style="font-size:10.5px">probes.txt</text></g>
+<g class="lf lf6"><path class="doc" d="M546.4 892h6l3 3v8h-9z"/><text class="mono" x="561.4" y="901" style="font-size:10.5px">class.txt</text></g>
+<g class="lf lf7"><path class="doc" d="M637.3 892h6l3 3v8h-9z"/><text class="mono" x="652.3" y="901" style="font-size:10.5px">overlap.txt</text></g>
+<g class="lf lf9"><path class="doc" d="M160 912h6l3 3v8h-9z"/><text class="mono" x="175" y="921" style="font-size:10.5px">standards.txt</text></g>
 <g class="call ex2">
 <circle class="bg-ask" cx="462" cy="412" r="9.5"/>
 <g class="bg-ask-m"><circle class="bm-f" cx="462" cy="409.6" r="2.3"/><path class="bm-f" d="M457.6 416.6q0-4.2 4.4-4.2t4.4 4.2z"/></g>
@@ -329,7 +329,7 @@
 <circle class="bg-ask" cx="74" cy="590" r="9.5"/>
 <g class="bg-ask-m"><circle class="bm-f" cx="74" cy="587.6" r="2.3"/><path class="bm-f" d="M69.6 594.6q0-4.2 4.4-4.2t4.4 4.2z"/></g>
 <text class="c1" x="90" y="594">overlaps another PR</text>
-<text class="c2" x="90" y="608" style="font-size:10.5px">a comparer judges; you say</text>
+<text class="c2" x="90" y="608" style="font-size:10.5px">a comparer, if judged; you say</text>
 </g>
 <g class="call ex8">
 <circle class="bg-note" cx="92" cy="768" r="9.5"/>
@@ -348,18 +348,18 @@
 <text class="c1" x="478" y="772">a failing baseline</text>
 <text class="c2" x="478" y="786" style="font-size:10.5px">gate disarmed, tail kept as evidence</text>
 </g>
-<rect class="c" x="28" y="937" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="946" style="font-size:10px">script: deterministic, prints one line</text>
-<circle class="bg-ok" cx="232.4" cy="943" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M229.4 943l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="245.4" y="946" style="font-size:10px">carries on</text>
-<circle class="bg-note" cx="318.3" cy="943" r="7"/>
-<g class="bg-note-m"><path class="bm-s" d="M321.2 941.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M319.5 941.1l2.5 -1.2l0.1 2.7z"/></g>
-<text class="fine" x="331.3" y="946" style="font-size:10px">a fallback; the run goes on</text>
-<circle class="bg-ask" cx="477.6" cy="943" r="7"/>
-<g class="bg-ask-m"><circle class="bm-f" cx="477.6" cy="941.2" r="1.7"/><path class="bm-f" d="M474.3 946.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
-<text class="fine" x="490.6" y="946" style="font-size:10px">a person decides</text>
-<circle class="bg-stop" cx="595.7" cy="943" r="7"/>
-<text class="bm mono bg-stop-t" x="595.7" y="945.7" text-anchor="middle" style="font-size:7.7px">5</text>
-<text class="fine" x="608.7" y="946" style="font-size:10px">stops or parks; a number is the exit code</text>
+<rect class="c" x="28" y="957" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="966" style="font-size:10px">script: deterministic, prints one line</text>
+<circle class="bg-ok" cx="232.4" cy="963" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M229.4 963l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="245.4" y="966" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="318.3" cy="963" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M321.2 961.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M319.5 961.1l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="331.3" y="966" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-ask" cx="477.6" cy="963" r="7"/>
+<g class="bg-ask-m"><circle class="bm-f" cx="477.6" cy="961.2" r="1.7"/><path class="bm-f" d="M474.3 966.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
+<text class="fine" x="490.6" y="966" style="font-size:10px">a person decides</text>
+<circle class="bg-stop" cx="595.7" cy="963" r="7"/>
+<text class="bm mono bg-stop-t" x="595.7" y="965.7" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="608.7" y="966" style="font-size:10px">stops or parks; a number is the exit code</text>
 </svg>

@@ -874,8 +874,8 @@ def phase_stage() -> Fig:
     f.terminal(112, [
         (0, "check-tools: git and gh ready"),
         (2, "settings: resolved 24 default 21 user 1 project 1 local 1 run 0 ignored 0"),
-        (4, "fetch-pr: 14 files, 612 additions, 88 deletions"),
-        (5, "probe-diff: 2 sections (deps, sensitive)"),
+        (4, "fetch-pr: 41 files, 2904 additions, 388 deletions"),
+        (5, "probe-diff: 2 sections (deps sensitive)"),
         (7, "scan-open-prs: overlap: 2 candidates, 1 near, 0 same, approximate"),
         (10, "run-check: pass"),
     ])
@@ -897,7 +897,7 @@ def phase_stage() -> Fig:
     # band 2, right to left
     c += [
         f.card(xs[3], y2, cw, ch, "script", "fetch-pr", ["the diff from the API", "split per file, numbered"], step=4, num=5),
-        f.card(xs[2], y2, cw, ch, "script", "probe-diff", ["eight deterministic probes", "a hit is a lead only"], step=5, num=6),
+        f.card(xs[2], y2, cw, ch, "script", "probe-diff", ["fourteen deterministic probes", "a hit is a lead only"], step=5, num=6),
         f.card(xs[1], y2, cw, ch, "script", "classify-change", ["code, docs, config, tests", "its size routes the models"], step=6, num=7),
         f.card(xs[0], y2, cw, ch, "script", "scan-open-prs", ["open PRs on the same base", "hunks a few lines apart"], step=7, num=8),
     ]
@@ -923,14 +923,14 @@ def phase_stage() -> Fig:
     drop(xs[2] + 22, b1, b1 + 32, "ask", "person", "the project file brings a command", "it waits for your approval", 2)
     drop(xs[3] + 22, b2, b2 + 32, "note", "loop", "GitHub serves no diff", "built from the clone", 4)
     drop(xs[1] + 22, b2, b2 + 32, "ask", "person", "over the size warning", "go on, or park? you say", 6)
-    drop(xs[0] + 22, b2, b2 + 32, "ask", "person", "overlaps another PR", "a comparer judges; you say", 7)
+    drop(xs[0] + 22, b2, b2 + 32, "ask", "person", "overlaps another PR", "a comparer, if judged; you say", 7)
     drop(xs[0] + 40, b3, b3 + 32, "note", "loop", "a fork refusing edits", "review-only: findings still post", 8)
     drop(xs[0] + 14, b3, b3 + 70, "stop", "2", "the fork is gone: stop", None, 8)
     drop(xs[2] + 22, b3, b3 + 32, "note", "loop", "a failing baseline", "gate disarmed, tail kept as evidence", 10)
     led = f.ledger(bands[2][0] + bands[2][1] + 18, [
-        (1, "meta.txt"), (1, "overrides.txt"), (2, "settings.txt"), (4, "pr-context/diff.patch"),
-        (4, "files/001.diff"), (5, "probes.txt"), (6, "class.txt"), (7, "overlap.txt"),
-        (8, "worktree/"), (9, "standards.txt"), (10, "check-baseline.txt"),
+        (1, "meta.txt"), (1, "overrides.txt"), (2, "settings.txt"), (8, "worktree/"),
+        (10, "check-baseline.txt"), (4, "pr-context/diff.patch"), (4, "files/001.diff"),
+        (5, "probes.txt"), (6, "class.txt"), (7, "overlap.txt"), (9, "standards.txt"),
     ])
     lb = f.legend(led.b + 28, ("script", "ok", "note", "ask", "stop"))
     f.height = int(lb + 18)
@@ -953,7 +953,7 @@ def phase_review() -> Fig:
             "A diff over the cost posture's limit is planned into shards that keep coupled files "
             "together, and the couplings no shard can see are recorded as seams. A script, not a "
             "model, routes each group to a rung on a ladder, the strong model for large, coupled, or "
-            "risky code, the role's own model by default, a cheaper one for a small change with no "
+            "risky code, the role's own model by default, a cheaper one for small docs or config with no "
             "risk signal, and to an effort from low to xhigh; a retry moves one lever at a time and "
             "the posture leans every rung. Reviewers run in parallel, one per group, times the review "
             "samples, each reading only its group's diffs and the worktree; each report is saved "
@@ -965,10 +965,9 @@ def phase_review() -> Fig:
     f.header(2, "STEPS 5 – 6", "Review",
              "Once, thoroughly. Judgment is spent where the change is deep, and a script decides where that is.")
     f.terminal(112, [
-        (0, "shard-plan: groups 3 seams 1 couplings 3 limit 1500"),
-        (1, "route review g1 rung strong model opus effort high reason coupled samples 1"),
-        (3, "save-findings: 5 findings saved, next id F006"),
-        (4, "dedup-findings: kept 5 merged 0"),
+        (0, "shard-plan: groups 3 seams 1 couplings 5 limit 1500"),
+        (1, "route review group-1 rung strong model opus effort high reason coupled samples 1"),
+        (3, "save-findings: 2 findings saved, next id F006"),
         (5, "route gap all rung strong model opus effort high reason follows-reviewer"),
     ])
     y0 = 262
@@ -1023,7 +1022,7 @@ def phase_review() -> Fig:
     f.add(f'<path class="lad" d="M{rl} {y0 + 38}V{y0 + 150}M{rr} {y0 + 38}V{y0 + 150}"/>')
     rungs = [("strong", "large, coupled, or a stakes probe", "rung-s"),
              ("base", "the role’s own model, the default", "rung-b"),
-             ("cheap", "a small change, no risk signal", "rung-c")]
+             ("cheap", "small docs or config, no risk signal", "rung-c")]
     for i, (nm, why, cls) in enumerate(rungs):
         yy = y0 + 52 + i * 40
         f.add(f'<path class="rung {cls}" d="M{rl} {yy}H{rr}"/>')
@@ -1045,13 +1044,15 @@ def phase_review() -> Fig:
     rec = [
         ("k", "id", "F003"), ("k", "status", "open   round: 1"), ("k", "category", "correctness"),
         ("k", "severity", "major"), ("k", "path", "src/retry.py  line: 42"), ("k", "side", "RIGHT"),
-        ("k", "title", "Retry drops the last error"), ("rule", "", "---"),
-        ("b", "", "The loop exits before the last"), ("b", "", "attempt’s error is raised."),
-        ("kf", "Fix", "re-raise after the loop, as"), ("b", "", "  fetch() does at src/http.py:88"),
-        ("kr", "Resolution", "the final error"), ("b", "", "  propagates; a test asserts it"),
-        ("kc", "Check", "pytest tests/test_retry.py"),
-        ("note", "", "or, small and mechanical: a fence"), ("note", "", "in place of the Fix line"),
-        ("fence", "", "```suggestion"), ("fence", "", "        raise last_error"), ("fence", "", "```"),
+        ("k", "title", "Retry loop drops the final"), ("b", "", "  attempt’s error"), ("rule", "", "---"),
+        ("b", "", "Each NetError lands in err and the"), ("b", "", "loop ends without raising it."),
+        ("kf", "Fix", "raise err after the loop, as"), ("b", "", "  fetch() does at src/http.py:88"),
+        ("kr", "Resolution", "the last attempt’s"), ("b", "", "  exception propagates to the"),
+        ("b", "", "  caller; the retry test asserts it"),
+        ("kc", "Check", "pytest tests/test_client.py"), ("b", "", "  ::test_exhausted"),
+        ("note", "", "or, small and mechanical: a fence"), ("note", "", "in place of a Fix, at the end"),
+        ("fence", "", "```suggestion"), ("fence", "", "    except NetError as e: err = e"),
+        ("fence", "", "raise err"), ("fence", "", "```"),
     ]
     rh_ = 36 + 14 * len(rec) + 6
     sheet = Box(px, ry0, pw, rh_, "record")
@@ -1061,7 +1062,7 @@ def phase_review() -> Fig:
           f'<path class="fold" d="M{R - 16} {ry0}v16h16"/>')
     at = len(f.layers["cards"])      # the fence's tint goes on the sheet, under its text
     f.text(px + 14, ry0 + 21, "findings/F003", "mono k", 10.5, mono=True, bold=True)
-    f.text(R - 24, ry0 + 21, "one record", "fine", 10, anchor="end")
+    f.text(R - 24, ry0 + 21, "one record, abridged", "fine", 10, anchor="end")
     yy = ry0 + 40
     fence_top = None
     for kind, k, v in rec:
@@ -1081,8 +1082,8 @@ def phase_review() -> Fig:
     f.layers["cards"].insert(at, f'<rect class="fence" x="{px + 8}" y="{g(fence_top)}" width="{pw - 16}" '
                                  f'height="{g(yy - 14 + 6 - fence_top)}" rx="5"/>')
     bottom = max(sheet.b, o2 + 20)
-    led = f.ledger(bottom + 20, [(0, "pr-context/shards.txt"), (0, "seams.txt"), (1, "routes.txt"),
-                                 (3, "findings/F001 … F005"), (4, "support headers"), (5, "routes.txt (gap)")])
+    led = f.ledger(bottom + 20, [(3, "findings/F001 … F005"), (0, "pr-context/shards.txt"), (0, "seams.txt"), (1, "routes.txt"),
+                                 (5, "routes.txt (gap)")])
     lb = f.legend(led.b + 28, ("script", "agent", "route", "ctx", "ok"))
     f.height = int(lb + 18)
     pts = [(a.cx, a.cy), (b.cx, b.cy), (b.cx, bus1), (revs[1].x + 36, bus1), (revs[1].x + 36, revs[1].cy),
@@ -1102,7 +1103,7 @@ def phase_post() -> Fig:
     f = Fig("pp", "Phase 3, Post: a cold re-read, proof, then threads",
             "Five finding records banked by the review travel as lines through three stations to the "
             "pull request; four end with a suggestion fence, the exact replacement lines a reviewer "
-            "may write instead of a Fix line. A filter agent, routed to the cheap rung, re-reads the "
+            "may write instead of a Fix line. A filter agent, on the verifier's model at low effort, re-reads the "
             "code each record cites, fresh from the worktree, and demotes a finding whose evidence it "
             "cannot reproduce: demoted means it leaves the inline threads for the round's summary "
             "comment, with the filter's reason, and stays open for the fix loop. prove-suggestions "
@@ -1110,20 +1111,20 @@ def phase_post() -> Fig:
             "pass and post as one-click suggestions, one fails and is withdrawn while its finding "
             "posts as prose. post-review opens one inline thread per finding and one summary comment "
             "per round, holding the counts by severity and every demoted finding in full, and writes "
-            "the thread ids back to the records. Open findings go on to the fix loop; a fork that "
+            "the comment ids back to the records. Open findings go on to the fix loop; a fork that "
             "refuses maintainer edits stops after posting in review-only mode.", 0)
     f.header(3, "STEP 7", "Post",
              "Proof before posting. A false positive costs a round, a thread, and the author’s trust.")
     f.terminal(112, [
         (0, "filter: demoted 1 of 5"),
         (1, "prove-suggestions: 3 proven, 1 withdrawn"),
-        (2, "post-review: 4 posted inline, 1 in the summary, round 1"),
+        (2, "post-review: 4 posted inline, 0 in the summary, round 1"),
     ])
     sy, sw, sh = 232, 158, 90
     sx = [156, 330, 504]
     st_ = [
         f.card(sx[0], sy, sw, sh, "model", "Filter", ["re-reads the cited code", "and doubts the thin"],
-               step=0, route="cheap · low", reads="record + cited code"),
+               step=0, route="base · low", reads="record + cited code"),
         f.card(sx[1], sy, sw, sh, "script", "prove-suggestions", ["applies each fence in", "a scratch worktree"],
                step=1, reads="fence, check_command"),
         f.card(sx[2], sy, sw, sh, "script", "post-review", ["a thread per finding,", "a comment per round"],
@@ -1213,11 +1214,11 @@ def phase_post() -> Fig:
     p2 = f.panel(L + pw + 16, py, pw, "Where a fence comes from", [
         "A reviewer may end a record with a suggestion fence: the exact lines to put in place.",
         "It is applied in a scratch worktree and the project’s check runs there.",
-        "Pass: a one-click suggestion. Fail, or no check: the fence goes, the prose stays."])
+        "Pass, or no check to run: a one-click suggestion. Fail: the fence goes, the prose stays."])
     p3 = f.panel(L + 2 * pw + 32, py, pw, "What reaches the PR", [
         "One inline thread per finding, at its path and line.",
         "One comment per round: counts by severity, then every demoted finding in full.",
-        "Thread ids go back on the records; a rerun never posts twice."])
+        "Comment ids go back on the records; a rerun never posts twice."])
     led = f.ledger(max(p1.b, p2.b, p3.b) + 18, [
         (0, "findings/F005: placement summary"), (0, "Filter: note"),
         (1, "proof worktree (scratch)"), (1, "fences kept or withdrawn"), (2, "comment ids on records")])
@@ -1244,20 +1245,20 @@ def phase_fix() -> Fig:
     f = Fig("pf", "Phase 4, Fix loop: a bounded ring with gates",
             "Open findings go around a ring at most four times, the budget kept on disk. The round "
             "counter opens a round; routing gives each finding a rung on the editing ladder, cheap "
-            "for a minor finding with a proven fence, never cheap for a blocker, a security finding, "
+            "in round one for a minor or nit with a proven fence, never cheap for a blocker, a security finding, "
             "or a flagged file, one lever up on a retry; the editor makes one commit per finding, "
             "replies, and pushes; the project's check gate must pass, with one repair allowed and a "
             "second failure parking the run; the verifier executes Check lines and judges each "
             "Resolution verbatim, resolving threads or reopening them with notes; a skim sends files "
             "no finding named to an incremental review; and the count decides: open findings go "
-            "around again, a finding reopened past the limit gets one arbitration and then parks, "
+            "around again, a finding reopened past the limit gets one arbitration and parks if still open, "
             "four spent rounds park with a status comment, and none open converges, a wont-fix "
             "needing your yes before anything merges.", 0)
     f.header(4, "STEPS 8 – 10", "Fix loop",
              "The agent that writes code cannot close findings; the agent that closes them cannot write code.")
     f.terminal(112, [
         (0, "round 2 of 4"),
-        (1, "route edit all rung cheap model sonnet effort medium reason mechanical ids F001 F004"),
+        (1, "route edit all rung base model inherit effort high reason more-effort ids F001"),
         (3, "run-check: pass"),
         (5, "round-diff: clean"),
         (6, "open 0 addressed 0 verified 5 wont-fix 0 max_reopens 1"),
@@ -1267,9 +1268,9 @@ def phase_fix() -> Fig:
     order = [
         (135, "script", "round-counter", "opens a round, four at most"),
         (182, "script", "route-models", "edit: a rung per finding"),
-        (225, "model", "Editor", "a commit per finding, push", "cheap · medium", "Fix lines, the tree"),
+        (225, "model", "Editor", "a commit per finding, push", "base · high", "Fix lines, the tree"),
         (275, "script", "run-check", "--gate: the check"),
-        (322, "model", "Verifier", "judges every Resolution", "base · medium", "Resolution, Check"),
+        (322, "model", "Verifier", "judges every Resolution", "base · low", "Resolution, Check"),
         (370, "script", "round-diff", "unasked changes reviewed"),
         (415, "script", "count-findings", "open? capped? converged?"),
     ]
@@ -1321,18 +1322,18 @@ def phase_fix() -> Fig:
     lead_right(f, cnt.r, cnt.y + 10, bx)
     f.callout(bx, cnt.y + 10, "ok", "check", "0 open → converged", "a wont-fix needs your yes first", step=6)
     lead_right(f, cnt.r, cnt.b - 8, bx)
-    f.callout(bx, cnt.b - 8, "stop", "park", "reopened past the limit", "one arbitration, then park", step=6)
+    f.callout(bx, cnt.b - 8, "stop", "park", "reopened past the limit", "one arbitration; still open → park", step=6)
     lead_down(f, rc.x + 26, rc.b, rc.b + 52)
     f.callout(rc.x + 26, rc.b + 52, "stop", "park", "four rounds spent → park", "a status comment names what is open", step=0)
     py = rc.b + 92
     q1 = f.panel(L, py, 380, "The editing ladder", [
-        "A minor or nit with a proven fence starts on the cheap rung.",
+        "In round one, a minor or nit with a proven fence starts cheap.",
         "A blocker, a security finding, or a flagged file never starts cheap.",
-        "A retry moves one lever, effort first, then the model, under the posture."])
+        "A retry moves one lever: off cheap first, else effort to the cap, then the model."])
     p2 = f.panel(L + 396, py, R - L - 396, "Separation of powers", [
         "The editor cannot resolve a thread; the verifier cannot edit a file.",
         "The skim reviews changes no finding asked for.",
-        "Arbitration is one strong pass, once a run."])
+        "Arbitration is one high-effort pass, once a run."])
     led = f.ledger(max(q1.b, p2.b) + 18, [(0, "rounds.txt"), (1, "findings: Route notes"), (2, "commits, replies"),
                                (3, "pr-context/check-failure.txt"), (4, "threads resolved or reopened"),
                                (5, "incremental review"), (6, "count, capped_ids")])
@@ -1386,7 +1387,7 @@ def phase_land() -> Fig:
     f.wire([(mm.cx, mm.b), (sb.cx, sb.y - 1)])
     f.wire([(sb.cx, sb.b), (ac.cx, ac.y - 1)])
     f.wire([(ac.cx, ac.b), (ok.cx, ok.y - 1)], "ok")
-    f.text(ac.cx + 10, ac.b + 34, "0  every check passed", "ok-t", 10, bold=True)
+    f.text(ac.cx + 10, ac.b + 34, "0  passed, none, or off", "ok-t", 10, bold=True)
     f.wire([(ac.x, ac.cy), (ed.r + 1, ac.cy)], "exit")
     f.text((ac.x + ed.r) / 2, ac.cy - 8, "3", "x-t mono", 10.5, anchor="middle", bold=True, mono=True)
     f.wire([(lx, ed.y), (lx, mm.cy), (mm.x - 1, mm.cy)], "loop", dashed=True, r=12)
@@ -1411,8 +1412,8 @@ def phase_land() -> Fig:
     f.callout(bx, ac.b - 18, "ask", "6", "the wait budget is spent", "extend once more, or hold", step=2)
     lead_right(f, ok.r, ok.cy, bx, "ok")
     f.callout(bx, ok.cy, "ok", "arrow", "on to the merge gate", None, step=4)
-    led = f.ledger(max(rp.b, ok.b) + 22, [(0, "pr-context/merge-method.txt"), (1, "sync-changed.txt"), (2, "ci-wait.txt"),
-                                (2, "ci-attempts.txt"), (3, "ci-failure.txt"), (3, "ci-rounds.txt")])
+    led = f.ledger(max(rp.b, ok.b) + 22, [(2, "ci-wait.txt"), (2, "ci-attempts.txt"), (3, "ci-rounds.txt"),
+                                (0, "pr-context/merge-method.txt"), (1, "sync-changed.txt"), (2, "ci-failure.txt")])
     lb = f.legend(led.b + 28, Fig.LEGEND_ALL)
     f.height = int(lb + 18)
     pts = [(mm.cx, mm.cy), (sb.cx, sb.cy), (ac.cx, ac.cy), (lx, ac.cy), (lx, mm.cy),
@@ -1442,10 +1443,9 @@ def phase_merge() -> Fig:
     f.header(6, "STEPS 12 – 13", "Merge",
              "Every refusal writes nothing and names who decides. The merge is the one step that cannot be undone.")
     f.terminal(112, [
-        (0, "merge-method: rebase reason setting"),
-        (5, "base-drift: 2 commits landed, 1 files shared, level disjoint"),
+        (0, "merge-method: rebase reason allowed-only"),
         (6, "merge-pr: Paxton-Meny/api#128 merged by rebase, branch deleted"),
-        (7, "run-stats: run Paxton-Meny/api#128 outcome merged rounds 2 findings 5"),
+        (7, "run-stats: run Paxton-Meny/api#128 outcome merged rounds 2 findings 5 …"),
         (8, "cleanup-state: worktree and context removed, ledger kept"),
         (9, "sweep-state: stale 0 pruned 1 kept 20"),
         (10, "criteria-signals: other 1 notes 1"),
@@ -1486,7 +1486,7 @@ def phase_merge() -> Fig:
     mg = f.card(sx, gb + 16, sw, 56, "done", "Merged", ["by the method, the head matched"], step=6)
     f.wire([(prev.cx, prev.b), (mg.cx, mg.y - 1)])
     lead_right(f, mg.r, mg.cy, bx, "ok")
-    f.callout(bx, mg.cy, "ok", "check", "the branch: deleted, or kept", "kept for a fork or a stack; the line says why", step=6)
+    f.callout(bx, mg.cy, "ok", "check", "the branch: deleted, or kept", "kept: a fork, a stack, or the repo deletes it", step=6)
     pa = f.panel(L, 300, 184, "Never on its own", [
         "--migrations-checked and --overlap-checked follow your answer in this run.",
         "A verdict alone never adds them."])
@@ -1496,7 +1496,7 @@ def phase_merge() -> Fig:
         "For an overlap: the drift lines and any verdict."])
     d4 = dc[3]
     cmp_ = f.card(L, d4.y - 12, 184, 88, "model", "Comparer", ["reads the drift beside", "the hunks; one verdict"],
-                  step=5, route="cheap · low", reads="both sets of hunks")
+                  step=5, route="base · low", reads="both sets of hunks")
     f.wire([(cmp_.r, d4.cy), (d4.x - 1, d4.cy)], "loop", dashed=True)
     by, bw = mg.b + 46, (R - L - 3 * 18) / 4
     names = [("script", "run-stats", "one line per finished run", 7),
@@ -1508,7 +1508,7 @@ def phase_merge() -> Fig:
     for i in range(3):
         f.wire([(bk[i].r, bk[i].cy), (bk[i + 1].x - 1, bk[i + 1].cy)])
     led = f.ledger(by + 56 + 22, [(0, "pr-context/merge-method.txt"), (5, "drift.txt"), (5, "overlap/base/verdict.txt"),
-                                  (7, "stats.txt"), (8, "ledger kept for keep_ledgers runs")])
+                                  (7, "../stats.txt, all runs"), (8, "ledger kept for keep_ledgers runs")])
     lb = f.legend(led.b + 28, Fig.LEGEND_ALL)
     f.height = int(lb + 18)
     pts = [(mm.cx, mm.cy), (who.cx, who.cy)] + [(d.cx, d.cy) for d in dc] + [

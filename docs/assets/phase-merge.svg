@@ -188,18 +188,17 @@
 <text class="rail-lbl" x="772" y="56" text-anchor="middle" style="font-size:10px">Land</text>
 <circle class="rail-ring" cx="818" cy="32" r="9"/><circle class="rail-now" cx="818" cy="32" r="5"/>
 <text class="rail-lbl now" x="818" y="56" text-anchor="middle" style="font-size:10px">Merge</text>
-<g filter="url(#pm-sh)"><rect class="term" x="28" y="112" width="804" height="164" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
+<g filter="url(#pm-sh)"><rect class="term" x="28" y="112" width="804" height="146" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
 <circle cx="44" cy="124" r="4" fill="#E0715A" opacity=".9"/>
 <circle cx="58" cy="124" r="4" fill="#E2B341" opacity=".9"/>
 <circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
 <text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
-<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">merge-method:</tspan><tspan class="term-t"> rebase reason setting</tspan></text>
-<text class="mono tl tl5" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">base-drift:</tspan><tspan class="term-t"> 2 commits landed, 1 files shared, level disjoint</tspan></text>
-<text class="mono tl tl6" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">merge-pr:</tspan><tspan class="term-t"> Paxton-Meny/api#128 merged by rebase, branch deleted</tspan></text>
-<text class="mono tl tl7" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">run-stats:</tspan><tspan class="term-t"> run Paxton-Meny/api#128 outcome merged rounds 2 findings 5</tspan></text>
-<text class="mono tl tl8" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">cleanup-state:</tspan><tspan class="term-t"> worktree and context removed, ledger kept</tspan></text>
-<text class="mono tl tl9" x="42" y="246"><tspan class="term-p">›</tspan> <tspan class="term-n">sweep-state:</tspan><tspan class="term-t"> stale 0 pruned 1 kept 20</tspan></text>
-<text class="mono tl tl10" x="42" y="264"><tspan class="term-p">›</tspan> <tspan class="term-n">criteria-signals:</tspan><tspan class="term-t"> other 1 notes 1</tspan></text>
+<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">merge-method:</tspan><tspan class="term-t"> rebase reason allowed-only</tspan></text>
+<text class="mono tl tl6" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">merge-pr:</tspan><tspan class="term-t"> Paxton-Meny/api#128 merged by rebase, branch deleted</tspan></text>
+<text class="mono tl tl7" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">run-stats:</tspan><tspan class="term-t"> run Paxton-Meny/api#128 outcome merged rounds 2 findings 5 …</tspan></text>
+<text class="mono tl tl8" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">cleanup-state:</tspan><tspan class="term-t"> worktree and context removed, ledger kept</tspan></text>
+<text class="mono tl tl9" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">sweep-state:</tspan><tspan class="term-t"> stale 0 pruned 1 kept 20</tspan></text>
+<text class="mono tl tl10" x="42" y="246"><tspan class="term-p">›</tspan> <tspan class="term-n">criteria-signals:</tspan><tspan class="term-t"> other 1 notes 1</tspan></text>
 <g class="cardg st0"><rect class="c" x="240" y="300" width="256" height="70" rx="9"/>
 <path class="ico" d="M252 312l4 3.6l-4 3.6M258 320h5.5"/>
 <text class="h mono" x="271" y="321" style="font-size:12px">merge-method --refresh</text>
@@ -293,7 +292,7 @@
 <g class="lf lf0"><path class="doc" d="M160 1006h6l3 3v8h-9z"/><text class="mono" x="175" y="1015" style="font-size:10.5px">pr-context/merge-method.txt</text></g>
 <g class="lf lf5"><path class="doc" d="M364.7 1006h6l3 3v8h-9z"/><text class="mono" x="379.7" y="1015" style="font-size:10.5px">drift.txt</text></g>
 <g class="lf lf5"><path class="doc" d="M455.6 1006h6l3 3v8h-9z"/><text class="mono" x="470.6" y="1015" style="font-size:10.5px">overlap/base/verdict.txt</text></g>
-<g class="lf lf7"><path class="doc" d="M641.3 1006h6l3 3v8h-9z"/><text class="mono" x="656.3" y="1015" style="font-size:10.5px">stats.txt</text></g>
+<g class="lf lf7"><path class="doc" d="M641.3 1006h6l3 3v8h-9z"/><text class="mono" x="656.3" y="1015" style="font-size:10.5px">../stats.txt, all runs</text></g>
 <g class="lf lf8"><path class="doc" d="M160 1026h6l3 3v8h-9z"/><text class="mono" x="175" y="1035" style="font-size:10.5px">ledger kept for keep_ledgers runs</text></g>
 <g class="call ex0">
 <circle class="bg-ask" cx="540" cy="335" r="9.5"/>
@@ -340,9 +339,9 @@
 <circle class="bg-ok" cx="540" cy="838" r="9.5"/>
 <g class="bg-ok-m"><path class="bm-s" d="M536 838l2.8 2.8l5 -5.6"/></g>
 <text class="c1" x="556" y="842">the branch: deleted, or kept</text>
-<text class="c2" x="556" y="856" style="font-size:10.5px">kept for a fork or a stack; the line says why</text>
+<text class="c2" x="556" y="856" style="font-size:10.5px">kept: a fork, a stack, or the repo deletes it</text>
 </g>
-<g class="rtag"><rect x="126.4" y="710" width="73.6" height="16" rx="8"/><text class="mono" x="133.4" y="721.3" style="font-size:9px">cheap · low</text></g>
+<g class="rtag"><rect x="131.8" y="710" width="68.2" height="16" rx="8"/><text class="mono" x="138.8" y="721.3" style="font-size:9px">base · low</text></g>
 <rect class="c" x="28" y="1071" width="16" height="12" rx="3"/>
 <text class="fine" x="50" y="1080" style="font-size:10px">script: deterministic, prints one line</text>
 <rect class="cm" x="225.4" y="1071" width="16" height="12" rx="3"/>
