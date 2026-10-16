@@ -6,6 +6,10 @@
 # Exit 4: refused, posting and changing nothing, because a record about
 # to be posted carries a suggestion fence prove-suggestions.sh has not
 # proven at the head the comments anchor to ("unproven <id>" lines).
+# Exit 5: refused the same way because the review phase is incomplete:
+# a shard or sample unsaved, a dedup or gap pass not run, as the lines
+# from review-progress.sh name. Posting then would close the round
+# before its findings are all in.
 set -eu
 
 dir=${1:?usage: post-review.sh <state-dir>}
@@ -26,6 +30,18 @@ tab=$(printf '\t')
 field() { sed -n "/^---\$/q; s/^$2: //p" "$1"; }
 body_of() { awk 'f && !/^Criteria note: / { print } /^---$/ { f = 1 }' "$1"; }
 unposted() { [ "$(field "$1" status)" = "open" ] && [ -z "$(field "$1" placement)" ]; }
+
+rc=0
+progress=$(sh "$here/review-progress.sh" "$dir") || rc=$?
+case "$rc" in
+0) ;;
+3)
+	echo "post-review: the review phase is incomplete, finish steps 5 and 6 first"
+	printf '%s\n' "$progress" | sed 1d
+	exit 5
+	;;
+*) exit 1 ;;
+esac
 
 masked=0
 redact() {

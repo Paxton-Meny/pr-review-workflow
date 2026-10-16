@@ -8,7 +8,8 @@
 # cluster keeps its richest record (longest body, lowest id on ties),
 # and the kept record gains a "support: k/N" header stating how many of
 # the N samples reported it. Posted records are never touched, and a
-# rerun changes nothing.
+# rerun changes nothing. Each run appends a "dedup" line to the ledger's
+# review.txt, for review-progress.sh.
 set -eu
 
 dir=${1:?usage: dedup-findings.sh <state-dir> <samples>}
@@ -85,4 +86,5 @@ for rep in $reps; do
 	mv "$tmp" "$rf"
 done
 
+printf 'dedup kept %d merged %d\n' "$kept" "$merged" >>"$dir/review.txt"
 echo "dedup-findings: kept $kept merged $merged"
