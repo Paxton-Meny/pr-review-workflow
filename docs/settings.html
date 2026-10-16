@@ -942,10 +942,10 @@
 <span>default <b>sonnet</b></span>
 </div>
 <div class="setting-d">
-<p>Runs the agent that checks each fix against its <a class="term" href="#g-contract">contract</a>, and the precision filter&#8217;s re-read. Both are narrow questions with a yes or no answer, which is why the default is a cheaper model.</p>
+<p>Runs the agent that checks each fix against its <a class="term" href="#g-contract">contract</a>, the precision filter&#8217;s re-read, and the overlap comparer. All are narrow questions with a yes or no answer, which is why the default is a cheaper model.</p>
 <p><b>Accepts</b> &#183; <code>inherit</code> or a model name</p>
 <p><b>Project file</b> &#183; <a href="#where-project">never</a></p>
-<p><b>Relates to</b> &#183; Routing never changes it. It is the only model setting whose default is not your session&#8217;s model.</p>
+<p><b>Relates to</b> &#183; Routing never changes it for the verifier or the filter; under auto the overlap comparer climbs off it on a sensitive file. It is the only model setting whose default is not your session&#8217;s model.</p>
 </div>
 </div>
 </div>
@@ -991,6 +991,7 @@
 <tr><th scope="row">CI repair</th><td><span class="never">never</span><br>a failing check means the local gate did not catch it</td><td><span class="pill">editor_model</span><br>one level more effort than the editor&#8217;s own</td><td><span class="pill pill-high">strong_model</span><br>the same failure after a repair: more effort below the posture&#8217;s cap, then the strong model</td></tr>
 <tr><th scope="row">Precision filter</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
 <tr><th scope="row">Verifier</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span></td><td><span class="never">never</span></td></tr>
+<tr><th scope="row">Overlap comparer</th><td><span class="never">never</span></td><td><span class="pill">verifier_model</span><br>only under judged</td><td><span class="pill pill-high">reviewer_model</span><br>one level more effort, when a shared file is a sensitive or migration path or a secrets or sensitive probe flagged it; fixed routing never climbs</td></tr>
 <tr><th scope="row">Arbitration</th><td><span class="never">never</span></td><td><span class="pill">reviewer_model</span><br>one pass per run, when a finding keeps being reopened</td><td><span class="pill pill-high">strong_model</span><br>whenever one is set</td></tr>
 </table>
 </div>
