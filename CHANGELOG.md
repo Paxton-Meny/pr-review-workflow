@@ -222,7 +222,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `run-check.sh` skips, `prove-suggestions.sh` proves fences by applying
   alone, `run-contract.sh` judges by reading (`untrusted-author`), and
   routing stops counting on the gate, until the user approves that
-  author for the pull request (`author-trust.sh --approve`); unattended
+  author for the pull request (`approve-author.sh`, which asks the user to allow it); unattended
   runs skip the check and say so.
 
 - Finding fields are read from the record's header only. A body

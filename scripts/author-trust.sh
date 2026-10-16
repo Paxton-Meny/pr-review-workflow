@@ -1,6 +1,6 @@
 #!/bin/sh
 # Decide whether the pull request's author is trusted with the repository.
-# Usage: sh scripts/author-trust.sh <state-dir> [--exec | --approve]
+# Usage: sh scripts/author-trust.sh <state-dir> [--exec]
 # Trusted (exit 0): the signed-in account's own pull request, or an
 # author whose permission on the repository, as init-state.sh recorded
 # it, is write, maintain, or admin. When GitHub could not say, as for a
@@ -16,14 +16,14 @@
 # --exec answers whether the pull request's code may execute here: the
 # check command, suggestion proving, and contracts all run it. Exit 0
 # for a trusted author or one approved for this pull request, exit 3
-# otherwise, with one line. --approve records the user's yes for this
-# pull request's author (exec-approved.txt); only the user gives it.
+# otherwise, with one line. The user's yes for an author is recorded by
+# approve-author.sh, which no skill grant covers, so it is always asked.
 set -eu
 
-dir=${1:?usage: author-trust.sh <state-dir> [--exec | --approve]}
+dir=${1:?usage: author-trust.sh <state-dir> [--exec]}
 mode=${2:-}
 case "$mode" in
-'' | --exec | --approve) ;;
+'' | --exec) ;;
 *)
 	echo "author-trust: unknown argument: $mode" >&2
 	exit 1
@@ -38,18 +38,6 @@ author=$(meta author)
 self=$(meta self_login)
 permission=$(meta author_permission)
 cross_repo=$(meta cross_repo)
-
-if [ "$mode" = --approve ]; then
-	[ -n "$author" ] || {
-		echo "author-trust: no author recorded to approve" >&2
-		exit 1
-	}
-	tmp=$(mktemp "$dir/.approve.XXXXXX")
-	printf 'approved %s\n' "$author" >"$tmp"
-	mv "$tmp" "$dir/exec-approved.txt"
-	echo "author-trust: approved running $author's code for this pull request"
-	exit 0
-fi
 
 approved() { [ -n "$author" ] && grep -qxF "approved $author" "$dir/exec-approved.txt" 2>/dev/null; }
 
