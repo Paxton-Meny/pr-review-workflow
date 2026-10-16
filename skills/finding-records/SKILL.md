@@ -49,6 +49,9 @@ title: One line naming the defect
   steps; empty when the reviewer writes the record.
 - `round`: the review round that raised the finding.
 - `reopens`: how many times verification has sent the finding back.
+- `proven`: added after `title` by the proving step, naming the head
+  commit at which the record's suggestion fence applied and passed the
+  check; a fence is posted only when this names the head it anchors to.
 - `accepted`: added after `title` with the value `yes` only when a person
   accepted a `wont-fix` finding's reasoning; nothing merges over a
   `wont-fix` record without it.

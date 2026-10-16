@@ -267,7 +267,11 @@ PRWF_SETTINGS_END
    `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
    and relay its one-line report. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir>`, then
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`.
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`. post-review
+   exit 4 means it posted nothing because a suggestion fence it would
+   post was not proven at the head (one `unproven` line each): run
+   prove-suggestions and then post-review once more; a second exit 4
+   stops the run as a failing script does.
    In review-only mode, stop after posting: add one `gh pr comment` status
    comment saying the findings stand for the author to address (proven
    suggestions can be committed from the GitHub interface), run
