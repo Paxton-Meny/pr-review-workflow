@@ -14,8 +14,10 @@
 # ledger does not allow a merge, found before the forge is asked anything:
 # one line each for a finding still open ("open <id>"), a wont-fix
 # finding no person accepted ("unaccepted <id>"), a finding marked
-# addressed that no verifier has judged ("unverified <id>"), and, when the
-# check gate is armed, a head the check has not passed at ("check <reason>");
+# addressed that no verifier has judged ("unverified <id>"), each item of a
+# review phase review-progress.sh reports incomplete ("review ...",
+# "dedup ...", "gap ..."), and, when the check gate is armed, a head the
+# check has not passed at ("check <reason>");
 # or the head is not the one the review covered: someone pushed since,
 # and reviewed-head.sh leads to reviewing those commits first.
 # The head branch is deleted after the merge only when the repository
@@ -71,6 +73,14 @@ delete_on_merge=$(sed -n 's/^delete_branch_on_merge //p' "$record")
 # a merge.
 here=$(dirname -- "$0")
 refused=''
+rc=0
+progress=$(sh "$here/review-progress.sh" "$dir") || rc=$?
+case "$rc" in
+0) ;;
+3) refused="$refused
+$(printf '%s\n' "$progress" | sed 1d)" ;;
+*) exit 1 ;;
+esac
 if [ -d "$dir/findings" ]; then
 	rc=0
 	counts=$(sh "$here/count-findings.sh" "$dir" --list) || rc=$?
