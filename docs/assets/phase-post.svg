@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 989" width="860" role="img" aria-labelledby="ppt ppd" class="pp">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 1004" width="860" role="img" aria-labelledby="ppt ppd" class="pp">
 <title id="ppt">Phase 3, Post: a cold re-read, proof, then threads</title>
-<desc id="ppd">Five finding records banked by the review travel as lines through three stations to the pull request; four end with a suggestion fence, the exact replacement lines a reviewer may write instead of a Fix line. A filter agent, routed to the cheap rung, re-reads the code each record cites, fresh from the worktree, and demotes a finding whose evidence it cannot reproduce: demoted means it leaves the inline threads for the round's summary comment, with the filter's reason, and stays open for the fix loop. prove-suggestions applies every fence in a scratch worktree and runs the project's check command; three pass and post as one-click suggestions, one fails and is withdrawn while its finding posts as prose. post-review opens one inline thread per finding and one summary comment per round, holding the counts by severity and every demoted finding in full, and writes the thread ids back to the records. Open findings go on to the fix loop; a fork that refuses maintainer edits stops after posting in review-only mode.</desc>
+<desc id="ppd">Five finding records banked by the review travel as lines through three stations to the pull request; four end with a suggestion fence, the exact replacement lines a reviewer may write instead of a Fix line. A filter agent, on the verifier's model at low effort, re-reads the code each record cites, fresh from the worktree, and demotes a finding whose evidence it cannot reproduce: demoted means it leaves the inline threads for the round's summary comment, with the filter's reason, and stays open for the fix loop. prove-suggestions applies every fence in a scratch worktree and runs the project's check command; three pass and post as one-click suggestions, one fails and is withdrawn while its finding posts as prose. post-review opens one inline thread per finding and one summary comment per round, holding the counts by severity and every demoted finding in full, and writes the comment ids back to the records. Open findings go on to the fix loop; a fork that refuses maintainer edits stops after posting in review-only mode.</desc>
 <style>
 .pp{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
 @media (prefers-color-scheme:dark){.pp{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
@@ -107,7 +107,7 @@
 @media (prefers-reduced-motion:reduce){.pp *{animation:none!important}.pp .tok{display:none}.pp .tl,.pp .lf,.pp .ex0,.pp .ex1,.pp .ex2,.pp .ex3,.pp .ex4,.pp .ex5{opacity:1}}
 </style>
 <defs><filter id="pp-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pp-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pp-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
-<rect class="canvas" width="860" height="989" rx="16"/>
+<rect class="canvas" width="860" height="1004" rx="16"/>
 <path class="guide" d="M235 326V562"/>
 <path class="guide" d="M409 326V562"/>
 <path class="guide" d="M583 326V562"/>
@@ -145,7 +145,7 @@
 <text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
 <text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">filter:</tspan><tspan class="term-t"> demoted 1 of 5</tspan></text>
 <text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">prove-suggestions:</tspan><tspan class="term-t"> 3 proven, 1 withdrawn</tspan></text>
-<text class="mono tl tl2" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">post-review:</tspan><tspan class="term-t"> 4 posted inline, 1 in the summary, round 1</tspan></text>
+<text class="mono tl tl2" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">post-review:</tspan><tspan class="term-t"> 4 posted inline, 0 in the summary, round 1</tspan></text>
 <g class="cardg st0"><rect class="cm" x="156" y="232" width="158" height="90" rx="9"/>
 <path class="ico-m" d="M174 243c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
 <text class="h hm" x="187" y="253" style="font-size:12.5px">Filter</text>
@@ -224,7 +224,7 @@
 <circle class="dot" cx="45" cy="790.2" r="2"/>
 <text class="s" x="53" y="794">post-review demotes a line the diff cannot</text>
 <text class="s" x="53" y="808.5">anchor the same way.</text>
-<rect class="panel" x="301.3" y="686" width="257.3" height="151.5" rx="10"/>
+<rect class="panel" x="301.3" y="686" width="257.3" height="166" rx="10"/>
 <text class="k" x="315.3" y="707" style="font-size:9.5px;letter-spacing:1.4px">WHERE A FENCE COMES FROM</text>
 <circle class="dot" cx="318.3" cy="722.2" r="2"/>
 <text class="s" x="326.3" y="726">A reviewer may end a record with a</text>
@@ -234,8 +234,9 @@
 <text class="s" x="326.3" y="774.5">It is applied in a scratch worktree and the</text>
 <text class="s" x="326.3" y="789">project’s check runs there.</text>
 <circle class="dot" cx="318.3" cy="804.7" r="2"/>
-<text class="s" x="326.3" y="808.5">Pass: a one-click suggestion. Fail, or no</text>
-<text class="s" x="326.3" y="823">check: the fence goes, the prose stays.</text>
+<text class="s" x="326.3" y="808.5">Pass, or no check to run: a one-click</text>
+<text class="s" x="326.3" y="823">suggestion. Fail: the fence goes, the prose</text>
+<text class="s" x="326.3" y="837.5">stays.</text>
 <rect class="panel" x="574.7" y="686" width="257.3" height="137" rx="10"/>
 <text class="k" x="588.7" y="707" style="font-size:9.5px;letter-spacing:1.4px">WHAT REACHES THE PR</text>
 <circle class="dot" cx="591.7" cy="722.2" r="2"/>
@@ -245,18 +246,18 @@
 <text class="s" x="599.7" y="760">One comment per round: counts by severity,</text>
 <text class="s" x="599.7" y="774.5">then every demoted finding in full.</text>
 <circle class="dot" cx="591.7" cy="790.2" r="2"/>
-<text class="s" x="599.7" y="794">Thread ids go back on the records; a rerun</text>
-<text class="s" x="599.7" y="808.5">never posts twice.</text>
-<rect class="ledger" x="28" y="855.5" width="804" height="62" rx="10"/>
-<path class="folder" d="M42 881.5h5l2 2h8v9h-15z"/>
-<text class="k" x="64" y="887.5" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
-<text class="fine" x="64" y="899.5" style="font-size:9.5px">on disk, per PR</text>
-<g class="lf lf0"><path class="doc" d="M160 871.5h6l3 3v8h-9z"/><text class="mono" x="175" y="880.5" style="font-size:10.5px">findings/F005: placement summary</text></g>
-<g class="lf lf0"><path class="doc" d="M396.3 871.5h6l3 3v8h-9z"/><text class="mono" x="411.3" y="880.5" style="font-size:10.5px">Filter: note</text></g>
-<g class="lf lf1"><path class="doc" d="M506.1 871.5h6l3 3v8h-9z"/><text class="mono" x="521.1" y="880.5" style="font-size:10.5px">proof worktree (scratch)</text></g>
-<g class="lf lf1"><path class="doc" d="M160 891.5h6l3 3v8h-9z"/><text class="mono" x="175" y="900.5" style="font-size:10.5px">fences kept or withdrawn</text></g>
-<g class="lf lf2"><path class="doc" d="M345.7 891.5h6l3 3v8h-9z"/><text class="mono" x="360.7" y="900.5" style="font-size:10.5px">comment ids on records</text></g>
-<g class="rtag"><rect x="228.4" y="224" width="73.6" height="16" rx="8"/><text class="mono" x="235.4" y="235.3" style="font-size:9px">cheap · low</text></g>
+<text class="s" x="599.7" y="794">Comment ids go back on the records; a</text>
+<text class="s" x="599.7" y="808.5">rerun never posts twice.</text>
+<rect class="ledger" x="28" y="870" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 896h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="902" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="914" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 886h6l3 3v8h-9z"/><text class="mono" x="175" y="895" style="font-size:10.5px">findings/F005: placement summary</text></g>
+<g class="lf lf0"><path class="doc" d="M396.3 886h6l3 3v8h-9z"/><text class="mono" x="411.3" y="895" style="font-size:10.5px">Filter: note</text></g>
+<g class="lf lf1"><path class="doc" d="M506.1 886h6l3 3v8h-9z"/><text class="mono" x="521.1" y="895" style="font-size:10.5px">proof worktree (scratch)</text></g>
+<g class="lf lf1"><path class="doc" d="M160 906h6l3 3v8h-9z"/><text class="mono" x="175" y="915" style="font-size:10.5px">fences kept or withdrawn</text></g>
+<g class="lf lf2"><path class="doc" d="M345.7 906h6l3 3v8h-9z"/><text class="mono" x="360.7" y="915" style="font-size:10.5px">comment ids on records</text></g>
+<g class="rtag"><rect x="233.8" y="224" width="68.2" height="16" rx="8"/><text class="mono" x="240.8" y="235.3" style="font-size:9px">base · low</text></g>
 <text class="mk-t" x="265" y="540" style="font-size:9.5px">demoted: to the round’s summary comment</text>
 <circle class="mk mk-keep tl0" cx="235" cy="384" r="5"/>
 <circle class="mk mk-keep tl0" cx="235" cy="414" r="5"/>
@@ -293,18 +294,18 @@
 <text class="c1" x="740" y="656" text-anchor="end">a fork refusing edits: review-only</text>
 <text class="c2" x="740" y="670" text-anchor="end" style="font-size:10.5px">the findings stand; the run stops</text>
 </g>
-<rect class="c" x="28" y="936.5" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="945.5" style="font-size:10px">script: deterministic, prints one line</text>
-<rect class="cm" x="225.4" y="936.5" width="16" height="12" rx="3"/>
-<text class="fine" x="247.4" y="945.5" style="font-size:10px">agent: a model with its own context</text>
-<g class="rtag"><rect x="425" y="934.5" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="945.8" style="font-size:9px">strong · high</text></g>
-<text class="fine" x="515.4" y="945.5" style="font-size:10px">its model rung and effort, routed by a script</text>
-<path class="ctx-i" d="M29 956.5h6l3 3v8h-9z"/>
-<text class="fine" x="44" y="965.5" style="font-size:10px">what the agent reads</text>
-<circle class="bg-ok" cx="166.4" cy="962.5" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M163.4 962.5l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="179.4" y="965.5" style="font-size:10px">carries on</text>
-<circle class="bg-stop" cx="252.3" cy="962.5" r="7"/>
-<text class="bm mono bg-stop-t" x="252.3" y="965.2" text-anchor="middle" style="font-size:7.7px">5</text>
-<text class="fine" x="265.3" y="965.5" style="font-size:10px">stops or parks; a number is the exit code</text>
+<rect class="c" x="28" y="951" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="960" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="951" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="960" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="949" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="960.3" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="960" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 971h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="980" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="977" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 977l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="980" style="font-size:10px">carries on</text>
+<circle class="bg-stop" cx="252.3" cy="977" r="7"/>
+<text class="bm mono bg-stop-t" x="252.3" y="979.7" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="265.3" y="980" style="font-size:10px">stops or parks; a number is the exit code</text>
 </svg>
