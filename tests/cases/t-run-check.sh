@@ -58,6 +58,10 @@ grep -q '^fail ' "$dir/check-baseline.txt"
 rm -f "$dir/check-baseline.txt"
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate "grep -q z file.txt")" = "run-check: rebaselined, fail; gate disarmed" ]
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate)" = "run-check: no command configured" ]
+# Every gate run is journaled with its commit for next-step.sh, and
+# only gate runs are.
+at=$(git -C "$dir/worktree" rev-parse HEAD 2>/dev/null || echo unknown)
+[ "$(cat "$dir/steps.txt")" = "$(printf 'gate %s %s\n' pass "$at" fail "$at" disarmed "$at" pass "$at" pass "$at" disarmed "$at" none "$at")" ]
 
 # Another account's fork: the command would run its code, so it is
 # skipped in every mode, until the user approves that author.

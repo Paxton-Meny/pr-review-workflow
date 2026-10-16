@@ -20,6 +20,8 @@
 # check has not passed at ("check <reason>");
 # or the head is not the one the review covered: someone pushed since,
 # and reviewed-head.sh leads to reviewing those commits first.
+# Exits 4 and 5 journal "merge migrations|moved <head>" in steps.txt for
+# next-step.sh, the only write either makes.
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
@@ -174,6 +176,7 @@ moved=""
 [ "$mergeable" = CONFLICTING ] && moved=CONFLICTING
 [ "$merge_state" = BEHIND ] && moved=BEHIND
 if [ -n "$moved" ]; then
+	printf 'merge moved %s\n' "$head_sha" >>"$dir/steps.txt"
 	echo "merge-pr: pull request is $moved, bring the branch up to date first"
 	exit 5
 fi
@@ -196,11 +199,13 @@ if [ "$checked" -eq 0 ]; then
 	changed=$(printf '%s\n' "$status" | sed -n 's/^changed //p')
 	listed=$(printf '%s\n' "$status" | grep -c '^file ' || true)
 	if [ -n "$changed" ] && [ "$listed" -lt "$changed" ]; then
+		printf 'merge migrations %s\n' "$head_sha" >>"$dir/steps.txt"
 		echo "merge-pr: only $listed of $changed changed files listed, so migrations cannot be ruled out; a person decides"
 		exit 4
 	fi
 	migrations=$(printf '%s\n' "$status" | sed -n 's/^file //p' | sh "$(dirname -- "$0")/match-paths.sh" "$dir" migration_paths)
 	if [ -n "$migrations" ]; then
+		printf 'merge migrations %s\n' "$head_sha" >>"$dir/steps.txt"
 		echo "merge-pr: migrations changed, a person decides"
 		printf '%s\n' "$migrations" | sed 's/^/migration /'
 		exit 4

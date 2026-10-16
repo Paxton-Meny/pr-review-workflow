@@ -17,6 +17,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/dedup-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/review-progress.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/next-step.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
@@ -111,6 +112,17 @@ the review worktree, so exit 3 means it changed the user's own
 checkout: stop as above, relay every line, and tell the user to
 inspect that checkout. Never repair it yourself.
 
+Whenever you are unsure which step comes next (after a compaction, a
+resume, a long agent report, or a gap in what you remember), run
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/next-step.sh <dir>`, relay its first
+line, and continue at the step it names, taking the `ids` and `route`
+lines it prints as that step's finding ids and spawn overrides. It reads
+the ledger's step journal, which the scripts write as they run, so it
+knows the editor batch, gate, verification, or round diff a round
+still owes, and where the checks loop stands; never place yourself from
+memory over it. Exit 4 means the ledger predates the journal: resume as
+step 2 says.
+
 1. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh`
 2. Create or refresh the ledger. Pass the invocation text on stdin,
    never inside the command line, exactly as below, with the closing
@@ -192,13 +204,12 @@ PRWF_SETTINGS_END
    run the gap pass when it lists `gap not run`.
    Exit 0, complete: this is a resume past the review. When
    `<dir>/worktree` is gone (a held run was cleaned up), run steps 3
-   and 4 first, since every later step needs them. Then run
+   and 4 first, since every later step needs them; otherwise run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>` as step 4 says
    (when it exits 3, step 4's arrival review is the review of what was
    pushed: finish it with `--reviewed` and skip the moved-head review
-   below), then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
-   (when `<dir>/findings/` has records),
-   report the counts, then
+   below). Then run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`
+   (when `<dir>/findings/` has records) and report the counts, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh <dir>`, relaying
    its line. Exit 3 means someone pushed after the review: run the
    moved-head review before anything else. Its line is
@@ -207,13 +218,14 @@ PRWF_SETTINGS_END
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir> --all <reviewed>`
    and follow step 8e for every file it lists, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh <dir> --mark`.
-   Then continue at the step the counts imply, counting again first
-   when the review saved findings. Open findings:
-   step 7 first, because a run may have stopped between saving and
-   posting, and prove-suggestions and post-review are both rerun-safe;
-   then step 8. None open, or no findings at all: step 10. The `--list`
-   lines give the ids every later step needs, and the round cap
-   survives on disk, so a resumed run cannot restart its budget.
+   Then run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/next-step.sh <dir>` and
+   continue at the step it names. Unposted findings go to step 7, a round
+   that stopped part way resumes at its owed sub-step, and a round a park
+   or hold closed starts a new one; the round cap survives on disk, so
+   a resumed run cannot restart its budget. Exit 4 (a ledger from
+   before the journal): open findings, step 7 first, since
+   prove-suggestions and post-review are both rerun-safe, then step 8;
+   none open, or no findings at all, step 10.
 3. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/fetch-pr.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/probe-diff.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/classify-change.sh <dir>`,
@@ -394,8 +406,10 @@ PRWF_SETTINGS_END
       `diff-index.txt`, run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> incremental`,
       spawn one `pr-review-workflow:reviewer` with its `model` and
-      `effort`, restricted to that set (the step 5 prompt), and save
-      any records it returns, followed by
+      `effort`, restricted to that set (the step 5 prompt), and pipe
+      its report, `no findings` included, into
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/save-findings.sh <dir> --unit incremental`
+      so the journal knows it is in, followed by
       `prove-suggestions.sh` and `post-review.sh` as in step 7. New
       findings keep the loop running.
    f. Rerun `count-findings.sh <dir> --list` for the loop condition.
