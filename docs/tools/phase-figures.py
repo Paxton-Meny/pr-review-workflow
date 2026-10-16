@@ -33,6 +33,7 @@ write, so the test that runs it catches a figure left stale after an edit.
 from __future__ import annotations
 
 import math
+import re
 import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -177,20 +178,12 @@ class Fig:
     tags: list[tuple[Box, Box]] = field(default_factory=list)
     wires: list[Wire] = field(default_factory=list)
     css: list[str] = field(default_factory=list)
-    ids: set[str] = field(default_factory=set)
     steps: int = 0
 
     # -- primitives -------------------------------------------------------
 
     def add(self, s: str, layer: str = "cards") -> None:
         self.layers[layer].append(s)
-
-    def uid(self, name: str) -> str:
-        i = f"{self.pfx}-{name}"
-        if i in self.ids:
-            raise ValueError(f"{self.pfx}: duplicate id {i}")
-        self.ids.add(i)
-        return i
 
     def text(self, x: float, y: float, s: str, cls: str = "", size: float = 11,
              anchor: str = "start", mono: bool = False, bold: bool = False,
@@ -1530,6 +1523,24 @@ FIGURES = {
 }
 
 
+def check_ids(root: ET.Element, pfx: str) -> None:
+    """Every id is defined once, and every reference names a defined id."""
+    seen: set[str] = set()
+    for el in root.iter():
+        i = el.get("id")
+        if i is None:
+            continue
+        if i in seen:
+            raise ValueError(f"{pfx}: duplicate id {i}")
+        seen.add(i)
+    for el in root.iter():
+        refs = [r for v in el.attrib.values() for r in re.findall(r"url\(#([^)]+)\)", v)]
+        refs += el.get("aria-labelledby", "").split()
+        for r in refs:
+            if r not in seen:
+                raise ValueError(f"{pfx}: reference to undefined id {r}")
+
+
 def build() -> dict[str, str]:
     out = {}
     errors = []
@@ -1542,6 +1553,11 @@ def build() -> dict[str, str]:
             continue
         svg = fig.render()
         root = ET.fromstring(svg)  # well-formed, or this raises
+        try:
+            check_ids(root, fig.pfx)
+        except ValueError as e:
+            errors.append(str(e))
+            continue
         assert root.get("viewBox") == f"0 0 {W} {fig.height}"
         assert "prefers-reduced-motion" in svg
         out[name] = svg
