@@ -287,7 +287,7 @@ function script(seg, stdin_ok,    p, name, k, a) {
 		if (name == "sync-branch" && a != "--continue") deny("sync-branch.sh with " a)
 	}
 }
-function git(    k, v, sub_, a) {
+function git(    k, v, sub_, a, n, i, d) {
 	if (nw[1] < 4 || W[1, 2] != "-C") deny("git without -C <path in the state directory>")
 	print "git\t" W[1, 3]
 	k = 4
@@ -300,6 +300,16 @@ function git(    k, v, sub_, a) {
 	if (index(subs, " " sub_ " ") == 0) deny("git " sub_ ", which this agent does not run")
 	for (k++; k <= nw[1]; k++) {
 		a = W[1, k]
+		if (a !~ /^-/ && W[1, k - 1] != "-m" && W[1, k - 1] != "--message" && (a ~ /^[\/~]/ || a ~ /(^|\/)\.\.(\/|$)/))
+			deny("git " sub_ " with the path " a)
+		if (a ~ /^--/) {
+			n = a; sub(/=.*/, "", n); n = substr(n, 3)
+			if (length(n) >= 3) {
+				split("output no-index ext-diff exec upload-pack receive-pack pathspec-from-file config-env git-dir work-tree", d, " ")
+				for (i = 1; i in d; i++)
+					if (index(d[i], n) == 1) deny("git " sub_ " " a)
+			}
+		}
 		if (a ~ /^--(output|no-index|ext-diff|exec|upload-pack|receive-pack|pathspec-from-file|config-env|git-dir|work-tree)/)
 			deny("git " sub_ " " a)
 		if (sub_ == "commit" && (a ~ /^-[A-Za-z]*[FtCc]/ || a ~ /^--(file|template|amend|reuse-message|reedit-message)/))
