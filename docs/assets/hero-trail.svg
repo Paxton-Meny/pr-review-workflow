@@ -2,7 +2,7 @@
 <title id="hgt">One finding, start to finish, on pull request 128: the review flags line 42 of src/retry.py and writes a testable Resolution; one commit fixes it; the check command runs and passes, so the finding moves from open to addressed to verified; the pull request merges only after the gate asks.</title>
 <style>
 .hg{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--on-accent:#FFFFFF;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--term:#2C2C2A;--term-line:#2C2C2A}
-@media (prefers-color-scheme:dark){.hg{--bg:#1E1E1C;--card:#262624;--panel:#2C2C2A;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#CECBF6;--on-accent:#1E1E1C;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#9FE1CB;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--term:#141413;--term-line:#3F3E3A}}
+@media (prefers-color-scheme:dark){.hg{--bg:#101217;--card:#191C23;--panel:#1F232C;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--on-accent:#101217;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--term:#0A0B0F;--term-line:#2C313C}}
 .hg text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--ink)}
 .hg .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 .hg .spine{stroke:var(--line);stroke-width:2;fill:none}
@@ -45,6 +45,7 @@
 .hg .pass{fill:#5DCAA5;font-weight:700}
 .hg .holds{font-size:11.5px;font-weight:700;fill:#5DCAA5;text-anchor:end}
 .hg .tick{fill:none;stroke:#5DCAA5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-color-scheme:dark){.hg .tc{fill:#ECEFF4}.hg .tp{fill:#F28B62}.hg .tr{fill:#B4B9C5}.hg .pass,.hg .holds{fill:#4CD9B0}.hg .tick{stroke:#4CD9B0}}
 .hg .cover{fill:var(--term);transform-origin:392px 475px;transform:scaleX(0);animation-name:hg-type}
 .hg .n{stroke-width:2}
 .hg .n1{fill:var(--coral);stroke:var(--coral)}
