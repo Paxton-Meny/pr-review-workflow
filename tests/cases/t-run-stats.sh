@@ -64,6 +64,7 @@ sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]
 grep -q ' outcome merged .* ci repaired ci_rounds 1 updates 2 conflicts 1$' "$root/stats.txt"
 [ "$(cat "$dir/outcome.txt")" = merged ]
+[ "$(cat "$dir/steps.txt")" = "$(printf 'outcome parked\noutcome merged')" ]
 
 if sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" wat 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown outcome" >&2

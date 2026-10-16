@@ -22,7 +22,9 @@
 # sync.txt in the state directory gains "update <method> <old> <new>" or
 # "conflicts <n> files". After SYNC_CAP updates on one pull request a
 # moved base is reported like off (exit 4): a base that keeps moving
-# is for a person.
+# is for a person. Each outcome is journaled in steps.txt as "sync
+# current|update|conflicts|stuck <head>" or "sync abort" for
+# next-step.sh.
 # Paths are read with core.quotepath=off, so non-ASCII names pass through
 # whole; names with quotes, tabs, or backslashes stay quoted by git and
 # are not supported.
@@ -118,6 +120,7 @@ finish() {
 	mv "$changed" "$ctx/sync-changed.txt"
 	rm -f "$ctx/sync-before.txt" "$ctx/sync-after.txt"
 	printf 'update %s %s %s\n' "$method" "$old_head" "$new_head" >>"$dir/sync.txt"
+	printf 'sync update %s\n' "$new_head" >>"$dir/steps.txt"
 	verb=merged
 	[ "$mechanism" = rebase ] && verb=rebased
 	echo "sync-branch: $verb onto $base at $new_head, pushed, $(grep -c . "$ctx/sync-changed.txt" || true) files changed by the resolution"
@@ -141,6 +144,7 @@ stopped() {
 		exit 1
 	fi
 	printf 'conflicts %s files\n' "$count" >>"$dir/sync.txt"
+	printf 'sync conflicts %s\n' "$old_head" >>"$dir/steps.txt"
 	if [ "$setting" = resolve ]; then
 		tmp=$(mktemp "$ctx/.sync.XXXXXX")
 		merge_base=$(git -C "$worktree" merge-base "origin/$base" "$old_head")
@@ -180,6 +184,7 @@ if [ "$mode" = --abort ]; then
 		git -C "$worktree" merge --abort
 	fi
 	rm -f "$ctx/conflicts.txt" "$ctx/sync-before.txt"
+	printf 'sync abort\n' >>"$dir/steps.txt"
 	echo "sync-branch: aborted, the worktree is back at $(git -C "$worktree" rev-parse HEAD)"
 	exit 0
 fi
@@ -240,16 +245,19 @@ moved=''
 [ "$merge_state" = BEHIND ] && moved=BEHIND
 [ "$mergeable" = CONFLICTING ] && moved=CONFLICTING
 if [ -z "$moved" ]; then
+	printf 'sync current %s\n' "$old_head" >>"$dir/steps.txt"
 	echo "sync-branch: current"
 	exit 0
 fi
 updates=0
 [ -f "$dir/sync.txt" ] && updates=$(grep -c '^update ' "$dir/sync.txt" || true)
 if [ "$updates" -ge "$SYNC_CAP" ]; then
+	printf 'sync stuck %s\n' "$old_head" >>"$dir/steps.txt"
 	echo "sync-branch: updated $updates times already, pull request is $moved, a person decides"
 	exit 4
 fi
 if [ "$setting" = off ]; then
+	printf 'sync stuck %s\n' "$old_head" >>"$dir/steps.txt"
 	echo "sync-branch: off, pull request is $moved, a person decides"
 	exit 4
 fi

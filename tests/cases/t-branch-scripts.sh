@@ -53,8 +53,10 @@ new_sha=$(git -C "$wt" rev-parse HEAD)
 [ "$(git -C "$SCRATCH/Paxton-Meny/widgets.git" rev-parse refs/heads/feat-thing)" = "$new_sha" ]
 grep -qx "head_sha $new_sha" "$dir/meta.txt"
 grep -qx "prev_head $sha" "$dir/meta.txt"
+[ "$(tail -n 1 "$dir/steps.txt")" = "push $new_sha" ]
 
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" | grep -q "ledger kept"
+[ "$(tail -n 1 "$dir/steps.txt")" = cleanup ]
 [ ! -d "$dir/worktree" ]
 [ -f "$dir/meta.txt" ]
 git -C "$clone" worktree list | grep -qv "$dir/worktree"

@@ -74,7 +74,7 @@ for bad in group-0 group-1a shard x; do
 		echo "expected refusal of the unit $bad" >&2
 		exit 1
 	fi
-	grep -q 'the unit must be all, gap, or group-<n>' "$SCRATCH/err"
+	grep -q 'the unit must be all, gap, group-<n>, or incremental' "$SCRATCH/err"
 done
 
 # Posting refuses while the phase is incomplete, changing nothing.

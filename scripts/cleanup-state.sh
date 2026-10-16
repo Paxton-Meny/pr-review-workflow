@@ -2,6 +2,7 @@
 # Remove the worktree and fetched context, keeping the ledger as the record.
 # Runs after a merge and on a hold: a held run resumes from the ledger,
 # fetching and checking out again, so it keeps nothing it can recreate.
+# The removal is journaled in steps.txt as "cleanup" for next-step.sh.
 # Usage: sh scripts/cleanup-state.sh <state-dir>
 set -eu
 
@@ -26,4 +27,5 @@ rm -rf "$dir/pr-context"
 	echo "cleanup-state: worktree removal left $worktree behind" >&2
 	exit 1
 }
+printf 'cleanup\n' >>"$dir/steps.txt"
 echo "cleanup-state: worktree and context removed, ledger kept"

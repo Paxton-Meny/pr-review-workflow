@@ -24,7 +24,8 @@
 # (gh run rerun --failed, recorded in ci-reruns.txt with the time) and
 # waited for, as pending while the rerun registers (RERUN_GRACE); a
 # second cancel counts as a failure. The outcome is written to
-# ci-result.txt as "pass|fail|none|off <head>".
+# ci-result.txt as "pass|fail|none|off <head>", and journaled in
+# steps.txt as "checks <outcome> <head>" for next-step.sh.
 set -eu
 
 usage='usage: await-checks.sh <state-dir> [--slice <seconds>] [--extend]'
@@ -91,6 +92,7 @@ result() {
 	tmp=$(mktemp "$dir/.ci.XXXXXX")
 	printf '%s %s\n' "$1" "$head_sha" >"$tmp"
 	mv "$tmp" "$dir/ci-result.txt"
+	printf 'checks %s %s\n' "$1" "$head_sha" >>"$dir/steps.txt"
 }
 
 if [ "$mode" = off ]; then

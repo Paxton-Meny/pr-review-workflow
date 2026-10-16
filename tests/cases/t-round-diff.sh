@@ -57,3 +57,7 @@ out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all "$base") || rc=$?
 [ "$rc" -eq 3 ]
 printf '%s\n' "$out" | grep -qx 'unexpected src/named.txt'
 printf '%s\n' "$out" | grep -qx 'unexpected src/other.txt'
+# Each result is journaled for next-step.sh, --all apart.
+[ "$(sed -n '1p; $p' "$dir/steps.txt")" = "$(printf 'round-diff clean\nround-diff-all unexpected')" ]
+grep -qx 'round-diff unexpected' "$dir/steps.txt"
+grep -qx 'round-diff-all clean' "$dir/steps.txt"

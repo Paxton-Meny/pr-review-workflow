@@ -4,7 +4,9 @@
 # With --all every file changed in prev_head..head_sha is listed, finding
 # paths included; "clean" then means the range is empty. prev_head moves on
 # every push, so after several pushes pass the head the first one started
-# from as <base-sha> to cover them all.
+# from as <base-sha> to cover them all. Each result is journaled in
+# steps.txt as "round-diff clean|unexpected", or "round-diff-all ..."
+# under --all, for next-step.sh.
 set -eu
 
 dir=${1:?usage: round-diff.sh <state-dir> [--all [<base-sha>]]}
@@ -29,7 +31,10 @@ worktree="$dir/worktree"
 prev_head=$(sed -n 's/^prev_head //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 [ -z "$base" ] || prev_head=$base
+event=round-diff
+[ "$all" -eq 0 ] || event=round-diff-all
 if [ -z "$prev_head" ]; then
+	printf '%s clean\n' "$event" >>"$dir/steps.txt"
 	echo "round-diff: no push recorded yet"
 	exit 0
 fi
@@ -50,7 +55,9 @@ else
 	unexpected=$(grep -vxF -f "$expected" "$changed" || true)
 fi
 if [ -n "$unexpected" ]; then
+	printf '%s unexpected\n' "$event" >>"$dir/steps.txt"
 	printf '%s\n' "$unexpected" | sed 's/^/unexpected /'
 	exit 3
 fi
+printf '%s clean\n' "$event" >>"$dir/steps.txt"
 echo "round-diff: clean"
