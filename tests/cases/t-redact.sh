@@ -120,3 +120,32 @@ if grep -qe "$gh_token" -e "$aws" "$stub/bodies.log"; then
 	echo "a finding body posted a credential" >&2
 	exit 1
 fi
+
+# A failing redact.sh stops the posting scripts before anything reaches gh.
+bad="$SCRATCH/badscripts"
+mkdir -p "$bad"
+cp "$REPO_ROOT"/scripts/*.sh "$bad/"
+printf 'exit 1\n' >"$bad/redact.sh"
+sh "$REPO_ROOT/scripts/save-findings.sh" "$dir" >/dev/null <<EOF2
+=== finding
+category: security
+severity: minor
+path: src/third.py
+line: 9
+side: RIGHT
+title: Another literal
+---
+The module embeds a literal.
+Fix: read it from the environment.
+Resolution: no literal remains in src/third.py.
+EOF2
+calls_before=$(wc -l <"$stub/calls.log")
+if printf 'Reply text.\n' | sh "$bad/reply-thread.sh" "$dir" 9001 2>/dev/null; then
+	echo "reply-thread.sh posted although redact.sh failed" >&2
+	exit 1
+fi
+if sh "$bad/post-review.sh" "$dir" >/dev/null 2>&1; then
+	echo "post-review.sh posted although redact.sh failed" >&2
+	exit 1
+fi
+[ "$(wc -l <"$stub/calls.log")" -eq "$calls_before" ]
