@@ -32,14 +32,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   journal is reported unplaced (exit 4) and resumes as before.
 
 - Six phase figures on the site and in the README, one per phase of a
-  run, each drawn in the form that fits it: a rail for staging, a fan for
-  the review, a sieve for posting, a ring for the fix loop, a loop of
-  stations for landing, and a gate with four doors for the merge. Each
-  shows the one line every script prints, what it writes to the ledger,
-  and every exit with its code and who decides; the token walks one run,
-  and reduced motion shows every step at once. `docs/tools/phase-figures.py`
-  generates them (`uv run docs/tools/phase-figures.py`) and `--check`
-  proves their layout and that the files are current; a test case runs it.
+  run, each drawn in the form that fits it: a rail that snakes through
+  three bands for staging, a fan for the review, a transit map for
+  posting, a ring for the fix loop, a spine with its repair loop for
+  landing, and a gate with four doors for the merge. Each shows the one
+  line every script prints, what it writes to the ledger, and every exit
+  as a badge carrying its code, coloured by whether the run goes on, falls
+  back, stops, or waits for a person; the token walks one run, and reduced
+  motion shows every step at once. `docs/tools/phase-figures.py` generates
+  them (`uv run docs/tools/phase-figures.py`) and `--check` proves their
+  geometry, no label, card, callout, or wire colliding and every wire
+  landing on an edge, and that the files are current; a test case runs it.
 - Overlap awareness. A new `overlap_check` setting (off, near, judged;
   default near; a project may only raise it) makes the review notice
   work landing beside the pull request. At the start, open pull

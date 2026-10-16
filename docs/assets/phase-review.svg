@@ -1,173 +1,287 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 740" width="860" role="img" aria-labelledby="prt prd" class="pr">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 902" width="860" role="img" aria-labelledby="prt prd" class="pr">
 <title id="prt">Phase 2, Review: one plan, parallel reviewers, one ledger</title>
-<desc id="prd">The diff is planned into shards when it is large, clustering files that reference one another and recording the seams no shard can see. Routing picks a rung for each group, cheap, the role's own model, or the strong model, from size, couplings, probes, and the cost posture, and an effort that a retry moves one lever at a time. Reviewers run in parallel, one per group, times the review samples; their records are banked with ids, duplicates merge with a support count, and a gap pass reads the seams first and reports only what was missed. A clean ledger skips straight to the merge gate. The record anatomy shows the contract every finding carries.</desc>
+<desc id="prd">A diff over the cost posture's limit is planned into shards that keep coupled files together, and the couplings no shard can see are recorded as seams. Routing gives each group a rung on a ladder, the strong model for large, coupled, or risky code, the role's own model by default, a cheaper one for a small change with no risk signal, and an effort from low to xhigh; a retry moves one lever at a time and the posture leans every rung. Reviewers run in parallel, one per group, times the review samples; each report is saved verbatim with ids assigned, duplicates merge into the richest record, and a gap pass reads the seams first and reports only what was missed, never below the reviewer's rung. Findings go on to Post; none at all means the change is clean. A finding record shows the header and the Fix, Resolution, and Check lines every finding carries.</desc>
 <style>
-.pr{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A}
-@media (prefers-color-scheme:dark){.pr{--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--coral-line:#7a3a24;--clay:#D97757;--term:#141413;--term-line:#44433F}}
-.pr text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}
+.pr{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pr{--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;--shade:.35}}
+.pr text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
 .pr .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
-.pr .serif{font-family:'Iowan Old Style',Palatino,Georgia,serif}
-.pr .h{font-size:12.5px;font-weight:700;fill:var(--ink)}
-.pr .k{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
-.pr .ttl{font-size:16px;font-weight:700;fill:var(--ink)}
+.pr .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
+.pr .kick{fill:var(--coral);font-weight:700}
+.pr .sub{fill:var(--muted)}
+.pr .rail{stroke:var(--line);stroke-width:2;fill:none}.pr .rail-done{stroke:var(--rule);stroke-width:2;fill:none}
+.pr .rail-past{fill:var(--rule)}.pr .rail-next{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}
+.pr .rail-now{fill:var(--clay)}.pr .rail-ring{fill:var(--bg);stroke:var(--clay);stroke-width:1.5}
+.pr .rail-lbl{fill:var(--faint)}.pr .rail-lbl.now{fill:var(--ink);font-weight:700}
+.pr .h{font-size:12.5px;font-weight:700;fill:var(--ink)}.pr .h.mono{font-size:12px}
+.pr .s{fill:var(--muted)}
+.pr .k{font-weight:700;fill:var(--ink)}
+.pr .fine{fill:var(--faint)}
+.pr .num{fill:var(--faint)}
 .pr .c{fill:var(--card);stroke:var(--line)}
 .pr .cm{fill:var(--accent-bg);stroke:var(--accent-line)}
 .pr .cg{fill:var(--teal-bg);stroke:var(--teal-line)}
 .pr .cp{fill:var(--coral-bg);stroke:var(--coral-line)}
+.pr .cd{fill:var(--teal);stroke:var(--teal)}
 .pr .hm{fill:var(--accent-ink)}.pr .sm{fill:var(--accent)}
-.pr .hg2{fill:var(--teal-ink)}.pr .sg{fill:var(--teal)}
+.pr .hg{fill:var(--teal-ink)}.pr .sg{fill:var(--teal)}
 .pr .hp{fill:var(--coral-ink)}.pr .sp{fill:var(--coral)}
-.pr .accent{fill:var(--accent)}.pr .teal{fill:var(--teal)}.pr .coral{fill:var(--coral)}
-.pr .ar{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.pr .arh{fill:var(--faint)}
-.pr .ring{fill:none;stroke:var(--rule);stroke-width:3}
-.pr .term{fill:var(--term);stroke:var(--term-line)}
-.pr .tl{fill:#F1EFE8}.pr .tm{fill:#B4B2A9}
-.pr .lane{fill:var(--lane)}
-.pr .ph{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}
-.pr .num{font-size:10.5px;font-weight:700;fill:var(--faint)}
-.pr .chip rect{stroke-width:1}.pr .chip text{font-weight:700;fill:var(--ink)}
-.pr .bad rect{fill:var(--coral-bg);stroke:var(--coral-line)}.pr .bad text{fill:var(--coral-ink)}
-.pr .ask rect{fill:var(--card);stroke:var(--coral)}.pr .ask text{fill:var(--coral)}
-.pr .good rect{fill:var(--teal-bg);stroke:var(--teal-line)}.pr .good text{fill:var(--teal-ink)}
-.pr .note rect{fill:var(--panel);stroke:var(--line)}.pr .note text{fill:var(--muted)}
-.pr .mdl rect{fill:var(--accent-bg);stroke:var(--accent-line)}.pr .mdl text{fill:var(--accent-ink)}
-.pr .lf rect{fill:var(--rule)}.pr .lf text{fill:var(--muted)}
-.pr .done{fill:var(--teal);stroke:var(--teal)}
-.pr .doneh{fill:var(--bg)}.pr .dones{fill:var(--bg);opacity:.85}
+.pr .hd{fill:var(--bg)}.pr .sd{fill:var(--bg);opacity:.85}
+.pr .ico{fill:none;stroke:var(--faint);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pr .ico .knob{fill:var(--faint);stroke:none}
+.pr .ico-m{fill:var(--accent)}
+.pr .ico-g{fill:none;stroke:var(--teal);stroke-width:1.5;stroke-linecap:round}
+.pr .ico-p{fill:none;stroke:var(--coral);stroke-width:1.5;stroke-linecap:round}
 .pr .tick{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pr .panel{fill:var(--lane);stroke:none}
+.pr .dot{fill:var(--rule)}
+.pr .band{fill:var(--lane)}.pr .bandn{fill:var(--clay);font-weight:700}
+.pr .w{fill:none;stroke:var(--wire);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pr .wx{stroke:var(--coral);opacity:.8}.pr .wl{stroke:var(--accent)}.pr .wo{stroke:var(--teal)}
+.pr .wd{stroke:var(--rule);stroke-width:1.3}
+.pr .ring{stroke:var(--rule);stroke-width:2.5}
+.pr .jn{fill:var(--wire)}
+.pr .ah{fill:var(--wire)}.pr .ahx{fill:var(--coral)}.pr .ahl{fill:var(--accent)}.pr .aho{fill:var(--teal)}.pr .ahd{fill:var(--rule)}
+.pr .term{fill:var(--term)}.pr .term-bar{fill:var(--term-bar)}
+.pr .term-cap{fill:var(--term-dim)}
+.pr .tl{font-size:11px}.pr .term-p{fill:var(--clay);font-weight:700}.pr .term-n{fill:#E8A58C;font-weight:700}.pr .term-t{fill:var(--term-ink)}
+.pr .ledger{fill:var(--lane);stroke:var(--line);stroke-dasharray:3 3}
+.pr .folder{fill:none;stroke:var(--clay);stroke-width:1.4;stroke-linejoin:round}
+.pr .lf .doc{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}.pr .lf text{fill:var(--muted)}
+.pr .bg-stop{fill:var(--coral)}.pr .bg-stop-t{fill:var(--bg)}.pr .bg-stop-m .bm-f{fill:var(--bg)}.pr .bg-stop-m .bm-s{stroke:var(--bg)}
+.pr .bg-ask{fill:var(--card);stroke:var(--coral);stroke-width:1.6}.pr .bg-ask-t{fill:var(--coral)}.pr .bg-ask-m .bm-f{fill:var(--coral)}.pr .bg-ask-m .bm-s{stroke:var(--coral)}
+.pr .bg-ok{fill:var(--teal)}.pr .bg-ok-t{fill:var(--bg)}.pr .bg-ok-m .bm-f{fill:var(--bg)}.pr .bg-ok-m .bm-s{stroke:var(--bg)}
+.pr .bg-note{fill:var(--card);stroke:var(--wire);stroke-width:1.4}.pr .bg-note-t{fill:var(--muted)}.pr .bg-note-m .bm-f{fill:var(--muted)}.pr .bg-note-m .bm-s{stroke:var(--muted)}
+.pr .bm{font-weight:700}.pr .bm-s{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pr .c1{font-weight:700;fill:var(--ink)}.pr .c2{fill:var(--muted)}
+.pr .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pr .tok-halo{fill:var(--clay);opacity:.18}
 .pr .cardg>rect{stroke-width:1}
-@keyframes pr-walk{0%,7.9%{offset-distance:0.00%}14.3%,22.1%{offset-distance:11.03%}28.6%,36.4%{offset-distance:35.50%}42.9%,50.7%{offset-distance:60.81%}57.1%,65.0%{offset-distance:70.32%}71.4%,79.3%{offset-distance:94.58%}85.7%,100%{offset-distance:100.00%}}
-.pr .tok{fill:var(--clay);stroke:var(--card);stroke-width:2.5;offset-path:path('M140 249 L140 365 L395 399 L140 475 L140 575 L395 575 L395 632');offset-rotate:0deg;animation:pr-walk 32s linear infinite}
-@keyframes pr-st0{0%,0.0%{stroke:var(--line);stroke-width:1}0.0%,14.2%{stroke:var(--accent);stroke-width:2}14.3%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st0>rect{animation:pr-st0 32s linear infinite}
-@keyframes pr-in0{0%,0.0%{opacity:0}0.5%,100%{opacity:1}}
-.pr .tl0,.pr .lf0{animation:pr-in0 32s linear infinite}
-@keyframes pr-st1{0%,14.2%{stroke:var(--line);stroke-width:1}14.3%,28.5%{stroke:var(--accent);stroke-width:2}28.6%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st1>rect{animation:pr-st1 32s linear infinite}
-@keyframes pr-in1{0%,14.2%{opacity:0}14.8%,100%{opacity:1}}
-.pr .tl1,.pr .lf1{animation:pr-in1 32s linear infinite}
-@keyframes pr-st2{0%,28.5%{stroke:var(--line);stroke-width:1}28.6%,42.8%{stroke:var(--accent);stroke-width:2}42.9%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st2>rect{animation:pr-st2 32s linear infinite}
-@keyframes pr-in2{0%,28.5%{opacity:0}29.1%,100%{opacity:1}}
-.pr .tl2,.pr .lf2{animation:pr-in2 32s linear infinite}
-@keyframes pr-st3{0%,42.8%{stroke:var(--line);stroke-width:1}42.9%,57.0%{stroke:var(--accent);stroke-width:2}57.1%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st3>rect{animation:pr-st3 32s linear infinite}
-@keyframes pr-in3{0%,42.8%{opacity:0}43.4%,100%{opacity:1}}
-.pr .tl3,.pr .lf3{animation:pr-in3 32s linear infinite}
-@keyframes pr-st4{0%,57.0%{stroke:var(--line);stroke-width:1}57.1%,71.3%{stroke:var(--accent);stroke-width:2}71.4%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st4>rect{animation:pr-st4 32s linear infinite}
-@keyframes pr-in4{0%,57.0%{opacity:0}57.6%,100%{opacity:1}}
-.pr .tl4,.pr .lf4{animation:pr-in4 32s linear infinite}
-@keyframes pr-st5{0%,71.3%{stroke:var(--line);stroke-width:1}71.4%,85.6%{stroke:var(--accent);stroke-width:2}85.7%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st5>rect{animation:pr-st5 32s linear infinite}
-@keyframes pr-in5{0%,71.3%{opacity:0}71.9%,100%{opacity:1}}
-.pr .tl5,.pr .lf5{animation:pr-in5 32s linear infinite}
-@keyframes pr-st6{0%,85.6%{stroke:var(--line);stroke-width:1}85.7%,99.9%{stroke:var(--accent);stroke-width:2}100.0%,100%{stroke:var(--line);stroke-width:1}}
-.pr .st6>rect{animation:pr-st6 32s linear infinite}
-@keyframes pr-in6{0%,85.6%{opacity:0}86.2%,100%{opacity:1}}
-.pr .tl6,.pr .lf6{animation:pr-in6 32s linear infinite}
-@keyframes pr-ex0{0%,4.9%{opacity:.35}5.0%,14.2%{opacity:1}14.3%,100%{opacity:.35}}
-.pr .ex0{animation:pr-ex0 32s linear infinite}
-@keyframes pr-ex6{0%,85.6%{opacity:.35}85.7%,99.9%{opacity:1}100.0%,100%{opacity:.35}}
-.pr .ex6{animation:pr-ex6 32s linear infinite}
-@media (prefers-reduced-motion:reduce){.pr *{animation:none!important}.pr .tok{display:none}.pr .tl,.pr .lf,.pr .ex0,.pr .ex1,.pr .ex2,.pr .ex3,.pr .ex4,.pr .ex5,.pr .ex6,.pr .ex7,.pr .ex8,.pr .ex9,.pr .ex10,.pr .ex11{opacity:1}}
+.pr .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
+.pr .rung{stroke-width:4.5;stroke-linecap:round}.pr .rung-s{stroke:var(--accent)}.pr .rung-b{stroke:var(--wire)}.pr .rung-c{stroke:var(--teal)}
+.pr .seg{fill:var(--card);stroke:var(--line)}.pr .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
+.pr .segt{fill:var(--faint)}.pr .segt.on{fill:var(--accent-ink);font-weight:700}
+.pr .sheet{fill:var(--card);stroke:var(--line)}.pr .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
+.pr .rv{fill:var(--ink)}.pr .rb{fill:var(--muted)}.pr .kk{fill:var(--faint)}
+.pr .kf{fill:var(--accent);font-weight:700}.pr .kr{fill:var(--coral);font-weight:700}.pr .kc{fill:var(--teal);font-weight:700}
+.pr .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
+.pr .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pr .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
+.pr .mk-proven{fill:var(--teal)}.pr .mk-withdrawn{fill:var(--coral)}
+.pr .mk-m{fill:none;stroke:var(--bg);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pr .mk-thread{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.3;stroke-linejoin:round}
+.pr .mk-sum{fill:var(--card);stroke:var(--wire);stroke-width:1.3;stroke-linejoin:round}
+.pr .mk-t{fill:var(--faint);font-style:italic}
+.pr .chev{fill:none;stroke:var(--wire);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.pr .chev-l{stroke:var(--accent)}
+.pr .again{stroke-width:2.5}.pr .loop-t{fill:var(--accent)}
+.pr .big{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:56px;font-weight:700;fill:var(--ink)}
+.pr .pip{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}.pr .pip.on{fill:var(--clay);stroke:var(--clay)}
+.pr .ok-t{fill:var(--teal)}.pr .x-t{fill:var(--coral)}
+.pr .gate{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:6 5}
+@keyframes pr-walk{0%,8.4%{offset-distance:0.00%}14.0%,20.6%{offset-distance:21.48%}25.0%,25.6%{offset-distance:26.58%}26.0%,27.2%{offset-distance:37.32%}28.0%,35.2%{offset-distance:41.34%}40.0%,40.6%{offset-distance:45.36%}41.0%,42.2%{offset-distance:56.10%}43.0%,52.0%{offset-distance:60.66%}58.0%,66.4%{offset-distance:82.15%}72.0%,80.4%{offset-distance:89.95%}86.0%,88.4%{offset-distance:97.84%}90.0%,100.0%{offset-distance:100.00%}}
+.pr .tok{offset-path:path('M145 304 L423 304 L423 370 L284 370 L284 422 L284 474 L145 474 L145 533 L423 533 L423 634 L330 676 L330 704');offset-rotate:0deg;animation:pr-walk 30s linear infinite}
+@keyframes pr-st0{0%,0.0%{stroke-width:1}0.0%,13.9%{stroke:var(--accent);stroke-width:2.2}14.0%,100%{stroke-width:1}}
+.pr .st0>rect{animation:pr-st0 30s linear infinite}
+@keyframes pr-in0{0%,0.0%{opacity:0}0.6%,100%{opacity:1}}
+.pr .tl0,.pr .lf0{animation:pr-in0 30s linear infinite}
+@keyframes pr-st1{0%,13.9%{stroke-width:1}14.0%,27.9%{stroke:var(--accent);stroke-width:2.2}28.0%,100%{stroke-width:1}}
+.pr .st1>rect{animation:pr-st1 30s linear infinite}
+@keyframes pr-in1{0%,13.9%{opacity:0}14.6%,100%{opacity:1}}
+.pr .tl1,.pr .lf1{animation:pr-in1 30s linear infinite}
+@keyframes pr-st2{0%,27.9%{stroke-width:1}28.0%,42.9%{stroke:var(--accent);stroke-width:2.2}43.0%,100%{stroke-width:1}}
+.pr .st2>rect{animation:pr-st2 30s linear infinite}
+@keyframes pr-in2{0%,27.9%{opacity:0}28.6%,100%{opacity:1}}
+.pr .tl2,.pr .lf2{animation:pr-in2 30s linear infinite}
+@keyframes pr-st3{0%,42.9%{stroke-width:1}43.0%,57.9%{stroke:var(--accent);stroke-width:2.2}58.0%,100%{stroke-width:1}}
+.pr .st3>rect{animation:pr-st3 30s linear infinite}
+@keyframes pr-in3{0%,42.9%{opacity:0}43.6%,100%{opacity:1}}
+.pr .tl3,.pr .lf3{animation:pr-in3 30s linear infinite}
+@keyframes pr-st4{0%,57.9%{stroke-width:1}58.0%,71.9%{stroke:var(--accent);stroke-width:2.2}72.0%,100%{stroke-width:1}}
+.pr .st4>rect{animation:pr-st4 30s linear infinite}
+@keyframes pr-in4{0%,57.9%{opacity:0}58.6%,100%{opacity:1}}
+.pr .tl4,.pr .lf4{animation:pr-in4 30s linear infinite}
+@keyframes pr-st5{0%,71.9%{stroke-width:1}72.0%,85.9%{stroke:var(--accent);stroke-width:2.2}86.0%,100%{stroke-width:1}}
+.pr .st5>rect{animation:pr-st5 30s linear infinite}
+@keyframes pr-in5{0%,71.9%{opacity:0}72.6%,100%{opacity:1}}
+.pr .tl5,.pr .lf5{animation:pr-in5 30s linear infinite}
+@keyframes pr-st6{0%,85.9%{stroke-width:1}86.0%,99.9%{stroke:var(--accent);stroke-width:2.2}100.0%,100%{stroke-width:1}}
+.pr .st6>rect{animation:pr-st6 30s linear infinite}
+@keyframes pr-in6{0%,85.9%{opacity:0}86.6%,100%{opacity:1}}
+.pr .tl6,.pr .lf6{animation:pr-in6 30s linear infinite}
+@keyframes pr-ex6{0%,85.9%{opacity:.5}86.0%,99.9%{opacity:1}100.0%,100%{opacity:.5}}
+.pr .ex6{animation:pr-ex6 30s linear infinite}
+@media (prefers-reduced-motion:reduce){.pr *{animation:none!important}.pr .tok{display:none}.pr .tl,.pr .lf,.pr .ex0,.pr .ex1,.pr .ex2,.pr .ex3,.pr .ex4,.pr .ex5,.pr .ex6,.pr .ex7,.pr .ex8{opacity:1}}
 </style>
-<defs><filter id="pr-sh" x="-10%" y="-25%" width="120%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter><marker id="pr-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>
-<text class="ttl" x="24" y="30" style="font-size:16px">Review</text>
-<text x="24" y="49">Once, thoroughly. Judgment is spent where the change is deep; the scripts decide where that is.</text>
-<g filter="url(#pr-sh)"><rect class="term" x="24" y="62" width="812" height="112" rx="9"/></g>
-<text class="mono tl tl0" x="36" y="82"><tspan class="tm">shard-plan:</tspan> groups 1 seams 0 couplings 3 limit 1500</text>
-<text class="mono tl tl1" x="36" y="100"><tspan class="tm">route</tspan> review all rung base model inherit effort high reason role-model samples 1</text>
-<text class="mono tl tl3" x="36" y="118"><tspan class="tm">save-findings:</tspan> 5 findings saved, next id F006</text>
-<text class="mono tl tl4" x="36" y="136"><tspan class="tm">dedup-findings:</tspan> kept 5 merged 0</text>
-<text class="mono tl tl5" x="36" y="154"><tspan class="tm">route</tspan> gap all rung base model inherit effort high reason follows-reviewer</text>
-<text class="tm" x="826" y="168" text-anchor="end" style="font-size:9.5px">what the orchestrating session sees</text>
-<g class="cardg st0" data-step="0"><rect class="c" x="24" y="214" width="232" height="70" rx="9"/>
-<text class="h" x="36" y="234" style="font-size:12.5px">shard-plan</text>
-<text x="36" y="250" style="font-size:10.5px">couplings cluster files into groups</text>
-<text x="36" y="265" style="font-size:10.5px">seams: what no shard sees alone</text>
+<defs><filter id="pr-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pr-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<path class="w" d="M262 304 L305 304" marker-end="url(#pr-a)"/>
+<path class="w" d="M423 346L423 362Q423 370 415 370L116 370Q108 370 108 378L108 393" marker-end="url(#pr-a)"/>
+<path class="w" d="M423 346L423 362Q423 370 415 370L292 370Q284 370 284 378L284 393" marker-end="url(#pr-a)"/>
+<path class="w" d="M423 346L423 362Q423 370 431 370L452 370Q460 370 460 378L460 393" marker-end="url(#pr-a)"/>
+<circle class="jn" cx="423" cy="370" r="3"/>
+<path class="w" d="M108 450L108 466Q108 474 116 474L137 474Q145 474 145 482L145 497" marker-end="url(#pr-a)"/>
+<path class="w" d="M284 450L284 466Q284 474 276 474L153 474Q145 474 145 482L145 497" marker-end="url(#pr-a)"/>
+<path class="w" d="M460 450L460 466Q460 474 452 474L153 474Q145 474 145 482L145 497" marker-end="url(#pr-a)"/>
+<circle class="jn" cx="145" cy="474" r="3"/>
+<path class="w" d="M262 533 L305 533" marker-end="url(#pr-a)"/>
+<path class="w" d="M423 568 L423 591" marker-end="url(#pr-a)"/>
+<path class="w wd" d="M330 676 L330 693.5" marker-end="url(#pr-ad)"/>
+<path class="w wd" d="M330 714.5 L330 733.5" marker-end="url(#pr-ad)"/>
+<circle class="tok tok-halo" r="11"/><circle class="tok tok-dot" r="5.5"/>
+<text class="kick" x="28" y="34" style="font-size:10px;letter-spacing:1.6px">PHASE 2 OF 6  ·  STEPS 5 – 6</text>
+<text class="ttl" x="28" y="70">Review</text>
+<text class="sub" x="28" y="94" style="font-size:12.5px">Once, thoroughly. Judgment is spent where the change is deep, and the scripts decide where that is.</text>
+<path class="rail" d="M588 32H818"/>
+<path class="rail-done" d="M588 32H634"/>
+<circle class="rail-past" cx="588" cy="32" r="4"/>
+<text class="rail-lbl" x="588" y="56" text-anchor="middle" style="font-size:10px">Stage</text>
+<circle class="rail-ring" cx="634" cy="32" r="9"/><circle class="rail-now" cx="634" cy="32" r="5"/>
+<text class="rail-lbl now" x="634" y="56" text-anchor="middle" style="font-size:10px">Review</text>
+<circle class="rail-next" cx="680" cy="32" r="4"/>
+<text class="rail-lbl" x="680" y="56" text-anchor="middle" style="font-size:10px">Post</text>
+<circle class="rail-next" cx="726" cy="32" r="4"/>
+<text class="rail-lbl" x="726" y="56" text-anchor="middle" style="font-size:10px">Fix</text>
+<circle class="rail-next" cx="772" cy="32" r="4"/>
+<text class="rail-lbl" x="772" y="56" text-anchor="middle" style="font-size:10px">Land</text>
+<circle class="rail-next" cx="818" cy="32" r="4"/>
+<text class="rail-lbl" x="818" y="56" text-anchor="middle" style="font-size:10px">Merge</text>
+<g filter="url(#pr-sh)"><rect class="term" x="28" y="112" width="804" height="128" rx="10"/></g><path class="term-bar" d="M28 136V122a10 10 0 0 1 10 -10H822a10 10 0 0 1 10 10V136z"/>
+<circle cx="44" cy="124" r="4" fill="#E0715A" opacity=".9"/>
+<circle cx="58" cy="124" r="4" fill="#E2B341" opacity=".9"/>
+<circle cx="72" cy="124" r="4" fill="#5DB86B" opacity=".9"/>
+<text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
+<text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">shard-plan:</tspan><tspan class="term-t"> groups 3 seams 1 couplings 3 limit 1500</tspan></text>
+<text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> review g1 rung strong model opus effort high reason coupled samples 1</tspan></text>
+<text class="mono tl tl3" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">save-findings:</tspan><tspan class="term-t"> 5 findings saved, next id F006</tspan></text>
+<text class="mono tl tl4" x="42" y="210"><tspan class="term-p">›</tspan> <tspan class="term-n">dedup-findings:</tspan><tspan class="term-t"> kept 5 merged 0</tspan></text>
+<text class="mono tl tl5" x="42" y="228"><tspan class="term-p">›</tspan> <tspan class="term-n">route</tspan><tspan class="term-t"> gap all rung strong model opus effort high reason follows-reviewer</tspan></text>
+<g class="cardg st0"><rect class="c" x="28" y="262" width="234" height="84" rx="9"/>
+<path class="ico" d="M40 274l4 3.6l-4 3.6M46 282h5.5"/>
+<text class="h mono" x="59" y="283" style="font-size:12px">shard-plan</text>
+<text class="num mono" x="251" y="282" text-anchor="end" style="font-size:9.5px">01</text>
+<text class="s" x="40" y="302">over the posture’s limit: shards</text>
+<text class="s" x="40" y="317">coupled files share a group</text>
+<text class="s" x="40" y="332">seams: what no shard sees</text>
 </g>
-<g class="chip note ex0"><rect x="24" y="292" width="180.458" height="19" rx="9.5"/>
-<text x="114.229" y="305.5" text-anchor="middle" style="font-size:10.5px">over the posture’s limit → shards</text>
+<g class="cardg st1"><rect class="c" x="306" y="262" width="234" height="84" rx="9"/>
+<path class="ico" d="M318 274l4 3.6l-4 3.6M324 282h5.5"/>
+<text class="h mono" x="337" y="283" style="font-size:12px">route-models review</text>
+<text class="num mono" x="529" y="282" text-anchor="end" style="font-size:9.5px">02</text>
+<text class="s" x="318" y="302">a rung and an effort per group</text>
+<text class="s" x="318" y="317">from size, couplings, probes</text>
+<text class="s" x="318" y="332">samples: identical reviewers</text>
 </g>
-<g class="cardg st1" data-step="1"><rect class="c" x="24" y="330" width="232" height="70" rx="9"/>
-<text class="h" x="36" y="350" style="font-size:12.5px">route-models review</text>
-<text x="36" y="366" style="font-size:10.5px">a rung and an effort per group</text>
-<text x="36" y="381" style="font-size:10.5px">from size, couplings, probes, posture</text>
+<g class="cardg st2"><rect class="cm" x="28" y="394" width="160" height="56" rx="9"/>
+<path class="ico-m" d="M46 405c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="59" y="415" style="font-size:12.5px">Reviewer</text>
+<text class="s sm" x="40" y="434">group 1, its files only</text>
 </g>
-<g class="cardg st3" data-step="3"><rect class="c" x="24" y="440" width="232" height="70" rx="9"/>
-<text class="h" x="36" y="460" style="font-size:12.5px">save-findings</text>
-<text x="36" y="476" style="font-size:10.5px">ids assigned, records validated</text>
-<text x="36" y="491" style="font-size:10.5px">a batch posts whole or not at all</text>
+<g class="cardg st2"><rect class="cm" x="204" y="394" width="160" height="56" rx="9"/>
+<path class="ico-m" d="M222 405c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="235" y="415" style="font-size:12.5px">Reviewer</text>
+<text class="s sm" x="216" y="434">group 2, in parallel</text>
 </g>
-<g class="cardg st4" data-step="4"><rect class="c" x="24" y="540" width="232" height="70" rx="9"/>
-<text class="h" x="36" y="560" style="font-size:12.5px">dedup-findings</text>
-<text x="36" y="576" style="font-size:10.5px">samples above one: duplicates merge</text>
-<text x="36" y="591" style="font-size:10.5px">the richest record wins, support counted</text>
+<g class="cardg st2"><rect class="cm" x="380" y="394" width="160" height="56" rx="9" stroke-dasharray="5 4"/>
+<path class="ico-m" d="M398 405c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="411" y="415" style="font-size:12.5px">Reviewer</text>
+<text class="s sm" x="392" y="434">group n, × samples</text>
 </g>
-<path class="ar" d="M140 284 L140 328" marker-end="url(#pr-a)"/>
-<path class="ar" d="M140 510 L140 538" marker-end="url(#pr-a)"/>
-<g class="cardg st2" data-step="2"><rect class="cm" x="292" y="300" width="206" height="54" rx="9"/>
-<text class="h hm" x="304" y="320" style="font-size:12.5px">Reviewer · group 1</text>
-<text class="sm" x="304" y="336" style="font-size:10.5px">its files, the rules, the probes</text>
+<g class="cardg st3"><rect class="c" x="28" y="498" width="234" height="70" rx="9"/>
+<path class="ico" d="M40 510l4 3.6l-4 3.6M46 518h5.5"/>
+<text class="h mono" x="59" y="519" style="font-size:12px">save-findings</text>
+<text class="num mono" x="251" y="518" text-anchor="end" style="font-size:9.5px">03</text>
+<text class="s" x="40" y="538">each report piped in verbatim</text>
+<text class="s" x="40" y="553">ids assigned, records checked</text>
 </g>
-<g class="cardg st2" data-step="2"><rect class="cm" x="292" y="372" width="206" height="54" rx="9"/>
-<text class="h hm" x="304" y="392" style="font-size:12.5px">Reviewer · group 2</text>
-<text class="sm" x="304" y="408" style="font-size:10.5px">in parallel, its own context</text>
+<g class="cardg st4"><rect class="c" x="306" y="498" width="234" height="70" rx="9"/>
+<path class="ico" d="M318 510l4 3.6l-4 3.6M324 518h5.5"/>
+<text class="h mono" x="337" y="519" style="font-size:12px">dedup-findings</text>
+<text class="num mono" x="529" y="518" text-anchor="end" style="font-size:9.5px">04</text>
+<text class="s" x="318" y="538">samples over one: merged</text>
+<text class="s" x="318" y="553">the richest record survives</text>
 </g>
-<g class="cardg st2" data-step="2"><rect class="cm" x="292" y="444" width="206" height="54" rx="9" stroke-dasharray="5 4"/>
-<text class="h hm" x="304" y="464" style="font-size:12.5px">Reviewer · group n</text>
-<text class="sm" x="304" y="480" style="font-size:10.5px">× review samples, when set</text>
+<g class="cardg st5"><rect class="cm" x="306" y="592" width="234" height="84" rx="9"/>
+<path class="ico-m" d="M324 603c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="337" y="613" style="font-size:12.5px">Gap pass</text>
+<text class="s sm" x="318" y="632">seams first, then what was missed</text>
+<text class="s sm" x="318" y="647">never below the reviewer’s rung</text>
+<text class="s sm" x="318" y="662">always after a sharded review</text>
 </g>
-<path class="ar" d="M256 365 L290 327" marker-end="url(#pr-a)"/>
-<path class="ar" d="M256 365 L290 399" marker-end="url(#pr-a)"/>
-<path class="ar" d="M256 365 L290 471" stroke-dasharray="3 4" marker-end="url(#pr-a)"/>
-<path class="ar" d="M292 460 L180 460 L180 438" marker-end="url(#pr-a)"/>
-<g class="cardg st5" data-step="5"><rect class="cm" x="292" y="540" width="206" height="70" rx="9"/>
-<text class="h hm" x="304" y="560" style="font-size:12.5px">Gap pass</text>
-<text class="sm" x="304" y="576" style="font-size:10.5px">seams first, then what was missed</text>
-<text class="sm" x="304" y="591" style="font-size:10.5px">never below the reviewer’s rung</text>
+<rect class="panel" x="28" y="592" width="234" height="96" rx="10"/>
+<text class="k" x="42" y="613" style="font-size:9.5px;letter-spacing:1.4px">WHY A GAP PASS</text>
+<circle class="dot" cx="45" cy="628.5" r="1.6"/>
+<text class="s" x="53" y="632">each shard read only its files</text>
+<circle class="dot" cx="45" cy="643.5" r="1.6"/>
+<text class="s" x="53" y="647">only this pass sees across them</text>
+<circle class="dot" cx="45" cy="658.5" r="1.6"/>
+<text class="s" x="53" y="662">routing may raise it, and never</text>
+<circle class="dot" cx="45" cy="673.5" r="1.6"/>
+<text class="s" x="53" y="677">cheapens the safety net</text>
+<rect class="panel" x="566" y="262" width="266" height="248" rx="10"/>
+<text class="k" x="580" y="283" style="font-size:9.5px;letter-spacing:1.4px">THE ROUTING LADDER</text>
+<path class="lad" d="M588 300V412M612 300V412"/>
+<path class="rung rung-s" d="M588 314H612"/>
+<text class="k" x="626" y="318">strong</text>
+<text class="s" x="626" y="332" style="font-size:10.5px">large, coupled, or a stakes probe</text>
+<path class="rung rung-b" d="M588 354H612"/>
+<text class="k" x="626" y="358">base</text>
+<text class="s" x="626" y="372" style="font-size:10.5px">the role’s own model, the default</text>
+<path class="rung rung-c" d="M588 394H612"/>
+<text class="k" x="626" y="398">cheap</text>
+<text class="s" x="626" y="412" style="font-size:10.5px">a small change, no risk signal</text>
+<text class="k" x="580" y="434" style="font-size:9px;letter-spacing:1.4px">EFFORT</text>
+<rect class="seg" x="581" y="442" width="57.5" height="18" rx="4"/>
+<text class="segt" x="609.8" y="455" text-anchor="middle" style="font-size:10px">low</text>
+<rect class="seg" x="640.5" y="442" width="57.5" height="18" rx="4"/>
+<text class="segt" x="669.2" y="455" text-anchor="middle" style="font-size:10px">medium</text>
+<rect class="seg on" x="700" y="442" width="57.5" height="18" rx="4"/>
+<text class="segt on" x="728.8" y="455" text-anchor="middle" style="font-size:10px">high</text>
+<rect class="seg" x="759.5" y="442" width="57.5" height="18" rx="4"/>
+<text class="segt" x="788.2" y="455" text-anchor="middle" style="font-size:10px">xhigh</text>
+<text class="s" x="580" y="480" style="font-size:10.5px">a retry moves one lever: effort, then model</text>
+<text class="s" x="580" y="495" style="font-size:10.5px">the cost posture leans every rung</text>
+<g filter="url(#pr-sh)"><path class="sheet" d="M566 536a10 10 0 0 1 10 -10H816l16 16V766a10 10 0 0 1 -10 10H576a10 10 0 0 1 -10 -10z"/></g><path class="fold" d="M816 526v16h16"/>
+<text class="mono k" x="580" y="547" style="font-size:10.5px">findings/F003</text>
+<text class="fine" x="808" y="547" text-anchor="end" style="font-size:10px">one record</text>
+<text class="mono rv" x="580" y="566" style="font-size:10px"><tspan class="kk">id:</tspan> F003</text>
+<text class="mono rv" x="580" y="580" style="font-size:10px"><tspan class="kk">status:</tspan> open   round: 1</text>
+<text class="mono rv" x="580" y="594" style="font-size:10px"><tspan class="kk">category:</tspan> correctness</text>
+<text class="mono rv" x="580" y="608" style="font-size:10px"><tspan class="kk">severity:</tspan> major</text>
+<text class="mono rv" x="580" y="622" style="font-size:10px"><tspan class="kk">path:</tspan> src/retry.py  line: 42</text>
+<text class="mono rv" x="580" y="636" style="font-size:10px"><tspan class="kk">side:</tspan> RIGHT</text>
+<text class="mono rv" x="580" y="650" style="font-size:10px"><tspan class="kk">title:</tspan> Retry drops the last error</text>
+<text class="mono fine" x="580" y="664" style="font-size:10px">---</text>
+<text class="mono rb" x="580" y="678" style="font-size:10px">The loop exits before the last</text>
+<text class="mono rb" x="580" y="692" style="font-size:10px">attempt’s error is raised.</text>
+<text class="mono rv" x="580" y="706" style="font-size:10px"><tspan class="kf">Fix:</tspan> re-raise after the loop, as</text>
+<text class="mono rb" x="580" y="720" style="font-size:10px">  fetch() does at src/http.py:88</text>
+<text class="mono rv" x="580" y="734" style="font-size:10px"><tspan class="kr">Resolution:</tspan> the final error</text>
+<text class="mono rb" x="580" y="748" style="font-size:10px">  propagates; a test asserts it</text>
+<text class="mono rv" x="580" y="762" style="font-size:10px"><tspan class="kc">Check:</tspan> pytest tests/test_retry.py</text>
+<rect class="ledger" x="28" y="796" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 822h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="828" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="840" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 812h6l3 3v8h-9z"/><text class="mono" x="175" y="821" style="font-size:10.5px">pr-context/shards.txt</text></g>
+<g class="lf lf0"><path class="doc" d="M326.7 812h6l3 3v8h-9z"/><text class="mono" x="341.7" y="821" style="font-size:10.5px">seams.txt</text></g>
+<g class="lf lf1"><path class="doc" d="M417.6 812h6l3 3v8h-9z"/><text class="mono" x="432.6" y="821" style="font-size:10.5px">routes.txt</text></g>
+<g class="lf lf3"><path class="doc" d="M514.8 812h6l3 3v8h-9z"/><text class="mono" x="529.8" y="821" style="font-size:10.5px">findings/F001 … F005</text></g>
+<g class="lf lf4"><path class="doc" d="M675.3 812h6l3 3v8h-9z"/><text class="mono" x="690.3" y="821" style="font-size:10.5px">support headers</text></g>
+<g class="lf lf5"><path class="doc" d="M160 832h6l3 3v8h-9z"/><text class="mono" x="175" y="841" style="font-size:10.5px">routes.txt (gap)</text></g>
+<g class="call ex6">
+<circle class="bg-ok" cx="330" cy="704" r="9.5"/>
+<g class="bg-ok-m"><path class="bm-s" d="M326 704h7.5m-3 -3l3 3l-3 3"/></g>
+<text class="c1" x="346" y="708">findings → Post</text>
+<text class="c2" x="346" y="722" style="font-size:10.5px">the filter reads them first</text>
 </g>
-<path class="ar" d="M256 575 L290 575" marker-end="url(#pr-a)"/>
-<g class="chip good ex6"><rect x="292" y="622" width="249.812" height="19" rx="9.5"/>
-<text x="416.906" y="635.5" text-anchor="middle" style="font-size:10.5px">no findings → clean: straight to the merge gate</text>
+<g class="call ex6">
+<circle class="bg-ok" cx="330" cy="744" r="9.5"/>
+<g class="bg-ok-m"><path class="bm-s" d="M326 744l2.8 2.8l5 -5.6"/></g>
+<text class="c1" x="346" y="748">none at all → clean</text>
+<text class="c2" x="346" y="762" style="font-size:10.5px">convergence, then Land</text>
 </g>
-<g class="chip note ex6"><rect x="292" y="646" width="95.5552" height="19" rx="9.5"/>
-<text x="339.778" y="659.5" text-anchor="middle" style="font-size:10.5px">findings → Post</text>
-</g>
-<path class="ar" d="M395 610 L395 620" marker-end="url(#pr-a)"/>
-<g class="cardg"><rect class="c" x="528" y="214" width="308" height="126" rx="9"/>
-<text class="h" x="540" y="234" style="font-size:12.5px">The routing ladder</text>
-<text x="540" y="250" style="font-size:10.5px">strong ← large code, coupled files, a stakes probe</text>
-<text x="540" y="265" style="font-size:10.5px">base ← the role’s own model, the default rung</text>
-<text x="540" y="280" style="font-size:10.5px">cheap ← a small docs or config change, no risk</text>
-<text x="540" y="295" style="font-size:10.5px">effort: low … xhigh; a retry moves one lever</text>
-<text x="540" y="310" style="font-size:10.5px">the posture leans every line, pins nothing</text>
-</g>
-<g class="cardg"><rect class="c" x="528" y="360" width="308" height="250" rx="9"/>
-<text class="h" x="540" y="380" style="font-size:12.5px">What a finding record carries</text>
-<text class="mono" x="540" y="396" style="font-size:10.5px">category: correctness   severity: major</text>
-<text class="mono" x="540" y="411" style="font-size:10.5px">path: src/retry.py   line: 42   side: RIGHT</text>
-<text class="mono" x="540" y="426" style="font-size:10.5px">title: Retry loop drops the final attempt</text>
-<text class="mono" x="540" y="441" style="font-size:10.5px">--- the evidence, in the reviewer’s words</text>
-<text class="mono" x="540" y="456" style="font-size:10.5px">Fix: raise err after the loop; tests live in</text>
-<text class="mono" x="540" y="471" style="font-size:10.5px">     tests/test_client.py beside test_retry</text>
-<text class="mono" x="540" y="486" style="font-size:10.5px">Check: pytest tests/test_client.py::test_exh</text>
-<text class="mono" x="540" y="501" style="font-size:10.5px">Resolution: the last exception propagates</text>
-<text class="mono" x="540" y="516" style="font-size:10.5px">     and the retry test asserts it</text>
-<text class="mono" x="540" y="531" style="font-size:10.5px">```suggestion … ``` posts only once proven</text>
-<text class="mono" x="540" y="546" style="font-size:10.5px">Criteria note: when no listed item names it</text>
-<text class="mono" x="540" y="561" style="font-size:10.5px">support: 2   placement: inline | summary</text>
-<text class="mono" x="540" y="576" style="font-size:10.5px">Route: round 1 rung cheap model sonnet …</text>
-</g>
-<rect class="lane" x="24" y="676" width="812" height="46" rx="9"/>
-<text class="k" x="36" y="693" style="font-size:9.5px">written to the ledger</text>
-<g class="lf lf0"><rect x="36" y="704" width="8" height="8" rx="2"/><text class="mono" x="49" y="712" style="font-size:10px">pr-context/shards.txt</text></g>
-<g class="lf lf0"><rect x="191.42" y="704" width="8" height="8" rx="2"/><text class="mono" x="204.42" y="712" style="font-size:10px">seams.txt</text></g>
-<g class="lf lf1"><rect x="274.6" y="704" width="8" height="8" rx="2"/><text class="mono" x="287.6" y="712" style="font-size:10px">routes.txt</text></g>
-<g class="lf lf3"><rect x="363.8" y="704" width="8" height="8" rx="2"/><text class="mono" x="376.8" y="712" style="font-size:10px">findings/F001 … F005</text></g>
-<g class="lf lf4"><rect x="513.2" y="704" width="8" height="8" rx="2"/><text class="mono" x="526.2" y="712" style="font-size:10px">support headers</text></g>
-<g class="lf lf5"><rect x="632.5" y="704" width="8" height="8" rx="2"/><text class="mono" x="645.5" y="712" style="font-size:10px">routes.txt (gap)</text></g>
-<circle class="tok" r="7"/>
+<rect class="c" x="28" y="877" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="886" style="font-size:10px">script, no model</text>
+<rect class="cm" x="142.6" y="877" width="16" height="12" rx="3"/>
+<text class="fine" x="164.6" y="886" style="font-size:10px">model agent</text>
+<circle class="bg-ok" cx="248.6" cy="883" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M245.7 883l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="261.6" y="886" style="font-size:10px">carries on</text>
 </svg>

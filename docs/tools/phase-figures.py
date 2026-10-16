@@ -12,22 +12,27 @@
 Plain ``python3`` works too; nothing outside the standard library is used.
 
 Two layers live in this file. The kit at the top draws the pieces every
-figure shares (cards, chips, arrows, the terminal strip, the ledger strip,
-the walking token, the keyframes) and measures every label against the
-box it sits in. Below it, one function per phase composes its own layout
-from the kit with explicit coordinates and its own animation schedule:
-the kit never imposes a grid, because a fan-out, a ring, a loop of
-stations, and a gate with doors are not the same picture.
+figure shares: the header with its rail of six phases, the terminal
+window, cards for scripts and model agents, orthogonal wires with rounded
+corners, exit callouts whose badge carries the exit code and whose colour
+says who decides, the ledger, the legend, the walking token, and the
+keyframes. Below it, one function per phase composes its own layout from
+the kit with explicit coordinates and its own animation schedule: the kit
+never imposes a grid, because a serpentine rail, a fan-out, a sieve, a
+ring, a loop of stations, and a gate with doors are not the same picture.
 
-``--check`` regenerates every figure in memory, runs the structural
-proof (well-formed XML, every element inside the viewBox, no two labels
-overlapping, every label fitting its box, unique ids, reduced motion
-handled), and fails when a file on disk differs from what it would write,
-so the test that runs it catches a figure left stale after an edit here.
+``--check`` regenerates every figure in memory and proves its geometry:
+well-formed XML, everything inside the viewBox, no two labels or callouts
+overlapping, every label fitting its card, no two cards overlapping, no
+wire passing through a card, a label, or a callout, no two wires crossing,
+every wire starting and ending on an edge, unique ids, reduced motion
+handled. It then fails when a file on disk differs from what it would
+write, so the test that runs it catches a figure left stale after an edit.
 """
 
 from __future__ import annotations
 
+import math
 import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -35,24 +40,29 @@ from pathlib import Path
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
 W = 860
+L, R = 28, 832          # the side margins every figure keeps
+
+PHASES = ["Stage", "Review", "Post", "Fix", "Land", "Merge"]
 
 # ---------------------------------------------------------------- the kit
 
 PALETTE_LIGHT = (
     "--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;"
-    "--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;"
+    "--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;"
     "--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;"
     "--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;"
     "--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;"
-    "--clay:#D97757;--term:#2C2C2A;--term-line:#2C2C2A"
+    "--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;"
+    "--shade:.08"
 )
 PALETTE_DARK = (
-    "--bg:#1E1E1C;--card:#2C2C2A;--panel:#383835;--lane:#232321;--ink:#F1EFE8;"
-    "--muted:#B4B2A9;--faint:#8b8a83;--line:#44433F;--rule:#5F5E5A;"
-    "--accent:#AFA9EC;--accent-bg:#2F2A6B;--accent-ink:#E4E2FB;--accent-line:#534AB7;"
-    "--teal:#5DCAA5;--teal-bg:#0a3f33;--teal-ink:#C9F0E2;--teal-line:#0F6E56;"
-    "--coral:#F0997B;--coral-bg:#4a2214;--coral-ink:#F5C4B3;--coral-line:#7a3a24;"
-    "--clay:#D97757;--term:#141413;--term-line:#44433F"
+    "--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;"
+    "--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;"
+    "--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;"
+    "--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;"
+    "--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;"
+    "--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;"
+    "--shade:.35"
 )
 
 # Glyph widths at 1em for the UI font stack, close enough to Helvetica and
@@ -68,21 +78,31 @@ _W = {
     ";": .278, "-": .333, "_": .556, "/": .278, "(": .333, ")": .333, "#": .556, "'": .191,
     "’": .222, "·": .278, "→": .9, "≤": .584, "×": .584, "+": .584, "=": .584, "<": .584,
     ">": .584, "?": .556, "!": .278, "&": .667, "%": .889, "|": .26, "[": .278, "]": .278,
-    "*": .389, "\"": .355, "…": 1.0,
+    "*": .389, "\"": .355, "…": 1.0, "–": .556, "—": 1.0, "↺": .9, "{": .334, "}": .334,
 }
 for _d in "0123456789":
     _W[_d] = .556
 
+SANS = "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif"
+MONO = "ui-monospace,'SF Mono',Menlo,Consolas,monospace"
+SERIF = "'Iowan Old Style',Palatino,Georgia,serif"
 
-def text_width(s: str, size: float, mono: bool = False, bold: bool = False) -> float:
+
+def text_width(s: str, size: float, mono: bool = False, bold: bool = False,
+               spacing: float = 0.0) -> float:
     if mono:
-        return len(s) * 0.602 * size
+        return len(s) * 0.602 * size + spacing * len(s)
     w = sum(_W.get(ch, .6) for ch in s) * size
-    return w * (1.07 if bold else 1.0)
+    return w * (1.07 if bold else 1.0) + spacing * len(s)
 
 
 def esc(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def g(v: float) -> str:
+    """A coordinate, rounded so the files stay small and diff cleanly."""
+    return f"{round(v, 1):g}"
 
 
 @dataclass
@@ -93,26 +113,57 @@ class Box:
     h: float
     what: str
 
+    @property
+    def r(self) -> float:
+        return self.x + self.w
+
+    @property
+    def b(self) -> float:
+        return self.y + self.h
+
+    @property
+    def cx(self) -> float:
+        return self.x + self.w / 2
+
+    @property
+    def cy(self) -> float:
+        return self.y + self.h / 2
+
+
+@dataclass
+class Wire:
+    pts: list[tuple[float, float]]
+    kind: str
+    under: bool = False        # passes beneath cards on purpose (a ring track)
+    free_start: bool = False   # starts on another wire (a junction), not an edge
+    free_end: bool = False
+    bare_start: bool = False   # starts beside a label, as a transit line does
+
 
 @dataclass
 class Fig:
-    """One figure under construction: its parts, and the boxes to prove."""
+    """One figure under construction: its layers, and the boxes to prove."""
 
     pfx: str
     title: str
     desc: str
     height: int
-    parts: list[str] = field(default_factory=list)
+    layers: dict[str, list[str]] = field(default_factory=lambda: {
+        "back": [], "wires": [], "token": [], "cards": [], "front": []})
     texts: list[Box] = field(default_factory=list)
     cards: list[Box] = field(default_factory=list)
-    chips: list[Box] = field(default_factory=list)
+    calls: list[Box] = field(default_factory=list)
+    call_texts: list[Box] = field(default_factory=list)
+    badges: list[Box] = field(default_factory=list)
+    wires: list[Wire] = field(default_factory=list)
     css: list[str] = field(default_factory=list)
     ids: set[str] = field(default_factory=set)
+    steps: int = 0
 
     # -- primitives -------------------------------------------------------
 
-    def add(self, s: str) -> None:
-        self.parts.append(s)
+    def add(self, s: str, layer: str = "cards") -> None:
+        self.layers[layer].append(s)
 
     def uid(self, name: str) -> str:
         i = f"{self.pfx}-{name}"
@@ -121,289 +172,627 @@ class Fig:
         self.ids.add(i)
         return i
 
-    def text(self, x: float, y: float, s: str, cls: str = "", size: float = 11.5,
+    def text(self, x: float, y: float, s: str, cls: str = "", size: float = 11,
              anchor: str = "start", mono: bool = False, bold: bool = False,
-             within: Box | None = None, extra: str = "") -> None:
-        w = text_width(s, size, mono, bold or ".h" in f".{cls}" or "k" in cls.split())
-        if anchor == "middle":
-            bx = x - w / 2
-        elif anchor == "end":
-            bx = x - w
-        else:
-            bx = x
-        box = Box(bx, y - size, w, size * 1.15, s)
-        if within is not None:
-            if bx < within.x + 6 or bx + w > within.x + within.w - 6:
-                raise ValueError(
-                    f"{self.pfx}: label does not fit its box: {s!r} ({w:.0f}px in {within.w:.0f}px)")
-        self.texts.append(box)
+             within: Box | None = None, layer: str = "cards", spacing: float = 0.0,
+             extra: str = "", pad: float = 10, register: bool = True) -> Box:
+        w = text_width(s, size, mono, bold, spacing)
+        bx = {"middle": x - w / 2, "end": x - w}.get(anchor, x)
+        box = Box(bx, y - size * .78, w, size * 1.0, s)
+        if within is not None and (bx < within.x + pad - .5 or bx + w > within.r - pad + .5):
+            raise ValueError(
+                f"{self.pfx}: label does not fit its box: {s!r} ({w:.0f}px in {within.w:.0f}px)")
+        if register:
+            self.texts.append(box)
         a = {"middle": ' text-anchor="middle"', "end": ' text-anchor="end"'}.get(anchor, "")
         c = f' class="{cls}"' if cls else ""
-        st = f' style="font-size:{size}px"' if size != 11.5 else ""
-        self.add(f'<text{c} x="{x:g}" y="{y:g}"{a}{st}{extra}>{esc(s)}</text>')
+        st = []
+        if size != 11:
+            st.append(f"font-size:{g(size)}px")
+        if spacing:
+            st.append(f"letter-spacing:{g(spacing)}px")
+        sty = f' style="{";".join(st)}"' if st else ""
+        self.add(f'<text{c} x="{g(x)}" y="{g(y)}"{a}{sty}{extra}>{esc(s)}</text>', layer)
+        return box
+
+    # -- the header, the terminal, the ledger, the legend ------------------
+
+    def header(self, n: int, steps: str, name: str, sub: str) -> None:
+        self.text(L, 34, f"PHASE {n} OF 6  ·  {steps}", "kick", 10, bold=True, spacing=1.6)
+        self.add(f'<text class="ttl" x="{L}" y="70">{esc(name)}</text>')
+        self.texts.append(Box(L, 70 - 24, text_width(name, 31, bold=True), 31, name))
+        self.text(L, 94, sub, "sub", 12.5)
+        # the rail of six phases, this one lit
+        x0, x1, y = 588, 818, 32
+        step = (x1 - x0) / 5
+        self.add(f'<path class="rail" d="M{x0} {y}H{x1}"/>')
+        self.add(f'<path class="rail-done" d="M{x0} {y}H{g(x0 + step * (n - 1))}"/>')
+        for i, p in enumerate(PHASES):
+            cx = x0 + step * i
+            if i + 1 == n:
+                self.add(f'<circle class="rail-ring" cx="{g(cx)}" cy="{y}" r="9"/>'
+                         f'<circle class="rail-now" cx="{g(cx)}" cy="{y}" r="5"/>')
+                self.text(cx, y + 24, p, "rail-lbl now", 10, anchor="middle", bold=True)
+            else:
+                cls = "rail-past" if i + 1 < n else "rail-next"
+                self.add(f'<circle class="{cls}" cx="{g(cx)}" cy="{y}" r="4"/>')
+                self.text(cx, y + 24, p, "rail-lbl", 10, anchor="middle")
+
+    def terminal(self, y: float, lines: list[tuple[int, str]]) -> Box:
+        """A terminal window; each (step, line) appears when its step runs."""
+        x, w = L, R - L
+        h = 24 + 18 * len(lines) + 14
+        box = Box(x, y, w, h, "terminal")
+        self.cards.append(box)
+        self.add(f'<g filter="url(#{self.pfx}-sh)"><rect class="term" x="{x}" y="{g(y)}" '
+                 f'width="{w}" height="{g(h)}" rx="10"/></g>'
+                 f'<path class="term-bar" d="M{x} {g(y + 24)}V{g(y + 10)}a10 10 0 0 1 10 -10'
+                 f'H{x + w - 10}a10 10 0 0 1 10 10V{g(y + 24)}z"/>')
+        for i, c in enumerate(("#E0715A", "#E2B341", "#5DB86B")):
+            self.add(f'<circle cx="{x + 16 + i * 14}" cy="{g(y + 12)}" r="4" fill="{c}" opacity=".9"/>')
+        self.text(x + w / 2, y + 16, "the orchestrating session sees one line per script",
+                  "term-cap", 10, anchor="middle")
+        yy = y + 24 + 20
+        for step, ln in lines:
+            name, _, rest = ln.partition(" ")
+            self.add(f'<text class="mono tl tl{step}" x="{x + 14}" y="{g(yy)}">'
+                     f'<tspan class="term-p">›</tspan> <tspan class="term-n">{esc(name)}</tspan>'
+                     f'<tspan class="term-t"> {esc(rest)}</tspan></text>')
+            lw = text_width("› " + ln, 11, mono=True)
+            self.texts.append(Box(x + 14, yy - 9, lw, 11, ln))
+            if lw > w - 28:
+                raise ValueError(f"{self.pfx}: terminal line too long: {ln!r}")
+            yy += 18
+        return box
+
+    def ledger(self, y: float, files: list[tuple[int, str]]) -> Box:
+        """The ledger on disk: each file lit when its step writes it;
+        wraps onto a second row when the names need it."""
+        x, w = L, R - L
+        lead = 132
+        rows: list[list] = [[]]
+        xx = x + lead
+        for step, name in files:
+            tw = text_width(name, 10.5, mono=True)
+            if xx + 16 + tw > x + w - 12 and rows[-1]:
+                rows.append([])
+                xx = x + lead
+            rows[-1].append((step, name, xx, tw))
+            xx += 16 + tw + 18
+        h = 22 + 20 * len(rows)
+        box = Box(x, y, w, h, "ledger")
+        self.cards.append(box)
+        self.add(f'<rect class="ledger" x="{x}" y="{g(y)}" width="{w}" height="{g(h)}" rx="10"/>')
+        # a folder glyph, then the caption
+        fy = y + h / 2
+        self.add(f'<path class="folder" d="M{x + 14} {g(fy - 5)}h5l2 2h8v9h-15z"/>')
+        self.text(x + 36, fy + 1, "THE LEDGER", "k", 9.5, bold=True, spacing=1.4)
+        self.text(x + 36, fy + 13, "on disk, per PR", "fine", 9.5)
+        for r, row in enumerate(rows):
+            yy = y + 25 + 20 * r
+            for step, name, xx, tw in row:
+                self.add(f'<g class="lf lf{step}"><path class="doc" d="M{g(xx)} {g(yy - 9)}h6l3 3v8h-9z"/>'
+                         f'<text class="mono" x="{g(xx + 15)}" y="{g(yy)}" style="font-size:10.5px">'
+                         f'{esc(name)}</text></g>')
+                self.texts.append(Box(xx, yy - 9, 15 + tw, 11, name))
+        return box
+
+    def legend(self, y: float, keys: tuple[str, ...] = ("script", "model", "ok", "note", "ask", "stop")) -> None:
+        """One line of keys at the foot; every figure reads the same way."""
+        items = {
+            "script": ("card", "script, no model"),
+            "model": ("cardm", "model agent"),
+            "ok": ("ok", "carries on"),
+            "note": ("note", "a fallback, the run goes on"),
+            "ask": ("ask", "a person decides"),
+            "stop": ("stop", "stops or parks; the number is the exit code"),
+        }
+        x = L
+        for k in keys:
+            kind, label = items[k]
+            if kind.startswith("card"):
+                cls = "c" if kind == "card" else "cm"
+                self.add(f'<rect class="{cls}" x="{g(x)}" y="{g(y - 9)}" width="16" height="12" rx="3"/>', "front")
+                tx = x + 22
+            else:
+                self.badge(x + 7, y - 3, kind, {"ok": "check", "note": "loop", "ask": "person", "stop": "5"}[kind],
+                           r=7, layer="front")
+                tx = x + 20
+            b = self.text(tx, y, label, "fine", 10, layer="front")
+            x = b.r + 22
+        if x - 22 > R:
+            raise ValueError(f"{self.pfx}: legend too wide")
+
+    # -- cards, panels, bands ----------------------------------------------
+
+    def icon(self, kind: str, x: float, y: float) -> None:
+        """A 12px glyph at (x, y): a prompt for a script, a spark for a
+        model, a tick for done, a branch for the pull request, a person, a door."""
+        X, Y = g(x), g(y)
+        s = {
+            "script": f'<path class="ico" d="M{X} {g(y + 1)}l4 3.6l-4 3.6M{g(x + 6)} {g(y + 9)}h5.5"/>',
+            "model": f'<path class="ico-m" d="M{g(x + 6)} {Y}c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6'
+                     f'c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>',
+            "done": f'<path class="tick" d="M{g(x + 1)} {g(y + 6)}l3.4 3.4l6.6-7"/>',
+            "pr": f'<g class="ico-g"><circle cx="{g(x + 2)}" cy="{g(y + 2)}" r="2"/>'
+                  f'<circle cx="{g(x + 2)}" cy="{g(y + 10)}" r="2"/><circle cx="{g(x + 10)}" cy="{g(y + 10)}" r="2"/>'
+                  f'<path d="M{g(x + 2)} {g(y + 4)}v4M{g(x + 10)} {g(y + 8)}v-3q0-2-2-2h-3"/></g>',
+            "person": f'<g class="ico-p"><circle cx="{g(x + 6)}" cy="{g(y + 3)}" r="2.8"/>'
+                      f'<path d="M{g(x + 1)} {g(y + 12)}q0-5 5-5t5 5"/></g>',
+            "door": f'<g class="ico"><path d="M{g(x + 1)} {g(y + 12)}h10M{g(x + 2.5)} {g(y + 12)}V{Y}h7v12"/>'
+                    f'<circle class="knob" cx="{g(x + 7.6)}" cy="{g(y + 6.5)}" r="1"/></g>',
+        }[kind]
+        self.add(s)
 
     def card(self, x: float, y: float, w: float, h: float, kind: str, title: str,
              lines: list[str] = (), step: int | None = None, dashed: bool = False,
-             mono_lines: bool = False) -> Box:
-        """kind: script | model | github | person | park | done | plain."""
-        rect_cls = {"script": "c", "model": "cm", "github": "cg", "person": "cp",
-                    "park": "c", "done": "done", "plain": "c"}[kind]
-        h_cls = {"script": "h", "model": "h hm", "github": "h hg2", "person": "h hp",
-                 "park": "h", "done": "h doneh", "plain": "h"}[kind]
-        s_cls = {"script": "", "model": "sm", "github": "sg", "person": "sp",
-                 "park": "", "done": "dones", "plain": ""}[kind]
-        dash = ' stroke-dasharray="5 4"' if dashed or kind == "park" else ""
-        act = f' data-step="{step}"' if step is not None else ""
+             num: int | None = None, mono_lines: tuple[int, ...] = ()) -> Box:
+        """kind: script | model | done | pr | person | door | plain."""
+        rect_cls = {"script": "c", "model": "cm", "done": "cd", "pr": "cg", "person": "cp",
+                    "door": "c", "plain": "c"}[kind]
+        h_cls = {"script": "h mono", "model": "h hm", "done": "h hd", "pr": "h hg",
+                 "person": "h hp", "door": "h", "plain": "h"}[kind]
+        s_cls = {"script": "s", "model": "s sm", "done": "s sd", "pr": "s sg", "person": "s sp",
+                 "door": "s", "plain": "s"}[kind]
+        dash = ' stroke-dasharray="5 4"' if dashed else ""
         scls = f" st{step}" if step is not None else ""
-        self.add(f'<g class="cardg{scls}"{act}><rect class="{rect_cls}" x="{x:g}" y="{y:g}" '
-                 f'width="{w:g}" height="{h:g}" rx="9"{dash}/>')
+        self.add(f'<g class="cardg{scls}"><rect class="{rect_cls}" x="{g(x)}" y="{g(y)}" '
+                 f'width="{g(w)}" height="{g(h)}" rx="9"{dash}/>')
         box = Box(x, y, w, h, title)
         self.cards.append(box)
-        self.text(x + 12, y + 20, title, h_cls, 12.5, within=box)
-        yy = y + 36
-        for ln in lines:
-            self.text(x + 12, yy, ln, (s_cls + (" mono" if mono_lines else "")).strip(),
-                      10.5, mono=mono_lines, within=box)
+        ico = {"script": "script", "model": "model", "done": "done", "pr": "pr",
+               "person": "person", "door": "door"}.get(kind)
+        tx = x + 12
+        if ico:
+            self.icon(ico, x + 12, y + 11)
+            tx = x + 31
+        inner = Box(x, y, w - (20 if num is not None else 0), h, title)
+        if kind == "script":
+            # a long script name steps down a size rather than overflow
+            room = inner.r - 10 - tx
+            size = max(10.5, min(12, room / (0.602 * len(title))))
+            self.text(tx, y + 21, title, h_cls, round(size, 1), mono=True, bold=True, within=inner)
+        else:
+            self.text(tx, y + 21, title, h_cls, 12.5, bold=True, within=inner)
+        if num is not None:
+            self.text(x + w - 11, y + 20, f"{num:02d}", "num mono", 9.5, anchor="end", mono=True)
+        yy = y + 40
+        for i, ln in enumerate(lines):
+            mono = i in mono_lines
+            self.text(x + 12, yy, ln, s_cls + (" mono" if mono else ""), 10.5 if mono else 11,
+                      mono=mono, within=box)
             yy += 15
-        if yy - 15 + 6 > y + h:
+        if lines and yy - 15 + 9 > y + h:
             raise ValueError(f"{self.pfx}: card too short for its lines: {title!r}")
         self.add("</g>")
         return box
 
-    def chip(self, x: float, y: float, s: str, kind: str = "exit", step: int | None = None,
-             anchor: str = "start") -> Box:
-        """A pill: exit (coral), ask (person), ok (teal), note (plain)."""
-        size = 10.5
-        w = text_width(s, size, bold=True) + 18
-        if anchor == "middle":
-            x = x - w / 2
-        elif anchor == "end":
-            x = x - w
-        cls = {"exit": "chip bad", "ask": "chip ask", "ok": "chip good", "note": "chip note",
-               "model": "chip mdl"}[kind]
+    def panel(self, x: float, y: float, w: float, title: str, lines: list[str],
+              lead: float = 15) -> Box:
+        """An annotation: quieter than a card, a heading and plain lines."""
+        h = 32 + lead * len(lines) + 4
+        box = Box(x, y, w, h, title)
+        self.cards.append(box)
+        self.add(f'<rect class="panel" x="{g(x)}" y="{g(y)}" width="{g(w)}" height="{g(h)}" rx="10"/>')
+        self.text(x + 14, y + 21, title.upper(), "k", 9.5, bold=True, spacing=1.4, within=box)
+        yy = y + 40
+        for ln in lines:
+            self.add(f'<circle class="dot" cx="{g(x + 17)}" cy="{g(yy - 3.5)}" r="1.6"/>')
+            self.text(x + 25, yy, ln, "s", 11, within=box)
+            yy += lead
+        return box
+
+    def band(self, x: float, y: float, w: float, h: float, num: int, name: str, note: str) -> None:
+        self.add(f'<rect class="band" x="{g(x)}" y="{g(y)}" width="{g(w)}" height="{g(h)}" rx="12"/>', "back")
+        b = self.text(x + 16, y + 22, f"{num}", "bandn", 10, bold=True, layer="back")
+        b = self.text(b.r + 8, y + 22, name, "k", 10, bold=True, spacing=1.6, layer="back")
+        self.text(b.r + 12, y + 22, note, "fine", 10.5, layer="back")
+
+    # -- wires and callouts --------------------------------------------------
+
+    def wire(self, pts: list[tuple[float, float]], kind: str = "main", head: bool = True,
+             r: float = 9, under: bool = False, free_start: bool = False,
+             free_end: bool = False, dashed: bool = False, layer: str = "wires",
+             bare_start: bool = False) -> None:
+        """An orthogonal (or any polyline) wire with rounded corners."""
+        self.wires.append(Wire(list(pts), kind, under, free_start, free_end, bare_start))
+        d = rounded(pts, r)
+        cls = {"main": "w", "exit": "w wx", "loop": "w wl", "ok": "w wo", "lead": "w wd",
+               "ring": "w ring"}[kind]
+        mk = {"main": "a", "exit": "ax", "loop": "al", "ok": "ao", "lead": "ad", "ring": "a"}[kind]
+        da = ' stroke-dasharray="4 4"' if dashed else ""
+        end = f' marker-end="url(#{self.pfx}-{mk})"' if head else ""
+        self.add(f'<path class="{cls}" d="{d}"{da}{end}/>', layer)
+
+    def junction(self, x: float, y: float) -> None:
+        self.add(f'<circle class="jn" cx="{g(x)}" cy="{g(y)}" r="3"/>', "wires")
+
+    BADGE_CLS = {"stop": "bg-stop", "ask": "bg-ask", "ok": "bg-ok", "note": "bg-note"}
+
+    def badge(self, cx: float, cy: float, kind: str, mark: str, r: float = 9.5,
+              layer: str = "front") -> Box:
+        """A round badge holding an exit code or a glyph: check, loop,
+        person, stop, arrow."""
+        self.add(f'<circle class="{self.BADGE_CLS[kind]}" cx="{g(cx)}" cy="{g(cy)}" r="{g(r)}"/>', layer)
+        k = r / 9.5
+        gl = {
+            "check": f'<path class="bm-s" d="M{g(cx - 4 * k)} {g(cy)}l{g(2.8 * k)} {g(2.8 * k)}l{g(5 * k)} {g(-5.6 * k)}"/>',
+            "loop": f'<path class="bm-s" d="M{g(cx + 4 * k)} {g(cy - 1.5 * k)}a{g(4.2 * k)} {g(4.2 * k)} 0 1 0 {g(.4 * k)} {g(3.4 * k)}"/>'
+                    f'<path class="bm-f" d="M{g(cx + 1.6 * k)} {g(cy - 2.6 * k)}l{g(3.4 * k)} {g(-1.6 * k)}l{g(.2 * k)} {g(3.6 * k)}z"/>',
+            "person": f'<circle class="bm-f" cx="{g(cx)}" cy="{g(cy - 2.4 * k)}" r="{g(2.3 * k)}"/>'
+                      f'<path class="bm-f" d="M{g(cx - 4.4 * k)} {g(cy + 4.6 * k)}q0-4.2 {g(4.4 * k)}-4.2t{g(4.4 * k)} 4.2z"/>',
+            "park": f'<rect class="bm-f" x="{g(cx - 3.2 * k)}" y="{g(cy - 3.2 * k)}" width="{g(6.4 * k)}" height="{g(6.4 * k)}" rx="1"/>',
+            "arrow": f'<path class="bm-s" d="M{g(cx - 4 * k)} {g(cy)}h{g(7.5 * k)}m{g(-3 * k)} {g(-3 * k)}l{g(3 * k)} {g(3 * k)}l{g(-3 * k)} {g(3 * k)}"/>',
+        }
+        if mark in gl:
+            self.add(f'<g class="{self.BADGE_CLS[kind]}-m">{gl[mark]}</g>', layer)
+        else:
+            self.add(f'<text class="bm mono {self.BADGE_CLS[kind]}-t" x="{g(cx)}" y="{g(cy + 3.6 * k)}" '
+                     f'text-anchor="middle" style="font-size:{g(10.5 * k)}px">{esc(mark)}</text>', layer)
+        return Box(cx - r, cy - r, 2 * r, 2 * r, mark)
+
+    def callout(self, cx: float, cy: float, kind: str, mark: str, l1: str, l2: str | None = None,
+                side: str = "right", step: int | None = None, room: float | None = None) -> Box:
+        """An exit: a badge at (cx, cy), a bold line, and an optional second
+        line saying who decides or what follows. side is where the text sits."""
         scls = f" ex{step}" if step is not None else ""
-        box = Box(x, y, w, 19, s)
-        self.chips.append(box)
-        self.add(f'<g class="{cls}{scls}"><rect x="{x:g}" y="{y:g}" width="{w:g}" height="19" rx="9.5"/>')
-        self.text(x + w / 2, y + 13.5, s, "", size, anchor="middle", bold=True)
-        self.add("</g>")
+        self.add(f'<g class="call{scls}">', "front")
+        bb = self.badge(cx, cy, kind, mark)
+        if side == "right":
+            t1 = self.text(cx + 16, cy + 4, l1, "c1", 11, bold=True, layer="front")
+            t2 = self.text(cx + 16, cy + 18, l2, "c2", 10.5, layer="front") if l2 else None
+            x0, x1 = bb.x, max(t1.r, t2.r if t2 else 0)
+        else:
+            t1 = self.text(cx - 16, cy + 4, l1, "c1", 11, bold=True, anchor="end", layer="front")
+            t2 = self.text(cx - 16, cy + 18, l2, "c2", 10.5, anchor="end", layer="front") if l2 else None
+            x0, x1 = min(t1.x, t2.x if t2 else 1e9), bb.r
+        self.add("</g>", "front")
+        box = Box(x0, cy - 10, x1 - x0, (30 if l2 else 20), l1)
+        tx0, tx1 = (bb.r + 2, x1) if side == "right" else (x0, bb.x - 2)
+        self.call_texts.append(Box(tx0, cy - 10, tx1 - tx0, (30 if l2 else 20), l1))
+        self.call_texts.append(bb)
+        self.badges.append(bb)
+        if room is not None and box.w > room:
+            raise ValueError(f"{self.pfx}: callout wider than its room: {l1!r}")
+        self.calls.append(box)
         return box
 
-    def arrow(self, pts: list[tuple[float, float]], dashed: bool = False, cls: str = "ar") -> None:
-        d = "M" + " L".join(f"{x:g} {y:g}" for x, y in pts)
-        dash = ' stroke-dasharray="3 4"' if dashed else ""
-        self.add(f'<path class="{cls}" d="{d}"{dash} marker-end="url(#{self.pfx}-a)"/>')
-
-    def label(self, x: float, y: float, s: str, cls: str = "", anchor: str = "start",
-              size: float = 10.5) -> None:
-        self.text(x, y, s, cls, size, anchor=anchor)
-
-    def phase_head(self, x: float, y: float, num: str, name: str, sub: str) -> None:
-        self.add(f'<text x="{x:g}" y="{y:g}"><tspan class="num">{esc(num)}</tspan>'
-                 f'<tspan class="ph" dx="7">{esc(name)}</tspan></text>')
-        self.texts.append(Box(x, y - 11, text_width(num + "  " + name, 10.5, bold=True) + 8, 13, name))
-        self.text(x, y + 17, sub, "", 11.5)
-
-    def terminal(self, x: float, y: float, w: float, lines: list[tuple[int, str]],
-                 caption: str = "what the orchestrating session sees") -> Box:
-        """Dark strip; each (step, line) appears when its step runs."""
-        h = 14 + 18 * len(lines) + 8
-        box = Box(x, y, w, h, "terminal")
-        self.cards.append(box)
-        self.add(f'<g filter="url(#{self.pfx}-sh)"><rect class="term" x="{x:g}" y="{y:g}" '
-                 f'width="{w:g}" height="{h:g}" rx="9"/></g>')
-        yy = y + 20
-        for step, ln in lines:
-            name, _, rest = ln.partition(" ")
-            self.add(f'<text class="mono tl tl{step}" x="{x + 12:g}" y="{yy:g}">'
-                     f'<tspan class="tm">{esc(name)}</tspan> {esc(rest)}</text>')
-            self.texts.append(Box(x + 12, yy - 10.5, text_width(ln, 10.5, mono=True), 12, ln))
-            if text_width(ln, 10.5, mono=True) > w - 24:
-                raise ValueError(f"{self.pfx}: terminal line too long: {ln!r}")
-            yy += 18
-        self.label(x + w - 10, y + h - 6, caption, "tm", anchor="end", size=9.5)
-        return box
-
-    def ledger(self, x: float, y: float, w: float, files: list[tuple[int, str]],
-               title: str = "written to the ledger") -> Box:
-        """Thin strip of file names, each lit when its step runs; wraps
-        onto a second row when the names need it."""
-        rows = [[]]
-        xx = x + 12
-        for step, name in files:
-            tw = text_width(name, 10, mono=True)
-            if xx + 13 + tw > x + w - 10 and rows[-1]:
-                rows.append([])
-                xx = x + 12
-            rows[-1].append((step, name, xx, tw))
-            xx += 13 + tw + 16
-        h = 28 + 18 * len(rows)
-        box = Box(x, y, w, h, "ledger")
-        self.cards.append(box)
-        self.add(f'<rect class="lane" x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="9"/>')
-        self.label(x + 12, y + 17, title, "k", size=9.5)
-        for r, row in enumerate(rows):
-            yy = y + 36 + 18 * r
-            for step, name, xx, tw in row:
-                self.add(f'<g class="lf lf{step}"><rect x="{xx:g}" y="{yy - 8:g}" width="8" height="8" rx="2"/>'
-                         f'<text class="mono" x="{xx + 13:g}" y="{yy:g}" style="font-size:10px">{esc(name)}</text></g>')
-                self.texts.append(Box(xx, yy - 10, 13 + tw, 12, name))
-        return box
+    # -- motion ----------------------------------------------------------------
 
     def token(self, pts: list[tuple[float, float]], stops: list[float], cycle: int,
-              dwell: float = 0.55) -> None:
-        """A clay token walking a polyline; stops[i] is the time (0..1) at
-        which it reaches point i and waits until stops[i+1] - travel."""
-        d = "M" + " L".join(f"{x:g} {y:g}" for x, y in pts)
-        seg = [((pts[i + 1][0] - pts[i][0]) ** 2 + (pts[i + 1][1] - pts[i][1]) ** 2) ** .5
-               for i in range(len(pts) - 1)]
-        total = sum(seg) or 1
-        cum = [0.0]
-        for s_ in seg:
-            cum.append(cum[-1] + s_)
-        dist = [c / total * 100 for c in cum]
+              path: str | None = None, dists: list[float] | None = None,
+              dwell: float = 0.6) -> None:
+        """A clay token walking a polyline (or a given path, with the
+        distance of each stop along it); stops[i] is the time (0..1) at
+        which it reaches point i. It rides on the wires, beneath the cards."""
+        if path is None:
+            path = "M" + " L".join(f"{g(x)} {g(y)}" for x, y in pts)
+            seg = [math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
+            total = sum(seg) or 1
+            cum = [0.0]
+            for s_ in seg:
+                cum.append(cum[-1] + s_)
+            dists = [c / total * 100 for c in cum]
+        n = len(stops)
         frames = []
-        n = len(pts)
         for i in range(n):
             arrive = stops[i] * 100
-            leave = (stops[i + 1] * 100 if i + 1 < n else 100) - (1 - dwell) * (
-                (stops[i + 1] - stops[i]) * 100 if i + 1 < n else 0)
-            if i == 0:
-                frames.append(f"0%,{leave:.1f}%{{offset-distance:{dist[i]:.2f}%}}")
-            elif i == n - 1:
-                frames.append(f"{arrive:.1f}%,100%{{offset-distance:{dist[i]:.2f}%}}")
-            else:
-                frames.append(f"{arrive:.1f}%,{leave:.1f}%{{offset-distance:{dist[i]:.2f}%}}")
+            nxt = stops[i + 1] * 100 if i + 1 < n else 100
+            leave = arrive + (nxt - arrive) * dwell if i + 1 < n else 100
+            frames.append(f"{arrive:.1f}%,{leave:.1f}%{{offset-distance:{dists[i]:.2f}%}}")
+        frames[0] = frames[0].replace(f"{stops[0] * 100:.1f}%,", "0%,", 1)
         self.css.append(f"@keyframes {self.pfx}-walk{{{''.join(frames)}}}")
         self.css.append(
-            f".{self.pfx} .tok{{fill:var(--clay);stroke:var(--card);stroke-width:2.5;"
-            f"offset-path:path('{d}');offset-rotate:0deg;"
+            f".{self.pfx} .tok{{offset-path:path('{path}');offset-rotate:0deg;"
             f"animation:{self.pfx}-walk {cycle}s linear infinite}}")
-        self.add(f'<circle class="tok" r="7"/>')
+        self.add('<circle class="tok tok-halo" r="11"/><circle class="tok tok-dot" r="5.5"/>', "token")
 
-    def schedule(self, stops: list[float], cycle: int, exits: dict[int, tuple[float, float]] | None = None) -> None:
+    def schedule(self, stops: list[float], cycle: int,
+                 exits: dict[int, tuple[float, float]] | None = None) -> None:
         """Keyframes for steps 0..n-1 active on [stops[i], stops[i+1]):
         cards st<i> emphasised, terminal lines tl<i> and ledger files lf<i>
-        visible from stops[i] on, exit chips ex<i> lit in the window given."""
+        shown from stops[i] on, exit callouts ex<i> lit in the window given."""
         n = len(stops)
+        self.steps = n
         for i in range(n):
             a = stops[i] * 100
             b = (stops[i + 1] * 100) if i + 1 < n else 100
-            # active window
             self.css.append(
-                f"@keyframes {self.pfx}-st{i}{{0%,{max(a - .1, 0):.1f}%{{stroke:var(--line);stroke-width:1}}"
-                f"{a:.1f}%,{b - .1:.1f}%{{stroke:var(--accent);stroke-width:2}}"
-                f"{b:.1f}%,100%{{stroke:var(--line);stroke-width:1}}}}")
+                f"@keyframes {self.pfx}-st{i}{{0%,{max(a - .1, 0):.1f}%{{stroke-width:1}}"
+                f"{a:.1f}%,{b - .1:.1f}%{{stroke:var(--accent);stroke-width:2.2}}"
+                f"{b:.1f}%,100%{{stroke-width:1}}}}")
             self.css.append(f".{self.pfx} .st{i}>rect{{animation:{self.pfx}-st{i} {cycle}s linear infinite}}")
-            # terminal line and ledger files: hidden before, shown after
             self.css.append(
-                f"@keyframes {self.pfx}-in{i}{{0%,{max(a - .1, 0):.1f}%{{opacity:0}}{a + .5:.1f}%,100%{{opacity:1}}}}")
+                f"@keyframes {self.pfx}-in{i}{{0%,{max(a - .1, 0):.1f}%{{opacity:0}}{a + .6:.1f}%,100%{{opacity:1}}}}")
             self.css.append(
                 f".{self.pfx} .tl{i},.{self.pfx} .lf{i}{{animation:{self.pfx}-in{i} {cycle}s linear infinite}}")
         for i, (a, b) in (exits or {}).items():
             self.css.append(
-                f"@keyframes {self.pfx}-ex{i}{{0%,{max(a * 100 - .1, 0):.1f}%{{opacity:.35}}"
-                f"{a * 100:.1f}%,{b * 100 - .1:.1f}%{{opacity:1}}{b * 100:.1f}%,100%{{opacity:.35}}}}")
+                f"@keyframes {self.pfx}-ex{i}{{0%,{max(a * 100 - .1, 0):.1f}%{{opacity:.5}}"
+                f"{a * 100:.1f}%,{b * 100 - .1:.1f}%{{opacity:1}}{b * 100:.1f}%,100%{{opacity:.5}}}}")
             self.css.append(f".{self.pfx} .ex{i}{{animation:{self.pfx}-ex{i} {cycle}s linear infinite}}")
 
     # -- output -------------------------------------------------------------
 
     def render(self) -> str:
         p = self.pfx
+        lit = ",".join(f".{p} .ex{i}" for i in range(max(self.steps, 1) + 2))
         base = f"""<style>
 .{p}{{{PALETTE_LIGHT}}}
 @media (prefers-color-scheme:dark){{.{p}{{{PALETTE_DARK}}}}}
-.{p} text{{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;fill:var(--muted)}}
-.{p} .mono{{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}}
-.{p} .serif{{font-family:'Iowan Old Style',Palatino,Georgia,serif}}
-.{p} .h{{font-size:12.5px;font-weight:700;fill:var(--ink)}}
-.{p} .k{{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}}
-.{p} .ttl{{font-size:16px;font-weight:700;fill:var(--ink)}}
+.{p} text{{font-family:{SANS};font-size:11px;fill:var(--muted)}}
+.{p} .mono{{font-family:{MONO}}}
+.{p} .ttl{{font-family:{SERIF};font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}}
+.{p} .kick{{fill:var(--coral);font-weight:700}}
+.{p} .sub{{fill:var(--muted)}}
+.{p} .rail{{stroke:var(--line);stroke-width:2;fill:none}}.{p} .rail-done{{stroke:var(--rule);stroke-width:2;fill:none}}
+.{p} .rail-past{{fill:var(--rule)}}.{p} .rail-next{{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}}
+.{p} .rail-now{{fill:var(--clay)}}.{p} .rail-ring{{fill:var(--bg);stroke:var(--clay);stroke-width:1.5}}
+.{p} .rail-lbl{{fill:var(--faint)}}.{p} .rail-lbl.now{{fill:var(--ink);font-weight:700}}
+.{p} .h{{font-size:12.5px;font-weight:700;fill:var(--ink)}}.{p} .h.mono{{font-size:12px}}
+.{p} .s{{fill:var(--muted)}}
+.{p} .k{{font-weight:700;fill:var(--ink)}}
+.{p} .fine{{fill:var(--faint)}}
+.{p} .num{{fill:var(--faint)}}
 .{p} .c{{fill:var(--card);stroke:var(--line)}}
 .{p} .cm{{fill:var(--accent-bg);stroke:var(--accent-line)}}
 .{p} .cg{{fill:var(--teal-bg);stroke:var(--teal-line)}}
 .{p} .cp{{fill:var(--coral-bg);stroke:var(--coral-line)}}
+.{p} .cd{{fill:var(--teal);stroke:var(--teal)}}
 .{p} .hm{{fill:var(--accent-ink)}}.{p} .sm{{fill:var(--accent)}}
-.{p} .hg2{{fill:var(--teal-ink)}}.{p} .sg{{fill:var(--teal)}}
+.{p} .hg{{fill:var(--teal-ink)}}.{p} .sg{{fill:var(--teal)}}
 .{p} .hp{{fill:var(--coral-ink)}}.{p} .sp{{fill:var(--coral)}}
-.{p} .accent{{fill:var(--accent)}}.{p} .teal{{fill:var(--teal)}}.{p} .coral{{fill:var(--coral)}}
-.{p} .ar{{fill:none;stroke:var(--faint);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}}
-.{p} .arh{{fill:var(--faint)}}
-.{p} .ring{{fill:none;stroke:var(--rule);stroke-width:3}}
-.{p} .term{{fill:var(--term);stroke:var(--term-line)}}
-.{p} .tl{{fill:#F1EFE8}}.{p} .tm{{fill:#B4B2A9}}
-.{p} .lane{{fill:var(--lane)}}
-.{p} .ph{{font-size:10.5px;font-weight:700;letter-spacing:1.6px;fill:var(--ink)}}
-.{p} .num{{font-size:10.5px;font-weight:700;fill:var(--faint)}}
-.{p} .chip rect{{stroke-width:1}}.{p} .chip text{{font-weight:700;fill:var(--ink)}}
-.{p} .bad rect{{fill:var(--coral-bg);stroke:var(--coral-line)}}.{p} .bad text{{fill:var(--coral-ink)}}
-.{p} .ask rect{{fill:var(--card);stroke:var(--coral)}}.{p} .ask text{{fill:var(--coral)}}
-.{p} .good rect{{fill:var(--teal-bg);stroke:var(--teal-line)}}.{p} .good text{{fill:var(--teal-ink)}}
-.{p} .note rect{{fill:var(--panel);stroke:var(--line)}}.{p} .note text{{fill:var(--muted)}}
-.{p} .mdl rect{{fill:var(--accent-bg);stroke:var(--accent-line)}}.{p} .mdl text{{fill:var(--accent-ink)}}
-.{p} .lf rect{{fill:var(--rule)}}.{p} .lf text{{fill:var(--muted)}}
-.{p} .done{{fill:var(--teal);stroke:var(--teal)}}
-.{p} .doneh{{fill:var(--bg)}}.{p} .dones{{fill:var(--bg);opacity:.85}}
+.{p} .hd{{fill:var(--bg)}}.{p} .sd{{fill:var(--bg);opacity:.85}}
+.{p} .ico{{fill:none;stroke:var(--faint);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}}
+.{p} .ico .knob{{fill:var(--faint);stroke:none}}
+.{p} .ico-m{{fill:var(--accent)}}
+.{p} .ico-g{{fill:none;stroke:var(--teal);stroke-width:1.5;stroke-linecap:round}}
+.{p} .ico-p{{fill:none;stroke:var(--coral);stroke-width:1.5;stroke-linecap:round}}
 .{p} .tick{{fill:none;stroke:var(--bg);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}}
+.{p} .panel{{fill:var(--lane);stroke:none}}
+.{p} .dot{{fill:var(--rule)}}
+.{p} .band{{fill:var(--lane)}}.{p} .bandn{{fill:var(--clay);font-weight:700}}
+.{p} .w{{fill:none;stroke:var(--wire);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}}
+.{p} .wx{{stroke:var(--coral);opacity:.8}}.{p} .wl{{stroke:var(--accent)}}.{p} .wo{{stroke:var(--teal)}}
+.{p} .wd{{stroke:var(--rule);stroke-width:1.3}}
+.{p} .ring{{stroke:var(--rule);stroke-width:2.5}}
+.{p} .jn{{fill:var(--wire)}}
+.{p} .ah{{fill:var(--wire)}}.{p} .ahx{{fill:var(--coral)}}.{p} .ahl{{fill:var(--accent)}}.{p} .aho{{fill:var(--teal)}}.{p} .ahd{{fill:var(--rule)}}
+.{p} .term{{fill:var(--term)}}.{p} .term-bar{{fill:var(--term-bar)}}
+.{p} .term-cap{{fill:var(--term-dim)}}
+.{p} .tl{{font-size:11px}}.{p} .term-p{{fill:var(--clay);font-weight:700}}.{p} .term-n{{fill:#E8A58C;font-weight:700}}.{p} .term-t{{fill:var(--term-ink)}}
+.{p} .ledger{{fill:var(--lane);stroke:var(--line);stroke-dasharray:3 3}}
+.{p} .folder{{fill:none;stroke:var(--clay);stroke-width:1.4;stroke-linejoin:round}}
+.{p} .lf .doc{{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}}.{p} .lf text{{fill:var(--muted)}}
+.{p} .bg-stop{{fill:var(--coral)}}.{p} .bg-stop-t{{fill:var(--bg)}}.{p} .bg-stop-m .bm-f{{fill:var(--bg)}}.{p} .bg-stop-m .bm-s{{stroke:var(--bg)}}
+.{p} .bg-ask{{fill:var(--card);stroke:var(--coral);stroke-width:1.6}}.{p} .bg-ask-t{{fill:var(--coral)}}.{p} .bg-ask-m .bm-f{{fill:var(--coral)}}.{p} .bg-ask-m .bm-s{{stroke:var(--coral)}}
+.{p} .bg-ok{{fill:var(--teal)}}.{p} .bg-ok-t{{fill:var(--bg)}}.{p} .bg-ok-m .bm-f{{fill:var(--bg)}}.{p} .bg-ok-m .bm-s{{stroke:var(--bg)}}
+.{p} .bg-note{{fill:var(--card);stroke:var(--wire);stroke-width:1.4}}.{p} .bg-note-t{{fill:var(--muted)}}.{p} .bg-note-m .bm-f{{fill:var(--muted)}}.{p} .bg-note-m .bm-s{{stroke:var(--muted)}}
+.{p} .bm{{font-weight:700}}.{p} .bm-s{{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}}
+.{p} .c1{{font-weight:700;fill:var(--ink)}}.{p} .c2{{fill:var(--muted)}}
+.{p} .tok-dot{{fill:var(--clay);stroke:var(--card);stroke-width:2}}.{p} .tok-halo{{fill:var(--clay);opacity:.18}}
 .{p} .cardg>rect{{stroke-width:1}}
+.{p} .lad{{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}}
+.{p} .rung{{stroke-width:4.5;stroke-linecap:round}}.{p} .rung-s{{stroke:var(--accent)}}.{p} .rung-b{{stroke:var(--wire)}}.{p} .rung-c{{stroke:var(--teal)}}
+.{p} .seg{{fill:var(--card);stroke:var(--line)}}.{p} .seg.on{{fill:var(--accent-bg);stroke:var(--accent-line)}}
+.{p} .segt{{fill:var(--faint)}}.{p} .segt.on{{fill:var(--accent-ink);font-weight:700}}
+.{p} .sheet{{fill:var(--card);stroke:var(--line)}}.{p} .fold{{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}}
+.{p} .rv{{fill:var(--ink)}}.{p} .rb{{fill:var(--muted)}}.{p} .kk{{fill:var(--faint)}}
+.{p} .kf{{fill:var(--accent);font-weight:700}}.{p} .kr{{fill:var(--coral);font-weight:700}}.{p} .kc{{fill:var(--teal);font-weight:700}}
+.{p} .guide{{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}}
+.{p} .mk-keep{{fill:var(--accent);stroke:var(--bg);stroke-width:2}}.{p} .mk-demote{{fill:var(--bg);stroke:var(--coral);stroke-width:2}}
+.{p} .mk-proven{{fill:var(--teal)}}.{p} .mk-withdrawn{{fill:var(--coral)}}
+.{p} .mk-m{{fill:none;stroke:var(--bg);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}}
+.{p} .mk-thread{{fill:var(--accent-bg);stroke:var(--accent);stroke-width:1.3;stroke-linejoin:round}}
+.{p} .mk-sum{{fill:var(--card);stroke:var(--wire);stroke-width:1.3;stroke-linejoin:round}}
+.{p} .mk-t{{fill:var(--faint);font-style:italic}}
+.{p} .chev{{fill:none;stroke:var(--wire);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}}.{p} .chev-l{{stroke:var(--accent)}}
+.{p} .again{{stroke-width:2.5}}.{p} .loop-t{{fill:var(--accent)}}
+.{p} .big{{font-family:{SERIF};font-size:56px;font-weight:700;fill:var(--ink)}}
+.{p} .pip{{fill:var(--bg);stroke:var(--rule);stroke-width:1.5}}.{p} .pip.on{{fill:var(--clay);stroke:var(--clay)}}
+.{p} .ok-t{{fill:var(--teal)}}.{p} .x-t{{fill:var(--coral)}}
+.{p} .gate{{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:6 5}}
 {chr(10).join(self.css)}
-@media (prefers-reduced-motion:reduce){{.{p} *{{animation:none!important}}.{p} .tok{{display:none}}.{p} .tl,.{p} .lf,.{p} .ex0,.{p} .ex1,.{p} .ex2,.{p} .ex3,.{p} .ex4,.{p} .ex5,.{p} .ex6,.{p} .ex7,.{p} .ex8,.{p} .ex9,.{p} .ex10,.{p} .ex11{{opacity:1}}}}
+@media (prefers-reduced-motion:reduce){{.{p} *{{animation:none!important}}.{p} .tok{{display:none}}.{p} .tl,.{p} .lf,{lit}{{opacity:1}}}}
 </style>"""
-        defs = (f'<defs><filter id="{p}-sh" x="-10%" y="-25%" width="120%" height="160%">'
-                f'<feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1b1b19" flood-opacity="0.09"/></filter>'
-                f'<marker id="{p}-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" '
-                f'orient="auto-start-reverse"><path class="arh" d="M1 1.5L9 5L1 8.5z"/></marker></defs>')
+        markers = "".join(
+            f'<marker id="{p}-{m}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" '
+            f'orient="auto-start-reverse"><path class="{c}" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker>'
+            for m, c in (("a", "ah"), ("ax", "ahx"), ("al", "ahl"), ("ao", "aho"), ("ad", "ahd")))
+        defs = (f'<defs><filter id="{p}-sh" x="-5%" y="-20%" width="110%" height="150%">'
+                f'<feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter>'
+                f'{markers}</defs>')
         head = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {self.height}" width="{W}" '
                 f'role="img" aria-labelledby="{p}t {p}d" class="{p}">\n'
                 f'<title id="{p}t">{esc(self.title)}</title>\n<desc id="{p}d">{esc(self.desc)}</desc>\n')
-        return head + base + "\n" + defs + "\n" + "\n".join(self.parts) + "\n</svg>\n"
+        body = []
+        for name in ("back", "wires", "token", "cards", "front"):
+            body.extend(self.layers[name])
+        return head + base + "\n" + defs + "\n" + "\n".join(body) + "\n</svg>\n"
 
     # -- proof ----------------------------------------------------------------
 
     def prove(self) -> None:
-        def hit(a: Box, b: Box) -> bool:
-            return (a.x < b.x + b.w - 1 and b.x < a.x + a.w - 1 and
-                    a.y < b.y + b.h - 1 and b.y < a.y + a.h - 1)
-        for c in self.chips:
+        P = self.pfx
+
+        def hit(a: Box, b: Box, slack: float = 1) -> bool:
+            return (a.x < b.r - slack and b.x < a.r - slack and
+                    a.y < b.b - slack and b.y < a.b - slack)
+
+        for b in self.texts + self.cards + self.calls:
+            if b.x < 0 or b.y < 0 or b.r > W + 0.5 or b.b > self.height + 0.5:
+                raise ValueError(f"{P}: out of bounds: {b.what!r} at {b.x:.0f},{b.y:.0f}")
+        for i, a in enumerate(self.cards):
+            for b in self.cards[i + 1:]:
+                if hit(a, b):
+                    raise ValueError(f"{P}: cards overlap: {a.what!r} and {b.what!r}")
+        for c in self.calls:
             for k in self.cards:
                 if hit(c, k):
-                    raise ValueError(f"{self.pfx}: chip sits on a card: {c.what!r} on {k.what!r}")
-        for i, c in enumerate(self.chips):
-            for d in self.chips[i + 1:]:
-                if hit(c, d):
-                    raise ValueError(f"{self.pfx}: chips overlap: {c.what!r} and {d.what!r}")
-        for b in self.texts + self.cards + self.chips:
-            if b.x < 0 or b.y < 0 or b.x + b.w > W + 0.5 or b.y + b.h > self.height + 0.5:
-                raise ValueError(f"{self.pfx}: out of bounds: {b.what!r} at {b.x:.0f},{b.y:.0f}")
+                    raise ValueError(f"{P}: callout sits on a card: {c.what!r} on {k.what!r}")
+        for i, a in enumerate(self.calls):
+            for b in self.calls[i + 1:]:
+                if hit(a, b, -3):
+                    raise ValueError(f"{P}: callouts crowd each other: {a.what!r} and {b.what!r}")
         ts = self.texts
+        for t in ts:
+            if any(inside(t, k) for k in self.cards):
+                continue
+            for k in self.cards:
+                if hit(t, k):
+                    raise ValueError(f"{P}: a label sits on a card: {t.what!r} on {k.what!r}")
         for i in range(len(ts)):
             for j in range(i + 1, len(ts)):
-                a, b = ts[i], ts[j]
-                if (a.x < b.x + b.w - 1 and b.x < a.x + a.w - 1 and
-                        a.y < b.y + b.h - 1 and b.y < a.y + a.h - 1):
-                    raise ValueError(f"{self.pfx}: labels overlap: {a.what!r} and {b.what!r}")
+                if hit(ts[i], ts[j]):
+                    raise ValueError(f"{P}: labels overlap: {ts[i].what!r} and {ts[j].what!r}")
+        # wires: through nothing, onto edges, never crossing each other
+        edges = self.cards + self.badges
+        for wi, wv in enumerate(self.wires):
+            segs = list(zip(wv.pts, wv.pts[1:]))
+            for a, b in segs:
+                if wv.under:
+                    obstacles = [t for t in ts if not any(inside(t, k) for k in self.cards)] + self.call_texts
+                else:
+                    obstacles = self.cards + ts + self.call_texts
+                for o in obstacles:
+                    if seg_hits_box(a, b, Box(o.x + 2, o.y + 2, o.w - 4, o.h - 4, o.what)):
+                        raise ValueError(f"{P}: a wire passes through {o.what!r} "
+                                         f"({a[0]:.0f},{a[1]:.0f})→({b[0]:.0f},{b[1]:.0f})")
+            for k_, (end, free) in enumerate(((wv.pts[0], wv.free_start), (wv.pts[-1], wv.free_end))):
+                if k_ == 0 and wv.bare_start:
+                    continue
+                if free:
+                    if not any(on_polyline(end, o.pts) for k, o in enumerate(self.wires) if k != wi):
+                        raise ValueError(f"{P}: a junction is not on another wire at {end}")
+                    continue
+                if not any(near_edge(end, k) for k in edges) and not wv.under:
+                    raise ValueError(f"{P}: a wire ends in mid-air at {end[0]:.0f},{end[1]:.0f}")
+            for wj in range(wi + 1, len(self.wires)):
+                ov = self.wires[wj]
+                for a, b in segs:
+                    for c, d in zip(ov.pts, ov.pts[1:]):
+                        x = proper_cross(a, b, c, d)
+                        if x:
+                            raise ValueError(f"{P}: wires cross at {x[0]:.0f},{x[1]:.0f}")
+
+
+# ------------------------------------------------------------- geometry
+
+def rounded(pts: list[tuple[float, float]], r: float) -> str:
+    """A polyline path with each corner rounded by up to r."""
+    if len(pts) < 3 or r <= 0:
+        return "M" + " L".join(f"{g(x)} {g(y)}" for x, y in pts)
+    out = [f"M{g(pts[0][0])} {g(pts[0][1])}"]
+    for i in range(1, len(pts) - 1):
+        (x0, y0), (x1, y1), (x2, y2) = pts[i - 1], pts[i], pts[i + 1]
+        d1, d2 = math.dist((x0, y0), (x1, y1)), math.dist((x1, y1), (x2, y2))
+        rr = min(r, d1 / 2, d2 / 2)
+        ax, ay = x1 + (x0 - x1) / d1 * rr, y1 + (y0 - y1) / d1 * rr
+        bx, by = x1 + (x2 - x1) / d2 * rr, y1 + (y2 - y1) / d2 * rr
+        out.append(f"L{g(ax)} {g(ay)}Q{g(x1)} {g(y1)} {g(bx)} {g(by)}")
+    out.append(f"L{g(pts[-1][0])} {g(pts[-1][1])}")
+    return "".join(out)
+
+
+def inside(a: Box, b: Box) -> bool:
+    return a.x >= b.x and a.r <= b.r and a.y >= b.y and a.b <= b.b
+
+
+def near_edge(p: tuple[float, float], b: Box, tol: float = 3.5) -> bool:
+    x, y = p
+    inx = b.x - tol <= x <= b.r + tol
+    iny = b.y - tol <= y <= b.b + tol
+    if not (inx and iny):
+        return False
+    return (abs(x - b.x) <= tol or abs(x - b.r) <= tol or abs(y - b.y) <= tol or abs(y - b.b) <= tol
+            or math.dist(p, (b.cx, b.cy)) <= b.w / 2 + tol and b.w == b.h)
+
+
+def on_polyline(p, pts, tol: float = 1.0) -> bool:
+    for a, b in zip(pts, pts[1:]):
+        if dist_point_seg(p, a, b) <= tol:
+            return True
+    return False
+
+
+def dist_point_seg(p, a, b) -> float:
+    (px, py), (ax, ay), (bx, by) = p, a, b
+    dx, dy = bx - ax, by - ay
+    L2 = dx * dx + dy * dy
+    t = 0 if L2 == 0 else max(0, min(1, ((px - ax) * dx + (py - ay) * dy) / L2))
+    return math.dist(p, (ax + t * dx, ay + t * dy))
+
+
+def seg_hits_box(a, b, box: Box) -> bool:
+    """Liang-Barsky: does segment ab enter the open rectangle?"""
+    if box.w <= 0 or box.h <= 0:
+        return False
+    x0, y0 = a
+    dx, dy = b[0] - x0, b[1] - y0
+    t0, t1 = 0.0, 1.0
+    for pp, qq in ((-dx, x0 - box.x), (dx, box.r - x0), (-dy, y0 - box.y), (dy, box.b - y0)):
+        if pp == 0:
+            if qq <= 0:
+                return False
+        else:
+            t = qq / pp
+            if pp < 0:
+                t0 = max(t0, t)
+            else:
+                t1 = min(t1, t)
+    return t0 < t1 - 1e-9
+
+
+def proper_cross(a, b, c, d):
+    """The point where segments ab and cd cross at interior points, or None.
+    Shared endpoints and collinear overlaps (a shared trunk) are not crossings."""
+    def orient(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+    o1, o2, o3, o4 = orient(a, b, c), orient(a, b, d), orient(c, d, a), orient(c, d, b)
+    if o1 * o2 < 0 and o3 * o4 < 0:
+        t = o3 / (o3 - o4)
+        x, y = a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])
+        if min(math.dist((x, y), q) for q in (a, b, c, d)) < 1.5:
+            return None
+        return (x, y)
+    return None
+
+
+def ellipse_pt(cx, cy, rx, ry, deg):
+    t = math.radians(deg)
+    return (cx + rx * math.cos(t), cy + ry * math.sin(t))
 
 
 # ------------------------------------------------------------ the figures
 
+def lead_down(f: Fig, x: float, y0: float, cy: float, kind: str = "lead") -> None:
+    """A leader from a card's bottom edge straight down to a badge."""
+    f.wire([(x, y0), (x, cy - 10.5)], kind)
+
+
+def lead_right(f: Fig, x0: float, y: float, bx: float, kind: str = "lead") -> None:
+    """A leader from a card's right edge straight across to a badge."""
+    f.wire([(x0, y), (bx - 10.5, y)], kind)
+
+
 def phase_stage() -> Fig:
-    """Steps 1 to 4: a rail of scripts, three rows, with the exits that
-    hand a decision to a person or fall back."""
-    f = Fig("ps", "Phase 1, Stage: scripts set up one pull request with no model",
-            "Eleven scripts run in order with no model: the tools are checked, the ledger "
-            "directory is created, settings are resolved from five sources with a project "
-            "file allowed only to raise, add, or set, closed runs are swept, the diff is "
-            "fetched from the API or built from the clone when the API refuses it and split "
-            "into annotated per-file diffs, deterministic probes and a size classification "
-            "run over it, open pull requests touching the same hunks are named, a detached "
-            "worktree is checked out with the base snapshot and the conventions block, local "
-            "standards are gathered, and the project's own check runs once as the baseline "
-            "that arms the fix loop's gate. A terminal strip shows the one line each script "
-            "prints; a ledger strip shows what each writes.", 784)
-    cyc = 34
-    f.text(24, 30, "Stage", "ttl", 16)
-    f.text(24, 49, "Eleven scripts, no model, one line each. Everything the review will read is on disk before a model reads anything.", "", 11.5)
-    f.terminal(24, 62, 812, [
+    """Steps 1 to 4: a serpentine rail of eleven scripts in three bands,
+    turning at the margins, each exit hanging below the script it leaves."""
+    f = Fig("ps", "Phase 1, Stage: eleven scripts set up one pull request with no model",
+            "Eleven scripts run in order with no model, in three bands. The ledger band checks the "
+            "tools, creates the ledger, resolves settings from five sources, a project file allowed "
+            "only to raise, add, or set and any command it brings held for your approval, and sweeps "
+            "closed runs. The read band fetches the diff from the API, or builds it from the clone "
+            "when GitHub serves none, splits it per file, runs deterministic probes whose hits are "
+            "leads, classifies the change and its size, asking or parking when it is over the "
+            "warning, and names open pull requests touching the same hunks, asking whether to go on. "
+            "The check-out band makes a detached worktree, review-only for a fork that refuses edits "
+            "and a stop when the fork is gone, gathers local standards, and runs the project's check "
+            "once as the baseline that arms the fix loop's gate. A terminal shows the line each "
+            "script prints; the ledger shows what each writes.", 0)
+    f.header(1, "STEPS 1 – 4", "Stage",
+             "Eleven scripts, no model, one line each. Everything the review reads is on disk before any model reads it.")
+    f.terminal(112, [
         (0, "check-tools: git and gh ready"),
         (2, "settings: resolved 24 default 21 user 1 project 1 local 1 run 0 ignored 0"),
         (4, "fetch-pr: 14 files, 612 additions, 88 deletions"),
@@ -411,309 +800,454 @@ def phase_stage() -> Fig:
         (7, "scan-open-prs: overlap: 2 candidates, 1 near, 0 same, approximate"),
         (10, "run-check: pass"),
     ])
-    # row 1 ------------------------------------------------------------
-    y1, y2, y3 = 216, 388, 560
-    cw, gap, x0 = 186, 22, 24
-    xs = [x0 + i * (cw + gap) for i in range(4)]
-    f.phase_head(24, 199, "1", "LEDGER", "")
-    f.card(xs[0], y1, cw, 70, "script", "check-tools", ["git and an authenticated gh", "nothing else is assumed"], step=0)
-    f.card(xs[1], y1, cw, 70, "script", "init-state", ["the ledger directory, per PR", "typed overrides, this run only"], step=1)
-    f.card(xs[2], y1, cw, 70, "script", "resolve-settings", ["defaults · yours · project · local · run", "a project may raise, add, or set"], step=2)
-    f.card(xs[3], y1, cw, 70, "script", "sweep-state", ["reaps runs whose PR closed", "prunes finished ledgers"], step=3)
+    cw, ch = 174, 68
+    xs = [52, 246, 440, 634]
+    bands = [(276, 166), (454, 166), (632, 206)]
+    rows = [b[0] + 36 for b in bands]
+    f.band(L, bands[0][0], R - L, bands[0][1], 1, "LEDGER", "four scripts before anything is read")
+    f.band(L, bands[1][0], R - L, bands[1][1], 2, "READ", "the diff, from GitHub, once")
+    f.band(L, bands[2][0], R - L, bands[2][1], 3, "CHECK OUT", "a worktree, your rules, a baseline")
+    y1, y2, y3 = rows
+    # band 1, left to right
+    c = [
+        f.card(xs[0], y1, cw, ch, "script", "check-tools", ["git and gh, signed in", "nothing else assumed"], step=0, num=1),
+        f.card(xs[1], y1, cw, ch, "script", "init-state", ["one ledger per PR", "this run’s overrides"], step=1, num=2),
+        f.card(xs[2], y1, cw, ch, "script", "resolve-settings", ["five sources, in order", "projects raise, add, or set"], step=2, num=3),
+        f.card(xs[3], y1, cw, ch, "script", "sweep-state", ["reaps runs whose PR closed", "prunes old ledgers"], step=3, num=4),
+    ]
+    # band 2, right to left
+    c += [
+        f.card(xs[3], y2, cw, ch, "script", "fetch-pr", ["the diff from the API", "split per file, numbered"], step=4, num=5),
+        f.card(xs[2], y2, cw, ch, "script", "probe-diff", ["eight deterministic probes", "a hit is a lead only"], step=5, num=6),
+        f.card(xs[1], y2, cw, ch, "script", "classify-change", ["code, docs, config, tests", "its size routes the models"], step=6, num=7),
+        f.card(xs[0], y2, cw, ch, "script", "scan-open-prs", ["open PRs on the same base", "hunks a few lines apart"], step=7, num=8),
+    ]
+    # band 3, left to right
+    c += [
+        f.card(xs[0], y3, cw, ch, "script", "checkout-pr", ["a detached worktree", "base snapshot, conventions"], step=8, num=9),
+        f.card(xs[1], y3, cw, ch, "script", "extract-standards", ["your untracked rule files", "substance in, names out"], step=9, num=10),
+        f.card(xs[2], y3, cw, ch, "script", "run-check", ["--baseline, once", "a pass arms the fix gate"], step=10, num=11, mono_lines=(0,)),
+        f.card(xs[3], y3, cw, ch, "done", "Staged", ["every input is on disk", "the reviewer reads next"], step=11),
+    ]
+    m1, m2, m3 = y1 + ch / 2, y2 + ch / 2, y3 + ch / 2
     for i in range(3):
-        f.arrow([(xs[i] + cw, y1 + 35), (xs[i + 1] - 2, y1 + 35)])
-    f.chip(xs[2] + cw / 2, y1 + 80, "trust pending: a command from the project file → you approve it", "ask", step=2, anchor="middle")
-    # row 2 ------------------------------------------------------------
-    f.phase_head(24, 371, "2", "READ", "")
-    f.card(xs[0], y2, cw, 70, "script", "fetch-pr · split-diff", ["diff, body, files, from the API", "per-file diffs, lines numbered"], step=4)
-    f.card(xs[1], y2, cw, 70, "script", "probe-diff", ["secrets · automation · sensitive", "schema · deps · debug · markers"], step=5)
-    f.card(xs[2], y2, cw, 70, "script", "classify-change", ["kind: code, docs, config, tests", "lines and code lines, for routing"], step=6)
-    f.card(xs[3], y2, cw, 70, "script", "scan-open-prs", ["open PRs on the same base", "hunks within 12 lines or a function"], step=7)
-    for i in range(3):
-        f.arrow([(xs[i] + cw, y2 + 35), (xs[i + 1] - 2, y2 + 35)])
-    f.arrow([(xs[3] + cw / 2, y1 + 70), (xs[3] + cw / 2, y1 + 132), (xs[0] + cw / 2, y1 + 132), (xs[0] + cw / 2, y2 - 2)], cls="ar")
-    f.chip(xs[0], y2 + 80, "API refuses the diff → built from the clone", "note", step=4)
-    f.chip(xs[1] + cw / 2, y2 + 104, "a hit is a lead, never a finding", "note", step=5, anchor="middle")
-    f.chip(xs[3] + cw, y2 + 80, "near or same → continue, or stop?", "ask", step=7, anchor="end")
-    # row 3 ------------------------------------------------------------
-    f.phase_head(24, 543, "3", "CHECK OUT", "")
-    f.card(xs[0], y3, cw, 70, "script", "checkout-pr", ["a detached worktree at the head", "base snapshot · conventions block"], step=8)
-    f.card(xs[1], y3, cw, 70, "script", "extract-standards", ["your untracked rule files", "substance in, names never out"], step=9)
-    f.card(xs[2], y3, cw, 70, "script", "run-check --baseline", ["the project’s own check, once", "a pass arms the fix loop’s gate"], step=10)
-    f.card(xs[3], y3, cw, 70, "done", "Staged", ["every input on disk;", "the reviewer is next"], step=11)
-    for i in range(3):
-        f.arrow([(xs[i] + cw, y3 + 35), (xs[i + 1] - 2, y3 + 35)])
-    f.arrow([(xs[3] + cw / 2, y2 + 70), (xs[3] + cw / 2, y2 + 132), (xs[0] + cw / 2, y2 + 132), (xs[0] + cw / 2, y3 - 2)], cls="ar")
-    f.chip(xs[0], y3 + 80, "a fork that refuses edits → review-only mode", "note", step=8)
-    f.chip(xs[2] + cw / 2, y3 + 80, "a failing baseline → gate disarmed, tail kept", "exit", step=10, anchor="middle")
-    # ledger strip ------------------------------------------------------
-    f.ledger(24, 700, 812, [
+        f.wire([(xs[i] + cw, m1), (xs[i + 1] - 1, m1)])
+        f.wire([(xs[3 - i], m2), (xs[2 - i] + cw + 1, m2)])
+        f.wire([(xs[i] + cw, m3), (xs[i + 1] - 1, m3)])
+    f.wire([(xs[3] + cw, m1), (820, m1), (820, m2), (xs[3] + cw + 1, m2)], r=7)
+    f.wire([(xs[0], m2), (40, m2), (40, m3), (xs[0] - 1, m3)], r=7)
+    # exits, below the script they leave
+    def drop(x, ybot, cy, kind, mark, l1, l2, step):
+        lead_down(f, x, ybot, cy)
+        f.callout(x, cy, kind, mark, l1, l2, step=step)
+    b1, b2, b3 = y1 + ch, y2 + ch, y3 + ch
+    drop(xs[2] + 22, b1, b1 + 32, "ask", "person", "the project file brings a command", "it waits for your approval", 2)
+    drop(xs[3] + 22, b2, b2 + 32, "note", "loop", "GitHub serves no diff", "built from the clone", 4)
+    drop(xs[1] + 22, b2, b2 + 32, "ask", "person", "over the size warning", "go on, or park? you say", 6)
+    drop(xs[0] + 22, b2, b2 + 32, "ask", "person", "overlaps another PR", "go on, or stop? you say", 7)
+    drop(xs[0] + 40, b3, b3 + 32, "note", "loop", "a fork refusing edits", "review-only: findings still post", 8)
+    drop(xs[0] + 14, b3, b3 + 70, "stop", "2", "the fork is gone: stop", None, 8)
+    drop(xs[2] + 22, b3, b3 + 32, "note", "loop", "a failing baseline", "gate disarmed, tail kept as evidence", 10)
+    led = f.ledger(bands[2][0] + bands[2][1] + 18, [
         (1, "meta.txt"), (1, "overrides.txt"), (2, "settings.txt"), (4, "pr-context/diff.patch"),
         (4, "files/001.diff"), (5, "probes.txt"), (6, "class.txt"), (7, "overlap.txt"),
         (8, "worktree/"), (9, "standards.txt"), (10, "check-baseline.txt"),
     ])
-    # token and schedule -------------------------------------------------
-    centers = [(x + cw / 2, y1 + 35) for x in xs] + [(x + cw / 2, y2 + 35) for x in xs] + \
-              [(x + cw / 2, y3 + 35) for x in xs]
-    pts = centers[:4] + [(xs[3] + cw / 2, y1 + 132), (xs[0] + cw / 2, y1 + 132)] + centers[4:8] + \
-          [(xs[3] + cw / 2, y2 + 132), (xs[0] + cw / 2, y2 + 132)] + centers[8:]
-    # stops per point (12 steps, plus 4 corner points that take no time)
-    step_times = [i / 12 for i in range(12)]
-    stops = step_times[:4] + [step_times[4] - .01, step_times[4] - .005] + step_times[4:8] + \
-            [step_times[8] - .01, step_times[8] - .005] + step_times[8:]
-    f.token(pts, stops, cyc)
-    f.schedule(step_times, cyc, exits={2: (2 / 12 + .04, 3 / 12), 4: (4 / 12 + .04, 5 / 12),
-                                       5: (5 / 12 + .04, 6 / 12), 7: (7 / 12 + .04, 8 / 12),
-                                       8: (8 / 12 + .04, 9 / 12), 10: (10 / 12 + .04, 11 / 12)})
+    f.legend(led.b + 28)
+    f.height = int(led.b + 44)
+    # the token walks the rail, turning at the margins
+    cx = [b.cx for b in c]
+    pts = ([(cx[i], m1) for i in range(4)] + [(820, m1), (820, m2)] +
+           [(cx[i], m2) for i in range(4, 8)] + [(40, m2), (40, m3)] +
+           [(cx[i], m3) for i in range(8, 12)])
+    st = [i / 12 for i in range(12)]
+    stops = st[:4] + [st[4] - .02, st[4] - .01] + st[4:8] + [st[8] - .02, st[8] - .01] + st[8:]
+    f.token(pts, stops, 36)
+    f.schedule(st, 36, exits={i: (st[i] + .02, st[i + 1] if i + 1 < 12 else 1) for i in (2, 4, 6, 7, 8, 10)})
     return f
 
 
-
 def phase_review() -> Fig:
-    """Steps 5 and 6: a fan-out from one plan to parallel reviewers, back
-    into one ledger, with the routing ladder and the record anatomy beside."""
+    """Steps 5 and 6: a plan fans out to parallel reviewers and folds back
+    into one ledger, with the routing ladder and a finding record beside."""
     f = Fig("pr", "Phase 2, Review: one plan, parallel reviewers, one ledger",
-            "The diff is planned into shards when it is large, clustering files that reference "
-            "one another and recording the seams no shard can see. Routing picks a rung for each "
-            "group, cheap, the role's own model, or the strong model, from size, couplings, probes, "
-            "and the cost posture, and an effort that a retry moves one lever at a time. Reviewers "
-            "run in parallel, one per group, times the review samples; their records are banked "
-            "with ids, duplicates merge with a support count, and a gap pass reads the seams "
-            "first and reports only what was missed. A clean ledger skips straight to the merge "
-            "gate. The record anatomy shows the contract every finding carries.", 740)
-    cyc = 32
-    f.text(24, 30, "Review", "ttl", 16)
-    f.text(24, 49, "Once, thoroughly. Judgment is spent where the change is deep; the scripts decide where that is.", "", 11.5)
-    f.terminal(24, 62, 812, [
-        (0, "shard-plan: groups 1 seams 0 couplings 3 limit 1500"),
-        (1, "route review all rung base model inherit effort high reason role-model samples 1"),
+            "A diff over the cost posture's limit is planned into shards that keep coupled files "
+            "together, and the couplings no shard can see are recorded as seams. Routing gives each "
+            "group a rung on a ladder, the strong model for large, coupled, or risky code, the role's "
+            "own model by default, a cheaper one for a small change with no risk signal, and an "
+            "effort from low to xhigh; a retry moves one lever at a time and the posture leans every "
+            "rung. Reviewers run in parallel, one per group, times the review samples; each report is "
+            "saved verbatim with ids assigned, duplicates merge into the richest record, and a gap "
+            "pass reads the seams first and reports only what was missed, never below the reviewer's "
+            "rung. Findings go on to Post; none at all means the change is clean. A finding record "
+            "shows the header and the Fix, Resolution, and Check lines every finding carries.", 0)
+    f.header(2, "STEPS 5 – 6", "Review",
+             "Once, thoroughly. Judgment is spent where the change is deep, and the scripts decide where that is.")
+    f.terminal(112, [
+        (0, "shard-plan: groups 3 seams 1 couplings 3 limit 1500"),
+        (1, "route review g1 rung strong model opus effort high reason coupled samples 1"),
         (3, "save-findings: 5 findings saved, next id F006"),
         (4, "dedup-findings: kept 5 merged 0"),
-        (5, "route gap all rung base model inherit effort high reason follows-reviewer"),
+        (5, "route gap all rung strong model opus effort high reason follows-reviewer"),
     ])
-    lx, lw = 24, 232
-    f.card(lx, 214, lw, 70, "script", "shard-plan", ["couplings cluster files into groups", "seams: what no shard sees alone"], step=0)
-    f.chip(lx, 292, "over the posture’s limit → shards", "note", step=0)
-    f.card(lx, 330, lw, 70, "script", "route-models review", ["a rung and an effort per group", "from size, couplings, probes, posture"], step=1)
-    f.card(lx, 440, lw, 70, "script", "save-findings", ["ids assigned, records validated", "a batch posts whole or not at all"], step=3)
-    f.card(lx, 540, lw, 70, "script", "dedup-findings", ["samples above one: duplicates merge", "the richest record wins, support counted"], step=4)
-    f.arrow([(lx + lw / 2, 284), (lx + lw / 2, 328)])
-    f.arrow([(lx + lw / 2, 510), (lx + lw / 2, 538)])
+    y0 = 262
+    a = f.card(L, y0, 234, 84, "script", "shard-plan",
+               ["over the posture’s limit: shards", "coupled files share a group", "seams: what no shard sees"], step=0, num=1)
+    b = f.card(306, y0, 234, 84, "script", "route-models review",
+               ["a rung and an effort per group", "from size, couplings, probes", "samples: identical reviewers"], step=1, num=2)
+    f.wire([(a.r, a.cy), (b.x - 1, b.cy)])
     # the fan
-    mx, mw = 292, 206
-    for i, (y, t, sub) in enumerate([(300, "Reviewer · group 1", "its files, the rules, the probes"),
-                                     (372, "Reviewer · group 2", "in parallel, its own context"),
-                                     (444, "Reviewer · group n", "× review samples, when set")]):
-        f.card(mx, y, mw, 54, "model", t, [sub], step=2, dashed=(i == 2))
-    f.arrow([(lx + lw, 365), (mx - 2, 327)])
-    f.arrow([(lx + lw, 365), (mx - 2, 399)])
-    f.arrow([(lx + lw, 365), (mx - 2, 471)], dashed=True)
-    f.arrow([(mx, 460), (lx + lw / 2 + 40, 460), (lx + lw / 2 + 40, 438)], cls="ar")
-    f.card(mx, 540, mw, 70, "model", "Gap pass", ["seams first, then what was missed", "never below the reviewer’s rung"], step=5)
-    f.arrow([(lx + lw, 575), (mx - 2, 575)])
-    f.chip(mx, 622, "no findings → clean: straight to the merge gate", "ok", step=6)
-    f.chip(mx, 646, "findings → Post", "note", step=6)
-    f.arrow([(mx + mw / 2, 610), (mx + mw / 2, 620)])
-    # panels on the right
-    rx, rw = 528, 308
-    ladder = f.card(rx, 214, rw, 126, "plain", "The routing ladder", [
-        "strong ← large code, coupled files, a stakes probe",
-        "base ← the role’s own model, the default rung",
-        "cheap ← a small docs or config change, no risk",
-        "effort: low … xhigh; a retry moves one lever",
-        "the posture leans every line, pins nothing"])
-    rec = f.card(rx, 360, rw, 250, "plain", "What a finding record carries", [
-        "category: correctness   severity: major",
-        "path: src/retry.py   line: 42   side: RIGHT",
-        "title: Retry loop drops the final attempt",
-        "--- the evidence, in the reviewer’s words",
-        "Fix: raise err after the loop; tests live in",
-        "     tests/test_client.py beside test_retry",
-        "Check: pytest tests/test_client.py::test_exh",
-        "Resolution: the last exception propagates",
-        "     and the retry test asserts it",
-        "```suggestion … ``` posts only once proven",
-        "Criteria note: when no listed item names it",
-        "support: 2   placement: inline | summary",
-        "Route: round 1 rung cheap model sonnet …"], mono_lines=True)
-    f.ledger(24, 676, 812, [(0, "pr-context/shards.txt"), (0, "seams.txt"), (1, "routes.txt"),
-                            (3, "findings/F001 … F005"), (4, "support headers"), (5, "routes.txt (gap)")])
-    pts = [(lx + lw / 2, 249), (lx + lw / 2, 365), (mx + mw / 2, 399), (lx + lw / 2, 475),
-           (lx + lw / 2, 575), (mx + mw / 2, 575), (mx + mw / 2, 632)]
-    st = [i / 7 for i in range(7)]
-    f.token(pts, st, cyc)
-    f.schedule(st, cyc, exits={0: (st[0] + .05, st[1]), 6: (st[6], 1.0)})
+    ry, rw = 394, 160
+    rx = [L, 204, 380]
+    revs = [f.card(x, ry, rw, 56, "model", "Reviewer", [t], step=2, dashed=(i == 2))
+            for i, (x, t) in enumerate(zip(rx, ["group 1, its files only", "group 2, in parallel", "group n, × samples"]))]
+    bus1 = ry - 24
+    for r_ in revs:
+        f.wire([(b.cx, b.b), (b.cx, bus1), (r_.cx, bus1), (r_.cx, ry - 1)], r=8)
+    f.junction(b.cx, bus1)
+    sy = 498
+    s = f.card(L, sy, 234, 70, "script", "save-findings",
+               ["each report piped in verbatim", "ids assigned, records checked"], step=3, num=3)
+    d = f.card(306, sy, 234, 70, "script", "dedup-findings",
+               ["samples over one: merged", "the richest record survives"], step=4, num=4)
+    bus2 = ry + 56 + 24
+    for r_ in revs:
+        f.wire([(r_.cx, r_.b), (r_.cx, bus2), (s.cx, bus2), (s.cx, sy - 1)], r=8)
+    f.junction(s.cx, bus2)
+    f.wire([(s.r, s.cy), (d.x - 1, d.cy)])
+    gp = f.card(306, 592, 234, 84, "model", "Gap pass",
+                ["seams first, then what was missed", "never below the reviewer’s rung", "always after a sharded review"], step=5)
+    f.wire([(d.cx, d.b), (d.cx, gp.y - 1)])
+    f.panel(L, 592, 234, "Why a gap pass", [
+        "each shard read only its files",
+        "only this pass sees across them",
+        "routing may raise it, and never",
+        "cheapens the safety net"])
+    # the outcome, a short spine of two stops
+    sx = gp.x + 24
+    f.wire([(sx, gp.b), (sx, 704 - 10.5)], "lead")
+    f.callout(sx, 704, "ok", "arrow", "findings → Post", "the filter reads them first", step=6)
+    f.wire([(sx, 704 + 10.5), (sx, 744 - 10.5)], "lead")
+    f.callout(sx, 744, "ok", "check", "none at all → clean", "convergence, then Land", step=6)
+    # the routing ladder
+    px, pw = 566, R - 566
+    lad = Box(px, y0, pw, 248, "ladder")
+    f.cards.append(lad)
+    f.add(f'<rect class="panel" x="{px}" y="{y0}" width="{pw}" height="248" rx="10"/>')
+    f.text(px + 14, y0 + 21, "THE ROUTING LADDER", "k", 9.5, bold=True, spacing=1.4)
+    rl, rr = px + 22, px + 46
+    f.add(f'<path class="lad" d="M{rl} {y0 + 38}V{y0 + 150}M{rr} {y0 + 38}V{y0 + 150}"/>')
+    rungs = [("strong", "large, coupled, or a stakes probe", "rung-s"),
+             ("base", "the role’s own model, the default", "rung-b"),
+             ("cheap", "a small change, no risk signal", "rung-c")]
+    for i, (nm, why, cls) in enumerate(rungs):
+        yy = y0 + 52 + i * 40
+        f.add(f'<path class="rung {cls}" d="M{rl} {yy}H{rr}"/>')
+        f.text(rr + 14, yy + 4, nm, "k", 11, bold=True)
+        f.text(rr + 14, yy + 18, why, "s", 10.5, within=lad)
+    ey = y0 + 182
+    f.text(px + 14, ey - 10, "EFFORT", "k", 9, bold=True, spacing=1.4)
+    segs = ["low", "medium", "high", "xhigh"]
+    sw = (pw - 28) / 4
+    for i, nm in enumerate(segs):
+        x = px + 14 + i * sw
+        cls = "seg on" if nm == "high" else "seg"
+        f.add(f'<rect class="{cls}" x="{g(x + 1)}" y="{ey - 2}" width="{g(sw - 2)}" height="18" rx="4"/>')
+        f.text(x + sw / 2, ey + 11, nm, "segt" + (" on" if nm == "high" else ""), 10, anchor="middle")
+    f.text(px + 14, ey + 36, "a retry moves one lever: effort, then model", "s", 10.5, within=lad)
+    f.text(px + 14, ey + 51, "the cost posture leans every rung", "s", 10.5, within=lad)
+    # a finding record
+    ry0 = y0 + 248 + 16
+    rec = [
+        ("id", "F003", ""), ("status", "open", "   round: 1"), ("category", "correctness", ""),
+        ("severity", "major", ""), ("path", "src/retry.py", "  line: 42"), ("side", "RIGHT", ""),
+        ("title", "Retry drops the last error", ""), ("---", "", ""),
+        ("", "The loop exits before the last", ""), ("", "attempt’s error is raised.", ""),
+        ("Fix", "re-raise after the loop, as", ""), ("", "  fetch() does at src/http.py:88", ""),
+        ("Resolution", "the final error", ""), ("", "  propagates; a test asserts it", ""),
+        ("Check", "pytest tests/test_retry.py", ""),
+    ]
+    rh = 36 + 14 * len(rec) + 4
+    sheet = Box(px, ry0, pw, rh, "record")
+    f.cards.append(sheet)
+    f.add(f'<g filter="url(#{f.pfx}-sh)"><path class="sheet" d="M{px} {ry0 + 10}a10 10 0 0 1 10 -10'
+          f'H{R - 16}l16 16V{ry0 + rh - 10}a10 10 0 0 1 -10 10H{px + 10}a10 10 0 0 1 -10 -10z"/></g>'
+          f'<path class="fold" d="M{R - 16} {ry0}v16h16"/>')
+    f.text(px + 14, ry0 + 21, "findings/F003", "mono k", 10.5, mono=True, bold=True)
+    f.text(R - 24, ry0 + 21, "one record", "fine", 10, anchor="end")
+    yy = ry0 + 40
+    keycls = {"Fix": "kf", "Resolution": "kr", "Check": "kc", "---": "fine"}
+    for k, v, tail in rec:
+        line = (f"{k}: " if k and k != "---" else ("---" if k == "---" else "")) + v + tail
+        if text_width(line, 10, mono=True) > pw - 28:
+            raise ValueError(f"pr: record line too long: {line!r}")
+        kc = keycls.get(k, "kk")
+        if k == "---":
+            f.add(f'<text class="mono fine" x="{px + 14}" y="{yy}" style="font-size:10px">---</text>')
+        elif k:
+            f.add(f'<text class="mono rv" x="{px + 14}" y="{yy}" style="font-size:10px">'
+                  f'<tspan class="{kc}">{esc(k)}:</tspan> {esc(v)}{esc(tail)}</text>')
+        else:
+            f.add(f'<text class="mono rb" x="{px + 14}" y="{yy}" style="font-size:10px">{esc(v)}</text>')
+        f.texts.append(Box(px + 14, yy - 8, text_width(line, 10, mono=True), 10, line))
+        yy += 14
+    bottom = max(sheet.b, 744 + 20)
+    led = f.ledger(bottom + 20, [(0, "pr-context/shards.txt"), (0, "seams.txt"), (1, "routes.txt"),
+                                 (3, "findings/F001 … F005"), (4, "support headers"), (5, "routes.txt (gap)")])
+    f.legend(led.b + 28, ("script", "model", "ok"))
+    f.height = int(led.b + 44)
+    pts = [(a.cx, a.cy), (b.cx, b.cy), (b.cx, bus1), (revs[1].cx, bus1), (revs[1].cx, revs[1].cy),
+           (revs[1].cx, bus2), (s.cx, bus2), (s.cx, s.cy), (d.cx, d.cy), (gp.cx, gp.cy),
+           (sx, gp.b), (sx, 704)]
+    stops = [0, .14, .25, .26, .28, .40, .41, .43, .58, .72, .86, .9]
+    f.token(pts, stops, 30)
+    f.schedule([0, .14, .28, .43, .58, .72, .86], 30, exits={6: (.86, 1.0)})
     return f
 
 
 def phase_post() -> Fig:
-    """Step 7: a sieve. Findings pass a cold re-read, suggestions pass the
-    project's own check, and only then do threads reach the pull request."""
+    """Step 7: a sieve drawn as a transit map. Each finding is a line; the
+    three stations act on it; one is diverted to the summary, one loses
+    its fence, and every line ends at the pull request."""
     f = Fig("pp", "Phase 3, Post: a cold re-read, proof, then threads",
-            "Before anything reaches the pull request, a cheap filter re-reads the cited code cold "
-            "and demotes findings whose evidence it cannot support into the round summary, never "
-            "dropping one; every suggestion fence is applied in a scratch worktree and the project's "
-            "check runs, so a fence posts only after passing and an unproven one is withdrawn while "
-            "the finding stays; then post-review opens one inline thread per finding and one summary "
-            "comment, recording the thread ids on the records. A fork that refuses maintainer edits "
-            "stops here in review-only mode: the findings stand for the author.", 584)
-    cyc = 24
-    f.text(24, 30, "Post", "ttl", 16)
-    f.text(24, 49, "Proof before posting. A false positive costs a round, a thread, and the author’s trust, so doubt is recorded now.", "", 11.5)
-    f.terminal(24, 62, 812, [
+            "Five findings travel as lines through three stations to the pull request. A cheap "
+            "filter re-reads the cited code cold and demotes a finding whose evidence it cannot "
+            "support into the round summary, never dropping one. Every suggestion fence is applied "
+            "in a scratch worktree and the project's check runs; three pass and post as suggestions, "
+            "one fails and is withdrawn while its finding stays. post-review then opens one inline "
+            "thread per finding and one summary comment, writing the thread ids to the records. Open "
+            "findings go on to the fix loop; a fork that refuses maintainer edits stops after posting "
+            "in review-only mode.", 0)
+    f.header(3, "STEP 7", "Post",
+             "Proof before posting. A false positive costs a round, a thread, and the author’s trust.")
+    f.terminal(112, [
         (0, "filter: demoted 1 of 5"),
         (1, "prove-suggestions: 3 proven, 1 withdrawn"),
         (2, "post-review: 4 posted inline, 1 in the summary, round 1"),
     ])
-    y = 170
-    a = f.card(24, y, 250, 70, "model", "Filter", ["re-reads the cited code cold", "demotes to the summary, never drops"], step=0)
-    b = f.card(304, y, 260, 70, "script", "prove-suggestions", ["each fence applied in a scratch tree", "the project’s check decides"], step=1)
-    c = f.card(594, y, 242, 70, "script", "post-review", ["one inline thread per finding", "demoted ones in the summary"], step=2)
-    f.arrow([(274, y + 35), (302, y + 35)])
-    f.arrow([(564, y + 35), (592, y + 35)])
-    # detail panels
-    py = 262
-    f.card(24, py, 250, 134, "plain", "One question per record", [
+    sy, sw = 226, 160
+    sx = [154, 340, 526]
+    st_ = [
+        f.card(sx[0], sy, sw, 70, "model", "Filter", ["re-reads cited code cold", "demotes, never drops"], step=0),
+        f.card(sx[1], sy, sw, 70, "script", "prove-suggestions", ["each fence, a scratch tree", "the check decides"], step=1),
+        f.card(sx[2], sy, sw, 70, "script", "post-review", ["a thread per finding", "the rest in the summary"], step=2),
+    ]
+    f.wire([(st_[0].r, st_[0].cy), (st_[1].x - 1, st_[0].cy)])
+    f.wire([(st_[1].r, st_[1].cy), (st_[2].x - 1, st_[1].cy)])
+    cxs = [s.cx for s in st_]
+    rows = [348, 378, 408, 438, 468]
+    lane = 506
+    pr = f.card(712, 318, R - 712, 206, "pr", "PR #128", [], step=3)
+    # station guides, beneath the lines
+    for x in cxs:
+        f.add(f'<path class="guide" d="M{g(x)} {sy + 72}V{lane + 16}"/>', "back")
+    f.text(L, 326, "FINDINGS", "k", 9.5, bold=True, spacing=1.4)
+    ids = [("F001", "major"), ("F002", "minor"), ("F003", "major"), ("F004", "nit"), ("F005", "minor")]
+    for (fid, sev), y in zip(ids, rows):
+        b = f.text(L, y + 4, fid, "mono k", 11, mono=True, bold=True)
+        f.text(b.r + 8, y + 4, sev, "s", 10.5)
+    for y in rows[:4]:
+        f.wire([(104, y), (pr.x - 1, y)], bare_start=True)
+    f.wire([(104, rows[4]), (cxs[0] + 18, rows[4]), (cxs[0] + 18, lane), (pr.x - 1, lane)], r=10,
+           bare_start=True)
+    f.text(146, lane + 4, "the summary", "fine", 10)
+    # markers: kept or demoted at the filter
+    for i, y in enumerate(rows):
+        cls = "mk-keep" if i < 4 else "mk-demote"
+        f.add(f'<circle class="mk {cls} tl0" cx="{g(cxs[0])}" cy="{y}" r="5"/>', "front")
+    f.text(cxs[0] - 10, rows[4] + 17, "demoted", "mk-t", 9.5, anchor="end", layer="front")
+    # fences proven or withdrawn
+    for i, y in enumerate(rows[:4]):
+        ok = i != 1
+        x = cxs[1]
+        mark = (f'<path class="mk-m" d="M{g(x - 3.4)} {y}l2.4 2.4l4.4-4.8"/>' if ok else
+                f'<path class="mk-m" d="M{g(x - 3)} {y - 3}l6 6m0-6l-6 6"/>')
+        f.add(f'<g class="tl1"><rect class="mk {"mk-proven" if ok else "mk-withdrawn"}" x="{g(x - 7)}" y="{y - 7}" '
+              f'width="14" height="14" rx="3.5"/>{mark}</g>', "front")
+    f.text(cxs[1] + 12, rows[1] + 17, "withdrawn, the finding stays", "mk-t", 9.5, layer="front")
+    # threads, and the one summary comment
+    for y in rows[:4]:
+        x = cxs[2]
+        f.add(f'<path class="mk mk-thread tl2" d="M{g(x - 7)} {y - 6}h14v9h-8l-3.5 3v-3h-2.5z"/>', "front")
+    f.add(f'<path class="mk mk-sum tl2" d="M{g(cxs[2] - 6)} {lane - 7}h9l3 3v11h-12z"/>', "front")
+    for y, t in zip(rows[:4] + [lane], ["thread · L42", "thread · L17", "thread · L88", "thread · L9", "1 comment"]):
+        f.text(pr.x + 12, y + 4, t, "sg", 10.5, within=pr)
+    # what follows
+    spx = pr.cx
+    f.wire([(spx, pr.b), (spx, 548 - 10.5)], "lead")
+    f.callout(spx, 548, "ok", "arrow", "open findings → the fix loop", None, side="left", step=3)
+    f.wire([(spx, 548 + 10.5), (spx, 584 - 10.5)], "lead")
+    f.callout(spx, 584, "stop", "park", "a fork refusing edits: review-only", "the findings stand; the run stops here",
+              side="left", step=3)
+    py = 622
+    pw = (R - L - 32) / 3
+    f.panel(L, py, pw, "One question per record", [
         "does the code show exactly this?",
-        "callers and definitions read, not prose",
-        "blocker or major: demote only on a",
-        "plain contradiction",
-        "support counts are context, never verdict",
-        "a demoted record is still addressed"])
-    f.card(304, py, 260, 134, "plain", "A fence is a proof, not a guess", [
-        "apply the suggestion in a scratch worktree",
-        "run the check command there",
-        "pass → it posts as a suggestion",
-        "fail or no command → withdrawn,",
-        "the finding’s prose stays",
-        "a Check line that runs is never a fence"])
-    f.card(594, py, 242, 134, "plain", "What reaches the pull request", [
-        "inline thread: path, line, side, body",
-        "the round summary: demoted findings,",
-        "with the filter’s reason",
-        "thread ids written to the records",
-        "reruns are safe: nothing posts twice",
-        "every write goes through one script"])
-    f.chip(24, 408, "thin evidence → the summary, with the reason", "note", step=0)
-    f.chip(304, 408, "unproven fence → withdrawn, finding stays", "note", step=1)
-    f.chip(836, 408, "a fork that refuses edits → review-only, stop here", "exit", step=2, anchor="end")
-    f.card(594, 440, 242, 54, "github", "Pull request #128", ["4 threads, 1 summary comment"], step=3)
-    f.arrow([(c.x + c.w / 2, 396), (c.x + c.w / 2, 438)])
-    f.ledger(24, 508, 812, [(0, "findings/F003: placement, Filter note"), (1, "proof worktree (scratch)"),
-                            (1, "fence kept or withdrawn"), (2, "thread ids on records"), (2, "round summary comment")])
-    pts = [(a.x + a.w / 2, y + 35), (b.x + b.w / 2, y + 35), (c.x + c.w / 2, y + 35), (c.x + c.w / 2, 467)]
-    st = [0, .3, .6, .85]
-    f.token(pts, st, cyc)
-    f.schedule(st, cyc, exits={0: (.08, .3), 1: (.38, .6), 2: (.68, .85)})
+        "callers and definitions, not prose",
+        "a blocker or major is demoted",
+        "only on a plain contradiction",
+        "support is context, never verdict"])
+    f.panel(L + pw + 16, py, pw, "A fence is a proof", [
+        "applied in a scratch worktree",
+        "the project’s check runs there",
+        "passes: posts as a suggestion",
+        "fails, or no check: withdrawn",
+        "the finding’s prose stays"])
+    p3 = f.panel(L + 2 * pw + 32, py, pw, "What reaches the PR", [
+        "one inline thread per finding",
+        "demoted ones in the summary,",
+        "each with the filter’s reason",
+        "thread ids written to records",
+        "a rerun never posts twice"])
+    led = f.ledger(p3.b + 18, [(0, "findings/F005: placement summary"), (0, "Filter notes"),
+                               (1, "proof worktree (scratch)"), (1, "fences kept or withdrawn"),
+                               (2, "comment ids on records")])
+    f.legend(led.b + 28, ("script", "model", "ok", "stop"))
+    f.height = int(led.b + 44)
+    pts = [(cxs[0], st_[0].cy), (cxs[1], st_[0].cy), (cxs[2], st_[0].cy), (pr.cx, st_[0].cy), (pr.cx, pr.y + 30)]
+    f.token(pts, [0, .3, .6, .82, .86], 24)
+    f.schedule([0, .3, .6, .86], 24, exits={3: (.86, 1.0)})
     return f
 
 
+def ellipse_len(cx, cy, rx, ry, a0, a1, n=720) -> float:
+    total, prev = 0.0, ellipse_pt(cx, cy, rx, ry, a0)
+    for i in range(1, n + 1):
+        p = ellipse_pt(cx, cy, rx, ry, a0 + (a1 - a0) * i / n)
+        total += math.dist(prev, p)
+        prev = p
+    return total
+
+
 def phase_fix() -> Fig:
-    """Steps 8 to 10: a ring of stations with its gates, the round in the
-    middle, the editing ladder beside, and the three ways out."""
+    """Steps 8 to 10: stations on a ring, the round in the middle, every
+    way out on the right, and the ladder and the separation of powers below."""
     f = Fig("pf", "Phase 4, Fix loop: a bounded ring with gates",
-            "Open findings go around a ring at most four times, the budget kept on disk: the round "
-            "counter opens a round; routing gives each finding a starting rung, cheap for a minor "
-            "finding with a proven fence, never cheap for a blocker, a security finding, or a flagged "
-            "file, one lever up on a retry; the editor makes one commit per finding, replies, and "
-            "pushes; the project's check gate must pass, with one repair allowed and a second failure "
-            "parking the run; the verifier executes Check lines and judges each Resolution verbatim, "
-            "resolving threads or reopening them with notes; a skim sends files no finding named to an "
-            "incremental review; the count decides: open findings go around again, a finding reopened "
-            "past the limit gets one arbitration, none open converges, and an unaccepted wont-fix "
-            "never merges.", 820)
-    cyc = 36
-    f.text(24, 30, "Fix loop", "ttl", 16)
-    f.text(24, 49, "The agent that writes code cannot close findings; the agent that closes them cannot write code.", "", 11.5)
-    f.terminal(24, 62, 812, [
-        (0, "round 1 of 4"),
+            "Open findings go around a ring at most four times, the budget kept on disk. The round "
+            "counter opens a round; routing gives each finding a rung on the editing ladder, cheap "
+            "for a minor finding with a proven fence, never cheap for a blocker, a security finding, "
+            "or a flagged file, one lever up on a retry; the editor makes one commit per finding, "
+            "replies, and pushes; the project's check gate must pass, with one repair allowed and a "
+            "second failure parking the run; the verifier executes Check lines and judges each "
+            "Resolution verbatim, resolving threads or reopening them with notes; a skim sends files "
+            "no finding named to an incremental review; and the count decides: open findings go "
+            "around again, a finding reopened past the limit gets one arbitration and then parks, "
+            "four spent rounds park with a status comment, and none open converges, a wont-fix "
+            "needing your yes before anything merges.", 0)
+    f.header(4, "STEPS 8 – 10", "Fix loop",
+             "The agent that writes code cannot close findings; the agent that closes them cannot write code.")
+    f.terminal(112, [
+        (0, "round 2 of 4"),
         (1, "route edit all rung cheap model sonnet effort medium reason mechanical ids F001 F004"),
         (3, "run-check: pass"),
         (5, "round-diff: clean"),
         (6, "open 0 addressed 0 verified 5 wont-fix 0 max_reopens 1"),
     ])
-    cw, ch = 156, 54
-    nodes = {
-        "A": (328, 262), "B": (496, 226), "C": (664, 262), "D": (734, 418),
-        "E": (664, 574), "F": (496, 610), "G": (328, 574), "H": (258, 418),
-    }
-    def at(k):
-        x, y = nodes[k]
-        return x - cw / 2, y - ch / 2
-    f.card(*at("A"), cw, ch, "script", "round-counter", ["the budget of four, on disk"], step=0)
-    f.card(*at("B"), cw, ch, "script", "route-models edit", ["a rung per finding, a ladder"], step=1)
-    f.card(*at("C"), cw, ch, "model", "Editor", ["one commit per finding, push"], step=2)
-    f.card(*at("D"), cw, ch, "script", "run-check --gate", ["the project’s own check"], step=3)
-    f.card(*at("E"), cw, ch, "model", "Verifier", ["Check lines run, then judged"], step=4)
-    f.card(*at("F"), cw, ch, "script", "round-diff", ["unasked files get reviewed"], step=5)
-    f.card(*at("G"), cw, ch, "script", "count-findings", ["open? capped? converged?"], step=6)
-    f.card(*at("H"), cw, ch, "plain", "open findings", ["go around again"], step=7)
-    order = ["A", "B", "C", "D", "E", "F", "G", "H"]
-    def edge(k1, k2):
-        (x1, y1), (x2, y2) = nodes[k1], nodes[k2]
-        dx, dy = x2 - x1, y2 - y1
-        L = (dx * dx + dy * dy) ** .5
-        ux, uy = dx / L, dy / L
-        # leave and enter at the card boundary along the direction
-        def clip(x, y, sx, sy):
-            tx = (cw / 2) / abs(sx) if sx else 1e9
-            ty = (ch / 2) / abs(sy) if sy else 1e9
-            t = min(tx, ty) + 4
-            return x + sx * t, y + sy * t
-        p1 = clip(x1, y1, ux, uy)
-        p2 = clip(x2, y2, -ux, -uy)
-        f.arrow([p1, p2])
-    for i in range(len(order)):
-        edge(order[i], order[(i + 1) % len(order)])
-    # the round in the middle
-    f.text(496, 400, "ROUND", "k", 10.5, anchor="middle")
-    f.add('<text class="serif" x="496" y="452" text-anchor="middle" style="font-size:54px;font-weight:700;fill:var(--ink)">2</text>')
-    f.texts.append(Box(466, 404, 60, 54, "2"))
-    f.text(496, 476, "of four, on disk", "", 11.5, anchor="middle")
-    # ladder panel
-    f.card(24, 200, 190, 132, "plain", "The editing ladder", [
-        "mechanical: minor or nit with a", "proven fence → starts cheap",
-        "a blocker, security, or a flagged", "file → never cheap",
-        "a retry: one lever up, effort", "then model, under the posture"])
-    f.card(24, 486, 190, 118, "plain", "Separation of powers", [
-        "the editor cannot resolve a", "thread; the verifier cannot",
-        "edit a file; the skim catches", "changes no finding asked for",
-        "arbitration: one strong pass"])
-    # exits
-    f.chip(836, 322, "gate fails → one repair, one lever up", "exit", step=3, anchor="end")
-    f.chip(836, 346, "fails again → park, never merge over it", "exit", step=3, anchor="end")
-    f.chip(836, 486, "reopened → notes on the record", "note", step=4, anchor="end")
-    f.chip(836, 640, "new findings → the loop continues", "note", step=5, anchor="end")
-    f.chip(24, 660, "capped: reopened past the limit → one arbitration, then park", "exit", step=6)
-    f.chip(24, 684, "cap of four reached → park with a status comment", "exit", step=0)
-    f.chip(24, 708, "0 open → converged; a wont-fix needs your yes → Land", "ok", step=6)
-    f.ledger(24, 742, 812, [(0, "rounds.txt"), (1, "findings/F003: Route notes"), (2, "commits, replies"),
-                            (3, "pr-context/check-failure.txt"), (4, "threads resolved or reopened"),
-                            (5, "incremental review"), (6, "count, capped_ids")])
-    pts = [nodes[k] for k in order] + [nodes["A"]]
-    st = [i / 9 for i in range(9)]
-    f.token(pts, st, cyc)
-    f.schedule(st[:8], cyc, exits={3: (st[3] + .03, st[4]), 4: (st[4] + .03, st[5]), 5: (st[5] + .03, st[6]),
-                                   6: (st[6] + .03, st[7]), 0: (st[0] + .03, st[1])})
+    cx, cy, rx, ry = 324, 482, 212, 168
+    cw, ch = 158, 52
+    order = [
+        (135, "script", "round-counter", "opens a round, four at most"),
+        (182, "script", "route-models", "edit: a rung per finding"),
+        (225, "model", "Editor", "a commit per finding, push"),
+        (275, "script", "run-check", "--gate: the check"),
+        (322, "model", "Verifier", "judges every Resolution"),
+        (370, "script", "round-diff", "unasked changes reviewed"),
+        (415, "script", "count-findings", "open? capped? converged?"),
+    ]
+    # the track, beneath the stations, and the stretch that goes around again
+    f.add(f'<ellipse class="w ring" cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}"/>', "back")
+    p0, p1 = ellipse_pt(cx, cy, rx, ry, 415 - 360), ellipse_pt(cx, cy, rx, ry, 135)
+    f.add(f'<path class="w wl again" d="M{g(p0[0])} {g(p0[1])}A{rx} {ry} 0 0 1 {g(p1[0])} {g(p1[1])}"/>', "back")
+    samples = [ellipse_pt(cx, cy, rx, ry, a) for a in range(0, 361, 4)]
+    f.wires.append(Wire(samples, "ring", under=True))
+    cards = []
+    for i, (ang, kind, title, line) in enumerate(order):
+        x, y = ellipse_pt(cx, cy, rx, ry, ang)
+        cards.append(f.card(x - cw / 2, y - ch / 2, cw, ch, kind, title, [line], step=i, num=i + 1,
+                            mono_lines=(0,) if title == "run-check" else ()))
+    # direction, halfway between stations
+    angs = [o[0] for o in order] + [order[0][0] + 360]
+    for a0, a1 in zip(angs, angs[1:]):
+        m = (a0 + a1) / 2
+        x, y = ellipse_pt(cx, cy, rx, ry, m)
+        t = math.degrees(math.atan2(ry * math.cos(math.radians(m)), -rx * math.sin(math.radians(m))))
+        cls = "chev chev-l" if a0 == 415 else "chev"
+        f.add(f'<path class="{cls}" d="M-4 -4.5L3 0L-4 4.5" transform="translate({g(x)} {g(y)}) rotate({g(t)})"/>', "back")
+    f.text(cx - 12, cy + ry - 44, "open findings", "loop-t", 10.5, anchor="middle", bold=True)
+    f.text(cx - 12, cy + ry - 30, "go around again", "loop-t", 10.5, anchor="middle")
+    # the round, in the middle
+    f.text(cx, cy - 40, "ROUND", "k", 10, anchor="middle", bold=True, spacing=2)
+    f.add(f'<text class="big" x="{cx}" y="{cy + 14}" text-anchor="middle">2</text>')
+    f.texts.append(Box(cx - 18, cy - 28, 36, 44, "2"))
+    f.text(cx, cy + 34, "of four, kept on disk", "s", 11, anchor="middle")
+    for i in range(4):
+        cls = "pip on" if i < 2 else "pip"
+        f.add(f'<circle class="{cls}" cx="{g(cx - 21 + i * 14)}" cy="{cy + 52}" r="4.5"/>')
+    # every way out, on the right
+    bx = 646
+    gate, ver, rdiff, cnt, rc = cards[3], cards[4], cards[5], cards[6], cards[0]
+    lead_right(f, gate.r, gate.y + 10, bx)
+    f.callout(bx, gate.y + 10, "note", "loop", "the gate fails → one repair", "the editor again, one lever up", step=3)
+    # the second leaves above the track, then steps down clear of it
+    f.wire([(gate.r, gate.y + 26), (bx - 34, gate.y + 26), (bx - 34, gate.y + 48), (bx - 10.5, gate.y + 48)],
+           "lead", r=6)
+    f.callout(bx, gate.y + 48, "stop", "park", "it fails again → park", "never merges over a red gate", step=3)
+    lead_right(f, ver.r, ver.cy + 4, bx)
+    f.callout(bx, ver.cy + 4, "note", "loop", "reopened → around again", "a note says what still fails", step=4)
+    lead_right(f, rdiff.r, rdiff.cy + 4, bx)
+    f.callout(bx, rdiff.cy + 4, "note", "loop", "files no finding named", "reviewed; new findings join", step=5)
+    lead_right(f, cnt.r, cnt.y + 10, bx)
+    f.callout(bx, cnt.y + 10, "ok", "check", "0 open → converged", "a wont-fix needs your yes first", step=6)
+    lead_right(f, cnt.r, cnt.b - 8, bx)
+    f.callout(bx, cnt.b - 8, "stop", "park", "reopened past the limit", "one arbitration, then park", step=6)
+    lead_down(f, rc.x + 26, rc.b, rc.b + 52)
+    f.callout(rc.x + 26, rc.b + 52, "stop", "park", "four rounds spent → park", "a status comment names what is open", step=0)
+    py = rc.b + 92
+    f.panel(L, py, 380, "The editing ladder", [
+        "a minor or nit with a proven fence starts cheap",
+        "a blocker, security, a flagged file: never cheap",
+        "a retry moves one lever: effort, then the model",
+        "the cost posture leans every starting rung"])
+    p2 = f.panel(L + 396, py, R - L - 396, "Separation of powers", [
+        "the editor cannot resolve a thread",
+        "the verifier cannot edit a file",
+        "the skim catches what nobody asked for",
+        "arbitration: one strong pass, once a run"])
+    led = f.ledger(p2.b + 18, [(0, "rounds.txt"), (1, "findings: Route notes"), (2, "commits, replies"),
+                               (3, "pr-context/check-failure.txt"), (4, "threads resolved or reopened"),
+                               (5, "incremental review"), (6, "count, capped_ids")])
+    f.legend(led.b + 28)
+    f.height = int(led.b + 44)
+    # the token rides the ring: one lap, clockwise from the counter
+    start = order[0][0]
+    path = (f"M{g(p1[0])} {g(p1[1])}A{rx} {ry} 0 1 1 {g(ellipse_pt(cx, cy, rx, ry, start + 180)[0])} "
+            f"{g(ellipse_pt(cx, cy, rx, ry, start + 180)[1])}A{rx} {ry} 0 1 1 {g(p1[0])} {g(p1[1])}")
+    total = ellipse_len(cx, cy, rx, ry, start, start + 360)
+    dists = [ellipse_len(cx, cy, rx, ry, start, a) / total * 100 if a != start else 0 for a in angs]
+    st = [i / 8 for i in range(8)]
+    f.token([], st, 36, path=path, dists=dists)
+    f.schedule(st[:7], 36, exits={0: (st[0] + .02, st[1]), 3: (st[3] + .02, st[4]), 4: (st[4] + .02, st[5]),
+                                  5: (st[5] + .02, st[6]), 6: (st[6] + .02, st[7])})
     return f
 
 
 def phase_land() -> Fig:
-    """Step 11: a loop of stations between convergence and the merge gate:
-    the merge method, base sync, the checks, and a repair that loops back."""
+    """Step 11: a spine of three stations with every exit on the right,
+    the repair on the left, and the loop that returns to the top."""
     f = Fig("pl", "Phase 5, Land: checks awaited, the base followed, failures repaired",
-            "After convergence the run decides the merge method, since an update follows it; brings "
-            "the branch up to date when the forge reports it conflicting or behind a base that "
-            "requires it, by a rebase with a leased push or a merge of the base, at most three times, "
-            "handing conflicts to a person or, when allowed, to the editor; waits for the head's "
-            "checks in slices under a wait budget kept on disk, rerunning a cancelled run once; and "
-            "on a failed check writes a digest for the editor, who diagnoses, posts a paragraph, "
-            "repairs, and pushes, a repeated failure escalating one lever, repairs capped, every "
-            "repair reviewed, and the loop returning to the start until the checks pass.", 640)
-    cyc = 30
-    f.text(24, 30, "Land", "ttl", 16)
-    f.text(24, 49, "Between a clean ledger and the merge gate: the base keeps moving and the checks have the last word.", "", 11.5)
-    f.terminal(24, 62, 812, [
+            "After convergence the run decides the merge method, since an update follows it, asking "
+            "you when the history is mixed; brings the branch up to date only when the forge reports "
+            "it conflicting or behind a base that requires it, by a rebase with a leased push or a "
+            "merge of the base, at most three times, handing conflicts to you or, under resolve, to "
+            "the editor; and waits for the head's checks in slices under a wait budget kept on disk, "
+            "rerunning a cancelled run once, running again while they are pending, and asking whether "
+            "to extend when the budget is spent. A failed check under fix writes a digest for the "
+            "editor, who diagnoses, posts a paragraph, repairs, and pushes; a repeated failure moves "
+            "one lever, ci_fix_rounds caps the repairs, the check gate and a review of every file the "
+            "repair touched follow, and the loop returns to the top until the checks pass.", 0)
+    f.header(5, "STEP 11", "Land",
+             "Between a clean ledger and the merge gate: the base keeps moving, and the checks have the last word.")
+    f.terminal(112, [
         (0, "merge-method: rebase reason allowed-only"),
         (1, "sync-branch: current"),
         (2, "await-checks: pending 2 of 3, call again"),
@@ -721,117 +1255,154 @@ def phase_land() -> Fig:
         (3, "route ci-repair all rung base model inherit effort high reason ci-failed"),
         (4, "await-checks: pass 3 checks"),
     ])
-    y = 206
-    a = f.card(24, y, 176, 70, "script", "merge-method", ["setting, else the repo’s one", "method, else recent history"], step=0)
-    b = f.card(228, y, 196, 70, "script", "sync-branch", ["only when conflicting or behind", "by the method; at most three"], step=1)
-    c = f.card(452, y, 190, 70, "script", "await-checks", ["slices under a wait budget", "a cancelled run rerun once"], step=2)
-    d = f.card(670, y, 166, 70, "model", "Editor", ["reads the digest, repairs,", "posts its paragraph, pushes"], step=3)
-    f.arrow([(200, y + 35), (226, y + 35)])
-    f.arrow([(424, y + 35), (450, y + 35)])
-    f.arrow([(642, y + 35), (668, y + 35)])
-    f.arrow([(753, y + 70), (753, y + 100), (112, y + 100), (112, y + 72)])
-    f.text(432, y + 96, "a repair loops back: the base may have moved while the checks ran", "", 10.5, anchor="middle")
-    py = 326
-    f.card(24, py, 176, 118, "plain", "Mixed history", ["exit 4 → you pick one of", "the allowed methods", "squash and merge mean a", "merge of the base; rebase", "means a leased push"])
-    f.card(228, py, 196, 118, "plain", "sync-branch exits", ["0: current, or updated", "3: conflicts → a person; under", "resolve, the editor, then review", "4: off, or a base that keeps", "moving → a person; hold or park"])
-    f.card(452, py, 190, 118, "plain", "await-checks exits", ["0: pass → the merge gate", "5: pending → call again", "6: budget spent → extend or hold", "3: failed → the digest, then", "repair under fix; comment under wait"])
-    f.card(670, py, 166, 118, "plain", "The repair", ["same failure → one lever up", "ci_fix_rounds caps it (2)", "then the check gate, then", "round-diff --all: every file", "the repair touched is reviewed"])
-    f.chip(24, 458, "no checks reported → straight on", "note", step=2)
-    f.chip(836, 458, "pass → the merge gate", "ok", step=4, anchor="end")
-    f.card(452, 494, 190, 54, "done", "Checks green", ["the branch is current"], step=4)
-    f.arrow([(c.x + c.w / 2, 444), (c.x + c.w / 2, 492)])
-    f.ledger(24, 562, 812, [(0, "pr-context/merge-method.txt"), (1, "sync-changed.txt"), (2, "ci-wait.txt"),
-                            (2, "ci-attempts.txt"), (3, "ci-failure.txt"), (3, "ci-rounds.txt"), (3, "a comment on the PR")])
-    pts = [(a.x + a.w / 2, y + 35), (b.x + b.w / 2, y + 35), (c.x + c.w / 2, y + 35), (d.x + d.w / 2, y + 35),
-           (c.x + c.w / 2, y + 35), (c.x + c.w / 2, 521)]
-    st = [0, .17, .34, .55, .72, .88]
-    f.token(pts, st, cyc)
-    f.schedule([0, .17, .34, .55, .88], cyc, exits={2: (.4, .55), 4: (.88, 1.0)})
+    sx, sw = 236, 236
+    mm = f.card(sx, 286, sw, 70, "script", "merge-method", ["the setting, else the one the repo", "allows, else its recent history"], step=0, num=1)
+    sb = f.card(sx, 406, sw, 70, "script", "sync-branch", ["only when conflicting or behind,", "by the method, three times at most"], step=1, num=2)
+    ac = f.card(sx, 526, sw, 70, "script", "await-checks", ["waits in slices, budget on disk", "a cancelled run is rerun once"], step=2, num=3)
+    ok = f.card(sx, 652, sw, 56, "done", "Checks green", ["the head passes; on to Merge"], step=4)
+    ed = f.card(L, 526, 172, 70, "model", "Editor", ["reads the CI digest, fixes,", "pushes, posts a paragraph"], step=3)
+    f.wire([(mm.cx, mm.b), (sb.cx, sb.y - 1)])
+    f.wire([(sb.cx, sb.b), (ac.cx, ac.y - 1)])
+    f.wire([(ac.cx, ac.b), (ok.cx, ok.y - 1)], "ok")
+    f.text(ac.cx + 10, ac.b + 34, "0  every check passed", "ok-t", 10, bold=True)
+    f.wire([(ac.x, ac.cy), (ed.r + 1, ac.cy)], "exit")
+    f.text((ac.x + ed.r) / 2, ac.cy - 8, "3", "x-t mono", 10.5, anchor="middle", bold=True, mono=True)
+    f.wire([(ed.cx, ed.y), (ed.cx, mm.cy), (mm.x - 1, mm.cy)], "loop", dashed=True, r=12)
+    f.text(ed.cx + 12, mm.cy - 9, "loop to the top", "loop-t", 10.5, bold=True)
+    f.text(ed.cx + 12, mm.cy + 22, "the base may have", "s", 10.5)
+    f.text(ed.cx + 12, mm.cy + 36, "moved meanwhile", "s", 10.5)
+    rp = f.panel(L, ed.b + 18, 172, "The repair", [
+        "a repeat: one lever up",
+        "ci_fix_rounds caps it",
+        "then the gate, and",
+        "round-diff --all reviews",
+        "every file it touched",
+        "under wait: a comment,",
+        "no repair"])
+    bx = 512
+    lead_right(f, mm.r, mm.cy, bx)
+    f.callout(bx, mm.cy, "ask", "4", "mixed history → you pick a method", "one the repository allows; unattended, park", step=0)
+    lead_right(f, sb.r, sb.y + 16, bx)
+    f.callout(bx, sb.y + 16, "ask", "3", "conflicts → you resolve them", "or, under resolve, the editor does", step=1)
+    lead_right(f, sb.r, sb.b - 14, bx)
+    f.callout(bx, sb.b - 14, "ask", "4", "sync off, or the base keeps moving", "you hold; unattended, park", step=1)
+    lead_right(f, ac.r, ac.y + 16, bx)
+    f.callout(bx, ac.y + 16, "note", "5", "pending → run it again", None, step=2)
+    lead_right(f, ac.r, ac.b - 18, bx)
+    f.callout(bx, ac.b - 18, "ask", "6", "the wait budget is spent", "extend once more, or hold", step=2)
+    lead_right(f, ok.r, ok.cy, bx, "ok")
+    f.callout(bx, ok.cy, "ok", "arrow", "on to the merge gate", None, step=4)
+    led = f.ledger(max(rp.b, ok.b) + 22, [(0, "pr-context/merge-method.txt"), (1, "sync-changed.txt"), (2, "ci-wait.txt"),
+                                (2, "ci-attempts.txt"), (3, "ci-failure.txt"), (3, "ci-rounds.txt")])
+    f.legend(led.b + 28)
+    f.height = int(led.b + 44)
+    pts = [(mm.cx, mm.cy), (sb.cx, sb.cy), (ac.cx, ac.cy), (ed.cx, ed.cy), (ed.cx, mm.cy),
+           (mm.cx, mm.cy), (sb.cx, sb.cy), (ac.cx, ac.cy), (ok.cx, ok.cy)]
+    stops = [0, .1, .2, .36, .5, .54, .64, .74, .9]
+    f.token(pts, stops, 32)
+    f.schedule([0, .1, .2, .36, .9], 32, exits={0: (.02, .1), 1: (.12, .2), 2: (.22, .36), 4: (.9, 1.0)})
     return f
 
 
 def phase_merge() -> Fig:
-    """Steps 12 and 13: a gate with four doors in order, each refusal
-    naming who decides, then the merge and the bookkeeping after it."""
+    """Steps 12 and 13: the method, who opens the gate, merge-pr's four
+    doors with every refusal on the right, the merge, and the bookkeeping."""
     f = Fig("pm", "Phase 6, Merge: four doors, then the merge and the bookkeeping",
             "The merge method is refreshed: the setting, else the one method the repository allows, "
-            "else the one its recent merged pull requests used, and mixed evidence asks a person. "
-            "Auto-approve merges on its own; attended, the user is asked to merge or hold; unattended, "
-            "a converged status comment is posted and nothing merges. merge-pr then passes four doors "
-            "in order and writes nothing when one refuses: the pull request must be open and not a "
-            "draft; mergeable, or exit 5 sends the run back to base sync; free of migration files, or "
-            "exit 4 hands a person four checks to confirm; and clear of commits landed beside the "
-            "reviewed hunks, or exit 6 shows the drift lines and any verdict for a person to decide. "
-            "The merge runs by the decided method with the head matched, the branch is deleted or kept "
-            "with the reason, and the run records its statistics, drops the worktree, sweeps closed "
-            "runs, and reports with its criteria signals.", 860)
-    cyc = 34
-    f.text(24, 30, "Merge", "ttl", 16)
-    f.text(24, 49, "Every refusal writes nothing and names who decides. The merge is the only step that cannot be undone.", "", 11.5)
-    f.terminal(24, 62, 812, [
+            "else the one its recent merged pull requests used, and mixed evidence asks you. "
+            "Auto-approve merges on its own; attended, you are asked to merge or hold; unattended "
+            "with auto-approve off, a converged status comment is posted and nothing merges. merge-pr "
+            "then passes four doors in order and writes nothing when one refuses: the pull request "
+            "must be open and not a draft; mergeable, or exit 5 sends the run back to base sync; free "
+            "of migration files, or exit 4 hands you four checks to confirm; and clear of commits "
+            "landed beside the reviewed hunks, or exit 6 shows the drift lines and any verdict for "
+            "you to decide, an independent verdict on that same base merging on its own. The merge "
+            "runs by the decided method with the head matched, the branch is deleted or kept with "
+            "the reason, and the run records its statistics, drops the worktree, sweeps closed runs, "
+            "and reports with its criteria signals.", 0)
+    f.header(6, "STEPS 12 – 13", "Merge",
+             "Every refusal writes nothing and names who decides. The merge is the one step that cannot be undone.")
+    f.terminal(112, [
         (0, "merge-method: rebase reason setting"),
         (5, "base-drift: 2 commits landed, 1 files shared, level disjoint"),
         (6, "merge-pr: Paxton-Meny/api#128 merged by rebase, branch deleted"),
-        (7, "run-stats: run Paxton-Meny/api#128 outcome merged rounds 2 findings 5 verified 5 …"),
-        (7, "cleanup-state: worktree and context removed, ledger kept"),
-        (7, "sweep-state: stale 0 pruned 1 kept 20"),
-        (7, "criteria-signals: other 1 notes 1"),
+        (7, "run-stats: run Paxton-Meny/api#128 outcome merged rounds 2 findings 5"),
+        (8, "cleanup-state: worktree and context removed, ledger kept"),
+        (9, "sweep-state: stale 0 pruned 1 kept 20"),
+        (10, "criteria-signals: other 1 notes 1"),
     ])
-    y0 = 220
-    a = f.card(24, y0, 250, 70, "script", "merge-method --refresh", ["setting · the repo’s one method", "· recent history, same shape first"], step=0)
-    f.chip(24, 298, "mixed evidence → you pick a method", "ask", step=0)
-    f.card(304, y0, 260, 70, "plain", "Who opens the gate", ["auto-approve → merges on its own", "attended → merge now, or hold?"], step=1)
-    f.chip(304, 298, "unattended, auto-approve off → comment, stop", "note", step=1)
-    f.arrow([(274, y0 + 35), (302, y0 + 35)])
-    # the doors
-    dx, dw = 304, 260
+    sx, sw = 240, 256
+    mm = f.card(sx, 300, sw, 70, "script", "merge-method --refresh",
+                ["the setting, else the repo’s one", "method, else recent history"], step=0)
+    who = f.card(sx, 400, sw, 70, "person", "Who opens the gate",
+                 ["auto-approve: it merges on its own", "attended: merge now, or hold?"], step=1)
+    gx, gy = sx - 14, 498
     doors = [
-        (340, "Open, not a draft", ["else nothing happens"], 2, None, None),
-        (420, "Mergeable", ["the forge’s own verdict"], 3, "CONFLICTING or BEHIND → exit 5 → base sync", "exit"),
-        (500, "No migration files", ["or the forge listed too few files"], 4, "exit 4 → four checks you confirm", "ask"),
-        (580, "Nothing landed beside the hunks", ["base fetched, compared in place"], 5, "near or same → exit 6 → drift lines, verdict", "ask"),
+        (526, "Open, not a draft", "the pull request as it is now", 2, ("stop", "1", "closed, or a draft: stop", None)),
+        (594, "Mergeable", "the forge’s own verdict", 3, ("note", "5", "conflicting or behind", "back to base sync, in Land")),
+        (662, "No migration files", "or too few files listed", 4, ("ask", "4", "migrations → four checks", "you confirm them, then merge")),
+        (730, "Nothing landed beside it", "the base fetched fresh", 5, ("ask", "6", "drift beside the hunks", "an independent verdict merges; else you")),
     ]
-    for yy, t, sub, step, ex, kind in doors:
-        f.card(dx, yy, dw, 56, "script", t, sub, step=step)
-        if ex:
-            f.chip(836, yy + 18, ex, kind, step=step, anchor="end")
-            f.arrow([(dx + dw, yy + 28), (dx + dw + 20, yy + 28)])
-    for yy in (340, 420, 500):
-        f.arrow([(dx + dw / 2, yy + 56), (dx + dw / 2, yy + 78)])
-    f.arrow([(dx + dw / 2, 290), (dx + dw / 2, 338)])
-    f.card(dx, 660, dw, 56, "done", "Merged", ["by the method, head matched"], step=6)
-    f.arrow([(dx + dw / 2, 636), (dx + dw / 2, 658)])
-    f.chip(836, 722, "--migrations-checked · --overlap-checked: only after your answer", "note", step=6, anchor="end")
-    f.chip(836, 642, "an independent verdict on that base → merges on its own", "ok", step=5, anchor="end")
-    f.card(24, 340, 250, 136, "plain", "The branch afterwards", [
-        "deleted, unless it is a fork’s,",
-        "the repository deletes it itself,",
-        "or an open pull request bases on it",
-        "(a stacked branch stays)",
-        "the line says which, and why"])
-    f.card(24, 500, 250, 136, "plain", "What the person confirms", [
-        "migrations: no newer ones on the base,",
-        "none in other open pull requests,",
-        "running code still works, nothing",
-        "shipped was edited",
-        "overlap: the drift lines, the verdict"])
-    ay = 744
-    xs = [24, 230, 436, 642]
-    f.card(xs[0], ay, 182, 54, "script", "run-stats", ["one line per finished run"], step=7)
-    f.card(xs[1], ay, 182, 54, "script", "cleanup-state", ["worktree gone, ledger kept"], step=7)
-    f.card(xs[2], ay, 182, 54, "script", "sweep-state", ["closed runs reaped, pruned"], step=7)
-    f.card(xs[3], ay, 194, 54, "plain", "The report", ["rounds, findings, signals"], step=7)
+    gb = 730 + 50 + 14
+    f.add(f'<rect class="gate" x="{gx}" y="{gy}" width="{sw + 28}" height="{gb - gy}" rx="12"/>', "back")
+    f.text(gx + 14, gy + 18, "merge-pr", "mono k", 11, mono=True, bold=True, layer="back")
+    f.text(gx + sw + 14, gy + 18, "four doors, in order", "fine", 10.5, anchor="end", layer="back")
+    bx = 540
+    f.wire([(mm.cx, mm.b), (who.cx, who.y - 1)])
+    lead_right(f, mm.r, mm.cy, bx)
+    f.callout(bx, mm.cy, "ask", "4", "mixed evidence → you pick", "unattended, the run parks", step=0)
+    lead_right(f, who.r, who.y + 18, bx)
+    f.callout(bx, who.y + 18, "stop", "park", "unattended, approval off", "a status comment; nothing merges", step=1)
+    lead_right(f, who.r, who.b - 14, bx)
+    f.callout(bx, who.b - 14, "ask", "person", "you hold → stats, cleanup", "the PR stays open with its trail", step=1)
+    prev = who
+    dc = []
+    for y, t, sub, step, (kind, mark, l1, l2) in doors:
+        d = f.card(sx, y, sw, 50, "door", t, [sub], step=step)
+        f.wire([(prev.cx, prev.b), (d.cx, d.y - 1)])
+        lead_right(f, d.r, d.cy, bx, "exit" if kind == "stop" else "lead")
+        f.callout(bx, d.cy, kind, mark, l1, l2, step=step)
+        prev = d
+        dc.append(d)
+    mg = f.card(sx, gb + 16, sw, 56, "done", "Merged", ["by the method, the head matched"], step=6)
+    f.wire([(prev.cx, prev.b), (mg.cx, mg.y - 1)])
+    lead_right(f, mg.r, mg.cy, bx, "ok")
+    f.callout(bx, mg.cy, "ok", "check", "the branch: deleted, or kept", "the line says which, and why", step=6)
+    f.panel(L, 300, 180, "Never on its own", [
+        "--migrations-checked and",
+        "--overlap-checked follow",
+        "your answer in this run,",
+        "never a verdict alone"])
+    f.panel(L, 594, 180, "What you confirm", [
+        "no newer migrations on",
+        "the base, none in other",
+        "open PRs, running code",
+        "still works, nothing",
+        "shipped was edited;",
+        "overlap: the drift lines"])
+    f.panel(L, 772, 180, "The branch stays", [
+        "when it is a fork’s,",
+        "the repo deletes it,",
+        "or a PR bases on it"])
+    by, bw = mg.b + 46, (R - L - 3 * 18) / 4
+    names = [("script", "run-stats", "one line per finished run", 7),
+             ("script", "cleanup-state", "worktree gone, ledger kept", 8),
+             ("script", "sweep-state", "closed runs reaped", 9),
+             ("plain", "The report", "rounds, findings, signals", 10)]
+    bk = [f.card(L + i * (bw + 18), by, bw, 56, k, t, [s_], step=st_) for i, (k, t, s_, st_) in enumerate(names)]
+    f.wire([(mg.cx, mg.b), (mg.cx, by - 18), (bk[0].cx, by - 18), (bk[0].cx, by - 1)], r=10)
     for i in range(3):
-        f.arrow([(xs[i] + 182, ay + 27), (xs[i + 1] - 2, ay + 27)])
-    f.arrow([(dx + dw / 2, 716), (dx + dw / 2, 730), (xs[0] + 91, 730), (xs[0] + 91, 742)])
-    f.ledger(24, 812, 812, [(0, "merge-method.txt"), (5, "drift.txt"), (5, "overlap/base/verdict.txt"),
-                            (7, "stats.txt"), (7, "ledger kept for keep_ledgers runs")])
-    pts = [(a.x + a.w / 2, y0 + 35), (dx + dw / 2, y0 + 35), (dx + dw / 2, 368), (dx + dw / 2, 448),
-           (dx + dw / 2, 528), (dx + dw / 2, 608), (dx + dw / 2, 688), (dx + dw / 2, 730), (xs[0] + 91, ay + 27)]
-    st = [0, .11, .22, .33, .45, .57, .72, .80, .82]
-    f.token(pts, st, cyc)
-    f.schedule([0, .11, .22, .33, .45, .57, .72, .82], cyc,
-               exits={0: (.04, .11), 1: (.14, .22), 3: (.36, .45), 4: (.48, .57), 5: (.60, .72), 6: (.74, .82)})
+        f.wire([(bk[i].r, bk[i].cy), (bk[i + 1].x - 1, bk[i + 1].cy)])
+    led = f.ledger(by + 56 + 22, [(0, "pr-context/merge-method.txt"), (5, "drift.txt"), (5, "overlap/base/verdict.txt"),
+                                  (7, "stats.txt"), (8, "ledger kept for keep_ledgers runs")])
+    f.legend(led.b + 28)
+    f.height = int(led.b + 44)
+    pts = [(mm.cx, mm.cy), (who.cx, who.cy)] + [(d.cx, d.cy) for d in dc] + [
+        (mg.cx, mg.cy), (mg.cx, by - 18), (bk[0].cx, by - 18), (bk[0].cx, bk[0].cy)] + [(b.cx, b.cy) for b in bk[1:]]
+    stops = [0, .1, .2, .3, .4, .5, .6, .66, .67, .7, .78, .86, .93]
+    f.token(pts, stops, 36)
+    sched = [0, .1, .2, .3, .4, .5, .6, .7, .78, .86, .93]
+    f.schedule(sched, 36, exits={i: (sched[i] + .02, sched[i + 1] if i + 1 < len(sched) else 1) for i in range(7)})
     return f
 
 
