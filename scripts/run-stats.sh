@@ -17,7 +17,8 @@
 # when a stronger model beats more effort, against a plain retry with
 # the verifier's note. Run it before cleanup-state.sh, which removes
 # pr-context. The outcome is also written to outcome.txt in the state
-# directory, where sweep-state.sh and list-runs.sh read it.
+# directory, where sweep-state.sh and list-runs.sh read it, and
+# journaled in steps.txt as "outcome <outcome>" for next-step.sh.
 set -eu
 
 dir=${1:?usage: run-stats.sh <state-dir> <outcome>}
@@ -141,4 +142,5 @@ printf '%s\n' "$line" >>"$root/stats.txt"
 # The outcome marks the ledger for sweep-state.sh and list-runs.sh: held,
 # parked, and review-only runs stay live without a worktree.
 printf '%s\n' "$outcome" >"$dir/outcome.txt"
+printf 'outcome %s\n' "$outcome" >>"$dir/steps.txt"
 echo "run-stats: $line"

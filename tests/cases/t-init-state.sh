@@ -27,6 +27,8 @@ grep -qx 'maintainer_can_modify true' "$dir/meta.txt"
 grep -q '^head_repo_url https://github.com/Paxton-Meny/widgets.git$' "$dir/meta.txt"
 grep -qx '0' "$dir/round.txt"
 ! grep -q '^state ' "$dir/meta.txt"
+# Each invocation opens in the step journal.
+[ "$(cat "$dir/steps.txt")" = invoke ]
 
 url_dir=$(sh "$REPO_ROOT/scripts/init-state.sh" "$data" "https://github.com/Paxton-Meny/widgets/pull/7")
 [ "$url_dir" = "$dir" ]

@@ -12,7 +12,9 @@
 # current commit first. Exit 3 means the check fails.
 # Each armed gate run records its outcome in check-gate.txt, in the same
 # form, so merge-pr.sh can tell whether the check passed at the head it
-# merges; a new baseline replaces that record.
+# merges; a new baseline replaces that record. Every --gate run, armed
+# or not, is journaled in steps.txt as "gate pass|fail|disarmed|none
+# <commit>" for next-step.sh.
 set -eu
 
 dir=${1:?usage: run-check.sh <state-dir> [--baseline | --gate] [command]}
@@ -39,7 +41,13 @@ ctx="$dir/pr-context"
 	exit 1
 }
 rm -f "$ctx/check-failure.txt"
+journal() {
+	# journal <outcome>: a gate run, for next-step.sh
+	[ "$mode" = gate ] || return 0
+	printf 'gate %s %s\n' "$1" "$(git -C "$worktree" rev-parse HEAD 2>/dev/null || echo unknown)" >>"$dir/steps.txt"
+}
 if [ -z "$cmd" ]; then
+	journal none
 	echo "run-check: no command configured"
 	exit 0
 fi
@@ -62,6 +70,7 @@ if [ "$mode" = gate ]; then
 	case "$baseline" in
 	"pass $cmd_hash "*) ;;
 	"fail $cmd_hash "*)
+		journal disarmed
 		echo "run-check: gate disarmed, the baseline failed"
 		exit 0
 		;;
@@ -69,10 +78,12 @@ if [ "$mode" = gate ]; then
 		# No baseline for this command: take one at the current commit.
 		if check; then
 			record pass
+			journal pass
 			echo "run-check: rebaselined, pass"
 			exit 0
 		fi
 		record fail
+		journal disarmed
 		tail -n 60 "$out" >"$ctx/check-failure.txt"
 		echo "run-check: rebaselined, fail; gate disarmed"
 		exit 0
@@ -83,12 +94,14 @@ fi
 if check; then
 	[ "$mode" = baseline ] && record pass
 	[ "$mode" = gate ] && record pass check-gate.txt
+	journal pass
 	echo "run-check: pass"
 	exit 0
 fi
 
 [ "$mode" = baseline ] && record fail
 [ "$mode" = gate ] && record fail check-gate.txt
+journal fail
 tail -n 60 "$out" >"$ctx/check-failure.txt"
 echo "run-check: fail, output tail in pr-context/check-failure.txt"
 [ "$mode" = baseline ] && exit 0

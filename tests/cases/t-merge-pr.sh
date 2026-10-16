@@ -112,6 +112,7 @@ for status in 'mergeable CONFLICTING\nmerge_state DIRTY' 'mergeable MERGEABLE\nm
 	rc=0
 	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 	[ "$rc" -eq 5 ]
+	[ "$(tail -n 1 "$dir/steps.txt")" = "merge moved abc123" ]
 	case "$out" in
 	'merge-pr: pull request is CONFLICTING, bring the branch up to date first' | 'merge-pr: pull request is BEHIND, bring the branch up to date first') ;;
 	*)
@@ -170,6 +171,7 @@ for flag in --approve ''; do
 	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" $flag) || rc=$?
 	[ "$rc" -eq 4 ]
 	[ "$out" = "$(printf 'merge-pr: migrations changed, a person decides\nmigration app/migrations/0002_add_email.py')" ]
+	[ "$(tail -n 1 "$dir/steps.txt")" = "merge migrations abc123" ]
 	if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
 		echo "a refused merge must write nothing to the pull request" >&2
 		exit 1

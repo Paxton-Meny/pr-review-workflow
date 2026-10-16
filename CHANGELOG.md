@@ -8,6 +8,29 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `scripts/next-step.sh <dir>` names the review-pr step to run next from
+  the ledger alone, so a session that lost its place after a compaction
+  or a resume finds it again instead of trusting memory. Its first line
+  is `next-step: <step> <what to do>`, with the sub-step inside step 8's
+  round and step 11's loop, followed by the finding ids the step acts on
+  and, for a spawn the run already routed, the route line whose model
+  and effort it takes. A new step journal, `steps.txt` in the ledger,
+  makes that placement possible: `init-state.sh` writes each invocation,
+  `round-counter.sh` each round and cap, `route-models.sh` each line of
+  its loop stages (edit, repair, verify, incremental, arbitrate,
+  ci-repair, conflict), `push-branch.sh` each push, `run-check.sh
+  --gate` each gate run, `round-diff.sh` each result, `post-review.sh`
+  each posting, `sync-branch.sh` each outcome, `await-checks.sh` each
+  result, `merge-pr.sh` a moved base or changed migrations,
+  `run-stats.sh` the outcome, and `cleanup-state.sh` the cleanup. The
+  incremental review is saved with the new `save-findings.sh --unit
+  incremental`, journaled rather than counted in the review phase. The
+  skill runs it whenever the session is unsure of its position and on
+  every resume past the review, so a run that stopped mid-round resumes
+  at the batch, gate, verification, or round diff it still owes, and a
+  round a park or hold closed starts a new one. A ledger from before the
+  journal is reported unplaced (exit 4) and resumes as before.
+
 - Base sync. A `branch_sync` setting (off, update, resolve; default
   update, never from a project's shared file) and `scripts/sync-branch.sh`
   bring the pull request branch up to date, before the checks are

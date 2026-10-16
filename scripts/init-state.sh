@@ -10,6 +10,8 @@
 # key=value, a value with spaces quoted with " or '. They are written to
 # overrides.txt (key value, one per line), replaced on every invocation,
 # so a resumed run never keeps an earlier invocation's overrides.
+# Every invocation appends "invoke" to the ledger's steps.txt, the step
+# journal the loop scripts append to and next-step.sh reads.
 set -eu
 
 data_root=${1:?usage: init-state.sh <data-root> <pr-ref> [key=value ...]}
@@ -95,5 +97,7 @@ if [ ! -f "$dir/round.txt" ]; then
 	printf '0\n' >"$tmp"
 	mv "$tmp" "$dir/round.txt"
 fi
+# Each invocation opens in the step journal next-step.sh reads.
+printf 'invoke\n' >>"$dir/steps.txt"
 
 printf '%s\n' "$dir"

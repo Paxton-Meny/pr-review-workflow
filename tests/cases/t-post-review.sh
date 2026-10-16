@@ -78,6 +78,8 @@ grep -qx '<sub>Reviewed with \[pr-review-workflow\](https://github.com/Paxton-Me
 out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
 [ "$out" = "post-review: nothing to post, round 1 unchanged" ]
 grep -qx '1' "$dir/round.txt"
+# Both runs are journaled for next-step.sh.
+[ "$(cat "$dir/steps.txt")" = "$(printf 'post\npost')" ]
 
 if sh "$REPO_ROOT/scripts/post-review.sh" "$SCRATCH/nostate" 2>"$SCRATCH/err"; then
 	echo "expected failure without state" >&2

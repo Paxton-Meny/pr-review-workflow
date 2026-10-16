@@ -86,6 +86,9 @@
 # as a retry does. The conflict stage, for the editor resolving an
 # update that stopped on conflicts, is the editor's rung one level up:
 # a wrong resolution drops code.
+# The edit, repair, verify, incremental, arbitrate, ci-repair, and
+# conflict stages also append each line to the ledger's steps.txt, the
+# step journal next-step.sh reads.
 # The review stage also records its plan in the ledger's review.txt (a
 # "plan" line, then "planned <unit> samples <n>" per line printed), and
 # a skipped gap pass records "gap skip <reason>" there, so
@@ -215,10 +218,18 @@ esac
 
 pinned=${CLAUDE_CODE_EFFORT_LEVEL:+ pinned $CLAUDE_CODE_EFFORT_LEVEL}
 
+# The loop stages also journal each line in the ledger's steps.txt,
+# where next-step.sh reads how far a round or a repair has come.
+case "$stage" in
+edit | repair | verify | incremental | arbitrate | ci-repair | conflict) journal="$dir/steps.txt" ;;
+*) journal=/dev/null ;;
+esac
+
 emit() {
 	# emit <unit> <rung> <model> <effort> <reason> [ids]
 	line="route $stage $1 rung $2 model $3 effort $4$held reason $5${6:+ ids $6}"
 	printf '%s\n' "$line" >>"$ctx/routes.txt"
+	printf '%s\n' "$line" >>"$journal"
 	echo "$line"
 }
 
@@ -226,6 +237,7 @@ skip() {
 	# skip <reason>
 	line="route $stage all skip reason $1"
 	printf '%s\n' "$line" >>"$ctx/routes.txt"
+	printf '%s\n' "$line" >>"$journal"
 	echo "$line"
 }
 
