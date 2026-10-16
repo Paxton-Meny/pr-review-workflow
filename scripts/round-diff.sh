@@ -36,13 +36,18 @@ fi
 
 expected=$(mktemp "$dir/.round-diff.XXXXXX")
 changed=$(mktemp "$dir/.round-diff.XXXXXX")
-trap 'rm -f "$expected" "$changed"' EXIT
+raw=$(mktemp "$dir/.round-diff.XXXXXX")
+trap 'rm -f "$expected" "$changed" "$raw"' EXIT
 
 for record in "$dir/findings"/F*; do
 	[ -f "$record" ] || continue
 	sed -n '/^---$/q; s/^path: //p' "$record"
 done | sort -u >"$expected"
-git -C "$worktree" diff --name-only "$prev_head" "$head_sha" | sort -u >"$changed"
+git -C "$worktree" diff --name-only "$prev_head" "$head_sha" >"$raw" || {
+	echo "round-diff: cannot diff $prev_head and $head_sha" >&2
+	exit 1
+}
+sort -u "$raw" >"$changed"
 
 if [ "$all" -eq 1 ]; then
 	unexpected=$(cat "$changed")

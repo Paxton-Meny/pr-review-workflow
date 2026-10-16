@@ -57,3 +57,12 @@ out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all "$base") || rc=$?
 [ "$rc" -eq 3 ]
 printf '%s\n' "$out" | grep -qx 'unexpected src/named.txt'
 printf '%s\n' "$out" | grep -qx 'unexpected src/other.txt'
+
+# A range git cannot diff is an error, never "clean".
+rc=0
+out=$(sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all 0000000000000000000000000000000000000001 2>/dev/null) || rc=$?
+[ "$rc" -eq 1 ]
+if printf '%s\n' "$out" | grep -q 'round-diff: clean'; then
+	echo "round-diff reported clean for an unknown base" >&2
+	exit 1
+fi
