@@ -47,7 +47,7 @@ PHASES = ["Stage", "Review", "Post", "Fix", "Land", "Merge"]
 # ---------------------------------------------------------------- the kit
 
 PALETTE_LIGHT = (
-    "--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;"
+    "--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;"
     "--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;"
     "--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;"
     "--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;"
@@ -55,14 +55,17 @@ PALETTE_LIGHT = (
     "--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;"
     "--shade:.08"
 )
+# Dark is its own theme, not light inverted: a cool midnight canvas the
+# figure paints itself, so the warm clay of the token and the prompt reads
+# as the signature, with the violet, mint, and coral lifted for contrast.
 PALETTE_DARK = (
-    "--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;"
-    "--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;"
-    "--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;"
-    "--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;"
-    "--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;"
-    "--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;"
-    "--shade:.35"
+    "--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;"
+    "--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;"
+    "--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;"
+    "--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;"
+    "--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;"
+    "--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;"
+    "--shade:.5"
 )
 
 # Glyph widths at 1em for the UI font stack, close enough to Helvetica and
@@ -94,6 +97,22 @@ def text_width(s: str, size: float, mono: bool = False, bold: bool = False,
         return len(s) * 0.602 * size + spacing * len(s)
     w = sum(_W.get(ch, .6) for ch in s) * size
     return w * (1.07 if bold else 1.0) + spacing * len(s)
+
+
+def wrap(s: str, width: float, size: float, mono: bool = False, bold: bool = False) -> list[str]:
+    """Break s into lines no wider than width, at spaces."""
+    lines: list[str] = []
+    cur = ""
+    for word in s.split(" "):
+        t = f"{cur} {word}".strip()
+        if not cur or text_width(t, size, mono, bold) <= width:
+            cur = t
+        else:
+            lines.append(cur)
+            cur = word
+    if cur:
+        lines.append(cur)
+    return lines
 
 
 def esc(s: str) -> str:
@@ -155,6 +174,7 @@ class Fig:
     calls: list[Box] = field(default_factory=list)
     call_texts: list[Box] = field(default_factory=list)
     badges: list[Box] = field(default_factory=list)
+    tags: list[tuple[Box, Box]] = field(default_factory=list)
     wires: list[Wire] = field(default_factory=list)
     css: list[str] = field(default_factory=list)
     ids: set[str] = field(default_factory=set)
@@ -277,31 +297,43 @@ class Fig:
                 self.texts.append(Box(xx, yy - 9, 15 + tw, 11, name))
         return box
 
-    def legend(self, y: float, keys: tuple[str, ...] = ("script", "model", "ok", "note", "ask", "stop")) -> None:
-        """One line of keys at the foot; every figure reads the same way."""
+    LEGEND_ALL = ("script", "agent", "route", "ctx", "ok", "note", "ask", "stop")
+
+    def legend(self, y: float, keys: tuple[str, ...] = LEGEND_ALL) -> float:
+        """The keys at the foot, wrapping onto a second line when they need
+        it; every figure reads the same way. Returns the bottom."""
         items = {
-            "script": ("card", "script, no model"),
-            "model": ("cardm", "model agent"),
-            "ok": ("ok", "carries on"),
-            "note": ("note", "a fallback, the run goes on"),
-            "ask": ("ask", "a person decides"),
-            "stop": ("stop", "stops or parks; the number is the exit code"),
+            "script": "script: deterministic, prints one line",
+            "agent": "agent: a model with its own context",
+            "route": "its model rung and effort, routed by a script",
+            "ctx": "what the agent reads",
+            "ok": "carries on",
+            "note": "a fallback; the run goes on",
+            "ask": "a person decides",
+            "stop": "stops or parks; a number is the exit code",
         }
-        x = L
+        x, yy = L, y
         for k in keys:
-            kind, label = items[k]
-            if kind.startswith("card"):
-                cls = "c" if kind == "card" else "cm"
-                self.add(f'<rect class="{cls}" x="{g(x)}" y="{g(y - 9)}" width="16" height="12" rx="3"/>', "front")
-                tx = x + 22
+            label = items[k]
+            lead = {"script": 22, "agent": 22, "route": 0, "ctx": 16}.get(k, 20)
+            if k == "route":
+                lead = text_width("strong · high", 9, mono=True) + 20
+            need = lead + text_width(label, 10) + 22
+            if x + need - 22 > R:
+                x, yy = L, yy + 20
+            if k in ("script", "agent"):
+                cls = "c" if k == "script" else "cm"
+                self.add(f'<rect class="{cls}" x="{g(x)}" y="{g(yy - 9)}" width="16" height="12" rx="3"/>', "front")
+            elif k == "route":
+                self.route_tag(x, yy - 11, "strong · high", layer="front")
+            elif k == "ctx":
+                self.add(f'<path class="ctx-i" d="M{g(x + 1)} {g(yy - 9)}h6l3 3v8h-9z"/>', "front")
             else:
-                self.badge(x + 7, y - 3, kind, {"ok": "check", "note": "loop", "ask": "person", "stop": "5"}[kind],
+                self.badge(x + 7, yy - 3, k, {"ok": "check", "note": "loop", "ask": "person", "stop": "5"}[k],
                            r=7, layer="front")
-                tx = x + 20
-            b = self.text(tx, y, label, "fine", 10, layer="front")
+            b = self.text(x + lead, yy, label, "fine", 10, layer="front")
             x = b.r + 22
-        if x - 22 > R:
-            raise ValueError(f"{self.pfx}: legend too wide")
+        return yy + 6
 
     # -- cards, panels, bands ----------------------------------------------
 
@@ -324,10 +356,23 @@ class Fig:
         }[kind]
         self.add(s)
 
+    def route_tag(self, x: float, y: float, text: str, layer: str = "cards") -> Box:
+        """A pill naming the rung and effort a script routed an agent to."""
+        tw = text_width(text, 9, mono=True)
+        box = Box(x, y, tw + 14, 16, text)
+        self.add(f'<g class="rtag"><rect x="{g(x)}" y="{g(y)}" width="{g(tw + 14)}" height="16" rx="8"/>'
+                 f'<text class="mono" x="{g(x + 7)}" y="{g(y + 11.3)}" style="font-size:9px">{esc(text)}</text></g>',
+                 layer)
+        return box
+
     def card(self, x: float, y: float, w: float, h: float, kind: str, title: str,
              lines: list[str] = (), step: int | None = None, dashed: bool = False,
-             num: int | None = None, mono_lines: tuple[int, ...] = ()) -> Box:
-        """kind: script | model | done | pr | person | door | plain."""
+             num: int | None = None, mono_lines: tuple[int, ...] = (),
+             route: str | None = None, reads: str | None = None, tag_left: bool = False) -> Box:
+        """kind: script | model | done | pr | person | door | plain.
+        route: the rung and effort a script chose, as a tag on the top edge.
+        reads: what the step reads (an agent's context, a script's input),
+        in a strip along the bottom."""
         rect_cls = {"script": "c", "model": "cm", "done": "cd", "pr": "cg", "person": "cp",
                     "door": "c", "plain": "c"}[kind]
         h_cls = {"script": "h mono", "model": "h hm", "done": "h hd", "pr": "h hg",
@@ -362,24 +407,42 @@ class Fig:
             self.text(x + 12, yy, ln, s_cls + (" mono" if mono else ""), 10.5 if mono else 11,
                       mono=mono, within=box)
             yy += 15
-        if lines and yy - 15 + 9 > y + h:
+        floor = y + h - (24 if reads else 0)
+        if lines and yy - 15 + 6 > floor:
             raise ValueError(f"{self.pfx}: card too short for its lines: {title!r}")
+        if reads:
+            agent = kind == "model"
+            sy = y + h - 22
+            self.add(f'<path class="{"ctx-rule" if agent else "io-rule"}" d="M{g(x + 1)} {g(sy)}H{g(x + w - 1)}"/>')
+            self.add(f'<path class="{"ctx-i" if agent else "io-i"}" d="M{g(x + 12)} {g(sy + 6)}h6l3 3v8h-9z"/>')
+            self.text(x + 28, y + h - 7.5, reads, "mono " + ("ctx-t" if agent else "io-t"), 9.5,
+                      mono=True, within=box)
         self.add("</g>")
+        if route:
+            tw = text_width(route, 9, mono=True) + 14
+            tag = self.route_tag(x + 12 if tag_left else x + w - 12 - tw, y - 8, route, layer="front")
+            self.tags.append((tag, box))
         return box
 
-    def panel(self, x: float, y: float, w: float, title: str, lines: list[str],
-              lead: float = 15) -> Box:
-        """An annotation: quieter than a card, a heading and plain lines."""
-        h = 32 + lead * len(lines) + 4
+    def panel(self, x: float, y: float, w: float, title: str, items: list[str],
+              lead: float = 14.5, gap: float = 5) -> Box:
+        """An annotation: quieter than a card, a heading and bulleted items.
+        Each item wraps to the panel's width; only its first line carries
+        the bullet, so a continuation never reads as an item of its own."""
+        wrapped = [wrap(it, w - 25 - 14, 11) for it in items]
+        n = sum(len(ws) for ws in wrapped)
+        h = 30 + lead * n + gap * (len(items) - 1) + 10
         box = Box(x, y, w, h, title)
         self.cards.append(box)
         self.add(f'<rect class="panel" x="{g(x)}" y="{g(y)}" width="{g(w)}" height="{g(h)}" rx="10"/>')
         self.text(x + 14, y + 21, title.upper(), "k", 9.5, bold=True, spacing=1.4, within=box)
         yy = y + 40
-        for ln in lines:
-            self.add(f'<circle class="dot" cx="{g(x + 17)}" cy="{g(yy - 3.5)}" r="1.6"/>')
-            self.text(x + 25, yy, ln, "s", 11, within=box)
-            yy += lead
+        for ws in wrapped:
+            self.add(f'<circle class="dot" cx="{g(x + 17)}" cy="{g(yy - 3.8)}" r="2"/>')
+            for ln in ws:
+                self.text(x + 25, yy, ln, "s", 11, within=box)
+                yy += lead
+            yy += gap
         return box
 
     def band(self, x: float, y: float, w: float, h: float, num: int, name: str, note: str) -> None:
@@ -572,6 +635,11 @@ class Fig:
 .{p} .c1{{font-weight:700;fill:var(--ink)}}.{p} .c2{{fill:var(--muted)}}
 .{p} .tok-dot{{fill:var(--clay);stroke:var(--card);stroke-width:2}}.{p} .tok-halo{{fill:var(--clay);opacity:.18}}
 .{p} .cardg>rect{{stroke-width:1}}
+.{p} .canvas{{fill:var(--canvas)}}
+.{p} .rtag rect{{fill:var(--card);stroke:var(--accent);stroke-width:1.2}}.{p} .rtag text{{fill:var(--accent);font-weight:700}}
+.{p} .ctx-rule{{stroke:var(--accent-line);stroke-width:1}}.{p} .io-rule{{stroke:var(--line);stroke-width:1}}
+.{p} .ctx-i{{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}}.{p} .io-i{{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}}
+.{p} .ctx-t{{fill:var(--accent-ink)}}.{p} .io-t{{fill:var(--muted)}}
 .{p} .lad{{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}}
 .{p} .rung{{stroke-width:4.5;stroke-linecap:round}}.{p} .rung-s{{stroke:var(--accent)}}.{p} .rung-b{{stroke:var(--wire)}}.{p} .rung-c{{stroke:var(--teal)}}
 .{p} .seg{{fill:var(--card);stroke:var(--line)}}.{p} .seg.on{{fill:var(--accent-bg);stroke:var(--accent-line)}}
@@ -579,6 +647,9 @@ class Fig:
 .{p} .sheet{{fill:var(--card);stroke:var(--line)}}.{p} .fold{{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}}
 .{p} .rv{{fill:var(--ink)}}.{p} .rb{{fill:var(--muted)}}.{p} .kk{{fill:var(--faint)}}
 .{p} .kf{{fill:var(--accent);font-weight:700}}.{p} .kr{{fill:var(--coral);font-weight:700}}.{p} .kc{{fill:var(--teal);font-weight:700}}
+.{p} .fz{{fill:var(--accent-ink)}}.{p} .fence{{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}}
+.{p} .doc-r{{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}}
+.{p} .fz-t{{fill:var(--accent);font-weight:700}}.{p} .pr-rule{{stroke:var(--teal-line);stroke-width:1}}
 .{p} .guide{{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}}
 .{p} .mk-keep{{fill:var(--accent);stroke:var(--bg);stroke-width:2}}.{p} .mk-demote{{fill:var(--bg);stroke:var(--coral);stroke-width:2}}
 .{p} .mk-proven{{fill:var(--teal)}}.{p} .mk-withdrawn{{fill:var(--coral)}}
@@ -605,7 +676,7 @@ class Fig:
         head = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {self.height}" width="{W}" '
                 f'role="img" aria-labelledby="{p}t {p}d" class="{p}">\n'
                 f'<title id="{p}t">{esc(self.title)}</title>\n<desc id="{p}d">{esc(self.desc)}</desc>\n')
-        body = []
+        body = [f'<rect class="canvas" width="{W}" height="{self.height}" rx="16"/>']
         for name in ("back", "wires", "token", "cards", "front"):
             body.extend(self.layers[name])
         return head + base + "\n" + defs + "\n" + "\n".join(body) + "\n</svg>\n"
@@ -635,6 +706,14 @@ class Fig:
                 if hit(a, b, -3):
                     raise ValueError(f"{P}: callouts crowd each other: {a.what!r} and {b.what!r}")
         ts = self.texts
+        for i, (t, own) in enumerate(self.tags):
+            for k in self.cards:
+                if k is not own and hit(t, k):
+                    raise ValueError(f"{P}: a route tag sits on a card: {t.what!r} on {k.what!r}")
+            for x in ts + [o for o, _ in self.tags[i + 1:]]:
+                if hit(t, x):
+                    raise ValueError(f"{P}: a route tag covers {x.what!r}")
+        tagboxes = [t for t, _ in self.tags]
         for t in ts:
             if any(inside(t, k) for k in self.cards):
                 continue
@@ -651,9 +730,9 @@ class Fig:
             segs = list(zip(wv.pts, wv.pts[1:]))
             for a, b in segs:
                 if wv.under:
-                    obstacles = [t for t in ts if not any(inside(t, k) for k in self.cards)] + self.call_texts
+                    obstacles = [t for t in ts if not any(inside(t, k) for k in self.cards)] + self.call_texts + tagboxes
                 else:
-                    obstacles = self.cards + ts + self.call_texts
+                    obstacles = self.cards + ts + self.call_texts + tagboxes
                 for o in obstacles:
                     if seg_hits_box(a, b, Box(o.x + 2, o.y + 2, o.w - 4, o.h - 4, o.what)):
                         raise ValueError(f"{P}: a wire passes through {o.what!r} "
@@ -791,7 +870,7 @@ def phase_stage() -> Fig:
             "once as the baseline that arms the fix loop's gate. A terminal shows the line each "
             "script prints; the ledger shows what each writes.", 0)
     f.header(1, "STEPS 1 – 4", "Stage",
-             "Eleven scripts, no model, one line each. Everything the review reads is on disk before any model reads it.")
+             "Eleven scripts, one line each; a model joins only to judge an overlap. Every input is on disk before review.")
     f.terminal(112, [
         (0, "check-tools: git and gh ready"),
         (2, "settings: resolved 24 default 21 user 1 project 1 local 1 run 0 ignored 0"),
@@ -844,7 +923,7 @@ def phase_stage() -> Fig:
     drop(xs[2] + 22, b1, b1 + 32, "ask", "person", "the project file brings a command", "it waits for your approval", 2)
     drop(xs[3] + 22, b2, b2 + 32, "note", "loop", "GitHub serves no diff", "built from the clone", 4)
     drop(xs[1] + 22, b2, b2 + 32, "ask", "person", "over the size warning", "go on, or park? you say", 6)
-    drop(xs[0] + 22, b2, b2 + 32, "ask", "person", "overlaps another PR", "go on, or stop? you say", 7)
+    drop(xs[0] + 22, b2, b2 + 32, "ask", "person", "overlaps another PR", "a comparer judges; you say", 7)
     drop(xs[0] + 40, b3, b3 + 32, "note", "loop", "a fork refusing edits", "review-only: findings still post", 8)
     drop(xs[0] + 14, b3, b3 + 70, "stop", "2", "the fork is gone: stop", None, 8)
     drop(xs[2] + 22, b3, b3 + 32, "note", "loop", "a failing baseline", "gate disarmed, tail kept as evidence", 10)
@@ -853,8 +932,8 @@ def phase_stage() -> Fig:
         (4, "files/001.diff"), (5, "probes.txt"), (6, "class.txt"), (7, "overlap.txt"),
         (8, "worktree/"), (9, "standards.txt"), (10, "check-baseline.txt"),
     ])
-    f.legend(led.b + 28)
-    f.height = int(led.b + 44)
+    lb = f.legend(led.b + 28, ("script", "ok", "note", "ask", "stop"))
+    f.height = int(lb + 18)
     # the token walks the rail, turning at the margins
     cx = [b.cx for b in c]
     pts = ([(cx[i], m1) for i in range(4)] + [(820, m1), (820, m2)] +
@@ -872,17 +951,19 @@ def phase_review() -> Fig:
     into one ledger, with the routing ladder and a finding record beside."""
     f = Fig("pr", "Phase 2, Review: one plan, parallel reviewers, one ledger",
             "A diff over the cost posture's limit is planned into shards that keep coupled files "
-            "together, and the couplings no shard can see are recorded as seams. Routing gives each "
-            "group a rung on a ladder, the strong model for large, coupled, or risky code, the role's "
-            "own model by default, a cheaper one for a small change with no risk signal, and an "
-            "effort from low to xhigh; a retry moves one lever at a time and the posture leans every "
-            "rung. Reviewers run in parallel, one per group, times the review samples; each report is "
-            "saved verbatim with ids assigned, duplicates merge into the richest record, and a gap "
-            "pass reads the seams first and reports only what was missed, never below the reviewer's "
-            "rung. Findings go on to Post; none at all means the change is clean. A finding record "
-            "shows the header and the Fix, Resolution, and Check lines every finding carries.", 0)
+            "together, and the couplings no shard can see are recorded as seams. A script, not a "
+            "model, routes each group to a rung on a ladder, the strong model for large, coupled, or "
+            "risky code, the role's own model by default, a cheaper one for a small change with no "
+            "risk signal, and to an effort from low to xhigh; a retry moves one lever at a time and "
+            "the posture leans every rung. Reviewers run in parallel, one per group, times the review "
+            "samples, each reading only its group's diffs and the worktree; each report is saved "
+            "verbatim with ids assigned, duplicates merge into the richest record, and a gap pass "
+            "reads the findings and the seams and reports only what was missed, never below the "
+            "reviewer's rung. Findings go on to Post; none at all means the change is clean. A "
+            "finding record shows the header, the Fix, Resolution, and Check lines, and the "
+            "suggestion fence a reviewer may write instead of a Fix line.", 0)
     f.header(2, "STEPS 5 – 6", "Review",
-             "Once, thoroughly. Judgment is spent where the change is deep, and the scripts decide where that is.")
+             "Once, thoroughly. Judgment is spent where the change is deep, and a script decides where that is.")
     f.terminal(112, [
         (0, "shard-plan: groups 3 seams 1 couplings 3 limit 1500"),
         (1, "route review g1 rung strong model opus effort high reason coupled samples 1"),
@@ -896,39 +977,42 @@ def phase_review() -> Fig:
     b = f.card(306, y0, 234, 84, "script", "route-models review",
                ["a rung and an effort per group", "from size, couplings, probes", "samples: identical reviewers"], step=1, num=2)
     f.wire([(a.r, a.cy), (b.x - 1, b.cy)])
-    # the fan
-    ry, rw = 394, 160
+    # the fan: each reviewer is spawned on the rung its group was routed to
+    ry, rw, rh = 404, 160, 74
     rx = [L, 204, 380]
-    revs = [f.card(x, ry, rw, 56, "model", "Reviewer", [t], step=2, dashed=(i == 2))
-            for i, (x, t) in enumerate(zip(rx, ["group 1, its files only", "group 2, in parallel", "group n, × samples"]))]
-    bus1 = ry - 24
+    spec = [("group 1, coupled files", "strong · high"), ("group 2, in parallel", "base · high"),
+            ("group n, × samples", "cheap · medium")]
+    revs = [f.card(x, ry, rw, rh, "model", "Reviewer", [t], step=2, dashed=(i == 2), route=rt,
+                   reads="its diffs, the tree")
+            for i, (x, (t, rt)) in enumerate(zip(rx, spec))]
+    bus1 = ry - 26
     for r_ in revs:
-        f.wire([(b.cx, b.b), (b.cx, bus1), (r_.cx, bus1), (r_.cx, ry - 1)], r=8)
+        f.wire([(b.cx, b.b), (b.cx, bus1), (r_.x + 36, bus1), (r_.x + 36, ry - 1)], r=8)
     f.junction(b.cx, bus1)
-    sy = 498
+    sy = ry + rh + 48
     s = f.card(L, sy, 234, 70, "script", "save-findings",
                ["each report piped in verbatim", "ids assigned, records checked"], step=3, num=3)
     d = f.card(306, sy, 234, 70, "script", "dedup-findings",
                ["samples over one: merged", "the richest record survives"], step=4, num=4)
-    bus2 = ry + 56 + 24
+    bus2 = ry + rh + 24
     for r_ in revs:
         f.wire([(r_.cx, r_.b), (r_.cx, bus2), (s.cx, bus2), (s.cx, sy - 1)], r=8)
     f.junction(s.cx, bus2)
     f.wire([(s.r, s.cy), (d.x - 1, d.cy)])
-    gp = f.card(306, 592, 234, 84, "model", "Gap pass",
-                ["seams first, then what was missed", "never below the reviewer’s rung", "always after a sharded review"], step=5)
+    gp = f.card(306, sy + 102, 234, 100, "model", "Gap pass",
+                ["seams first, then what was missed", "never below the reviewer’s rung", "always after a sharded review"],
+                step=5, route="strong · high", reads="findings, seams, diffs")
     f.wire([(d.cx, d.b), (d.cx, gp.y - 1)])
-    f.panel(L, 592, 234, "Why a gap pass", [
-        "each shard read only its files",
-        "only this pass sees across them",
-        "routing may raise it, and never",
-        "cheapens the safety net"])
+    f.panel(L, gp.y, 234, "Why a gap pass", [
+        "Each shard read only its own files; only this pass reads across them.",
+        "Routing may raise it and never cheapens the safety net."])
     # the outcome, a short spine of two stops
     sx = gp.x + 24
-    f.wire([(sx, gp.b), (sx, 704 - 10.5)], "lead")
-    f.callout(sx, 704, "ok", "arrow", "findings → Post", "the filter reads them first", step=6)
-    f.wire([(sx, 704 + 10.5), (sx, 744 - 10.5)], "lead")
-    f.callout(sx, 744, "ok", "check", "none at all → clean", "convergence, then Land", step=6)
+    o1, o2 = gp.b + 28, gp.b + 68
+    f.wire([(sx, gp.b), (sx, o1 - 10.5)], "lead")
+    f.callout(sx, o1, "ok", "arrow", "findings → Post", "filtered, proven, then posted", step=6)
+    f.wire([(sx, o1 + 10.5), (sx, o2 - 10.5)], "lead")
+    f.callout(sx, o2, "ok", "check", "none at all → clean", "convergence, then Land", step=6)
     # the routing ladder
     px, pw = 566, R - 566
     lad = Box(px, y0, pw, 248, "ladder")
@@ -954,70 +1038,80 @@ def phase_review() -> Fig:
         cls = "seg on" if nm == "high" else "seg"
         f.add(f'<rect class="{cls}" x="{g(x + 1)}" y="{ey - 2}" width="{g(sw - 2)}" height="18" rx="4"/>')
         f.text(x + sw / 2, ey + 11, nm, "segt" + (" on" if nm == "high" else ""), 10, anchor="middle")
-    f.text(px + 14, ey + 36, "a retry moves one lever: effort, then model", "s", 10.5, within=lad)
-    f.text(px + 14, ey + 51, "the cost posture leans every rung", "s", 10.5, within=lad)
-    # a finding record
+    f.text(px + 14, ey + 36, "depth climbs the model, breadth the effort", "s", 10.5, within=lad)
+    f.text(px + 14, ey + 51, "a retry moves one lever; the posture leans all", "s", 10.5, within=lad)
+    # a finding record, as the reviewer writes it and save-findings banks it
     ry0 = y0 + 248 + 16
     rec = [
-        ("id", "F003", ""), ("status", "open", "   round: 1"), ("category", "correctness", ""),
-        ("severity", "major", ""), ("path", "src/retry.py", "  line: 42"), ("side", "RIGHT", ""),
-        ("title", "Retry drops the last error", ""), ("---", "", ""),
-        ("", "The loop exits before the last", ""), ("", "attempt’s error is raised.", ""),
-        ("Fix", "re-raise after the loop, as", ""), ("", "  fetch() does at src/http.py:88", ""),
-        ("Resolution", "the final error", ""), ("", "  propagates; a test asserts it", ""),
-        ("Check", "pytest tests/test_retry.py", ""),
+        ("k", "id", "F003"), ("k", "status", "open   round: 1"), ("k", "category", "correctness"),
+        ("k", "severity", "major"), ("k", "path", "src/retry.py  line: 42"), ("k", "side", "RIGHT"),
+        ("k", "title", "Retry drops the last error"), ("rule", "", "---"),
+        ("b", "", "The loop exits before the last"), ("b", "", "attempt’s error is raised."),
+        ("kf", "Fix", "re-raise after the loop, as"), ("b", "", "  fetch() does at src/http.py:88"),
+        ("kr", "Resolution", "the final error"), ("b", "", "  propagates; a test asserts it"),
+        ("kc", "Check", "pytest tests/test_retry.py"),
+        ("note", "", "or, small and mechanical: a fence"), ("note", "", "in place of the Fix line"),
+        ("fence", "", "```suggestion"), ("fence", "", "        raise last_error"), ("fence", "", "```"),
     ]
-    rh = 36 + 14 * len(rec) + 4
-    sheet = Box(px, ry0, pw, rh, "record")
+    rh_ = 36 + 14 * len(rec) + 6
+    sheet = Box(px, ry0, pw, rh_, "record")
     f.cards.append(sheet)
     f.add(f'<g filter="url(#{f.pfx}-sh)"><path class="sheet" d="M{px} {ry0 + 10}a10 10 0 0 1 10 -10'
-          f'H{R - 16}l16 16V{ry0 + rh - 10}a10 10 0 0 1 -10 10H{px + 10}a10 10 0 0 1 -10 -10z"/></g>'
+          f'H{R - 16}l16 16V{ry0 + rh_ - 10}a10 10 0 0 1 -10 10H{px + 10}a10 10 0 0 1 -10 -10z"/></g>'
           f'<path class="fold" d="M{R - 16} {ry0}v16h16"/>')
+    at = len(f.layers["cards"])      # the fence's tint goes on the sheet, under its text
     f.text(px + 14, ry0 + 21, "findings/F003", "mono k", 10.5, mono=True, bold=True)
     f.text(R - 24, ry0 + 21, "one record", "fine", 10, anchor="end")
     yy = ry0 + 40
-    keycls = {"Fix": "kf", "Resolution": "kr", "Check": "kc", "---": "fine"}
-    for k, v, tail in rec:
-        line = (f"{k}: " if k and k != "---" else ("---" if k == "---" else "")) + v + tail
+    fence_top = None
+    for kind, k, v in rec:
+        line = f"{k}: {v}" if k else v
         if text_width(line, 10, mono=True) > pw - 28:
             raise ValueError(f"pr: record line too long: {line!r}")
-        kc = keycls.get(k, "kk")
-        if k == "---":
-            f.add(f'<text class="mono fine" x="{px + 14}" y="{yy}" style="font-size:10px">---</text>')
-        elif k:
+        if kind == "fence" and fence_top is None:
+            fence_top = yy - 11
+        if k:
             f.add(f'<text class="mono rv" x="{px + 14}" y="{yy}" style="font-size:10px">'
-                  f'<tspan class="{kc}">{esc(k)}:</tspan> {esc(v)}{esc(tail)}</text>')
+                  f'<tspan class="{"kk" if kind == "k" else kind}">{esc(k)}:</tspan> {esc(v)}</text>')
         else:
-            f.add(f'<text class="mono rb" x="{px + 14}" y="{yy}" style="font-size:10px">{esc(v)}</text>')
+            cls = {"rule": "fine", "b": "rb", "note": "fine", "fence": "fz"}[kind]
+            f.add(f'<text class="mono {cls}" x="{px + 14}" y="{yy}" style="font-size:10px">{esc(v)}</text>')
         f.texts.append(Box(px + 14, yy - 8, text_width(line, 10, mono=True), 10, line))
         yy += 14
-    bottom = max(sheet.b, 744 + 20)
+    f.layers["cards"].insert(at, f'<rect class="fence" x="{px + 8}" y="{g(fence_top)}" width="{pw - 16}" '
+                                 f'height="{g(yy - 14 + 6 - fence_top)}" rx="5"/>')
+    bottom = max(sheet.b, o2 + 20)
     led = f.ledger(bottom + 20, [(0, "pr-context/shards.txt"), (0, "seams.txt"), (1, "routes.txt"),
                                  (3, "findings/F001 … F005"), (4, "support headers"), (5, "routes.txt (gap)")])
-    f.legend(led.b + 28, ("script", "model", "ok"))
-    f.height = int(led.b + 44)
-    pts = [(a.cx, a.cy), (b.cx, b.cy), (b.cx, bus1), (revs[1].cx, bus1), (revs[1].cx, revs[1].cy),
-           (revs[1].cx, bus2), (s.cx, bus2), (s.cx, s.cy), (d.cx, d.cy), (gp.cx, gp.cy),
-           (sx, gp.b), (sx, 704)]
-    stops = [0, .14, .25, .26, .28, .40, .41, .43, .58, .72, .86, .9]
+    lb = f.legend(led.b + 28, ("script", "agent", "route", "ctx", "ok"))
+    f.height = int(lb + 18)
+    pts = [(a.cx, a.cy), (b.cx, b.cy), (b.cx, bus1), (revs[1].x + 36, bus1), (revs[1].x + 36, revs[1].cy),
+           (revs[1].cx, revs[1].cy), (revs[1].cx, bus2), (s.cx, bus2), (s.cx, s.cy), (d.cx, d.cy), (gp.cx, gp.cy),
+           (sx, gp.b), (sx, o1)]
+    stops = [0, .14, .25, .26, .28, .29, .40, .41, .43, .58, .72, .86, .9]
     f.token(pts, stops, 30)
     f.schedule([0, .14, .28, .43, .58, .72, .86], 30, exits={6: (.86, 1.0)})
     return f
 
 
 def phase_post() -> Fig:
-    """Step 7: a sieve drawn as a transit map. Each finding is a line; the
-    three stations act on it; one is diverted to the summary, one loses
-    its fence, and every line ends at the pull request."""
+    """Step 7: a sieve drawn as a transit map. Five records banked by the
+    review travel as lines through three stations to the pull request: one
+    is demoted to the round's summary comment, one loses its fence, and
+    every line ends somewhere the author will read it."""
     f = Fig("pp", "Phase 3, Post: a cold re-read, proof, then threads",
-            "Five findings travel as lines through three stations to the pull request. A cheap "
-            "filter re-reads the cited code cold and demotes a finding whose evidence it cannot "
-            "support into the round summary, never dropping one. Every suggestion fence is applied "
-            "in a scratch worktree and the project's check runs; three pass and post as suggestions, "
-            "one fails and is withdrawn while its finding stays. post-review then opens one inline "
-            "thread per finding and one summary comment, writing the thread ids to the records. Open "
-            "findings go on to the fix loop; a fork that refuses maintainer edits stops after posting "
-            "in review-only mode.", 0)
+            "Five finding records banked by the review travel as lines through three stations to the "
+            "pull request; four end with a suggestion fence, the exact replacement lines a reviewer "
+            "may write instead of a Fix line. A filter agent, routed to the cheap rung, re-reads the "
+            "code each record cites, fresh from the worktree, and demotes a finding whose evidence it "
+            "cannot reproduce: demoted means it leaves the inline threads for the round's summary "
+            "comment, with the filter's reason, and stays open for the fix loop. prove-suggestions "
+            "applies every fence in a scratch worktree and runs the project's check command; three "
+            "pass and post as one-click suggestions, one fails and is withdrawn while its finding "
+            "posts as prose. post-review opens one inline thread per finding and one summary comment "
+            "per round, holding the counts by severity and every demoted finding in full, and writes "
+            "the thread ids back to the records. Open findings go on to the fix loop; a fork that "
+            "refuses maintainer edits stops after posting in review-only mode.", 0)
     f.header(3, "STEP 7", "Post",
              "Proof before posting. A false positive costs a round, a thread, and the author’s trust.")
     f.terminal(112, [
@@ -1025,38 +1119,48 @@ def phase_post() -> Fig:
         (1, "prove-suggestions: 3 proven, 1 withdrawn"),
         (2, "post-review: 4 posted inline, 1 in the summary, round 1"),
     ])
-    sy, sw = 226, 160
-    sx = [154, 340, 526]
+    sy, sw, sh = 232, 158, 90
+    sx = [156, 330, 504]
     st_ = [
-        f.card(sx[0], sy, sw, 70, "model", "Filter", ["re-reads cited code cold", "demotes, never drops"], step=0),
-        f.card(sx[1], sy, sw, 70, "script", "prove-suggestions", ["each fence, a scratch tree", "the check decides"], step=1),
-        f.card(sx[2], sy, sw, 70, "script", "post-review", ["a thread per finding", "the rest in the summary"], step=2),
+        f.card(sx[0], sy, sw, sh, "model", "Filter", ["re-reads the cited code", "and doubts the thin"],
+               step=0, route="cheap · low", reads="record + cited code"),
+        f.card(sx[1], sy, sw, sh, "script", "prove-suggestions", ["applies each fence in", "a scratch worktree"],
+               step=1, reads="fence, check_command"),
+        f.card(sx[2], sy, sw, sh, "script", "post-review", ["a thread per finding,", "a comment per round"],
+               step=2, reads="records → gh"),
     ]
     f.wire([(st_[0].r, st_[0].cy), (st_[1].x - 1, st_[0].cy)])
     f.wire([(st_[1].r, st_[1].cy), (st_[2].x - 1, st_[1].cy)])
-    cxs = [s.cx for s in st_]
-    rows = [348, 378, 408, 438, 468]
-    lane = 506
-    pr = f.card(712, 318, R - 712, 206, "pr", "PR #128", [], step=3)
-    # station guides, beneath the lines
+    cxs = [c.cx for c in st_]
+    rows = [384, 414, 444, 474, 504]
+    lane = 548
+    # where the lines come from: the records the review banked
+    f.text(L, sy + 12, "FROM REVIEW", "k", 9.5, bold=True, spacing=1.4)
+    f.text(L, sy + 28, "records in", "fine", 10)
+    f.text(L, sy + 41, "findings/", "fine mono", 10, mono=True)
+    f.text(L, rows[0] - 22, "id · severity", "fine", 9.5)
+    ids = [("F001", "major", True), ("F002", "minor", True), ("F003", "major", True),
+           ("F004", "nit", True), ("F005", "minor", False)]
+    for (fid, sev, fence), y in zip(ids, rows):
+        f.add(f'<path class="doc-r" d="M{L} {y - 6}h6l3 3v8h-9z"/>')
+        b = f.text(L + 14, y + 4, fid, "mono k", 10.5, mono=True, bold=True)
+        b = f.text(b.r + 6, y + 4, sev, "s", 10)
+        if fence:
+            f.text(b.r + 6, y + 4, "fence", "fz-t mono", 9, mono=True)
     for x in cxs:
-        f.add(f'<path class="guide" d="M{g(x)} {sy + 72}V{lane + 16}"/>', "back")
-    f.text(L, 326, "FINDINGS", "k", 9.5, bold=True, spacing=1.4)
-    ids = [("F001", "major"), ("F002", "minor"), ("F003", "major"), ("F004", "nit"), ("F005", "minor")]
-    for (fid, sev), y in zip(ids, rows):
-        b = f.text(L, y + 4, fid, "mono k", 11, mono=True, bold=True)
-        f.text(b.r + 8, y + 4, sev, "s", 10.5)
+        f.add(f'<path class="guide" d="M{g(x)} {sy + sh + 4}V{lane + 14}"/>', "back")
+    pr = f.card(680, rows[0] - 60, R - 680, lane - rows[0] + 102, "pr", "PR #128", [], step=3)
+    t0 = 144
     for y in rows[:4]:
-        f.wire([(104, y), (pr.x - 1, y)], bare_start=True)
-    f.wire([(104, rows[4]), (cxs[0] + 18, rows[4]), (cxs[0] + 18, lane), (pr.x - 1, lane)], r=10,
+        f.wire([(t0, y), (pr.x - 1, y)], bare_start=True)
+    f.wire([(t0, rows[4]), (cxs[0] + 18, rows[4]), (cxs[0] + 18, lane), (pr.x - 1, lane)], r=10,
            bare_start=True)
-    f.text(146, lane + 4, "the summary", "fine", 10)
-    # markers: kept or demoted at the filter
+    f.text(cxs[0] + 30, lane - 8, "demoted: to the round’s summary comment", "mk-t", 9.5, layer="front")
+    # the filter: kept inline, or demoted
     for i, y in enumerate(rows):
         cls = "mk-keep" if i < 4 else "mk-demote"
         f.add(f'<circle class="mk {cls} tl0" cx="{g(cxs[0])}" cy="{y}" r="5"/>', "front")
-    f.text(cxs[0] - 10, rows[4] + 17, "demoted", "mk-t", 9.5, anchor="end", layer="front")
-    # fences proven or withdrawn
+    # the proof: fences kept, or withdrawn
     for i, y in enumerate(rows[:4]):
         ok = i != 1
         x = cxs[1]
@@ -1064,46 +1168,61 @@ def phase_post() -> Fig:
                 f'<path class="mk-m" d="M{g(x - 3)} {y - 3}l6 6m0-6l-6 6"/>')
         f.add(f'<g class="tl1"><rect class="mk {"mk-proven" if ok else "mk-withdrawn"}" x="{g(x - 7)}" y="{y - 7}" '
               f'width="14" height="14" rx="3.5"/>{mark}</g>', "front")
-    f.text(cxs[1] + 12, rows[1] + 17, "withdrawn, the finding stays", "mk-t", 9.5, layer="front")
-    # threads, and the one summary comment
+    f.text(cxs[1] + 12, rows[1] + 17, "fails the check: prose only", "mk-t", 9.5, layer="front")
+    # the posting: threads, and the one comment
     for y in rows[:4]:
         x = cxs[2]
         f.add(f'<path class="mk mk-thread tl2" d="M{g(x - 7)} {y - 6}h14v9h-8l-3.5 3v-3h-2.5z"/>', "front")
     f.add(f'<path class="mk mk-sum tl2" d="M{g(cxs[2] - 6)} {lane - 7}h9l3 3v11h-12z"/>', "front")
-    for y, t in zip(rows[:4] + [lane], ["thread · L42", "thread · L17", "thread · L88", "thread · L9", "1 comment"]):
-        f.text(pr.x + 12, y + 4, t, "sg", 10.5, within=pr)
+    # what lands on the pull request
+    f.text(pr.x + 12, rows[0] - 22, "INLINE THREADS", "k sg", 9, bold=True, spacing=1.2, within=pr)
+    for y, t in zip(rows[:4], ["+ suggestion", "prose only", "+ suggestion", "+ suggestion"]):
+        f.add(f'<path class="mk-thread" d="M{pr.x + 12} {y - 6}h12v8h-7l-3 2.6v-2.6h-2z"/>')
+        f.text(pr.x + 30, y + 4, t, "sg", 10.5, within=pr)
+    f.add(f'<path class="pr-rule" d="M{pr.x + 1} {lane - 22}H{pr.r - 1}"/>')
+    f.text(pr.x + 12, lane - 7 + 0.5 - 2, "SUMMARY COMMENT", "k sg", 9, bold=True, spacing=1.2, within=pr)
+    f.text(pr.x + 12, lane + 12, "round 1 counts,", "sg", 10.5, within=pr)
+    f.text(pr.x + 12, lane + 26, "then F005 in full", "sg", 10.5, within=pr)
+    # what each mark means
+    ky = lane + 44
+    keys = [("keep", "stays an inline thread"), ("demote", "demoted, still open"),
+            ("proven", "fence proven: a suggestion"), ("withdrawn", "fence withdrawn: prose")]
+    kx = L
+    for k, t in keys:
+        x = kx + 6
+        if k in ("keep", "demote"):
+            f.add(f'<circle class="mk mk-{k}" cx="{x}" cy="{ky - 4}" r="5"/>', "front")
+        else:
+            f.add(f'<rect class="mk mk-{k}" x="{x - 6}" y="{ky - 10}" width="12" height="12" rx="3"/>', "front")
+        b = f.text(kx + 18, ky, t, "fine", 10, layer="front")
+        kx = b.r + 20
     # what follows
     spx = pr.cx
-    f.wire([(spx, pr.b), (spx, 548 - 10.5)], "lead")
-    f.callout(spx, 548, "ok", "arrow", "open findings → the fix loop", None, side="left", step=3)
-    f.wire([(spx, 548 + 10.5), (spx, 584 - 10.5)], "lead")
-    f.callout(spx, 584, "stop", "park", "a fork refusing edits: review-only", "the findings stand; the run stops here",
+    c1, c2 = pr.b + 26, pr.b + 62
+    f.wire([(spx, pr.b), (spx, c1 - 10.5)], "lead")
+    f.callout(spx, c1, "ok", "arrow", "open findings → the fix loop", "demoted ones included", side="left", step=3)
+    f.wire([(spx, c1 + 10.5), (spx, c2 - 10.5)], "lead")
+    f.callout(spx, c2, "stop", "park", "a fork refusing edits: review-only", "the findings stand; the run stops",
               side="left", step=3)
-    py = 622
+    py = c2 + 34
     pw = (R - L - 32) / 3
-    f.panel(L, py, pw, "One question per record", [
-        "does the code show exactly this?",
-        "callers and definitions, not prose",
-        "a blocker or major is demoted",
-        "only on a plain contradiction",
-        "support is context, never verdict"])
-    f.panel(L + pw + 16, py, pw, "A fence is a proof", [
-        "applied in a scratch worktree",
-        "the project’s check runs there",
-        "passes: posts as a suggestion",
-        "fails, or no check: withdrawn",
-        "the finding’s prose stays"])
+    p1 = f.panel(L, py, pw, "Demoted, not dropped", [
+        "The filter re-reads the cited code; evidence it cannot reproduce leaves the inline threads.",
+        "The finding moves to the summary comment with the filter’s reason, and is still fixed.",
+        "post-review demotes a line the diff cannot anchor the same way."])
+    p2 = f.panel(L + pw + 16, py, pw, "Where a fence comes from", [
+        "A reviewer may end a record with a suggestion fence: the exact lines to put in place.",
+        "It is applied in a scratch worktree and the project’s check runs there.",
+        "Pass: a one-click suggestion. Fail, or no check: the fence goes, the prose stays."])
     p3 = f.panel(L + 2 * pw + 32, py, pw, "What reaches the PR", [
-        "one inline thread per finding",
-        "demoted ones in the summary,",
-        "each with the filter’s reason",
-        "thread ids written to records",
-        "a rerun never posts twice"])
-    led = f.ledger(p3.b + 18, [(0, "findings/F005: placement summary"), (0, "Filter notes"),
-                               (1, "proof worktree (scratch)"), (1, "fences kept or withdrawn"),
-                               (2, "comment ids on records")])
-    f.legend(led.b + 28, ("script", "model", "ok", "stop"))
-    f.height = int(led.b + 44)
+        "One inline thread per finding, at its path and line.",
+        "One comment per round: counts by severity, then every demoted finding in full.",
+        "Thread ids go back on the records; a rerun never posts twice."])
+    led = f.ledger(max(p1.b, p2.b, p3.b) + 18, [
+        (0, "findings/F005: placement summary"), (0, "Filter: note"),
+        (1, "proof worktree (scratch)"), (1, "fences kept or withdrawn"), (2, "comment ids on records")])
+    lb = f.legend(led.b + 28, ("script", "agent", "route", "ctx", "ok", "stop"))
+    f.height = int(lb + 18)
     pts = [(cxs[0], st_[0].cy), (cxs[1], st_[0].cy), (cxs[2], st_[0].cy), (pr.cx, st_[0].cy), (pr.cx, pr.y + 30)]
     f.token(pts, [0, .3, .6, .82, .86], 24)
     f.schedule([0, .3, .6, .86], 24, exits={3: (.86, 1.0)})
@@ -1148,9 +1267,9 @@ def phase_fix() -> Fig:
     order = [
         (135, "script", "round-counter", "opens a round, four at most"),
         (182, "script", "route-models", "edit: a rung per finding"),
-        (225, "model", "Editor", "a commit per finding, push"),
+        (225, "model", "Editor", "a commit per finding, push", "cheap · medium", "Fix lines, the tree"),
         (275, "script", "run-check", "--gate: the check"),
-        (322, "model", "Verifier", "judges every Resolution"),
+        (322, "model", "Verifier", "judges every Resolution", "base · medium", "Resolution, Check"),
         (370, "script", "round-diff", "unasked changes reviewed"),
         (415, "script", "count-findings", "open? capped? converged?"),
     ]
@@ -1161,10 +1280,13 @@ def phase_fix() -> Fig:
     samples = [ellipse_pt(cx, cy, rx, ry, a) for a in range(0, 361, 4)]
     f.wires.append(Wire(samples, "ring", under=True))
     cards = []
-    for i, (ang, kind, title, line) in enumerate(order):
+    for i, (ang, kind, title, line, *agent) in enumerate(order):
         x, y = ellipse_pt(cx, cy, rx, ry, ang)
-        cards.append(f.card(x - cw / 2, y - ch / 2, cw, ch, kind, title, [line], step=i, num=i + 1,
-                            mono_lines=(0,) if title == "run-check" else ()))
+        h = 74 if agent else ch
+        cards.append(f.card(x - cw / 2, y - h / 2, cw, h, kind, title, [line], step=i, num=i + 1,
+                            mono_lines=(0,) if title == "run-check" else (),
+                            route=agent[0] if agent else None, reads=agent[1] if agent else None,
+                            tag_left=title == "Editor"))
     # direction, halfway between stations
     angs = [o[0] for o in order] + [order[0][0] + 360]
     for a0, a1 in zip(angs, angs[1:]):
@@ -1203,21 +1325,19 @@ def phase_fix() -> Fig:
     lead_down(f, rc.x + 26, rc.b, rc.b + 52)
     f.callout(rc.x + 26, rc.b + 52, "stop", "park", "four rounds spent → park", "a status comment names what is open", step=0)
     py = rc.b + 92
-    f.panel(L, py, 380, "The editing ladder", [
-        "a minor or nit with a proven fence starts cheap",
-        "a blocker, security, a flagged file: never cheap",
-        "a retry moves one lever: effort, then the model",
-        "the cost posture leans every starting rung"])
+    q1 = f.panel(L, py, 380, "The editing ladder", [
+        "A minor or nit with a proven fence starts on the cheap rung.",
+        "A blocker, a security finding, or a flagged file never starts cheap.",
+        "A retry moves one lever, effort first, then the model, under the posture."])
     p2 = f.panel(L + 396, py, R - L - 396, "Separation of powers", [
-        "the editor cannot resolve a thread",
-        "the verifier cannot edit a file",
-        "the skim catches what nobody asked for",
-        "arbitration: one strong pass, once a run"])
-    led = f.ledger(p2.b + 18, [(0, "rounds.txt"), (1, "findings: Route notes"), (2, "commits, replies"),
+        "The editor cannot resolve a thread; the verifier cannot edit a file.",
+        "The skim reviews changes no finding asked for.",
+        "Arbitration is one strong pass, once a run."])
+    led = f.ledger(max(q1.b, p2.b) + 18, [(0, "rounds.txt"), (1, "findings: Route notes"), (2, "commits, replies"),
                                (3, "pr-context/check-failure.txt"), (4, "threads resolved or reopened"),
                                (5, "incremental review"), (6, "count, capped_ids")])
-    f.legend(led.b + 28)
-    f.height = int(led.b + 44)
+    lb = f.legend(led.b + 28, ("script", "agent", "route", "ctx", "ok", "note", "stop"))
+    f.height = int(lb + 18)
     # the token rides the ring: one lap, clockwise from the counter
     start = order[0][0]
     path = (f"M{g(p1[0])} {g(p1[1])}A{rx} {ry} 0 1 1 {g(ellipse_pt(cx, cy, rx, ry, start + 180)[0])} "
@@ -1260,25 +1380,24 @@ def phase_land() -> Fig:
     sb = f.card(sx, 406, sw, 70, "script", "sync-branch", ["only when conflicting or behind,", "by the method, three times at most"], step=1, num=2)
     ac = f.card(sx, 526, sw, 70, "script", "await-checks", ["waits in slices, budget on disk", "a cancelled run is rerun once"], step=2, num=3)
     ok = f.card(sx, 652, sw, 56, "done", "Checks green", ["the head passes; on to Merge"], step=4)
-    ed = f.card(L, 526, 172, 70, "model", "Editor", ["reads the CI digest, fixes,", "pushes, posts a paragraph"], step=3)
+    ed = f.card(L, 526, 172, 88, "model", "Editor", ["diagnoses, fixes, pushes,", "posts a paragraph"], step=3,
+                route="base · high", reads="ci-failure.txt, tree")
+    lx = ed.x + 30
     f.wire([(mm.cx, mm.b), (sb.cx, sb.y - 1)])
     f.wire([(sb.cx, sb.b), (ac.cx, ac.y - 1)])
     f.wire([(ac.cx, ac.b), (ok.cx, ok.y - 1)], "ok")
     f.text(ac.cx + 10, ac.b + 34, "0  every check passed", "ok-t", 10, bold=True)
     f.wire([(ac.x, ac.cy), (ed.r + 1, ac.cy)], "exit")
     f.text((ac.x + ed.r) / 2, ac.cy - 8, "3", "x-t mono", 10.5, anchor="middle", bold=True, mono=True)
-    f.wire([(ed.cx, ed.y), (ed.cx, mm.cy), (mm.x - 1, mm.cy)], "loop", dashed=True, r=12)
-    f.text(ed.cx + 12, mm.cy - 9, "loop to the top", "loop-t", 10.5, bold=True)
-    f.text(ed.cx + 12, mm.cy + 22, "the base may have", "s", 10.5)
-    f.text(ed.cx + 12, mm.cy + 36, "moved meanwhile", "s", 10.5)
+    f.wire([(lx, ed.y), (lx, mm.cy), (mm.x - 1, mm.cy)], "loop", dashed=True, r=12)
+    f.text(lx + 12, mm.cy - 9, "loop to the top", "loop-t", 10.5, bold=True)
+    f.text(lx + 12, mm.cy + 22, "the base may have", "s", 10.5)
+    f.text(lx + 12, mm.cy + 36, "moved meanwhile", "s", 10.5)
     rp = f.panel(L, ed.b + 18, 172, "The repair", [
-        "a repeat: one lever up",
-        "ci_fix_rounds caps it",
-        "then the gate, and",
-        "round-diff --all reviews",
-        "every file it touched",
-        "under wait: a comment,",
-        "no repair"])
+        "The same failure again moves one lever up.",
+        "ci_fix_rounds caps the repairs.",
+        "Then the gate, and a review of every file the repair touched.",
+        "Under ci_checks wait: a comment, no repair."])
     bx = 512
     lead_right(f, mm.r, mm.cy, bx)
     f.callout(bx, mm.cy, "ask", "4", "mixed history → you pick a method", "one the repository allows; unattended, park", step=0)
@@ -1294,9 +1413,9 @@ def phase_land() -> Fig:
     f.callout(bx, ok.cy, "ok", "arrow", "on to the merge gate", None, step=4)
     led = f.ledger(max(rp.b, ok.b) + 22, [(0, "pr-context/merge-method.txt"), (1, "sync-changed.txt"), (2, "ci-wait.txt"),
                                 (2, "ci-attempts.txt"), (3, "ci-failure.txt"), (3, "ci-rounds.txt")])
-    f.legend(led.b + 28)
-    f.height = int(led.b + 44)
-    pts = [(mm.cx, mm.cy), (sb.cx, sb.cy), (ac.cx, ac.cy), (ed.cx, ed.cy), (ed.cx, mm.cy),
+    lb = f.legend(led.b + 28, Fig.LEGEND_ALL)
+    f.height = int(lb + 18)
+    pts = [(mm.cx, mm.cy), (sb.cx, sb.cy), (ac.cx, ac.cy), (lx, ac.cy), (lx, mm.cy),
            (mm.cx, mm.cy), (sb.cx, sb.cy), (ac.cx, ac.cy), (ok.cx, ok.cy)]
     stops = [0, .1, .2, .36, .5, .54, .64, .74, .9]
     f.token(pts, stops, 32)
@@ -1367,23 +1486,18 @@ def phase_merge() -> Fig:
     mg = f.card(sx, gb + 16, sw, 56, "done", "Merged", ["by the method, the head matched"], step=6)
     f.wire([(prev.cx, prev.b), (mg.cx, mg.y - 1)])
     lead_right(f, mg.r, mg.cy, bx, "ok")
-    f.callout(bx, mg.cy, "ok", "check", "the branch: deleted, or kept", "the line says which, and why", step=6)
-    f.panel(L, 300, 180, "Never on its own", [
-        "--migrations-checked and",
-        "--overlap-checked follow",
-        "your answer in this run,",
-        "never a verdict alone"])
-    f.panel(L, 594, 180, "What you confirm", [
-        "no newer migrations on",
-        "the base, none in other",
-        "open PRs, running code",
-        "still works, nothing",
-        "shipped was edited;",
-        "overlap: the drift lines"])
-    f.panel(L, 772, 180, "The branch stays", [
-        "when it is a fork’s,",
-        "the repo deletes it,",
-        "or a PR bases on it"])
+    f.callout(bx, mg.cy, "ok", "check", "the branch: deleted, or kept", "kept for a fork or a stack; the line says why", step=6)
+    pa = f.panel(L, 300, 184, "Never on its own", [
+        "--migrations-checked and --overlap-checked follow your answer in this run.",
+        "A verdict alone never adds them."])
+    f.panel(L, pa.b + 16, 184, "What you confirm", [
+        "No newer migrations on the base, and none in other open PRs.",
+        "Running code still works, and nothing shipped was edited.",
+        "For an overlap: the drift lines and any verdict."])
+    d4 = dc[3]
+    cmp_ = f.card(L, d4.y - 12, 184, 88, "model", "Comparer", ["reads the drift beside", "the hunks; one verdict"],
+                  step=5, route="cheap · low", reads="both sets of hunks")
+    f.wire([(cmp_.r, d4.cy), (d4.x - 1, d4.cy)], "loop", dashed=True)
     by, bw = mg.b + 46, (R - L - 3 * 18) / 4
     names = [("script", "run-stats", "one line per finished run", 7),
              ("script", "cleanup-state", "worktree gone, ledger kept", 8),
@@ -1395,8 +1509,8 @@ def phase_merge() -> Fig:
         f.wire([(bk[i].r, bk[i].cy), (bk[i + 1].x - 1, bk[i + 1].cy)])
     led = f.ledger(by + 56 + 22, [(0, "pr-context/merge-method.txt"), (5, "drift.txt"), (5, "overlap/base/verdict.txt"),
                                   (7, "stats.txt"), (8, "ledger kept for keep_ledgers runs")])
-    f.legend(led.b + 28)
-    f.height = int(led.b + 44)
+    lb = f.legend(led.b + 28, Fig.LEGEND_ALL)
+    f.height = int(lb + 18)
     pts = [(mm.cx, mm.cy), (who.cx, who.cy)] + [(d.cx, d.cy) for d in dc] + [
         (mg.cx, mg.cy), (mg.cx, by - 18), (bk[0].cx, by - 18), (bk[0].cx, bk[0].cy)] + [(b.cx, b.cy) for b in bk[1:]]
     stops = [0, .1, .2, .3, .4, .5, .6, .66, .67, .7, .78, .86, .93]

@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 938" width="860" role="img" aria-labelledby="pft pfd" class="pf">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 978" width="860" role="img" aria-labelledby="pft pfd" class="pf">
 <title id="pft">Phase 4, Fix loop: a bounded ring with gates</title>
 <desc id="pfd">Open findings go around a ring at most four times, the budget kept on disk. The round counter opens a round; routing gives each finding a rung on the editing ladder, cheap for a minor finding with a proven fence, never cheap for a blocker, a security finding, or a flagged file, one lever up on a retry; the editor makes one commit per finding, replies, and pushes; the project's check gate must pass, with one repair allowed and a second failure parking the run; the verifier executes Check lines and judges each Resolution verbatim, resolving threads or reopening them with notes; a skim sends files no finding named to an incremental review; and the count decides: open findings go around again, a finding reopened past the limit gets one arbitration and then parks, four spent rounds park with a status comment, and none open converges, a wont-fix needing your yes before anything merges.</desc>
 <style>
-.pf{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
-@media (prefers-color-scheme:dark){.pf{--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;--shade:.35}}
+.pf{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.pf{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
 .pf text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
 .pf .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 .pf .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
@@ -56,6 +56,11 @@
 .pf .c1{font-weight:700;fill:var(--ink)}.pf .c2{fill:var(--muted)}
 .pf .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.pf .tok-halo{fill:var(--clay);opacity:.18}
 .pf .cardg>rect{stroke-width:1}
+.pf .canvas{fill:var(--canvas)}
+.pf .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.pf .rtag text{fill:var(--accent);font-weight:700}
+.pf .ctx-rule{stroke:var(--accent-line);stroke-width:1}.pf .io-rule{stroke:var(--line);stroke-width:1}
+.pf .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.pf .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.pf .ctx-t{fill:var(--accent-ink)}.pf .io-t{fill:var(--muted)}
 .pf .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
 .pf .rung{stroke-width:4.5;stroke-linecap:round}.pf .rung-s{stroke:var(--accent)}.pf .rung-b{stroke:var(--wire)}.pf .rung-c{stroke:var(--teal)}
 .pf .seg{fill:var(--card);stroke:var(--line)}.pf .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
@@ -63,6 +68,9 @@
 .pf .sheet{fill:var(--card);stroke:var(--line)}.pf .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
 .pf .rv{fill:var(--ink)}.pf .rb{fill:var(--muted)}.pf .kk{fill:var(--faint)}
 .pf .kf{fill:var(--accent);font-weight:700}.pf .kr{fill:var(--coral);font-weight:700}.pf .kc{fill:var(--teal);font-weight:700}
+.pf .fz{fill:var(--accent-ink)}.pf .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.pf .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.pf .fz-t{fill:var(--accent);font-weight:700}.pf .pr-rule{stroke:var(--teal-line);stroke-width:1}
 .pf .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
 .pf .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.pf .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
 .pf .mk-proven{fill:var(--teal)}.pf .mk-withdrawn{fill:var(--coral)}
@@ -119,6 +127,7 @@
 @media (prefers-reduced-motion:reduce){.pf *{animation:none!important}.pf .tok{display:none}.pf .tl,.pf .lf,.pf .ex0,.pf .ex1,.pf .ex2,.pf .ex3,.pf .ex4,.pf .ex5,.pf .ex6,.pf .ex7,.pf .ex8{opacity:1}}
 </style>
 <defs><filter id="pf-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="pf-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="pf-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="978" rx="16"/>
 <ellipse class="w ring" cx="324" cy="482" rx="212" ry="168"/>
 <path class="w wl again" d="M445.6 619.6A212 168 0 0 1 174.1 600.8"/>
 <path class="chev" d="M-4 -4.5L3 0L-4 4.5" transform="translate(126.8 543.6) rotate(-116.4)"/>
@@ -175,11 +184,14 @@
 <text class="num mono" x="180.1" y="470.1" text-anchor="end" style="font-size:9.5px">02</text>
 <text class="s" x="45.1" y="490.1">edit: a rung per finding</text>
 </g>
-<g class="cardg st2"><rect class="cm" x="95.1" y="337.2" width="158" height="52" rx="9"/>
-<path class="ico-m" d="M113.1 348.2c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
-<text class="h hm" x="126.1" y="358.2" style="font-size:12.5px">Editor</text>
-<text class="num mono" x="242.1" y="357.2" text-anchor="end" style="font-size:9.5px">03</text>
-<text class="s sm" x="107.1" y="377.2">a commit per finding, push</text>
+<g class="cardg st2"><rect class="cm" x="95.1" y="326.2" width="158" height="74" rx="9"/>
+<path class="ico-m" d="M113.1 337.2c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="126.1" y="347.2" style="font-size:12.5px">Editor</text>
+<text class="num mono" x="242.1" y="346.2" text-anchor="end" style="font-size:9.5px">03</text>
+<text class="s sm" x="107.1" y="366.2">a commit per finding, push</text>
+<path class="ctx-rule" d="M96.1 378.2H252.1"/>
+<path class="ctx-i" d="M107.1 384.2h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="123.1" y="392.7" style="font-size:9.5px">Fix lines, the tree</text>
 </g>
 <g class="cardg st3"><rect class="c" x="263.5" y="288.6" width="158" height="52" rx="9"/>
 <path class="ico" d="M275.5 300.6l4 3.6l-4 3.6M281.5 308.6h5.5"/>
@@ -187,11 +199,14 @@
 <text class="num mono" x="410.5" y="308.6" text-anchor="end" style="font-size:9.5px">04</text>
 <text class="s mono" x="275.5" y="328.6" style="font-size:10.5px">--gate: the check</text>
 </g>
-<g class="cardg st4"><rect class="cm" x="412.1" y="352.6" width="158" height="52" rx="9"/>
-<path class="ico-m" d="M430.1 363.6c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
-<text class="h hm" x="443.1" y="373.6" style="font-size:12.5px">Verifier</text>
-<text class="num mono" x="559.1" y="372.6" text-anchor="end" style="font-size:9.5px">05</text>
-<text class="s sm" x="424.1" y="392.6">judges every Resolution</text>
+<g class="cardg st4"><rect class="cm" x="412.1" y="341.6" width="158" height="74" rx="9"/>
+<path class="ico-m" d="M430.1 352.6c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
+<text class="h hm" x="443.1" y="362.6" style="font-size:12.5px">Verifier</text>
+<text class="num mono" x="559.1" y="361.6" text-anchor="end" style="font-size:9.5px">05</text>
+<text class="s sm" x="424.1" y="381.6">judges every Resolution</text>
+<path class="ctx-rule" d="M413.1 393.6H569.1"/>
+<path class="ctx-i" d="M424.1 399.6h6l3 3v8h-9z"/>
+<text class="mono ctx-t" x="440.1" y="408.1" style="font-size:9.5px">Resolution, Check</text>
 </g>
 <g class="cardg st5"><rect class="c" x="453.8" y="485.2" width="158" height="52" rx="9"/>
 <path class="ico" d="M465.8 497.2l4 3.6l-4 3.6M471.8 505.2h5.5"/>
@@ -214,37 +229,36 @@
 <circle class="pip on" cx="317" cy="534" r="4.5"/>
 <circle class="pip" cx="331" cy="534" r="4.5"/>
 <circle class="pip" cx="345" cy="534" r="4.5"/>
-<rect class="panel" x="28" y="718.8" width="380" height="96" rx="10"/>
+<rect class="panel" x="28" y="718.8" width="380" height="108" rx="10"/>
 <text class="k" x="42" y="739.8" style="font-size:9.5px;letter-spacing:1.4px">THE EDITING LADDER</text>
-<circle class="dot" cx="45" cy="755.3" r="1.6"/>
-<text class="s" x="53" y="758.8">a minor or nit with a proven fence starts cheap</text>
-<circle class="dot" cx="45" cy="770.3" r="1.6"/>
-<text class="s" x="53" y="773.8">a blocker, security, a flagged file: never cheap</text>
-<circle class="dot" cx="45" cy="785.3" r="1.6"/>
-<text class="s" x="53" y="788.8">a retry moves one lever: effort, then the model</text>
-<circle class="dot" cx="45" cy="800.3" r="1.6"/>
-<text class="s" x="53" y="803.8">the cost posture leans every starting rung</text>
-<rect class="panel" x="424" y="718.8" width="408" height="96" rx="10"/>
+<circle class="dot" cx="45" cy="755" r="2"/>
+<text class="s" x="53" y="758.8">A minor or nit with a proven fence starts on the cheap rung.</text>
+<circle class="dot" cx="45" cy="774.5" r="2"/>
+<text class="s" x="53" y="778.3">A blocker, a security finding, or a flagged file never starts cheap.</text>
+<circle class="dot" cx="45" cy="794" r="2"/>
+<text class="s" x="53" y="797.8">A retry moves one lever, effort first, then the model, under the</text>
+<text class="s" x="53" y="812.3">posture.</text>
+<rect class="panel" x="424" y="718.8" width="408" height="93.5" rx="10"/>
 <text class="k" x="438" y="739.8" style="font-size:9.5px;letter-spacing:1.4px">SEPARATION OF POWERS</text>
-<circle class="dot" cx="441" cy="755.3" r="1.6"/>
-<text class="s" x="449" y="758.8">the editor cannot resolve a thread</text>
-<circle class="dot" cx="441" cy="770.3" r="1.6"/>
-<text class="s" x="449" y="773.8">the verifier cannot edit a file</text>
-<circle class="dot" cx="441" cy="785.3" r="1.6"/>
-<text class="s" x="449" y="788.8">the skim catches what nobody asked for</text>
-<circle class="dot" cx="441" cy="800.3" r="1.6"/>
-<text class="s" x="449" y="803.8">arbitration: one strong pass, once a run</text>
-<rect class="ledger" x="28" y="832.8" width="804" height="62" rx="10"/>
-<path class="folder" d="M42 858.8h5l2 2h8v9h-15z"/>
-<text class="k" x="64" y="864.8" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
-<text class="fine" x="64" y="876.8" style="font-size:9.5px">on disk, per PR</text>
-<g class="lf lf0"><path class="doc" d="M160 848.8h6l3 3v8h-9z"/><text class="mono" x="175" y="857.8" style="font-size:10.5px">rounds.txt</text></g>
-<g class="lf lf1"><path class="doc" d="M257.2 848.8h6l3 3v8h-9z"/><text class="mono" x="272.2" y="857.8" style="font-size:10.5px">findings: Route notes</text></g>
-<g class="lf lf2"><path class="doc" d="M424 848.8h6l3 3v8h-9z"/><text class="mono" x="439" y="857.8" style="font-size:10.5px">commits, replies</text></g>
-<g class="lf lf3"><path class="doc" d="M559.1 848.8h6l3 3v8h-9z"/><text class="mono" x="574.1" y="857.8" style="font-size:10.5px">pr-context/check-failure.txt</text></g>
-<g class="lf lf4"><path class="doc" d="M160 868.8h6l3 3v8h-9z"/><text class="mono" x="175" y="877.8" style="font-size:10.5px">threads resolved or reopened</text></g>
-<g class="lf lf5"><path class="doc" d="M371 868.8h6l3 3v8h-9z"/><text class="mono" x="386" y="877.8" style="font-size:10.5px">incremental review</text></g>
-<g class="lf lf6"><path class="doc" d="M518.8 868.8h6l3 3v8h-9z"/><text class="mono" x="533.8" y="877.8" style="font-size:10.5px">count, capped_ids</text></g>
+<circle class="dot" cx="441" cy="755" r="2"/>
+<text class="s" x="449" y="758.8">The editor cannot resolve a thread; the verifier cannot edit a file.</text>
+<circle class="dot" cx="441" cy="774.5" r="2"/>
+<text class="s" x="449" y="778.3">The skim reviews changes no finding asked for.</text>
+<circle class="dot" cx="441" cy="794" r="2"/>
+<text class="s" x="449" y="797.8">Arbitration is one strong pass, once a run.</text>
+<rect class="ledger" x="28" y="844.8" width="804" height="62" rx="10"/>
+<path class="folder" d="M42 870.8h5l2 2h8v9h-15z"/>
+<text class="k" x="64" y="876.8" style="font-size:9.5px;letter-spacing:1.4px">THE LEDGER</text>
+<text class="fine" x="64" y="888.8" style="font-size:9.5px">on disk, per PR</text>
+<g class="lf lf0"><path class="doc" d="M160 860.8h6l3 3v8h-9z"/><text class="mono" x="175" y="869.8" style="font-size:10.5px">rounds.txt</text></g>
+<g class="lf lf1"><path class="doc" d="M257.2 860.8h6l3 3v8h-9z"/><text class="mono" x="272.2" y="869.8" style="font-size:10.5px">findings: Route notes</text></g>
+<g class="lf lf2"><path class="doc" d="M424 860.8h6l3 3v8h-9z"/><text class="mono" x="439" y="869.8" style="font-size:10.5px">commits, replies</text></g>
+<g class="lf lf3"><path class="doc" d="M559.1 860.8h6l3 3v8h-9z"/><text class="mono" x="574.1" y="869.8" style="font-size:10.5px">pr-context/check-failure.txt</text></g>
+<g class="lf lf4"><path class="doc" d="M160 880.8h6l3 3v8h-9z"/><text class="mono" x="175" y="889.8" style="font-size:10.5px">threads resolved or reopened</text></g>
+<g class="lf lf5"><path class="doc" d="M371 880.8h6l3 3v8h-9z"/><text class="mono" x="386" y="889.8" style="font-size:10.5px">incremental review</text></g>
+<g class="lf lf6"><path class="doc" d="M518.8 880.8h6l3 3v8h-9z"/><text class="mono" x="533.8" y="889.8" style="font-size:10.5px">count, capped_ids</text></g>
+<g class="rtag"><rect x="107.1" y="318.2" width="89.9" height="16" rx="8"/><text class="mono" x="114.1" y="329.5" style="font-size:9px">cheap · medium</text></g>
+<g class="rtag"><rect x="473.6" y="333.6" width="84.4" height="16" rx="8"/><text class="mono" x="480.6" y="344.9" style="font-size:9px">base · medium</text></g>
 <g class="call ex3">
 <circle class="bg-note" cx="646" cy="298.6" r="9.5"/>
 <g class="bg-note-m"><path class="bm-s" d="M650 297.1a4.2 4.2 0 1 0 0.4 3.4"/><path class="bm-f" d="M647.6 296l3.4 -1.6l0.2 3.6z"/></g>
@@ -287,20 +301,21 @@
 <text class="c1" x="137.1" y="682.8">four rounds spent → park</text>
 <text class="c2" x="137.1" y="696.8" style="font-size:10.5px">a status comment names what is open</text>
 </g>
-<rect class="c" x="28" y="913.8" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="922.8" style="font-size:10px">script, no model</text>
-<rect class="cm" x="142.6" y="913.8" width="16" height="12" rx="3"/>
-<text class="fine" x="164.6" y="922.8" style="font-size:10px">model agent</text>
-<circle class="bg-ok" cx="248.6" cy="919.8" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M245.7 919.8l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="261.6" y="922.8" style="font-size:10px">carries on</text>
-<circle class="bg-note" cx="334.5" cy="919.8" r="7"/>
-<g class="bg-note-m"><path class="bm-s" d="M337.5 918.7a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M335.7 917.9l2.5 -1.2l0.1 2.7z"/></g>
-<text class="fine" x="347.5" y="922.8" style="font-size:10px">a fallback, the run goes on</text>
-<circle class="bg-ask" cx="493.8" cy="919.8" r="7"/>
-<g class="bg-ask-m"><circle class="bm-f" cx="493.8" cy="918" r="1.7"/><path class="bm-f" d="M490.6 923.2q0-4.2 3.2-4.2t3.2 4.2z"/></g>
-<text class="fine" x="506.8" y="922.8" style="font-size:10px">a person decides</text>
-<circle class="bg-stop" cx="612" cy="919.8" r="7"/>
-<text class="bm mono bg-stop-t" x="612" y="922.4" text-anchor="middle" style="font-size:7.7px">5</text>
-<text class="fine" x="625" y="922.8" style="font-size:10px">stops or parks; the number is the exit code</text>
+<rect class="c" x="28" y="925.8" width="16" height="12" rx="3"/>
+<text class="fine" x="50" y="934.8" style="font-size:10px">script: deterministic, prints one line</text>
+<rect class="cm" x="225.4" y="925.8" width="16" height="12" rx="3"/>
+<text class="fine" x="247.4" y="934.8" style="font-size:10px">agent: a model with its own context</text>
+<g class="rtag"><rect x="425" y="923.8" width="84.4" height="16" rx="8"/><text class="mono" x="432" y="935.1" style="font-size:9px">strong · high</text></g>
+<text class="fine" x="515.4" y="934.8" style="font-size:10px">its model rung and effort, routed by a script</text>
+<path class="ctx-i" d="M29 945.8h6l3 3v8h-9z"/>
+<text class="fine" x="44" y="954.8" style="font-size:10px">what the agent reads</text>
+<circle class="bg-ok" cx="166.4" cy="951.8" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M163.4 951.8l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="179.4" y="954.8" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="252.3" cy="951.8" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M255.2 950.7a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M253.5 949.9l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="265.3" y="954.8" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-stop" cx="411.6" cy="951.8" r="7"/>
+<text class="bm mono bg-stop-t" x="411.6" y="954.4" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="424.6" y="954.8" style="font-size:10px">stops or parks; a number is the exit code</text>
 </svg>

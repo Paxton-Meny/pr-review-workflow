@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 962" width="860" role="img" aria-labelledby="pst psd" class="ps">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 970" width="860" role="img" aria-labelledby="pst psd" class="ps">
 <title id="pst">Phase 1, Stage: eleven scripts set up one pull request with no model</title>
 <desc id="psd">Eleven scripts run in order with no model, in three bands. The ledger band checks the tools, creates the ledger, resolves settings from five sources, a project file allowed only to raise, add, or set and any command it brings held for your approval, and sweeps closed runs. The read band fetches the diff from the API, or builds it from the clone when GitHub serves none, splits it per file, runs deterministic probes whose hits are leads, classifies the change and its size, asking or parking when it is over the warning, and names open pull requests touching the same hunks, asking whether to go on. The check-out band makes a detached worktree, review-only for a fork that refuses edits and a stop when the fork is gone, gathers local standards, and runs the project's check once as the baseline that arms the fix loop's gate. A terminal shows the line each script prints; the ledger shows what each writes.</desc>
 <style>
-.ps{--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
-@media (prefers-color-scheme:dark){.ps{--bg:#1E1E1C;--card:#2A2A28;--panel:#34342F;--lane:#242422;--ink:#F1EFE8;--muted:#B4B2A9;--faint:#8b8a83;--line:#3F3E3A;--rule:#55544F;--wire:#75736C;--accent:#AFA9EC;--accent-bg:#2B2763;--accent-ink:#E4E2FB;--accent-line:#5A52B8;--teal:#5DCAA5;--teal-bg:#0B3A30;--teal-ink:#C9F0E2;--teal-line:#1D7A61;--coral:#F0997B;--coral-bg:#45200F;--coral-ink:#F5C4B3;--coral-line:#8A4429;--clay:#D97757;--term:#141413;--term-bar:#262624;--term-ink:#F1EFE8;--term-dim:#8b8a83;--shade:.35}}
+.ps{--canvas:transparent;--bg:#FDFCFA;--card:#FFFFFF;--panel:#F1EFE8;--lane:#F6F4EE;--ink:#2C2C2A;--muted:#5F5E5A;--faint:#8b8a83;--line:#E4E2D8;--rule:#C9C7BE;--wire:#A3A199;--accent:#534AB7;--accent-bg:#EEEDFE;--accent-ink:#26215C;--accent-line:#B9B4EA;--teal:#0F6E56;--teal-bg:#E1F5EE;--teal-ink:#04342C;--teal-line:#8FCDB8;--coral:#993C1D;--coral-bg:#FAECE7;--coral-ink:#4A1B0C;--coral-line:#F0B9A5;--clay:#D97757;--term:#2C2C2A;--term-bar:#3A3A37;--term-ink:#F1EFE8;--term-dim:#9C9A92;--shade:.08}
+@media (prefers-color-scheme:dark){.ps{--canvas:#101217;--bg:#101217;--card:#191C23;--panel:#1F232C;--lane:#15181E;--ink:#F3F1EC;--muted:#B4B9C5;--faint:#7E8596;--line:#2C313C;--rule:#3E4554;--wire:#5E6678;--accent:#A99DFF;--accent-bg:#221D47;--accent-ink:#E9E5FF;--accent-line:#5A4BD0;--teal:#4CD9B0;--teal-bg:#0C2D26;--teal-ink:#C6F6E7;--teal-line:#1E7D63;--coral:#FF9671;--coral-bg:#3A1B11;--coral-ink:#FFD5C5;--coral-line:#933F22;--clay:#F28B62;--term:#0A0B0F;--term-bar:#1B1F27;--term-ink:#ECEFF4;--term-dim:#7E8596;--shade:.5}}
 .ps text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;fill:var(--muted)}
 .ps .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
 .ps .ttl{font-family:'Iowan Old Style',Palatino,Georgia,serif;font-size:31px;font-weight:700;fill:var(--ink);letter-spacing:-.3px}
@@ -56,6 +56,11 @@
 .ps .c1{font-weight:700;fill:var(--ink)}.ps .c2{fill:var(--muted)}
 .ps .tok-dot{fill:var(--clay);stroke:var(--card);stroke-width:2}.ps .tok-halo{fill:var(--clay);opacity:.18}
 .ps .cardg>rect{stroke-width:1}
+.ps .canvas{fill:var(--canvas)}
+.ps .rtag rect{fill:var(--card);stroke:var(--accent);stroke-width:1.2}.ps .rtag text{fill:var(--accent);font-weight:700}
+.ps .ctx-rule{stroke:var(--accent-line);stroke-width:1}.ps .io-rule{stroke:var(--line);stroke-width:1}
+.ps .ctx-i{fill:none;stroke:var(--accent);stroke-width:1.2;stroke-linejoin:round}.ps .io-i{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-linejoin:round}
+.ps .ctx-t{fill:var(--accent-ink)}.ps .io-t{fill:var(--muted)}
 .ps .lad{stroke:var(--rule);stroke-width:3;stroke-linecap:round;fill:none}
 .ps .rung{stroke-width:4.5;stroke-linecap:round}.ps .rung-s{stroke:var(--accent)}.ps .rung-b{stroke:var(--wire)}.ps .rung-c{stroke:var(--teal)}
 .ps .seg{fill:var(--card);stroke:var(--line)}.ps .seg.on{fill:var(--accent-bg);stroke:var(--accent-line)}
@@ -63,6 +68,9 @@
 .ps .sheet{fill:var(--card);stroke:var(--line)}.ps .fold{fill:var(--panel);stroke:var(--line);stroke-linejoin:round}
 .ps .rv{fill:var(--ink)}.ps .rb{fill:var(--muted)}.ps .kk{fill:var(--faint)}
 .ps .kf{fill:var(--accent);font-weight:700}.ps .kr{fill:var(--coral);font-weight:700}.ps .kc{fill:var(--teal);font-weight:700}
+.ps .fz{fill:var(--accent-ink)}.ps .fence{fill:var(--accent-bg);stroke:var(--accent-line);stroke-width:1}
+.ps .doc-r{fill:var(--card);stroke:var(--wire);stroke-width:1.1;stroke-linejoin:round}
+.ps .fz-t{fill:var(--accent);font-weight:700}.ps .pr-rule{stroke:var(--teal-line);stroke-width:1}
 .ps .guide{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 4;fill:none}
 .ps .mk-keep{fill:var(--accent);stroke:var(--bg);stroke-width:2}.ps .mk-demote{fill:var(--bg);stroke:var(--coral);stroke-width:2}
 .ps .mk-proven{fill:var(--teal)}.ps .mk-withdrawn{fill:var(--coral)}
@@ -141,6 +149,7 @@
 @media (prefers-reduced-motion:reduce){.ps *{animation:none!important}.ps .tok{display:none}.ps .tl,.ps .lf,.ps .ex0,.ps .ex1,.ps .ex2,.ps .ex3,.ps .ex4,.ps .ex5,.ps .ex6,.ps .ex7,.ps .ex8,.ps .ex9,.ps .ex10,.ps .ex11,.ps .ex12,.ps .ex13{opacity:1}}
 </style>
 <defs><filter id="ps-sh" x="-5%" y="-20%" width="110%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1b1b19" flood-opacity="0.16"/></filter><marker id="ps-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahx" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahl" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="aho" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker><marker id="ps-ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ahd" d="M1 1.2L9.6 5L1 8.8L2.8 5z"/></marker></defs>
+<rect class="canvas" width="860" height="970" rx="16"/>
 <rect class="band" x="28" y="276" width="804" height="166" rx="12"/>
 <text class="bandn" x="44" y="298" style="font-size:10px">1</text>
 <text class="k" x="57.9" y="298" style="font-size:10px;letter-spacing:1.6px">LEDGER</text>
@@ -174,7 +183,7 @@
 <circle class="tok tok-halo" r="11"/><circle class="tok tok-dot" r="5.5"/>
 <text class="kick" x="28" y="34" style="font-size:10px;letter-spacing:1.6px">PHASE 1 OF 6  ·  STEPS 1 – 4</text>
 <text class="ttl" x="28" y="70">Stage</text>
-<text class="sub" x="28" y="94" style="font-size:12.5px">Eleven scripts, no model, one line each. Everything the review reads is on disk before any model reads it.</text>
+<text class="sub" x="28" y="94" style="font-size:12.5px">Eleven scripts, one line each; a model joins only to judge an overlap. Every input is on disk before review.</text>
 <path class="rail" d="M588 32H818"/>
 <path class="rail-done" d="M588 32H588"/>
 <circle class="rail-ring" cx="588" cy="32" r="9"/><circle class="rail-now" cx="588" cy="32" r="5"/>
@@ -320,7 +329,7 @@
 <circle class="bg-ask" cx="74" cy="590" r="9.5"/>
 <g class="bg-ask-m"><circle class="bm-f" cx="74" cy="587.6" r="2.3"/><path class="bm-f" d="M69.6 594.6q0-4.2 4.4-4.2t4.4 4.2z"/></g>
 <text class="c1" x="90" y="594">overlaps another PR</text>
-<text class="c2" x="90" y="608" style="font-size:10.5px">go on, or stop? you say</text>
+<text class="c2" x="90" y="608" style="font-size:10.5px">a comparer judges; you say</text>
 </g>
 <g class="call ex8">
 <circle class="bg-note" cx="92" cy="768" r="9.5"/>
@@ -340,19 +349,17 @@
 <text class="c2" x="478" y="786" style="font-size:10.5px">gate disarmed, tail kept as evidence</text>
 </g>
 <rect class="c" x="28" y="937" width="16" height="12" rx="3"/>
-<text class="fine" x="50" y="946" style="font-size:10px">script, no model</text>
-<rect class="cm" x="142.6" y="937" width="16" height="12" rx="3"/>
-<text class="fine" x="164.6" y="946" style="font-size:10px">model agent</text>
-<circle class="bg-ok" cx="248.6" cy="943" r="7"/>
-<g class="bg-ok-m"><path class="bm-s" d="M245.7 943l2.1 2.1l3.7 -4.1"/></g>
-<text class="fine" x="261.6" y="946" style="font-size:10px">carries on</text>
-<circle class="bg-note" cx="334.5" cy="943" r="7"/>
-<g class="bg-note-m"><path class="bm-s" d="M337.5 941.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M335.7 941.1l2.5 -1.2l0.1 2.7z"/></g>
-<text class="fine" x="347.5" y="946" style="font-size:10px">a fallback, the run goes on</text>
-<circle class="bg-ask" cx="493.8" cy="943" r="7"/>
-<g class="bg-ask-m"><circle class="bm-f" cx="493.8" cy="941.2" r="1.7"/><path class="bm-f" d="M490.6 946.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
-<text class="fine" x="506.8" y="946" style="font-size:10px">a person decides</text>
-<circle class="bg-stop" cx="612" cy="943" r="7"/>
-<text class="bm mono bg-stop-t" x="612" y="945.7" text-anchor="middle" style="font-size:7.7px">5</text>
-<text class="fine" x="625" y="946" style="font-size:10px">stops or parks; the number is the exit code</text>
+<text class="fine" x="50" y="946" style="font-size:10px">script: deterministic, prints one line</text>
+<circle class="bg-ok" cx="232.4" cy="943" r="7"/>
+<g class="bg-ok-m"><path class="bm-s" d="M229.4 943l2.1 2.1l3.7 -4.1"/></g>
+<text class="fine" x="245.4" y="946" style="font-size:10px">carries on</text>
+<circle class="bg-note" cx="318.3" cy="943" r="7"/>
+<g class="bg-note-m"><path class="bm-s" d="M321.2 941.9a3.1 3.1 0 1 0 0.3 2.5"/><path class="bm-f" d="M319.5 941.1l2.5 -1.2l0.1 2.7z"/></g>
+<text class="fine" x="331.3" y="946" style="font-size:10px">a fallback; the run goes on</text>
+<circle class="bg-ask" cx="477.6" cy="943" r="7"/>
+<g class="bg-ask-m"><circle class="bm-f" cx="477.6" cy="941.2" r="1.7"/><path class="bm-f" d="M474.3 946.4q0-4.2 3.2-4.2t3.2 4.2z"/></g>
+<text class="fine" x="490.6" y="946" style="font-size:10px">a person decides</text>
+<circle class="bg-stop" cx="595.7" cy="943" r="7"/>
+<text class="bm mono bg-stop-t" x="595.7" y="945.7" text-anchor="middle" style="font-size:7.7px">5</text>
+<text class="fine" x="608.7" y="946" style="font-size:10px">stops or parks; a number is the exit code</text>
 </svg>
