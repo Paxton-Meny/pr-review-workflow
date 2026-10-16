@@ -10,6 +10,9 @@
 # the gate (exit 0, "gate disarmed"), and a missing baseline, or one
 # taken for a different command, is taken again at the worktree's
 # current commit first. Exit 3 means the check fails.
+# Each armed gate run records its outcome in check-gate.txt, in the same
+# form, so merge-pr.sh can tell whether the check passed at the head it
+# merges; a new baseline replaces that record.
 set -eu
 
 dir=${1:?usage: run-check.sh <state-dir> [--baseline | --gate] [command]}
@@ -47,8 +50,9 @@ check() {
 	(cd "$worktree" && sh -c "$cmd") >"$out" 2>&1
 }
 record() {
-	# record pass|fail
-	printf '%s %s %s\n' "$1" "$cmd_hash" "$(git -C "$worktree" rev-parse HEAD 2>/dev/null || echo unknown)" >"$dir/check-baseline.txt"
+	# record pass|fail [file]
+	printf '%s %s %s\n' "$1" "$cmd_hash" "$(git -C "$worktree" rev-parse HEAD 2>/dev/null || echo unknown)" >"$dir/${2:-check-baseline.txt}"
+	[ -n "${2:-}" ] || rm -f "$dir/check-gate.txt"
 }
 cmd_hash=$(printf '%s' "$cmd" | git hash-object --stdin)
 
@@ -78,11 +82,13 @@ fi
 
 if check; then
 	[ "$mode" = baseline ] && record pass
+	[ "$mode" = gate ] && record pass check-gate.txt
 	echo "run-check: pass"
 	exit 0
 fi
 
 [ "$mode" = baseline ] && record fail
+[ "$mode" = gate ] && record fail check-gate.txt
 tail -n 60 "$out" >"$ctx/check-failure.txt"
 echo "run-check: fail, output tail in pr-context/check-failure.txt"
 [ "$mode" = baseline ] && exit 0

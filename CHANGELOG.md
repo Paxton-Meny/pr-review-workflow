@@ -61,6 +61,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `merge-pr.sh` reads the ledger before it asks the forge anything, so a
+  step the session skipped or forgot no longer merges silently. It
+  refuses with exit 6, writing nothing, while a finding is still open,
+  while a wont-fix finding has no recorded acceptance, or, when the
+  check gate is armed, while the check has not passed at the head being
+  merged; one line names each reason. The attended acceptance in step
+  10 is now written to the record (`update-finding.sh <dir> <id>
+  accepted=yes`, legal only on a wont-fix record), and `run-check.sh
+  --gate` records each outcome in `check-gate.txt`, which a new
+  baseline clears. After a base sync that pushed, the run takes the
+  check gate again. `update-finding.sh` changes header lines only, so a
+  body line that looks like a header field is never rewritten.
 - `merge-pr.sh` merges by the decided method instead of always by
   rebase, names the head the run last saw so an unseen push refuses the
   merge, and deletes the head branch only when the repository does not

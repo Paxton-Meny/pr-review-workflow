@@ -19,6 +19,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh *)
@@ -358,8 +359,12 @@ PRWF_SETTINGS_END
    resume cleanly.
 10. Convergence. If any finding is `wont-fix`: attended, present each
    record's `Wont-fix:` note and ask whether to accept them and continue;
-   unattended, park (step 9) listing them. Nothing merges over an
-   unaccepted wont-fix.
+   for each the user accepts, run
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <dir> <id> accepted=yes`,
+   and only after their answer in this run; any they do not accept
+   parks (step 9). Unattended, park (step 9) listing them. Nothing
+   merges over an unaccepted wont-fix: merge-pr reads the acceptance
+   from the record and refuses without it.
 11. Base sync and checks. Loop:
     a. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir>` as step 12
        describes, since the update follows the merge method, then
@@ -382,7 +387,10 @@ PRWF_SETTINGS_END
        and then parked as a conflict the editor could not resolve. Any
        other non-zero exit (1 or 2: mergeability unknown, base
        unavailable, a dirty worktree, no merge method, a refused push)
-       is relayed and handled as exit 4. After any
+       is relayed and handled as exit 4. After any update that
+       pushed, run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`
+       as step 8c describes, since the merge needs the check to have
+       passed at the new head. After any
        update whose line counts files changed by the resolution, when
        the facts line says `review_repairs true`, review those files as
        step c reviews a repair, with `pr-context/sync-changed.txt` as
@@ -438,6 +446,13 @@ PRWF_SETTINGS_END
     - auto_approve false, unattended: post a converged status comment via
       `gh pr comment` and stop. Never merge unattended with auto_approve
       off.
+    - merge-pr exit 6: nothing merged and nothing asked of the forge,
+      because the ledger does not allow it; relay its lines. `open`
+      lines: back to step 8. `unaccepted` lines: step 10. A `check`
+      line: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`
+      as step 8c describes, repair included, then run the same
+      merge-pr command once more. A second exit 6 parks (step 9) with
+      its lines. Never work around it: no other step merges.
     - merge-pr exit 5: nothing merged, because the base branch moved
       under the pull request while it waited: go back to step 11a,
       which bounds the updates.
