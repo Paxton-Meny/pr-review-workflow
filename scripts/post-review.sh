@@ -1,6 +1,8 @@
 #!/bin/sh
 # Post a new round's summary, then unposted findings as inline review comments.
 # Usage: sh scripts/post-review.sh <state-dir>
+# Every body passes through redact.sh first; the result line counts
+# what it masked when anything was.
 set -eu
 
 dir=${1:?usage: post-review.sh <state-dir>}
@@ -17,9 +19,18 @@ round=$(($(cat "$dir/round.txt") + 1))
 here=$(dirname -- "$0")
 tab=$(printf '\t')
 
-field() { sed -n "s/^$2: //p" "$1"; }
+# Header fields only: a body may quote a line that looks like one.
+field() { sed -n "/^---\$/q; s/^$2: //p" "$1"; }
 body_of() { awk 'f && !/^Criteria note: / { print } /^---$/ { f = 1 }' "$1"; }
 unposted() { [ "$(field "$1" status)" = "open" ] && [ -z "$(field "$1" placement)" ]; }
+
+masked=0
+redact() {
+	# redact <file>: mask credentials in place, counting them
+	out=$(sh "$here/redact.sh" "$1")
+	n=$(printf '%s\n' "$out" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
+	masked=$((masked + ${n:-0}))
+}
 
 demoted=0
 for record in "$dir/findings"/F*; do
@@ -40,7 +51,11 @@ for record in "$dir/findings"/F*; do
 done
 
 summarized=0
-if grep -qx "round: $round" "$dir/findings"/F* 2>/dev/null; then
+new_round=0
+for record in "$dir/findings"/F*; do
+	[ -f "$record" ] && [ "$(field "$record" round)" = "$round" ] && new_round=1 && break
+done
+if [ "$new_round" -eq 1 ]; then
 	blocker=0 major=0 minor=0 nit=0
 	summary_ids=''
 	for record in "$dir/findings"/F*; do
@@ -72,6 +87,7 @@ if grep -qx "round: $round" "$dir/findings"/F* 2>/dev/null; then
 		done
 		[ -z "$credit" ] || printf '\n%s\n' "$credit"
 	} >"$tmp"
+	redact "$tmp"
 	gh pr comment "$pr" --repo "$owner/$repo" --body-file "$tmp" >/dev/null
 	rm -f "$tmp"
 	trap - EXIT
@@ -98,6 +114,7 @@ for record in "$dir/findings"/F*; do
 			"$(field "$record" category)" "$(field "$record" title)"
 		body_of "$record"
 	} >"$tmp"
+	redact "$tmp"
 
 	if [ -n "$end_line" ]; then
 		comment_id=$(gh api "repos/$owner/$repo/pulls/$pr/comments" \
@@ -120,4 +137,6 @@ if [ "$summarized" -eq 0 ] && [ "$posted" -eq 0 ]; then
 	echo "post-review: nothing to post, round $((round - 1)) unchanged"
 	exit 0
 fi
-echo "post-review: $posted posted inline, $demoted in the summary, round $(cat "$dir/round.txt")"
+tail=''
+[ "$masked" -eq 0 ] || tail=", $masked masked"
+echo "post-review: $posted posted inline, $demoted in the summary, round $(cat "$dir/round.txt")$tail"

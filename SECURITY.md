@@ -13,6 +13,42 @@ the GitHub CLI and lets it hold its own credentials. It acts with whatever
 access your `gh` login carries: it reads pull requests, posts comments, pushes
 commits to pull request branches, and merges when told to.
 
+## What the plugin posts
+
+Everything posted to a pull request, finding bodies, the round
+summary, thread replies, and status comments, is written by an agent
+that read the change and may have been steered by it. Every body passes
+through `scripts/redact.sh` first, which masks known token formats
+(GitHub, GitLab, Anthropic, OpenAI, AWS, Slack, Google, Stripe, npm),
+JSON web tokens, private key blocks, and credentials inside URLs.
+Status comments go through `scripts/post-comment.sh`, which posts only
+to the run's own pull request. The masking knows formats, not secrets:
+a credential in a format it does not list posts as written.
+
+## What the agents may touch
+
+The reviewer, filter, editor, verifier, and setup's readers all read
+text the pull request's author or the repository wrote, and that text
+may address them. A hook (`scripts/agent-scope.sh`) holds each of them
+to its definition whenever Claude Code names the agent in the call,
+which it does from version 2.1.69:
+
+- reads stay inside the plugin's data directory, the plugin, and the
+  session's folder (never a home directory as a whole), with no `..`
+  and no symlinked file, so a link planted in a change reads nothing
+  outside;
+- edits stay inside a review worktree;
+- shell commands are only `git -C <path in the data directory>` with
+  the subcommands the agent's definition names, and the plugin scripts
+  it names, with no expansion, redirection, or chaining, no git option
+  that reads, writes, or runs something else, and no status change its
+  role does not make (the editor cannot mark its own fix verified).
+
+The hook only refuses; whatever it lets through still meets your own
+permission settings. Your own session is never affected. A note an agent
+appends can never add a contract line, so no agent can choose what a
+finding's Check line runs.
+
 ## Reporting a vulnerability
 
 Report vulnerabilities privately through GitHub security advisories:
@@ -28,8 +64,18 @@ When you configure a check command, the plugin runs it against a scratch copy
 of the pull request head to verify suggested changes, and again in the
 review worktree after fixes are committed. Both execute the pull
 request's code with your local privileges, exactly as running its tests
-yourself would. Leave the option empty for repositories whose contributors
-you do not trust that far.
+yourself would.
+
+So the command, suggestion proving, and a finding's Check line run only
+on code from an author who can push to the repository: your own pull
+requests, an author with write, maintain, or admin permission, or a
+branch in the repository itself when GitHub cannot say. For anyone
+else, a fork from outside the team, the run asks you once per pull
+request whether to run their code, and runs nothing until you say yes;
+the approval is its own script, outside the skill's pre-granted
+commands, so Claude Code's permission prompt asks you every time;
+unattended, it skips the check and says so. Leave the option empty for
+repositories whose own contributors you do not trust that far.
 
 A repository's committed settings file may name a check command too, but
 it runs only after you approve that exact command, once per change. The

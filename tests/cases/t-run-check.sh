@@ -4,6 +4,9 @@ set -eu
 
 dir="$SCRATCH/state"
 mkdir -p "$dir/worktree" "$dir/pr-context"
+. "$REPO_ROOT/tests/fixture-identity.sh"
+# The signed-in account's own pull request: its code may run.
+printf 'author %s\nself_login %s\n' "$fixture_login" "$fixture_login" >"$dir/meta.txt"
 printf 'x\n' >"$dir/worktree/file.txt"
 
 out=$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" "grep -q x file.txt")
@@ -50,3 +53,15 @@ grep -q '^fail ' "$dir/check-baseline.txt"
 rm -f "$dir/check-baseline.txt"
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate "grep -q z file.txt")" = "run-check: rebaselined, fail; gate disarmed" ]
 [ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" --gate)" = "run-check: no command configured" ]
+
+# Another account's fork: the command would run its code, so it is
+# skipped in every mode, until the user approves that author.
+printf 'author someone-else\nself_login %s\ncross_repo true\n' "$fixture_login" >"$dir/meta.txt"
+for mode in '' --baseline --gate; do
+	out=$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" $mode "touch $SCRATCH/ran")
+	[ "$out" = "run-check: skipped, the pull request's author is not trusted to run code here (author-trust.sh)" ]
+done
+[ ! -e "$SCRATCH/ran" ]
+sh "$REPO_ROOT/scripts/approve-author.sh" "$dir" >/dev/null
+[ "$(sh "$REPO_ROOT/scripts/run-check.sh" "$dir" "touch $SCRATCH/ran")" = "run-check: pass" ]
+[ -e "$SCRATCH/ran" ]

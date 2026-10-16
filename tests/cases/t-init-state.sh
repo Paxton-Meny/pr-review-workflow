@@ -23,10 +23,20 @@ grep -qx 'head_sha abc123' "$dir/meta.txt"
 grep -qx 'self_login Paxton-Meny' "$dir/meta.txt"
 grep -qx 'self_email 308824607+Paxton-Meny@users.noreply.github.com' "$dir/meta.txt"
 grep -qx 'cross_repo false' "$dir/meta.txt"
+# No answer about the author's permission records it as unknown.
+grep -qx 'author_permission unknown' "$dir/meta.txt"
 grep -qx 'maintainer_can_modify true' "$dir/meta.txt"
 grep -q '^head_repo_url https://github.com/Paxton-Meny/widgets.git$' "$dir/meta.txt"
 grep -qx '0' "$dir/round.txt"
 ! grep -q '^state ' "$dir/meta.txt"
+
+printf 'write\n' >"$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'author_permission write' "$dir/meta.txt"
+printf 'pull\n' >"$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'author_permission unknown' "$dir/meta.txt"
+rm -f "$stub/api-repos_Paxton-Meny_widgets_collaborators_Paxton-Meny_permission"
 
 url_dir=$(sh "$REPO_ROOT/scripts/init-state.sh" "$data" "https://github.com/Paxton-Meny/widgets/pull/7")
 [ "$url_dir" = "$dir" ]
@@ -59,6 +69,26 @@ grep -q "unclosed quote" "$SCRATCH/err"
 printf '2\n' >"$dir/round.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx '2' "$dir/round.txt"
+
+# The reviewed head is GitHub's head until the ledger holds findings;
+# from then on it carries over, so a push made since stays unreviewed.
+grep -qx 'reviewed_head abc123' "$dir/meta.txt"
+mkdir -p "$dir/findings"
+: >"$dir/findings/F001"
+sed 's/^head_sha abc123$/head_sha def456/' "$stub/pr-view" >"$stub/pr-view.new"
+mv "$stub/pr-view.new" "$stub/pr-view"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'head_sha def456' "$dir/meta.txt"
+grep -qx 'reviewed_head abc123' "$dir/meta.txt"
+[ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
+# A ledger written before the field falls back to the head it recorded.
+sed -e '/^reviewed_head /d' -e 's/^head_sha .*/head_sha 0ld0ld/' "$dir/meta.txt" >"$dir/meta.old"
+mv "$dir/meta.old" "$dir/meta.txt"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'reviewed_head 0ld0ld' "$dir/meta.txt"
+rm -rf "$dir/findings"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'reviewed_head def456' "$dir/meta.txt"
 
 if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#nope" 2>"$SCRATCH/err"; then
 	echo "expected failure on a bad number" >&2

@@ -57,7 +57,8 @@ commits are authored as the signed-in account's noreply address, never
 your clone's local git identity. The first comment of each review
 ends with one line naming and linking this plugin. With the
 check command configured, it also runs that command against pull request
-code (see SECURITY.md). It never runs migrations or connects to a
+code; for an author who cannot push to the repository, only after you
+approve that author (see SECURITY.md). It never runs migrations or connects to a
 database, and a pull request that changes migration files always waits
 for a person before it merges.
 
@@ -166,7 +167,7 @@ pull request, and says when to choose it.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. When off, you get a prompt: merge now or hold. |
+| Auto-approve on convergence | off | Merge without asking once the loop is clean, unless the change touches migrations. Only when the author can push to the repository: anyone else's pull request always waits for a person. When off, you get a prompt: merge now or hold. |
 | Merge method | auto | How the pull request merges: merge, squash, or rebase. auto takes the one method the repository allows, else the method its recent merged pull requests into the same base used, judged among pull requests of the same shape (one commit or several); mixed evidence asks you, and parks an unattended run. A project's shared file may set it. |
 | CI checks | fix | After convergence, when the repository reports checks: off waits for nothing; wait waits, and on a failure comments and stops; fix has the editor read the failure digest, post its diagnosis, repair, push, and wait again, up to the fix rounds, escalating the routing when the same failure repeats. Never edits a workflow or weakens a test. A project's shared file may raise it. |
 | CI fix rounds | 2 | Repairs of failing checks per pull request before the run parks, kept on disk. |
@@ -174,7 +175,7 @@ pull request, and says when to choose it.
 | Review repairs | on | The reviewer reads the files a repair touched before the merge gate; findings re-enter the remediation loop. Off trusts the checks alone. |
 | Base sync | update | When the base moved so the pull request conflicts or is behind a base that requires it up to date: off reports and holds; update brings the branch up to date by the mechanism the merge method needs (a rebase and a leased forced push under rebase merging, a merge of the base into the head otherwise) and hands conflicts to you; resolve has the editor resolve conflicts too, with the resolution reviewed. Only you can set it. |
 | Self-started reviews | ask | When Claude starts a review on its own: ask (you confirm first) or auto (no question when the pull request is ready). Anything that is not ready still asks. |
-| Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. |
+| Check command | empty | The reviewed repository's own check command, used to prove suggestions. Empty restricts suggestions to fixes that apply cleanly. On an outside author's code (one who cannot push to the repository) it runs only after you approve that author. |
 | Local standards files | empty | Globs, relative to your clone, of untracked files holding the project's own rules. Their substance guides every category of the review; their names and text never reach the pull request. |
 | Second review pass | risky | When a gap pass runs after a single-reviewer first review: off, risky (a secrets, automation, or sensitive probe fired), or always. It reads the existing findings and reports only what they miss. A sharded review always ends with one, whatever this is set to: shards read disjoint file sets, so only a whole-diff pass sees defects that span them. |
 | Ledgers kept per repository | 20 | Finished finding ledgers retained per repository; older ones are pruned at the start of each review and after each merge, and a run whose pull request is still open never is. |
@@ -265,7 +266,10 @@ execution is the one judge that cannot be argued with. Containment is
 strict because reviewers read untrusted pull request content: a Check
 line executes only when it starts with your configured check command or
 one of the prefixes above, and never when it contains shell
-metacharacters. With no check command configured, nothing ever
+metacharacters. On a pull request whose author cannot push to the
+repository, the check command, suggestion proving, and Check lines run
+only after you approve that author; until then contracts do not run and
+report `untrusted-author`. With no check command configured, nothing ever
 executes, exactly as before. Running a narrowed test executes no more
 of the pull request's code than the check command you already
 configured runs on every round.

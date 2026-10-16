@@ -1,6 +1,7 @@
 #!/bin/sh
 # Reply to one inline review comment thread. Body arrives on stdin.
 # Usage: sh scripts/reply-thread.sh <state-dir> <comment-id>
+# The body passes through redact.sh before it posts.
 set -eu
 
 dir=${1:?usage: reply-thread.sh <state-dir> <comment-id>}
@@ -19,6 +20,13 @@ owner=$(sed -n 's/^owner //p' "$dir/meta.txt")
 repo=$(sed -n 's/^repo //p' "$dir/meta.txt")
 pr=$(sed -n 's/^pr //p' "$dir/meta.txt")
 
+tmp=$(mktemp "$dir/.reply.XXXXXX")
+trap 'rm -f "$tmp"' EXIT
+cat >"$tmp"
+out=$(sh "$(dirname -- "$0")/redact.sh" "$tmp")
+masked=$(printf '%s\n' "$out" | sed -n 's/^redact: \([0-9]*\) masked$/\1/p')
 reply_id=$(gh api "repos/$owner/$repo/pulls/$pr/comments/$comment_id/replies" \
-	-F body=@- --jq .id)
-echo "reply-thread: replied to $comment_id as $reply_id"
+	-F body=@"$tmp" --jq .id)
+tail=''
+[ "${masked:-0}" -eq 0 ] || tail=", $masked masked"
+echo "reply-thread: replied to $comment_id as $reply_id$tail"

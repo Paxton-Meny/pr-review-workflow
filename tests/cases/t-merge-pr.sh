@@ -11,14 +11,14 @@ export PATH="$REPO_ROOT/tests/stubs:$PATH"
 author="${fixture_login}_author"
 dir="$SCRATCH/data/state/${fixture_owner}__widgets__7"
 mkdir -p "$dir/pr-context"
-printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\n' "$fixture_owner" "$author" "$fixture_login" >"$dir/meta.txt"
+printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\ncross_repo false\n' "$fixture_owner" "$author" "$fixture_login" >"$dir/meta.txt"
 : | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
 printf '0\n' >"$dir/round.txt"
 method() {
 	# method <name> [delete_branch_on_merge]
 	printf 'method %s\nreason setting\nallowed merge squash rebase\ndelete_branch_on_merge %s\nhistory merge 0 squash 0 rebase 0 either 0\n' "$1" "${2:-false}" >"$dir/pr-context/merge-method.txt"
 }
-clean='state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\n'
+clean='state OPEN\ndraft false\nhead abc123\nmergeable MERGEABLE\nmerge_state CLEAN\n'
 
 # No decided method, nothing happens.
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
@@ -53,7 +53,7 @@ grep -qx "pr list --repo $fixture_owner/widgets --base feat/x --state open --jso
 # the repository deletes it, when an open pull request bases on it, or
 # when it is a fork's.
 rm -f "$stub"/pr-view.*.done "$stub/calls.log"
-printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\n' "$fixture_owner" "$fixture_login" "$fixture_login" >"$dir/meta.txt"
+printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\ncross_repo false\n' "$fixture_owner" "$fixture_login" "$fixture_login" >"$dir/meta.txt"
 method squash true
 printf "$clean" >"$stub/pr-view.1"
 : >"$stub/pr-comment"
@@ -96,18 +96,53 @@ grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit a
 rm -f "$stub/pr-list.exit"
 
 rm -f "$stub"/pr-view.*.done "$stub/calls.log"
-printf 'cross_repo true\n' >>"$dir/meta.txt"
+sed -i 's/^cross_repo false$/cross_repo true/' "$dir/meta.txt"
 printf "$clean" >"$stub/pr-view.1"
 printf 'MERGED\n' >"$stub/pr-view.2"
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir")
 [ "$out" = "merge-pr: $fixture_owner/widgets#7 merged by merge, branch kept (it belongs to a fork)" ]
 grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit abc123" "$stub/calls.log"
-sed -i '/^cross_repo /d' "$dir/meta.txt"
+
+# An automatic merge needs an author who can push: another account's
+# fork is refused under --approve, writing nothing, and merges when a
+# person asked for it; write permission lets it through.
+sed -i "s/^author .*/author $author/" "$dir/meta.txt"
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
+[ "$rc" -eq 7 ]
+[ "$out" = "merge-pr: author-trust: untrusted $author fork, permission unknown; an automatic merge needs a person" ]
+if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+	echo "an untrusted author's automatic merge must write nothing" >&2
+	exit 1
+fi
+printf 'author_permission read\n' >>"$dir/meta.txt"
+sed -i 's/^cross_repo true$/cross_repo false/' "$dir/meta.txt"
+rm -f "$stub"/pr-view.*
+printf "$clean" >"$stub/pr-view.1"
+rc=0
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve >/dev/null || rc=$?
+[ "$rc" -eq 7 ]
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
+grep -q '^pr merge 7' "$stub/calls.log"
+sed -i 's/^author_permission .*/author_permission write/' "$dir/meta.txt"
+sed -i 's/^cross_repo false$/cross_repo true/' "$dir/meta.txt"
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve >/dev/null
+grep -q "^pr review 7 --repo $fixture_owner/widgets --approve" "$stub/calls.log"
+grep -q '^pr merge 7' "$stub/calls.log"
+sed -i -e '/^author_permission /d' -e 's/^cross_repo true$/cross_repo false/' "$dir/meta.txt"
 
 # A base that moved is a distinct refusal, writing nothing.
 for status in 'mergeable CONFLICTING\nmerge_state DIRTY' 'mergeable MERGEABLE\nmerge_state BEHIND'; do
 	rm -f "$stub"/pr-view.* "$stub/calls.log"
-	printf "state OPEN\ndraft false\n$status\n" >"$stub/pr-view.1"
+	printf "state OPEN\ndraft false\nhead abc123\n$status\n" >"$stub/pr-view.1"
 	rc=0
 	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 	[ "$rc" -eq 5 ]
@@ -125,7 +160,7 @@ for status in 'mergeable CONFLICTING\nmerge_state DIRTY' 'mergeable MERGEABLE\nm
 done
 
 rm -f "$stub"/pr-view.*
-printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state BLOCKED\n' >"$stub/pr-view.1"
+printf 'state OPEN\ndraft false\nhead abc123\nmergeable MERGEABLE\nmerge_state BLOCKED\n' >"$stub/pr-view.1"
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected refusal of a blocked merge state" >&2
 	exit 1
@@ -142,7 +177,7 @@ grep -q "reported success but the pull request is OPEN" "$SCRATCH/err"
 
 export MERGE_PR_SETTLE_SECONDS=0
 rm -f "$stub"/pr-view.*
-printf 'state OPEN\ndraft false\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.1"
+printf 'state OPEN\ndraft false\nhead abc123\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 printf "$clean" >"$stub/pr-view.2"
 : >"$stub/pr-comment"
 printf 'MERGED\n' >"$stub/pr-view.3"
@@ -150,7 +185,7 @@ sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
 
 rm -f "$stub"/pr-view.*
 for n in 1 2 3 4 5; do
-	printf 'state OPEN\ndraft false\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.$n"
+	printf 'state OPEN\ndraft false\nhead abc123\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.$n"
 done
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 	echo "expected failure when mergeability never settles" >&2
@@ -191,6 +226,30 @@ if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
 	echo "an incomplete file list must write nothing to the pull request" >&2
 	exit 1
 fi
+
+# A head the review did not cover never merges, whatever head_sha a
+# resumed init-state took from GitHub: the reviewed head decides, and
+# the merge is pinned to it.
+for meta_head in abc123 def456; do
+	rm -f "$stub"/pr-view.* "$stub/calls.log"
+	sed -i -e '/^reviewed_head /d' -e "s/^head_sha .*/head_sha $meta_head/" "$dir/meta.txt"
+	printf 'reviewed_head abc123\n' >>"$dir/meta.txt"
+	printf 'state OPEN\ndraft false\nhead def456\nmergeable MERGEABLE\nmerge_state CLEAN\n' >"$stub/pr-view.1"
+	rc=0
+	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
+	[ "$rc" -eq 6 ]
+	[ "$out" = "merge-pr: the head is def456, not abc123 that the review covered; review what was pushed since first" ]
+	if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+		echo "an unreviewed head must write nothing to the pull request" >&2
+		exit 1
+	fi
+done
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
+grep -q '^pr merge 7 .* --match-head-commit abc123' "$stub/calls.log"
+sed -i -e '/^reviewed_head /d' -e 's/^head_sha .*/head_sha abc123/' "$dir/meta.txt"
 
 if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve --checked 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown argument" >&2

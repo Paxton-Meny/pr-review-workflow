@@ -7,6 +7,12 @@
 # has verified the migrations outside the pull request.
 # Exit 5: refused, writing nothing, because the base branch moved: the
 # pull request is conflicting or behind, and must be brought up to date.
+# Exit 7: refused, writing nothing, under --approve when author-trust.sh
+# does not trust the author: an automatic merge needs an author who can
+# push to the repository, and anyone else's merge needs a person.
+# Exit 6: refused, writing nothing, because the head is not the one the
+# review covered: someone pushed since, and reviewed-head.sh leads to
+# reviewing those commits first.
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
@@ -37,6 +43,8 @@ author=$(sed -n 's/^author //p' "$dir/meta.txt")
 self=$(sed -n 's/^self_login //p' "$dir/meta.txt")
 head_branch=$(sed -n 's/^head_branch //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
+reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
+[ -n "$reviewed" ] || reviewed=$head_sha
 cross_repo=$(sed -n 's/^cross_repo //p' "$dir/meta.txt")
 
 record="$dir/pr-context/merge-method.txt"
@@ -58,8 +66,8 @@ attempts=5
 settle=${MERGE_PR_SETTLE_SECONDS:-3}
 while :; do
 	status=$(gh pr view "$pr" --repo "$owner/$repo" \
-		--json state,isDraft,mergeable,mergeStateStatus,changedFiles,files \
-		--jq '"state \(.state)\ndraft \(.isDraft)\nmergeable \(.mergeable)\nmerge_state \(.mergeStateStatus)\nchanged \(.changedFiles)", (.files[] | "file \(.path)")')
+		--json state,isDraft,mergeable,mergeStateStatus,changedFiles,files,headRefOid \
+		--jq '"state \(.state)\ndraft \(.isDraft)\nmergeable \(.mergeable)\nmerge_state \(.mergeStateStatus)\nchanged \(.changedFiles)\nhead \(.headRefOid)", (.files[] | "file \(.path)")')
 	mergeable=$(printf '%s\n' "$status" | sed -n 's/^mergeable //p')
 	[ "$mergeable" = "UNKNOWN" ] || break
 	attempts=$((attempts - 1))
@@ -81,6 +89,11 @@ merge_state=$(printf '%s\n' "$status" | sed -n 's/^merge_state //p')
 	echo "merge-pr: pull request is a draft" >&2
 	exit 1
 }
+live=$(printf '%s\n' "$status" | sed -n 's/^head //p')
+if [ -z "$reviewed" ] || [ "$live" != "$reviewed" ]; then
+	echo "merge-pr: the head is ${live:-unknown}, not ${reviewed:-unknown} that the review covered; review what was pushed since first"
+	exit 6
+fi
 moved=""
 [ "$mergeable" = CONFLICTING ] && moved=CONFLICTING
 [ "$merge_state" = BEHIND ] && moved=BEHIND
@@ -118,6 +131,13 @@ if [ "$checked" -eq 0 ]; then
 	fi
 fi
 
+if [ "$approve" = "--approve" ]; then
+	trust=$(sh "$(dirname -- "$0")/author-trust.sh" "$dir") || {
+		echo "merge-pr: ${trust:-the author could not be checked}; an automatic merge needs a person"
+		exit 7
+	}
+fi
+
 branch='branch deleted'
 delete=--delete-branch
 if [ "$cross_repo" = true ]; then
@@ -146,7 +166,7 @@ if [ "$approve" = "--approve" ]; then
 	fi
 fi
 
-gh pr merge "$pr" --repo "$owner/$repo" "--$method" ${head_sha:+--match-head-commit "$head_sha"} $delete >/dev/null
+gh pr merge "$pr" --repo "$owner/$repo" "--$method" --match-head-commit "$reviewed" $delete >/dev/null
 
 final=$(gh pr view "$pr" --repo "$owner/$repo" --json state --jq .state)
 [ "$final" = "MERGED" ] || {

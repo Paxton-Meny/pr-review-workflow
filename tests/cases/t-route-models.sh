@@ -7,6 +7,9 @@ unset CLAUDE_CODE_EFFORT_LEVEL
 dir="$SCRATCH/state"
 ctx="$dir/pr-context"
 mkdir -p "$ctx" "$dir/findings"
+. "$REPO_ROOT/tests/fixture-identity.sh"
+# The signed-in account's own pull request: its code may run.
+printf 'author %s\nself_login %s\n' "$fixture_login" "$fixture_login" >"$dir/meta.txt"
 route() { sh "$REPO_ROOT/scripts/route-models.sh" "$dir" "$@"; }
 classify() { printf 'classify-change: kind %s files 1 lines %s code_lines %s\n' "$1" "$2" "$3" >"$ctx/class.txt"; }
 probes() { printf '%s\n' "$1" >"$ctx/probe-slugs.txt"; }

@@ -132,6 +132,64 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Inventory and review routing count `App.Tests/`, `App.Test/`,
   `UnitTests/`, and `FooTests.cs`-style files as tests.
 
+### Security
+
+- A push made after the review no longer merges unread. The ledger
+  keeps the head the review last covered (`reviewed_head`), which a
+  resumed run carries over instead of taking GitHub's head;
+  `scripts/reviewed-head.sh` reports a head that moved since, the run
+  reviews the files the new commits changed and marks the head, and
+  `merge-pr.sh` refuses any other head (exit 6) and pins the merge to
+  the reviewed one.
+
+- Auto-approve merges only a pull request whose author can push to the
+  repository. `init-state.sh` records the author's permission,
+  `scripts/author-trust.sh` trusts the account's own pull requests, write,
+  maintain, and admin permission, and a branch in the repository when
+  GitHub cannot say; `merge-pr.sh --approve` refuses anyone else (exit
+  7) and the run asks, or parks unattended. The review is a model
+  reading what the author wrote, so a stranger's text alone never
+  merges it.
+
+- Credentials are masked before anything posts. `scripts/redact.sh`
+  replaces known token formats, private key blocks, and credentials in
+  URLs with `[redacted: <kind>]` in finding bodies, the round summary,
+  thread replies, and status comments. Status comments now go through
+  `scripts/post-comment.sh`, which posts only to the run's pull request
+  and adds the attribution line itself, in place of a `gh pr comment`
+  grant that matched any repository and any body file.
+
+- The plugin's agents are held to their definitions. A PreToolUse hook,
+  `scripts/agent-scope.sh`, acts on calls Claude Code attributes to one
+  of the plugin's agents (2.1.69 and later): reads stay inside the
+  data directory, the plugin, and the session's folder, without `..` or
+  symlinked files; edits stay inside a review worktree; and shell
+  commands are only `git -C` into the data directory with the agent's
+  own subcommands and the plugin scripts it names, without expansion,
+  redirection, chaining, file-reading git options, or a status change
+  outside its role. `append-note.sh` refuses a note that adds a Check,
+  Resolution, or Fix line or a suggestion fence.
+
+- The check command, suggestion proving, and contracts run only on code
+  from an author who can push to the repository. For anyone else
+  `run-check.sh` skips, `prove-suggestions.sh` proves fences by applying
+  alone, `run-contract.sh` judges by reading (`untrusted-author`), and
+  routing stops counting on the gate, until the user approves that
+  author for the pull request (`approve-author.sh`, which asks the user to allow it); unattended
+  runs skip the check and say so.
+
+- Finding fields are read from the record's header only. A body
+  quoting a line such as `status: ready` from a YAML file stopped the
+  run in `count-findings.sh`, and a quoted `path:` line hid an edit to
+  that file from the incremental review; every reader now stops at the
+  header's `---`, and `update-finding.sh` rewrites header lines only.
+
+- The start gate's decision is always one valid JSON line. A refusal
+  quoting a multi-line error, as gh's own stderr is, printed raw
+  newlines inside the reason; Claude Code then saw no decision, and the
+  call either failed as a hook error or, before `onFailure: "block"`,
+  went through without the gate.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

@@ -15,7 +15,7 @@
     "auto_approve": {
       "type": "boolean",
       "title": "Auto-approve on convergence",
-      "description": "Merge automatically once the review loop finds nothing open. When off, the plugin asks before merging.",
+      "description": "Merge automatically once the review loop finds nothing open, when the pull request's author can push to the repository; anyone else's pull request waits for you. When off, the plugin asks before merging.",
       "default": false
     },
     "merge_method": {
@@ -71,7 +71,7 @@
     "check_command": {
       "type": "string",
       "title": "Check command",
-      "description": "The reviewed repository's own check command. It proves suggested changes before they post, and gates each editing round: fixes must leave it passing. Leave empty to skip both.",
+      "description": "The reviewed repository's own check command. It proves suggested changes before they post, and gates each editing round: fixes must leave it passing. It runs the pull request's code, so on a pull request whose author cannot push to the repository it runs only after you approve that author. Leave empty to skip both.",
       "required": false
     },
     "keep_ledgers": {

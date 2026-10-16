@@ -148,6 +148,10 @@ if [ -f "$dir/settings.txt" ]; then
 	double=$(get double_review)
 	filter=$(get finding_filter)
 	samples=$(get review_samples)
+	# A check that will not run on this author's code gates nothing.
+	if ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+		check='' prefixes=''
+	fi
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -461,17 +465,22 @@ note_attempt() {
 		sh "$(dirname "$0")/append-note.sh" "$dir" "$1" >/dev/null
 }
 
+header() {
+	# header <record>: the record's header lines, never its body
+	sed -n '/^---$/q; p' "$1"
+}
+
 high_stakes() {
 	# high_stakes <record>: a blocker, a security finding, or a secrets or sensitive file
-	grep -q '^severity: blocker$' "$1" && return 0
-	grep -q '^category: security$' "$1" && return 0
-	path=$(sed -n 's/^path: //p' "$1")
+	header "$1" | grep -q '^severity: blocker$' && return 0
+	header "$1" | grep -q '^category: security$' && return 0
+	path=$(sed -n '/^---$/q; s/^path: //p' "$1")
 	[ -f "$ctx/probe-files.txt" ] && grep -Fqx -e "secrets	$path" -e "sensitive	$path" "$ctx/probe-files.txt"
 }
 
 mechanical() {
 	# mechanical <record>: a minor or nit finding with a proven suggestion
-	grep -Eq '^severity: (minor|nit)$' "$1" && grep -q '^```suggestion$' "$1"
+	header "$1" | grep -Eq '^severity: (minor|nit)$' && grep -q '^```suggestion$' "$1"
 }
 
 contract_runs() {

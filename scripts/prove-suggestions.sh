@@ -1,7 +1,10 @@
 #!/bin/sh
 # Prove every pending suggestion fence by applying it, or withdraw it.
 # Usage: sh scripts/prove-suggestions.sh <state-dir> [check-command]
-# Without a command, the run's resolved check_command is used.
+# Without a command, the run's resolved check_command is used. The
+# command runs the pull request's code, so it runs only when
+# author-trust.sh --exec allows it; otherwise a fence is proven by
+# applying alone, as without a command.
 set -eu
 
 dir=${1:?usage: prove-suggestions.sh <state-dir> [check-command]}
@@ -17,6 +20,11 @@ worktree="$dir/worktree"
 	echo "prove-suggestions: no worktree in $dir, run checkout-pr.sh first" >&2
 	exit 1
 }
+skipped=''
+if [ -n "$check" ] && ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+	check=''
+	skipped=", check skipped for an untrusted author"
+fi
 repo_root=$(sed -n 's/^repo_root //p' "$dir/meta.txt")
 head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 [ -n "$repo_root" ] || {
@@ -34,7 +42,7 @@ trap cleanup EXIT
 withdraw() {
 	rec=$1
 	reason=$2
-	tmp=$(mktemp "$dir/findings/.$(sed -n 's/^id: //p' "$rec").XXXXXX")
+	tmp=$(mktemp "$dir/findings/.$(sed -n '/^---$/q; s/^id: //p' "$rec").XXXXXX")
 	awk -v reason="$reason" '
 	/^```suggestion$/ { drop = 1; next }
 	drop && /^```$/ { drop = 0; withdrawn = 1; next }
@@ -52,13 +60,13 @@ proven=0
 withdrawn=0
 for record in "$dir/findings"/F*; do
 	[ -f "$record" ] || continue
-	[ "$(sed -n 's/^status: //p' "$record")" = "open" ] || continue
+	[ "$(sed -n '/^---$/q; s/^status: //p' "$record")" = "open" ] || continue
 	grep -q '^```suggestion$' "$record" || continue
-	id=$(sed -n 's/^id: //p' "$record")
-	path=$(sed -n 's/^path: //p' "$record")
-	line=$(sed -n 's/^line: //p' "$record")
-	end_line=$(sed -n 's/^end_line: //p' "$record")
-	side=$(sed -n 's/^side: //p' "$record")
+	id=$(sed -n '/^---$/q; s/^id: //p' "$record")
+	path=$(sed -n '/^---$/q; s/^path: //p' "$record")
+	line=$(sed -n '/^---$/q; s/^line: //p' "$record")
+	end_line=$(sed -n '/^---$/q; s/^end_line: //p' "$record")
+	side=$(sed -n '/^---$/q; s/^side: //p' "$record")
 	last=${end_line:-$line}
 
 	if [ "$side" != "RIGHT" ]; then
@@ -104,4 +112,4 @@ for record in "$dir/findings"/F*; do
 	fi
 done
 
-echo "prove-suggestions: $proven proven, $withdrawn withdrawn"
+echo "prove-suggestions: $proven proven, $withdrawn withdrawn$skipped"
