@@ -314,11 +314,17 @@ if [ "$lint" -eq 1 ]; then
 	fi
 fi
 
-# merge <exec-trusted> <settings out> <sources out> <raise out>: the
-# merge of every source, its report on stdout.
+# merge <exec-trusted> <settings out> <sources out> <raise out> <user>
+# <project> <local> <run>: the merge of the four source files, its report
+# on stdout.
 merge() {
-	awk -v spec="$work/spec" -v out="$2" -v src="$3" -v raise_out="$4" -v raise_keys="$PROJECT_RAISE" \
-		-v exec_trusted="$1" -v aliases="$ALIASES" -v never_keys="$PROJECT_NEVER" -v add_keys="$PROJECT_ADDS" '
+	exec_trusted_arg=$1
+	out_arg=$2
+	src_arg=$3
+	raise_arg=$4
+	shift 4
+	awk -v spec="$work/spec" -v out="$out_arg" -v src="$src_arg" -v raise_out="$raise_arg" -v raise_keys="$PROJECT_RAISE" \
+		-v exec_trusted="$exec_trusted_arg" -v aliases="$ALIASES" -v never_keys="$PROJECT_NEVER" -v add_keys="$PROJECT_ADDS" '
 function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
 function canon(k) { return (k in alias) ? alias[k] : k }
 # Returns the normalised value, or sets err and returns "".
@@ -417,14 +423,19 @@ END {
 	for (i = 1; i <= ni; i++) print "settings: ignored " ignored[i]
 	if (raise_out != "" && raised && from["review_samples"] == "project") print "review_samples " val["review_samples"] > raise_out
 }
-' "$work/user" "$work/project" "$work/local" "$work/run"
+' "$@"
 }
 
 # Trust on first use for the shared file's commands, and for its raise
 # of review_samples, which a trial merge that trusts everything finds:
-# a value the run would take from the project above what it had.
+# a value the run would take from the project above what it had. The
+# trial sees only the user's configuration and the project file, so the
+# hash does not move with the local file or a run's overrides.
 : >"$work/raise"
-merge 1 "$work/trial-settings" "$work/trial-sources" "$work/raise" >/dev/null
+: >"$work/empty-local"
+: >"$work/empty-run"
+merge 1 "$work/trial-settings" "$work/trial-sources" "$work/raise" \
+	"$work/user" "$work/project" "$work/empty-local" "$work/empty-run" >/dev/null
 exec_trusted=1
 exec_hash=''
 {
@@ -442,7 +453,8 @@ if [ -s "$work/exec" ]; then
 		sed "s/^/settings: trust pending $exec_hash /" "$work/exec" >>"$work/notes"
 	fi
 fi
-merge "$exec_trusted" "$work/settings" "$work/sources" '' >"$work/report"
+merge "$exec_trusted" "$work/settings" "$work/sources" '' \
+	"$work/user" "$work/project" "$work/local" "$work/run" >"$work/report"
 if [ "$lint" -eq 1 ]; then
 	cat "$work/notes" >>"$work/report"
 	grep -E '^settings: (ignored|trust pending) ' "$work/report" || true
