@@ -76,7 +76,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `merge-pr.sh` reads the ledger before it asks the forge anything, so a
   step the session skipped or forgot no longer merges silently. It
   refuses with exit 6, writing nothing, while a finding is still open,
-  while a wont-fix finding has no recorded acceptance, or, when the
+  while a wont-fix finding has no recorded acceptance, while a finding
+  is addressed but no verifier has judged it, or, when the
   check gate is armed, while the check has not passed at the head being
   merged; one line names each reason. The attended acceptance in step
   10 is now written to the record (`update-finding.sh <dir> <id>
