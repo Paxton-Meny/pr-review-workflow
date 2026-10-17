@@ -10,6 +10,9 @@
 # key=value, a value with spaces quoted with " or '. They are written to
 # overrides.txt (key value, one per line), replaced on every invocation,
 # so a resumed run never keeps an earlier invocation's overrides.
+# Once the ledger holds findings, head_sha and prev_head carry over and
+# never come from GitHub: only push-branch.sh and checkout-pr.sh move
+# them, so a push made outside the run surfaces through checkout-pr.sh.
 set -eu
 
 data_root=${1:?usage: init-state.sh <data-root> <pr-ref> [key=value ...]}
@@ -79,10 +82,21 @@ esac
 
 dir="$data_root/state/${owner}__${repo}__${number}"
 mkdir -p "$dir"
+seen=''
+for f in "$dir/findings"/F*; do
+	[ -f "$f" ] && [ -f "$dir/meta.txt" ] || break
+	seen=$(sed -n -e '/^head_sha ./p' -e '/^prev_head ./p' "$dir/meta.txt")
+	break
+done
 tmp=$(mktemp "$dir/.meta.XXXXXX")
 {
 	printf 'owner %s\nrepo %s\npr %s\n' "$owner" "$repo" "$number"
-	printf '%s\n' "$meta" | sed '/^state /d'
+	if printf '%s\n' "$seen" | grep -q '^head_sha '; then
+		printf '%s\n' "$meta" | sed -e '/^state /d' -e '/^head_sha /d'
+		printf '%s\n' "$seen"
+	else
+		printf '%s\n' "$meta" | sed '/^state /d'
+	fi
 	printf 'self_login %s\nself_email %s\n' "$self_login" "$self_email"
 	printf 'repo_root %s\n' "$repo_root"
 } >"$tmp"

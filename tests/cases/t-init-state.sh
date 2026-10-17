@@ -60,6 +60,21 @@ printf '2\n' >"$dir/round.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx '2' "$dir/round.txt"
 
+# Once findings exist a resume keeps the heads the run last saw, never
+# GitHub's, so a push made outside the run waits for checkout-pr.sh.
+mkdir -p "$dir/findings"
+printf 'id: F001\nstatus: open\n---\nBody.\n' >"$dir/findings/F001"
+sed -i 's/^head_sha .*/head_sha 5ee7/' "$dir/meta.txt"
+printf 'prev_head 9e70\n' >>"$dir/meta.txt"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'head_sha 5ee7' "$dir/meta.txt"
+grep -qx 'prev_head 9e70' "$dir/meta.txt"
+[ "$(grep -c '^head_sha ' "$dir/meta.txt")" -eq 1 ]
+rm -r "$dir/findings"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'head_sha abc123' "$dir/meta.txt"
+! grep -q '^prev_head ' "$dir/meta.txt"
+
 if sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#nope" 2>"$SCRATCH/err"; then
 	echo "expected failure on a bad number" >&2
 	exit 1
