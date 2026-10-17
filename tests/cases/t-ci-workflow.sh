@@ -21,6 +21,8 @@ refuse() {
 grep -qx 'permissions: {}' "$wf" || refuse "grants permissions by default"
 [ "$(grep -cE '^[[:space:]]+[a-z-]+: (read|write)$' "$wf")" -eq 1 ] || refuse "grants more than one permission"
 grep -qE '^[[:space:]]+contents: read$' "$wf" || refuse "does not limit the job to reading contents"
+! grep -qE 'permissions:[[:space:]]*(read|write)-all' "$wf" || refuse "grants a shorthand permission"
+[ "$(grep -cE '^[[:space:]]*permissions:' "$wf")" -eq 2 ] || refuse "grants permissions beyond the top-level reset and the job's read"
 ! grep -q 'secrets\.' "$wf" || refuse "reads a secret"
 # An expression expands only in a key the runner reads, never in a
 # script, where a branch name or title could become a command.
