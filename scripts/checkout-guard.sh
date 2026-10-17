@@ -1,9 +1,10 @@
 #!/bin/sh
 # Prove an editor batch left the user's own checkout as it found it.
 # Usage: sh scripts/checkout-guard.sh <state-dir> before|after
-# before records the checkout's head, branch, local branches, status,
-# tracked changes, and untracked contents; after compares, and exits 3
-# naming what changed, appending one "escape" line to escapes.txt.
+# before records the checkout's head, branch, the local branches no other
+# worktree has checked out, status, tracked changes, and untracked
+# contents; after compares, and exits 3 naming what changed, appending
+# one "escape" line to escapes.txt.
 set -eu
 LC_ALL=C
 export LC_ALL
@@ -36,7 +37,18 @@ look() {
 take() {
 	printf 'head %s\n' "$(look rev-parse -q --verify HEAD || echo none)"
 	printf 'ref %s\n' "$(look symbolic-ref -q HEAD || echo detached)"
-	look for-each-ref --format='branch %(refname) %(objectname)' refs/heads
+	# A branch another worktree has out moves with that worktree's own
+	# commits, often a concurrent session's, so it is left out.
+	{
+		look worktree list --porcelain
+		echo '#refs'
+		look for-each-ref --format='branch %(refname) %(objectname)' refs/heads
+	} | SELF=$(look rev-parse --show-toplevel) awk '
+		/^#refs$/ { refs = 1; next }
+		!refs && /^worktree / { path = substr($0, 10); next }
+		!refs && /^branch / { if (path != ENVIRON["SELF"]) other[substr($0, 8)] = 1; next }
+		refs && !($2 in other)
+	'
 	look status --porcelain=v1 --untracked-files=all | sed 's/^/status /'
 	printf 'diff %s\n' "$(look diff --no-ext-diff --no-textconv --binary HEAD 2>/dev/null | cksum)"
 	look ls-files --others --exclude-standard | while IFS= read -r path; do
