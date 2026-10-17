@@ -144,6 +144,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `after` exits 3 naming every difference, which stops the run. Each
   trip is counted as `escapes` in the run statistics and the stats
   report, so an escape no longer hides behind a clean outcome.
+- A resumed run follows commits pushed to the branch from outside the
+  run instead of staying on the head it last saw. `init-state.sh` no
+  longer takes `head_sha` from GitHub once the ledger holds findings,
+  and `checkout-pr.sh` moves the worktree and `head_sha` forward when
+  the branch descends from it, recording `prev_head` and exiting 3 so
+  the run reviews the commits that arrived through the incremental
+  review. A branch that went back, diverged, or gained commits while
+  the worktree held unpushed ones is refused with exit 4, changing
+  nothing. Every resume now runs `checkout-pr.sh` first.
 - Repositories that do not allow rebase merging can now be merged by
   the plugin.
 - Setup readers no longer lose their slice when they stop early. Hosts
