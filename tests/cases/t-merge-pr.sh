@@ -211,11 +211,12 @@ finding() {
 finding F001 open
 finding F002 wont-fix
 finding F003 verified
+finding F004 addressed
 for flag in --approve ''; do
 	rc=0
 	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" $flag) || rc=$?
 	[ "$rc" -eq 6 ]
-	[ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\nopen F001\nunaccepted F002')" ]
+	[ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\nopen F001\nunaccepted F002\nunverified F004')" ]
 	[ ! -f "$stub/calls.log" ] || {
 		echo "a ledger refusal must not reach the forge" >&2
 		exit 1
@@ -223,6 +224,11 @@ for flag in --approve ''; do
 done
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed >/dev/null
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=verified >/dev/null
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 6 ]
+[ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\nunaccepted F002\nunverified F004')" ]
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F004 status=verified >/dev/null
 rc=0
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
 [ "$rc" -eq 6 ]

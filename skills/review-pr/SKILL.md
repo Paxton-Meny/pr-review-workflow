@@ -448,7 +448,7 @@ PRWF_SETTINGS_END
       off.
     - merge-pr exit 6: nothing merged and nothing asked of the forge,
       because the ledger does not allow it; relay its lines. `open`
-      lines: back to step 8. `unaccepted` lines: step 10. A `check`
+      lines: back to step 8. `unaccepted` lines: step 10. `unverified` lines: back to step 8d. A `check`
       line: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`
       as step 8c describes, repair included, then run the same
       merge-pr command once more. A second exit 6 parks (step 9) with

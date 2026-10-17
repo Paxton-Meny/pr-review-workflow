@@ -10,7 +10,8 @@
 # Exit 6: refused, writing nothing and asking the forge nothing, because
 # the ledger does not allow a merge: one line each for a finding still
 # open ("open <id>"), a wont-fix finding no person accepted
-# ("unaccepted <id>"), and, when the check gate is armed, a head the
+# ("unaccepted <id>"), a finding marked addressed that no verifier has
+# judged ("unverified <id>"), and, when the check gate is armed, a head the
 # check has not passed at ("check <reason>").
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
@@ -75,6 +76,10 @@ open $id"
 		sed '/^---$/q' "$dir/findings/$id" | grep -qx 'accepted: yes' ||
 			refused="$refused
 unaccepted $id"
+	done
+	for id in $(printf '%s\n' "$counts" | sed -n 's/^addressed_ids//p'); do
+		refused="$refused
+unverified $id"
 	done
 fi
 # Armed means the baseline passed for the command now configured; then
