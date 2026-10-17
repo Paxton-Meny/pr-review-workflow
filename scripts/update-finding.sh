@@ -45,6 +45,11 @@ for arg in "$@"; do
 			exit 1
 			;;
 		esac
+		if [ "$field" = commit ] &&
+			! git -C "$dir/worktree" merge-base --is-ancestor "$value" HEAD 2>/dev/null; then
+			echo "update-finding: commit $value is not in the review worktree's history; commit the fix in $dir/worktree" >&2
+			exit 1
+		fi
 		;;
 	placement)
 		case "$value" in

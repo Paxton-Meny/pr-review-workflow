@@ -12,7 +12,7 @@ sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 comment_id=12345 placement
 grep -qx 'comment_id: 12345' "$dir/findings/F001"
 grep -qx 'placement: inline' "$dir/findings/F001"
 
-sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed commit=abc123 >/dev/null
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed >/dev/null
 grep -qx 'status: addressed' "$dir/findings/F001"
 
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=open >/dev/null

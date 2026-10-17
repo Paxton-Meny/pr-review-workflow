@@ -3,7 +3,9 @@
 # Usage: sh scripts/push-branch.sh <state-dir> [--force-with-lease]
 # --force-with-lease rewrites the branch, leased on the head meta.txt
 # recorded, so a push the run never saw refuses it; only sync-branch.sh
-# passes it, after a rebase onto the base.
+# passes it, after a rebase onto the base. Exit 3 means the worktree
+# holds nothing new to push, or, on a plain push, lacks the commit an
+# addressed finding records.
 set -eu
 
 dir=${1:?usage: push-branch.sh <state-dir> [--force-with-lease]}
@@ -39,13 +41,29 @@ if [ "$cross_repo" = "true" ]; then
 	}
 fi
 
+local_sha=$(git -C "$worktree" rev-parse HEAD)
+if [ "$local_sha" = "$old_head" ]; then
+	echo "push-branch: nothing to push: $worktree is still at $old_head, the head the run last recorded; commits made anywhere else never reach the pull request" >&2
+	exit 3
+fi
+if [ -z "$lease" ]; then
+	for record in "$dir/findings"/F*; do
+		[ -f "$record" ] || continue
+		[ "$(sed -n '/^---$/q; s/^status: //p' "$record")" = addressed ] || continue
+		commit=$(sed -n '/^---$/q; s/^commit: //p' "$record")
+		[ -z "$commit" ] && continue
+		git -C "$worktree" merge-base --is-ancestor "$commit" "$local_sha" 2>/dev/null && continue
+		echo "push-branch: ${record##*/} records commit $commit, which $worktree at $local_sha does not contain" >&2
+		exit 3
+	done
+fi
+
 if [ -n "$lease" ]; then
 	git -C "$worktree" push --quiet "--force-with-lease=refs/heads/$head_branch:$old_head" "$dest" "HEAD:$head_branch"
 else
 	git -C "$worktree" push --quiet "$dest" "HEAD:$head_branch"
 fi
 
-local_sha=$(git -C "$worktree" rev-parse HEAD)
 remote_sha=$(git -C "$worktree" ls-remote "$dest" "refs/heads/$head_branch" | cut -f1)
 if [ "$local_sha" != "$remote_sha" ]; then
 	echo "push-branch: remote is at $remote_sha, expected $local_sha" >&2

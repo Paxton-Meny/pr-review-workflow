@@ -312,8 +312,9 @@ offers migration or database tooling (`dotnet ef`, `sqlcmd`,
   stakes (a secrets, automation, or sensitive probe on a review; a
   blocker, a security finding, or a flagged file on a fix), down where
   a later step checks the work (an editor's minor or nit fix carried
-  by a proven suggestion, a verified finding that a Check line or
-  proven suggestion settles) or for a small docs or config review. A
+  by a proven suggestion on a model above the cheap one; a verified
+  finding that a Check line or proven suggestion settles) or for a
+  small docs or config review. A
   batch or a verified round runs at its highest finding's level. The
   cap is high under economy and balanced and xhigh under quality, a
   signal that climbs the model does not also raise the effort, and
@@ -395,7 +396,10 @@ written.
 Per-PR state lives under the plugin's data directory, outside every
 repository: the finding ledger, fetched context, and a detached review
 worktree. Re-invoking the skill on the same pull request resumes from the
-ledger. Your own checkout is never touched.
+ledger. Your own checkout is never touched: each editor batch runs
+between two snapshots of it, and any difference stops the run with
+what changed. A fix committed anywhere but the review worktree is
+refused when it is pushed, recorded, or cited in a reply.
 A held run keeps only its ledger: the worktree and fetched context go
 when you choose to hold, and come back on resume. Every review starts
 by reaping runs, in any repository, whose pull request closed since,
