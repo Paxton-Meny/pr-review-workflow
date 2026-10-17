@@ -71,9 +71,9 @@ if ! have_head; then
 			echo "local-diff: the fork this pull request comes from is gone and origin has no refs/pull/$pr/head" >&2
 			exit 2
 		}
-		git -C "$repo_root" fetch --quiet "$head_repo_url" "$head_branch" 2>/dev/null || true
+		git -C "$repo_root" fetch --quiet -- "$head_repo_url" "$head_branch" 2>/dev/null || true
 	elif [ -n "$head_branch" ]; then
-		git -C "$repo_root" fetch --quiet origin "$head_branch" 2>/dev/null || true
+		git -C "$repo_root" fetch --quiet -- origin "$head_branch" 2>/dev/null || true
 	fi
 fi
 have_head || {
