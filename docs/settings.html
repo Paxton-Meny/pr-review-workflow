@@ -516,7 +516,7 @@
 <div><dt>PROJECT FILE</dt><dd><a href="#where-project">never</a></dd></div>
 </dl>
 <p class="lead">Some projects keep their rules in files that are not committed: a standards document, a team checklist. Name those files here and every review applies them. Their substance shapes the findings; their file names and wording never appear on the pull request.</p>
-<p class="sub">A pattern is a path relative to your clone. A <code>*</code> stands for any run of characters in a file name, so <code>docs/rules/*.md</code> matches every Markdown file in that folder.</p>
+<p class="sub">A pattern is a path relative to your clone. A <code>*</code> stands for any run of characters in a file name, so <code>docs/rules/*.md</code> matches every Markdown file in that folder. A matching file that git tracks is skipped and the review says so: committed files belong to whoever can commit, not to you.</p>
 <div class="unit" data-switch>
 <div class="unit-bar" hidden>
 <span class="kicker">For example, set it to</span>
@@ -772,7 +772,7 @@
 <div><dt>KEY</dt><dd>review_samples</dd></div>
 <div><dt>DEFAULT</dt><dd class="def">1</dd></div>
 <div><dt>ACCEPTS</dt><dd>1, 2 or 3</dd></div>
-<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only</a></dd></div>
+<div><dt>PROJECT FILE</dt><dd><a href="#where-project">raise only, after approval</a></dd></div>
 </dl>
 <p class="lead">How many reviewers independently read each part of the change on the first review. More readers catch more, and the first review costs proportionally more.</p>
 <div class="unit" data-switch>
@@ -1168,7 +1168,8 @@ sensitive_paths src/auth/** src/payments/**</code></pre>
 <table class="ladder trust">
 <tr><th scope="col">SETTINGS</th><th scope="col">THE SHARED FILE MAY</th><th scope="col">WHY</th></tr>
 <tr><th scope="row">Check command, contract command prefixes</th><td><b>set them after you approve</b></td><td>They run on your machine. The first run that sees them, and every run after they change, shows you the exact commands and asks; an unattended run goes without them.</td></tr>
-<tr><th scope="row">Second review pass, precision filter, cost posture, review samples, CI checks, CI fix rounds, CI wait budget, review repairs</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
+<tr><th scope="row">Review samples</th><td><b>raise it after you approve</b></td><td>Each sample is another full reviewer pass on your bill. A raise above what your own settings give is asked about together with the commands, the same way; an unattended run keeps your value.</td></tr>
+<tr><th scope="row">Second review pass, precision filter, cost posture, CI checks, CI fix rounds, CI wait budget, review repairs</th><td><b>raise them only</b></td><td>A project may ask for more care than your default. Only you can ask for less, in your local file or on the run.</td></tr>
 <tr><th scope="row">Merge method</th><td><b>set it</b></td><td>The shape of the history is the team&#8217;s choice, and nothing runs because of it. Your local file still outranks it, and the run refuses a method the repository does not allow.</td></tr>
 <tr><th scope="row">Sensitive paths, migration paths</th><td><b>add to yours</b></td><td>Its patterns join your own list; it can never remove one.</td></tr>
 <tr><th scope="row">Auto-approve, self-started reviews, base sync, the three role models, model routing, strong model, ledgers kept, local standards files</th><td><b>never</b></td><td>A repository must not merge its own pull requests, start reviews on your behalf, rewrite your branch, choose models on your bill, or point the review at untracked files in your clone, such as secrets.</td></tr>

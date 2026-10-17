@@ -42,7 +42,6 @@ printf '%s\n' "$out" | grep -qx 'settings: project file fresh, local file absent
 # Raised settings apply; a lowered one is refused.
 [ "$(value double_review)" = always ] && [ "$(source_of double_review)" = project ]
 [ "$(value cost_posture)" = quality ]
-[ "$(value review_samples)" = 2 ]
 [ "$(value finding_filter)" = true ]
 printf '%s\n' "$out" | grep -qx 'settings: ignored project finding_filter: would lower true to false; a project may only raise it'
 # Keys a project may never set.
@@ -55,6 +54,9 @@ printf '%s\n' "$out" | grep -qx 'settings: ignored project local_standards: only
 hash=$(printf '%s\n' "$out" | sed -n 's/^settings: trust pending \([0-9a-f]*\) check_command npm test -- --ci$/\1/p')
 [ -n "$hash" ]
 printf '%s\n' "$out" | grep -qx "settings: trust pending $hash contract_commands npx vitest"
+# So does a raise of review_samples, which multiplies the review's cost.
+[ "$(value review_samples)" = 1 ]
+printf '%s\n' "$out" | grep -qx "settings: trust pending $hash review_samples 2"
 
 # Only the pending hash can be approved; then the commands apply.
 if sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" --approve deadbeef 2>/dev/null; then
@@ -65,6 +67,7 @@ sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" --approve "$hash" | grep -qx 
 out=$(resolve </dev/null)
 [ "$(value check_command)" = "npm test -- --ci" ] && [ "$(source_of check_command)" = project ]
 [ "$(value contract_commands)" = "npx vitest" ]
+[ "$(value review_samples)" = 2 ] && [ "$(source_of review_samples)" = project ]
 ! printf '%s\n' "$out" | grep -q 'trust pending'
 
 # Changing the commands on the base branch asks again.

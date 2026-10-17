@@ -57,6 +57,6 @@ resumes by invoking `/pr-review-workflow:review-pr` with that pull
 request, and note anything the statistics make obvious, such as every
 run converging in one round or a rising demotion count, or a
 `trust pending` line, which means the project's shared file names a
-command that the next review will ask about. Do not open
+command, or raises review samples, that the next review will ask about. Do not open
 ledger files, re-derive counts, or editorialize beyond those two
 sentences; the lines are the report.

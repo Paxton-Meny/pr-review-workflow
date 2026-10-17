@@ -148,11 +148,13 @@ PRWF_SETTINGS_END
 
    The project's shared file (`.claude/pr-review-workflow.conf` on the
    base branch) may name a check command and contract prefixes, which
-   run on this machine, so they apply only once approved. For each
-   `settings: trust pending <hash> <key> <value>` group: attended, show
-   the user the exact commands, say they come from the repository's
-   shared settings file, and ask whether to trust them for this
-   repository; on yes run
+   run on this machine, and may raise `review_samples`, which
+   multiplies what the first review costs, so they apply only once
+   approved. For each `settings: trust pending <hash> <key> <value>`
+   group: attended, show the user the exact lines (for a
+   `review_samples` line, that each sample is another full reviewer
+   pass), say they come from the repository's shared settings file, and
+   ask whether to trust them for this repository; on yes run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-settings.sh <dir> --approve <hash>`
    and resolve again with the block above; on no, carry on without
    them. Unattended, carry on without them; the final report says
@@ -193,8 +195,8 @@ PRWF_SETTINGS_END
    here, so remember the mode for step 7. Exit 2 means the fork itself is
    gone: report that and stop. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/extract-standards.sh <dir>`
-   (it expands any configured globs inside the clone itself, or says
-   none are configured) and
+   (it expands any configured globs inside the clone itself, skipping
+   files git tracks with a line each, or says none are configured) and
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --baseline`,
    relaying each one-line result. The baseline is recorded on disk: a
    passing one arms the step 8 gate, and a failing one disarms it and

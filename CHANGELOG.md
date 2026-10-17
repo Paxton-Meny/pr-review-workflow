@@ -132,6 +132,43 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Inventory and review routing count `App.Tests/`, `App.Test/`,
   `UnitTests/`, and `FooTests.cs`-style files as tests.
 
+### Security
+
+- The data directory is private to the user. `init-state.sh` and
+  `inventory-repo.sh` set it to mode 700 whenever they write state, so
+  a umask of 0002 no longer leaves ledgers, surveys, and settings
+  readable by other accounts on the machine.
+
+- A Check line's arguments cannot reach outside the worktree.
+  `run-contract.sh` allowed quotes, globs, `~`, and absolute paths after
+  the approved prefix, so `pytest --basetemp=/home/you/projects` would
+  empty that folder. Arguments after the prefix that are absolute, start
+  with `~`, or hold a `..` segment, also after an `=`, or that contain
+  any of `'"*?[]{}()#!`, are now refused as `unsafe-argument` and the
+  finding is judged by reading; `./...` package patterns still run.
+
+- Local standards come only from files git does not track.
+  `extract-standards.sh` read any file a configured glob matched, so a
+  committed file, which anyone who can commit could write, was applied
+  as the user's own standards. Tracked files are now skipped with an
+  `extract-standards: skipped <path>: tracked by git` line, as
+  `resolve-settings.sh` already skips a tracked personal file.
+
+- A fork's head is fetched from origin's pull request ref first.
+  `checkout-pr.sh` fetched the fork by branch name with no `--`, so a
+  head branch shaped like an option, such as `--upload-pack=...`, would
+  be read as one. It now fetches `refs/pull/<n>/head` from origin, as
+  `local-diff.sh` does, and falls back to the fork's branch only when
+  that lacks the head; every branch fetch puts `--` before the remote.
+
+- A team's shared file raises review samples only with consent. Each
+  sample is another full reviewer pass, so a committed `review_samples
+  3` tripled the first review's cost on every teammate's bill. A raise
+  above what the user's own sources give now joins the check command
+  and contract prefixes in the trust-on-first-use hash, reported as
+  `settings: trust pending <hash> review_samples <n>` and applied once
+  approved; an unattended run keeps the user's value.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

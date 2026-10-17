@@ -43,9 +43,10 @@
 # freely; the quality settings only upward (a project may raise the
 # bar, only the user may lower it); and the check command and
 # contract prefixes, which execute, only once the user approved that
-# exact pair (trust on first use). An unapproved pair is ignored and
-# reported with its hash as pending; --approve records the pending hash
-# and nothing else.
+# exact pair (trust on first use). A raise of review_samples, which
+# multiplies what a review costs, joins that pair: it applies only once
+# approved with it. An unapproved set is ignored and reported with its
+# hash as pending; --approve records the pending hash and nothing else.
 #
 # Writes <state-dir>/settings.txt (key value, read-only), sources.txt
 # (key source), and a hash of settings.txt under the data root's
@@ -313,24 +314,17 @@ if [ "$lint" -eq 1 ]; then
 	fi
 fi
 
-# Trust on first use for the shared file's commands.
-exec_trusted=1
-exec_hash=''
-grep -E '^(check_command|contract_commands)( |$)' "$work/project" >"$work/exec" || true
-if [ -s "$work/exec" ]; then
-	exec_hash=$(git hash-object --stdin <"$work/exec")
-	if ! { [ -f "$trusted" ] && grep -qx "$exec_hash" "$trusted"; }; then
-		exec_trusted=0
-		if [ "$preview" -eq 0 ] && [ "$lint" -eq 0 ]; then
-			mkdir -p "$data_root/trust"
-			printf '%s\n' "$exec_hash" >"$pending"
-		fi
-		sed "s/^/settings: trust pending $exec_hash /" "$work/exec" >>"$work/notes"
-	fi
-fi
-
-awk -v spec="$work/spec" -v out="$work/settings" -v src="$work/sources" -v raise_keys="$PROJECT_RAISE" \
-	-v exec_trusted="$exec_trusted" -v aliases="$ALIASES" -v never_keys="$PROJECT_NEVER" -v add_keys="$PROJECT_ADDS" '
+# merge <exec-trusted> <settings out> <sources out> <raise out> <user>
+# <project> <local> <run>: the merge of the four source files, its report
+# on stdout.
+merge() {
+	exec_trusted_arg=$1
+	out_arg=$2
+	src_arg=$3
+	raise_arg=$4
+	shift 4
+	awk -v spec="$work/spec" -v out="$out_arg" -v src="$src_arg" -v raise_out="$raise_arg" -v raise_keys="$PROJECT_RAISE" \
+		-v exec_trusted="$exec_trusted_arg" -v aliases="$ALIASES" -v never_keys="$PROJECT_NEVER" -v add_keys="$PROJECT_ADDS" '
 function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
 function canon(k) { return (k in alias) ? alias[k] : k }
 # Returns the normalised value, or sets err and returns "".
@@ -402,6 +396,11 @@ FNR == 1 { for (i = 1; i <= 4; i++) if (FILENAME == ARGV[i]) source = names[i] }
 		if (type[k] == "number" && (k in raise) && nv + 0 < val[k] + 0) {
 			ignored[++ni] = "project " k ": would lower " val[k] " to " nv "; a project may only raise it"; next
 		}
+		# More samples multiply what a review costs: a raise waits for approval.
+		if (k == "review_samples" && nv + 0 > val[k] + 0) {
+			if (exec_trusted != 1) next
+			raised = 1
+		}
 		# A project adds paths; it never removes yours.
 		if ((k in adds) && val[k] != "") nv = (nv == "" ? val[k] : val[k] " " nv)
 	}
@@ -422,8 +421,40 @@ END {
 		if (from[k] != "default" && from[k] != "user") printf "settings: %s %s from %s\n", k, (val[k] == "" ? "(empty)" : val[k]), from[k]
 	}
 	for (i = 1; i <= ni; i++) print "settings: ignored " ignored[i]
+	if (raise_out != "" && raised && from["review_samples"] == "project") print "review_samples " val["review_samples"] > raise_out
 }
-' "$work/user" "$work/project" "$work/local" "$work/run" >"$work/report"
+' "$@"
+}
+
+# Trust on first use for the shared file's commands, and for its raise
+# of review_samples, which a trial merge that trusts everything finds:
+# a value the run would take from the project above what it had. The
+# trial sees only the user's configuration and the project file, so the
+# hash does not move with the local file or a run's overrides.
+: >"$work/raise"
+: >"$work/empty-local"
+: >"$work/empty-run"
+merge 1 "$work/trial-settings" "$work/trial-sources" "$work/raise" \
+	"$work/user" "$work/project" "$work/empty-local" "$work/empty-run" >/dev/null
+exec_trusted=1
+exec_hash=''
+{
+	grep -E '^(check_command|contract_commands)( |$)' "$work/project" || true
+	cat "$work/raise"
+} >"$work/exec"
+if [ -s "$work/exec" ]; then
+	exec_hash=$(git hash-object --stdin <"$work/exec")
+	if ! { [ -f "$trusted" ] && grep -qx "$exec_hash" "$trusted"; }; then
+		exec_trusted=0
+		if [ "$preview" -eq 0 ] && [ "$lint" -eq 0 ]; then
+			mkdir -p "$data_root/trust"
+			printf '%s\n' "$exec_hash" >"$pending"
+		fi
+		sed "s/^/settings: trust pending $exec_hash /" "$work/exec" >>"$work/notes"
+	fi
+fi
+merge "$exec_trusted" "$work/settings" "$work/sources" '' \
+	"$work/user" "$work/project" "$work/local" "$work/run" >"$work/report"
 if [ "$lint" -eq 1 ]; then
 	cat "$work/notes" >>"$work/report"
 	grep -E '^settings: (ignored|trust pending) ' "$work/report" || true

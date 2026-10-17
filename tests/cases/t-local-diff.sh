@@ -157,3 +157,30 @@ if sh "$REPO_ROOT/scripts/fetch-pr.sh" "$dir" 2>"$SCRATCH/err"; then
 fi
 grep -q "the clone could not supply it" "$SCRATCH/err"
 [ ! -f "$dir/pr-context/diff.patch" ]
+
+# A head branch shaped like an option stays a branch name.
+printf '#!/bin/sh\n: >"%s"\nexec git-upload-pack "$@"\n' "$SCRATCH/pwned" >"$SCRATCH/evil.sh"
+chmod +x "$SCRATCH/evil.sh"
+rm -rf "$SCRATCH/clone2"
+git clone --quiet "$remote" "$SCRATCH/clone2" 2>/dev/null
+git -C "$clone" checkout --quiet feat-thing
+printf 'later\n' >>"$clone/file.txt"
+git -C "$clone" commit --quiet -am "Later"
+later=$(git -C "$clone" rev-parse HEAD)
+git -C "$clone" checkout --quiet main
+git -C "$SCRATCH/clone2" cat-file -e "$later^{commit}" 2>/dev/null && exit 1
+printf 'owner Paxton-Meny\nrepo widgets\npr 8\nhead_branch --upload-pack=%s\nbase_branch main\nhead_sha %s\ncross_repo false\nrepo_root %s\n' \
+	"$SCRATCH/evil.sh" "$later" "$SCRATCH/clone2" >"$dir/meta.txt"
+sh "$REPO_ROOT/scripts/local-diff.sh" "$dir" >/dev/null 2>&1 || true
+[ ! -e "$SCRATCH/pwned" ]
+
+# The same holds when the head branch is fetched from another repository.
+printf '#!/bin/sh\n: >"%s"\nexec git-upload-pack "$@"\n' "$SCRATCH/pwned2" >"$SCRATCH/evil2.sh"
+chmod +x "$SCRATCH/evil2.sh"
+rm -rf "$SCRATCH/clone3"
+git clone --quiet "$remote" "$SCRATCH/clone3" 2>/dev/null
+git -C "$SCRATCH/clone3" cat-file -e "$later^{commit}" 2>/dev/null && exit 1
+printf 'owner Paxton-Meny\nrepo widgets\npr 8\nhead_branch --upload-pack=%s\nbase_branch main\nhead_sha %s\ncross_repo true\nhead_repo_url %s\nrepo_root %s\n' \
+	"$SCRATCH/evil2.sh" "$later" "$remote" "$SCRATCH/clone3" >"$dir/meta.txt"
+sh "$REPO_ROOT/scripts/local-diff.sh" "$dir" >/dev/null 2>&1 || true
+[ ! -e "$SCRATCH/pwned2" ]

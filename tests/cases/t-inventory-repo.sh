@@ -184,3 +184,11 @@ if inventory "$data" 2>/dev/null; then
 	echo "expected refusal outside a clone" >&2
 	exit 1
 fi
+
+# The data root is private whatever the umask.
+cd "$clone"
+(umask 002 && inventory "$SCRATCH/private" >/dev/null)
+[ "$(ls -ld "$SCRATCH/private" | cut -c1-10)" = drwx------ ] || {
+	echo "data root is not private: $(ls -ld "$SCRATCH/private")" >&2
+	exit 1
+}

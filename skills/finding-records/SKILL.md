@@ -76,8 +76,9 @@ A body carries, in this order:
    tests/test_calc.py::test_total"). Verification runs it instead of
    judging prose, which is the strongest contract there is. It only
    runs when it starts with the project's check command or a
-   configured prefix and contains no shell metacharacters; otherwise
-   it is ignored and the Resolution is judged by reading. Never more
+   configured prefix and contains no shell metacharacters, no
+   absolute, `~`, or `..` paths, and no quotes, globs, brackets,
+   braces, parentheses, `#`, or `!`; otherwise it is ignored and the Resolution is judged by reading. Never more
    than one.
 5. Optionally, one line starting `Criteria note: ` when the defect plainly
    belongs to its category but no listed criteria item names it, stating

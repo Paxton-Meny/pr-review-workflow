@@ -130,3 +130,64 @@ out=$(resolve </dev/null)
 [ "$(value merge_method)" = auto ]
 printf '%s\n' "$out" | grep -qx 'settings: ignored run merge_method: not one of: auto merge squash rebase'
 : >"$dir/overrides.txt"
+
+# A shared file's raise of review_samples multiplies what each review
+# costs, so it waits for approval like the commands; a value that would
+# raise nothing, or that the user's own sources outrank, asks nothing.
+remote="$SCRATCH/remote.git"
+git init --quiet --bare "$remote"
+clone="$SCRATCH/clone"
+git clone --quiet "$remote" "$clone" 2>/dev/null
+mkdir -p "$clone/.claude"
+printf 'samples 3\n' >"$clone/.claude/pr-review-workflow.conf"
+git -C "$clone" add -A
+git -C "$clone" -c user.name=t -c user.email=t@example.invalid commit --quiet -m shared
+git -C "$clone" push --quiet origin HEAD:main
+printf 'owner Paxton-Meny\nrepo widgets\npr 7\nbase_branch main\nrepo_root %s\n' "$clone" >"$dir/meta.txt"
+: >"$dir/overrides.txt"
+pending="$data/trust/Paxton-Meny__widgets.pending"
+rm -f "$pending"
+
+out=$(printf 'review_samples 3\n' | resolve)
+[ "$(value review_samples)" = 3 ]
+if printf '%s\n' "$out" | grep -q 'trust pending'; then echo "unexpected trust pending" >&2; exit 1; fi
+[ ! -f "$pending" ]
+printf 'samples 1\n' >"$dir/overrides.txt"
+out=$(resolve </dev/null)
+[ "$(value review_samples)" = 1 ] && [ "$(source_of review_samples)" = run ]
+: >"$dir/overrides.txt"
+
+out=$(resolve </dev/null)
+[ "$(value review_samples)" = 1 ] && [ "$(source_of review_samples)" = default ]
+hash=$(printf '%s\n' "$out" | sed -n 's/^settings: trust pending \([0-9a-f]*\) review_samples 3$/\1/p')
+[ -n "$hash" ] && [ "$(cat "$pending")" = "$hash" ]
+sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" --approve "$hash" >/dev/null
+out=$(resolve </dev/null)
+[ "$(value review_samples)" = 3 ] && [ "$(source_of review_samples)" = project ]
+if printf '%s\n' "$out" | grep -q 'trust pending'; then echo "unexpected trust pending" >&2; exit 1; fi
+
+# The approved hash covers the commands and the raise whatever the user
+# overrides: a run's samples or the local file moves neither the hash nor
+# the project's check command.
+: >"$dir/overrides.txt"
+printf 'samples 3\ncheck_command make check\n' >"$clone/.claude/pr-review-workflow.conf"
+git -C "$clone" -c user.name=t -c user.email=t@example.invalid commit --quiet -am shared2
+git -C "$clone" push --quiet origin HEAD:main
+out=$(resolve </dev/null)
+hash=$(printf '%s\n' "$out" | sed -n 's/^settings: trust pending \([0-9a-f]*\) .*/\1/p' | head -n 1)
+[ -n "$hash" ]
+sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" --approve "$hash" >/dev/null
+out=$(resolve </dev/null)
+if printf '%s\n' "$out" | grep -q 'trust pending'; then echo "unexpected trust pending" >&2; exit 1; fi
+[ "$(value check_command)" = "make check" ]
+printf 'samples 1\n' >"$dir/overrides.txt"
+out=$(resolve </dev/null)
+if printf '%s\n' "$out" | grep -q 'trust pending'; then echo "unexpected trust pending" >&2; exit 1; fi
+[ "$(value review_samples)" = 1 ] && [ "$(source_of review_samples)" = run ]
+[ "$(value check_command)" = "make check" ]
+: >"$dir/overrides.txt"
+printf 'review_samples 1\n' >"$clone/.claude/pr-review-workflow.local.conf"
+out=$(resolve </dev/null)
+if printf '%s\n' "$out" | grep -q 'trust pending'; then echo "unexpected trust pending" >&2; exit 1; fi
+[ "$(source_of review_samples)" = local ]
+[ "$(value check_command)" = "make check" ]
