@@ -173,3 +173,14 @@ printf 'owner Paxton-Meny\nrepo widgets\npr 8\nhead_branch --upload-pack=%s\nbas
 	"$SCRATCH/evil.sh" "$later" "$SCRATCH/clone2" >"$dir/meta.txt"
 sh "$REPO_ROOT/scripts/local-diff.sh" "$dir" >/dev/null 2>&1 || true
 [ ! -e "$SCRATCH/pwned" ]
+
+# The same holds when the head branch is fetched from another repository.
+printf '#!/bin/sh\n: >"%s"\nexec git-upload-pack "$@"\n' "$SCRATCH/pwned2" >"$SCRATCH/evil2.sh"
+chmod +x "$SCRATCH/evil2.sh"
+rm -rf "$SCRATCH/clone3"
+git clone --quiet "$remote" "$SCRATCH/clone3" 2>/dev/null
+git -C "$SCRATCH/clone3" cat-file -e "$later^{commit}" 2>/dev/null && exit 1
+printf 'owner Paxton-Meny\nrepo widgets\npr 8\nhead_branch --upload-pack=%s\nbase_branch main\nhead_sha %s\ncross_repo true\nhead_repo_url %s\nrepo_root %s\n' \
+	"$SCRATCH/evil2.sh" "$later" "$remote" "$SCRATCH/clone3" >"$dir/meta.txt"
+sh "$REPO_ROOT/scripts/local-diff.sh" "$dir" >/dev/null 2>&1 || true
+[ ! -e "$SCRATCH/pwned2" ]
