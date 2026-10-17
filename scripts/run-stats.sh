@@ -127,6 +127,10 @@ updates=0 conflicts=0
 	conflicts=$(grep -c '^conflicts ' "$dir/sync.txt" || true)
 }
 
+# The editor batches that changed the user's own checkout.
+escapes=0
+[ -f "$dir/escapes.txt" ] && escapes=$(grep -c '^escape$' "$dir/escapes.txt" || true)
+
 # The highest source any setting came from: run, local, project, or none.
 config=none
 if [ -f "$dir/sources.txt" ]; then
@@ -136,7 +140,7 @@ if [ -f "$dir/sources.txt" ]; then
 fi
 
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config method $method ci $ci ci_rounds $ci_rounds updates $updates conflicts $conflicts"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config method $method ci $ci ci_rounds $ci_rounds updates $updates conflicts $conflicts escapes $escapes"
 printf '%s\n' "$line" >>"$root/stats.txt"
 # The outcome marks the ledger for sweep-state.sh and list-runs.sh: held,
 # parked, and review-only runs stay live without a worktree.
