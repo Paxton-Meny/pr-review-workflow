@@ -21,6 +21,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-guard.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-counter.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/criteria-signals.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh *)
@@ -98,6 +99,15 @@ the bodies of
 Stop at the first failing script: report its stderr and the state directory
 path, and leave everything in place. Re-invoking this skill with the same
 argument resumes from the ledger. Never retry a failed call in a loop.
+
+Every `pr-review-workflow:editor` spawn below sits between two calls:
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-guard.sh <dir> before`
+immediately before it and
+`sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-guard.sh <dir> after` as
+soon as it returns, relaying the after line. The editor works only in
+the review worktree, so exit 3 means it changed the user's own
+checkout: stop as above, relay every line, and tell the user to
+inspect that checkout. Never repair it yourself.
 
 1. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/check-tools.sh`
 2. Create or refresh the ledger. Pass the invocation text on stdin,

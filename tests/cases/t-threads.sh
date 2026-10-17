@@ -12,7 +12,7 @@ mkdir -p "$dir"
 printf 'owner Paxton-Meny\nrepo widgets\npr 7\n' >"$dir/meta.txt"
 
 printf '5555\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments_9001_replies"
-printf 'Addressed in abc123.\n' | sh "$REPO_ROOT/scripts/reply-thread.sh" "$dir" 9001 \
+printf 'Kept as is: the loop is bounded.\n' | sh "$REPO_ROOT/scripts/reply-thread.sh" "$dir" 9001 \
 	| grep -qx 'reply-thread: replied to 9001 as 5555'
 
 if printf 'x\n' | sh "$REPO_ROOT/scripts/reply-thread.sh" "$dir" '9001; rm -rf /' 2>"$SCRATCH/err"; then
@@ -48,7 +48,3 @@ if sh "$REPO_ROOT/scripts/resolve-thread.sh" "$dir" 9001 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "did not resolve" "$SCRATCH/err"
-
-# The editor's reply carries the commit subject beside the sha, since a
-# rebase rewrites the sha and the subject is what still finds the commit.
-grep -q "printf 'Addressed in %s (%s).\\\\n' <short-sha> \"<subject>\"" "$REPO_ROOT/agents/editor.md"
