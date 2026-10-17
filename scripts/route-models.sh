@@ -33,10 +33,11 @@
 # on a seam, a gap pass over seams), up for stakes (a secrets,
 # automation, or sensitive probe, a blocker or security finding), down
 # where a later step checks the work (a minor or nit fix carried by a
-# proven suggestion for the editor, an executable Check line or proven
-# suggestion for the verifier) or the review is small docs or config
-# with no risk. A batch or a verified round runs at its highest
-# finding's level. Max is never routed. Fixed routing keeps every
+# proven suggestion for the editor on a model above the cheap one, an
+# executable Check line or proven suggestion for the verifier) or the
+# review is small docs or config with no risk. A batch or a verified
+# round runs at its highest finding's level. Max is never routed.
+# Fixed routing keeps every
 # role's own level, under the posture's cap. A set
 # CLAUDE_CODE_EFFORT_LEVEL outranks every override, so the line and
 # each Route note record it as pinned, and a retry under it climbs the
