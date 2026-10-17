@@ -262,6 +262,16 @@ rm -f "$dir/check-baseline.txt" "$dir/check-gate.txt"
 refusal 'check has no baseline for the configured command'
 printf 'pass %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
 refusal 'check not run at abc123'
+# A gate record for an older head counts as not run, pass or fail.
+printf 'pass %s 0ld\n' "$hash" >"$dir/check-gate.txt"
+refusal 'check not run at abc123'
+printf 'fail %s 0ld\n' "$hash" >"$dir/check-gate.txt"
+refusal 'check not run at abc123'
+# A baseline taken for a different command does not arm the gate.
+rm -f "$dir/check-gate.txt"
+printf 'pass %s abc123\n' "$(printf 'other' | git hash-object --stdin)" >"$dir/check-baseline.txt"
+refusal 'check has no baseline for the configured command'
+printf 'pass %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
 printf 'fail %s abc123\n' "$hash" >"$dir/check-gate.txt"
 refusal 'check failed at abc123'
 printf 'pass %s abc123\n' "$hash" >"$dir/check-gate.txt"
