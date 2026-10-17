@@ -7,6 +7,12 @@
 # has verified the migrations outside the pull request.
 # Exit 5: refused, writing nothing, because the base branch moved: the
 # pull request is conflicting or behind, and must be brought up to date.
+# Exit 6: refused, writing nothing and asking the forge nothing, because
+# the ledger does not allow a merge: one line each for a finding still
+# open ("open <id>"), a wont-fix finding no person accepted
+# ("unaccepted <id>"), a finding marked addressed that no verifier has
+# judged ("unverified <id>"), and, when the check gate is armed, a head the
+# check has not passed at ("check <reason>").
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
@@ -53,6 +59,62 @@ merge | squash | rebase) ;;
 	;;
 esac
 delete_on_merge=$(sed -n 's/^delete_branch_on_merge //p' "$record")
+
+# The ledger, not the session's memory, says whether the review allows
+# a merge.
+here=$(dirname -- "$0")
+refused=''
+if [ -d "$dir/findings" ]; then
+	rc=0
+	counts=$(sh "$here/count-findings.sh" "$dir" --list) || rc=$?
+	[ "$rc" -eq 0 ] || [ "$rc" -eq 3 ] || exit 1
+	for id in $(printf '%s\n' "$counts" | sed -n 's/^open_ids//p'); do
+		refused="$refused
+open $id"
+	done
+	for id in $(printf '%s\n' "$counts" | sed -n 's/^wont_fix_ids//p'); do
+		sed '/^---$/q' "$dir/findings/$id" | grep -qx 'accepted: yes' ||
+			refused="$refused
+unaccepted $id"
+	done
+	for id in $(printf '%s\n' "$counts" | sed -n 's/^addressed_ids//p'); do
+		refused="$refused
+unverified $id"
+	done
+fi
+# Armed means the baseline passed for the command now configured; then
+# the head must have passed it, by the last gate run at that head or by
+# a baseline taken there.
+check=$(sh "$here/setting.sh" "$dir" check_command)
+if [ -n "$check" ]; then
+	check_hash=$(printf '%s' "$check" | git hash-object --stdin)
+	baseline=$(cat "$dir/check-baseline.txt" 2>/dev/null || true)
+	gate=$(cat "$dir/check-gate.txt" 2>/dev/null || true)
+	case "$baseline" in
+	"fail $check_hash "*) ;;
+	"pass $check_hash "*)
+		case "$gate" in
+		"pass $check_hash $head_sha") ;;
+		"fail $check_hash $head_sha")
+			refused="$refused
+check failed at $head_sha"
+			;;
+		*)
+			[ "$baseline" = "pass $check_hash $head_sha" ] || refused="$refused
+check not run at $head_sha"
+			;;
+		esac
+		;;
+	*)
+		refused="$refused
+check has no baseline for the configured command"
+		;;
+	esac
+fi
+if [ -n "$refused" ]; then
+	echo "merge-pr: the ledger does not allow a merge$refused"
+	exit 6
+fi
 
 attempts=5
 settle=${MERGE_PR_SETTLE_SECONDS:-3}

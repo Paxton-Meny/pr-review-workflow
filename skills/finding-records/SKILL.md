@@ -49,6 +49,9 @@ title: One line naming the defect
   steps; empty when the reviewer writes the record.
 - `round`: the review round that raised the finding.
 - `reopens`: how many times verification has sent the finding back.
+- `accepted`: added after `title` with the value `yes` only when a person
+  accepted a `wont-fix` finding's reasoning; nothing merges over a
+  `wont-fix` record without it.
 
 ## Body
 

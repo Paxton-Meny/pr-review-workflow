@@ -197,3 +197,88 @@ if sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve --checked 2>"$SCRATCH/er
 	exit 1
 fi
 grep -q "unknown argument: --checked" "$SCRATCH/err"
+
+# The ledger decides before the forge is asked anything: a finding still
+# open, a wont-fix no person accepted, or an armed check that has not
+# passed at the head refuses the merge, with or without --approve.
+rm -f "$stub"/pr-view.* "$stub/calls.log"
+: >"$stub/pr-list"
+mkdir -p "$dir/findings"
+finding() {
+	# finding <id> <status>
+	printf 'id: %s\nstatus: %s\ncategory: correctness\nseverity: major\npath: a.c\nline: 1\nend_line:\nside: RIGHT\nplacement: inline\ncomment_id: 1\ncommit:\nround: 1\nreopens: 0\ntitle: T\n---\nFix: x.\nResolution: x.\n' "$1" "$2" >"$dir/findings/$1"
+}
+finding F001 open
+finding F002 wont-fix
+finding F003 verified
+finding F004 addressed
+for flag in --approve ''; do
+	rc=0
+	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" $flag) || rc=$?
+	[ "$rc" -eq 6 ]
+	[ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\nopen F001\nunaccepted F002\nunverified F004')" ]
+	[ ! -f "$stub/calls.log" ] || {
+		echo "a ledger refusal must not reach the forge" >&2
+		exit 1
+	}
+done
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed >/dev/null
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=verified >/dev/null
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 6 ]
+[ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\nunaccepted F002\nunverified F004')" ]
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F004 status=verified >/dev/null
+rc=0
+out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 6 ]
+[ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\nunaccepted F002')" ]
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F002 accepted=yes >/dev/null
+printf "$clean" >"$stub/pr-view.1"
+printf 'MERGED\n' >"$stub/pr-view.2"
+sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" | grep -q "^merge-pr: $fixture_owner/widgets#7 merged by merge"
+
+# With a check command configured, the head must have passed it.
+printf 'check_command true\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+hash=$(printf 'true' | git hash-object --stdin)
+refusal() {
+	# refusal <line>: merge-pr refuses with exactly that reason
+	rm -f "$stub"/pr-view.* "$stub/calls.log"
+	rc=0
+	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+	[ "$rc" -eq 6 ] && [ "$out" = "$(printf 'merge-pr: the ledger does not allow a merge\n%s' "$1")" ] || {
+		echo "expected the refusal '$1', got $rc: $out" >&2
+		exit 1
+	}
+	[ ! -f "$stub/calls.log" ]
+}
+merges() {
+	rm -f "$stub"/pr-view.* "$stub/calls.log"
+	printf "$clean" >"$stub/pr-view.1"
+	printf 'MERGED\n' >"$stub/pr-view.2"
+	sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" | grep -q "^merge-pr: $fixture_owner/widgets#7 merged by merge"
+}
+rm -f "$dir/check-baseline.txt" "$dir/check-gate.txt"
+refusal 'check has no baseline for the configured command'
+printf 'pass %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
+refusal 'check not run at abc123'
+# A gate record for an older head counts as not run, pass or fail.
+printf 'pass %s 0ld\n' "$hash" >"$dir/check-gate.txt"
+refusal 'check not run at abc123'
+printf 'fail %s 0ld\n' "$hash" >"$dir/check-gate.txt"
+refusal 'check not run at abc123'
+# A baseline taken for a different command does not arm the gate.
+rm -f "$dir/check-gate.txt"
+printf 'pass %s abc123\n' "$(printf 'other' | git hash-object --stdin)" >"$dir/check-baseline.txt"
+refusal 'check has no baseline for the configured command'
+printf 'pass %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
+printf 'fail %s abc123\n' "$hash" >"$dir/check-gate.txt"
+refusal 'check failed at abc123'
+printf 'pass %s abc123\n' "$hash" >"$dir/check-gate.txt"
+merges
+rm -f "$dir/check-gate.txt"
+printf 'pass %s abc123\n' "$hash" >"$dir/check-baseline.txt"
+merges
+# A baseline that failed disarms the gate, so nothing is required.
+printf 'fail %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
+merges
