@@ -181,7 +181,8 @@ PRWF_SETTINGS_END
    The current run is never touched.
 
    If `<dir>/findings/` already has records, this is a resume: run
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>` as step 4 says,
+   then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
    report the counts, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh <dir>`, relaying
    its line. Exit 3 means someone pushed after the review: run the
@@ -214,7 +215,9 @@ PRWF_SETTINGS_END
    worktree path and a mode line. `mode review-only` is a fork that does
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 7. Exit 2 means the fork itself is
-   gone: report that and stop. Then
+   gone: report that and stop. Exit 3: commits pushed outside the run
+   arrived unreviewed; with findings saved, follow step 8e for every file
+   `round-diff.sh <dir> --all` lists, else rerun step 3. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh <dir>`, relaying
    its lines. When one says the check command and contracts will not
    run on this code unless you approve it: attended, tell the user
