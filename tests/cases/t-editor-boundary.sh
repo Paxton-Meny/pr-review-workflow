@@ -137,3 +137,5 @@ grep -A4 'Every `pr-review-workflow:editor` spawn below sits between two calls' 
 	grep -q 'checkout-guard.sh <dir> after'
 grep -q 'reply-thread.sh <state-dir> --addressed <id>' "$REPO_ROOT/agents/editor.md"
 grep -q '^`<state-dir>/worktree`, written `<worktree>` below' "$REPO_ROOT/agents/editor.md"
+grep -q '^there with its reason in your own words, carrying no filesystem path\.$' "$REPO_ROOT/agents/editor.md"
+grep -q '^  name the script and its reason instead, carrying no filesystem path\.$' "$REPO_ROOT/agents/editor.md"
