@@ -109,6 +109,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- An editor batch that commits outside the review worktree now stops
+  the run instead of reporting success. The editor's definition names
+  the worktree (`<state-dir>/worktree`) and says its working directory
+  and `repo_root` are the user's own clone. `push-branch.sh` exits 3
+  when the worktree holds nothing new to push, or, on a plain push,
+  lacks a commit an addressed finding records, so its proof no longer
+  passes on a push that moved nothing. `update-finding.sh` refuses a
+  `commit=` the worktree's history does not contain.
+  `reply-thread.sh --addressed <id>` composes the "Addressed in"
+  reply from the record, and only once its commit is on the head
+  `push-branch.sh` proved on the remote; a reply on stdin may not claim
+  a fix. The editor now marks each finding before replying to it.
+- The run guards the user's checkout around every editor spawn.
+  `checkout-guard.sh <dir> before|after` snapshots its head, branch,
+  local branches, status, tracked changes, and untracked contents, and
+  `after` exits 3 naming every difference, which stops the run.
 - Repositories that do not allow rebase merging can now be merged by
   the plugin.
 - Setup readers no longer lose their slice when they stop early. Hosts

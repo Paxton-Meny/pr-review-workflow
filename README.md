@@ -395,7 +395,10 @@ written.
 Per-PR state lives under the plugin's data directory, outside every
 repository: the finding ledger, fetched context, and a detached review
 worktree. Re-invoking the skill on the same pull request resumes from the
-ledger. Your own checkout is never touched.
+ledger. Your own checkout is never touched: each editor batch runs
+between two snapshots of it, and any difference stops the run with
+what changed. A fix committed anywhere but the review worktree is
+refused when it is pushed, recorded, or cited in a reply.
 A held run keeps only its ledger: the worktree and fetched context go
 when you choose to hold, and come back on resume. Every review starts
 by reaping runs, in any repository, whose pull request closed since,
