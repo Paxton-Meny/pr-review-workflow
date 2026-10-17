@@ -319,8 +319,9 @@ offers migration or database tooling (`dotnet ef`, `sqlcmd`,
   stakes (a secrets, automation, or sensitive probe on a review; a
   blocker, a security finding, or a flagged file on a fix), down where
   a later step checks the work (an editor's minor or nit fix carried
-  by a proven suggestion, a verified finding that a Check line or
-  proven suggestion settles) or for a small docs or config review. A
+  by a proven suggestion on a model above the cheap one; a verified
+  finding that a Check line or proven suggestion settles) or for a
+  small docs or config review. A
   batch or a verified round runs at its highest finding's level. The
   cap is high under economy and balanced and xhigh under quality, a
   signal that climbs the model does not also raise the effort, and

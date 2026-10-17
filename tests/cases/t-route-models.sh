@@ -97,17 +97,18 @@ rm "$dir/spawn-effort.txt"
 # The filter always takes the verifier model at its own level.
 [ "$(route filter $ARGS)" = "route filter all rung base model sonnet effort low reason role-model" ]
 
-# Editing drops only in round one and only when every finding is mechanical.
+# Editing drops only in round one and only when every finding is mechanical;
+# the cheap model is the whole discount, so the effort stays the editor's own.
 printf 'id: F001\nstatus: open\nseverity: nit\n---\nbody\n```suggestion\nx\n```\n' >"$dir/findings/F001"
 printf 'id: F002\nstatus: open\nseverity: minor\n---\nbody\n```suggestion\ny\n```\n' >"$dir/findings/F002"
 printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F003"
-[ "$(route edit $ARGS round=1 -- F001 F002)" = "route edit all rung cheap model sonnet effort low reason mechanical ids F001 F002" ]
+[ "$(route edit $ARGS round=1 -- F001 F002)" = "route edit all rung cheap model sonnet effort medium reason mechanical ids F001 F002" ]
 [ "$(route edit $ARGS round=1 -- F001 F003)" = "route edit all rung base model inherit effort medium reason mixed ids F001 F003" ]
 [ "$(route edit $ARGS round=2 -- F001 F002)" = "route edit all rung base model inherit effort high reason mixed ids F001 F002" ]
 [ "$(route edit routing=fixed round=1 -- F001)" = "route edit all rung base model inherit effort medium reason fixed ids F001" ]
 
 # Each attempt is noted on the record.
-grep -q '^Route: round 1 rung cheap model sonnet effort low reason mechanical$' "$dir/findings/F001"
+grep -q '^Route: round 1 rung cheap model sonnet effort medium reason mechanical$' "$dir/findings/F001"
 [ "$(grep -c '^Route: ' "$dir/findings/F001")" -eq 4 ]
 
 # A finding attempted and still open moves one lever: the base model
@@ -175,7 +176,7 @@ printf 'id: F001\nstatus: open\nseverity: nit\n---\nbody\n```suggestion\nx\n```\
 printf 'id: F002\nstatus: open\nseverity: minor\n---\nbody\n```suggestion\ny\n```\n' >"$dir/findings/F002"
 printf 'id: F003\nstatus: open\nseverity: major\n---\nbody\n```suggestion\nz\n```\n' >"$dir/findings/F003"
 printf 'id: F004\nstatus: open\nseverity: major\n---\nbody\n' >"$dir/findings/F004"
-[ "$(route edit $ARGS round=1 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet effort low reason mechanical ids F001 F002
+[ "$(route edit $ARGS round=1 -- F003 F001 F004 F002)" = "route edit batch-1 rung cheap model sonnet effort medium reason mechanical ids F001 F002
 route edit batch-2 rung base model inherit effort medium reason role-model ids F003 F004" ]
 [ "$(route edit $ARGS round=2 -- F003 F001 F004 F002)" = "route edit all rung base model inherit effort high reason mixed ids F003 F001 F004 F002" ]
 
