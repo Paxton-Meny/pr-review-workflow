@@ -69,6 +69,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- A first editing round's mechanical batch runs the cheap model at the
+  editor's own effort instead of one level lower too, so the mechanical
+  signal is paid once across the two levers. The only editor batch ever
+  routed at low effort was the one that committed outside the worktree.
 - `merge-pr.sh` merges by the decided method instead of always by
   rebase, names the head the run last saw so an unseen push refuses the
   merge, and deletes the head branch only when the repository does not

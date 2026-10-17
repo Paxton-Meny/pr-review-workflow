@@ -528,7 +528,9 @@ next_attempt() {
 
 # A finding's rung and effort for this round, and why. A first attempt
 # starts at the editor's level, one up for stakes and one down when a
-# proven suggestion carries the fix. Prints "<rung> <reason> <effort>".
+# proven suggestion carries the fix, unless the cheap model already
+# takes that discount: a signal is paid once, across both levers.
+# Prints "<rung> <reason> <effort>".
 finding_plan() {
 	# finding_plan <id>
 	record="$dir/findings/$1"
@@ -555,7 +557,7 @@ finding_plan() {
 	elif high_stakes "$record"; then
 		echo "base stakes-floor $effort"
 	elif mechanical "$record"; then
-		echo "cheap mechanical $effort"
+		echo "cheap mechanical $(moved "$editor_effort" 0)"
 	elif [ "$posture" != quality ] && contract_runs "$1"; then
 		echo "cheap contract-first $effort"
 	elif [ "$posture" = economy ] && [ -n "$check" ]; then
