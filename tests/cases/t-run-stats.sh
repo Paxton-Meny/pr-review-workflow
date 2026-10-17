@@ -53,16 +53,17 @@ finding F012 verified
 { note 1 inherit 'effort medium'; note 2 inherit 'effort high unapplied medium'; } >>"$dir/findings/F012"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0 escapes 0" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0 escapes 0' "$root/stats.txt"
 
 [ "$(cat "$dir/outcome.txt")" = parked ]
 printf 'pass abc\n' >"$dir/ci-result.txt"
 printf '1\n' >"$dir/ci-rounds.txt"
 printf 'update rebase a1 b2\nconflicts 2 files\nupdate rebase b2 c3\n' >"$dir/sync.txt"
+printf 'escape\nescape\n' >"$dir/escapes.txt"
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]
-grep -q ' outcome merged .* ci repaired ci_rounds 1 updates 2 conflicts 1$' "$root/stats.txt"
+grep -q ' outcome merged .* ci repaired ci_rounds 1 updates 2 conflicts 1 escapes 2$' "$root/stats.txt"
 [ "$(cat "$dir/outcome.txt")" = merged ]
 
 if sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" wat 2>"$SCRATCH/err"; then

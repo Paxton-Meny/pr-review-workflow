@@ -137,7 +137,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The run guards the user's checkout around every editor spawn.
   `checkout-guard.sh <dir> before|after` snapshots its head, branch,
   local branches, status, tracked changes, and untracked contents, and
-  `after` exits 3 naming every difference, which stops the run.
+  `after` exits 3 naming every difference, which stops the run. Each
+  trip is counted as `escapes` in the run statistics and the stats
+  report, so an escape no longer hides behind a clean outcome.
 - Repositories that do not allow rebase merging can now be merged by
   the plugin.
 - Setup readers no longer lose their slice when they stop early. Hosts
