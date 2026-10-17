@@ -10,6 +10,9 @@
 # key=value, a value with spaces quoted with " or '. They are written to
 # overrides.txt (key value, one per line), replaced on every invocation,
 # so a resumed run never keeps an earlier invocation's overrides.
+# Once the ledger holds findings, head_sha and prev_head carry over and
+# never come from GitHub: only push-branch.sh and checkout-pr.sh move
+# them, so a push made outside the run surfaces through checkout-pr.sh.
 set -eu
 
 data_root=${1:?usage: init-state.sh <data-root> <pr-ref> [key=value ...]}
@@ -98,25 +101,30 @@ esac
 
 dir="$data_root/state/${owner}__${repo}__${number}"
 mkdir -p "$dir"
-# The head the review last covered. Once the ledger holds findings it
-# carries over from the previous invocation, never from GitHub, so
-# commits pushed since stay unreviewed until reviewed-head.sh says so
-# and the review reads them; a ledger from before this field falls
-# back to the head it last recorded.
+# The heads the run last saw. Once the ledger holds findings a resume
+# keeps them, never GitHub's, so a push made outside the run waits for
+# checkout-pr.sh (head_sha, prev_head) and commits pushed since stay
+# unreviewed until reviewed-head.sh says so (reviewed_head). A ledger from
+# before the reviewed_head field falls back to the head it last recorded.
+seen=''
 reviewed=''
 for f in "$dir/findings"/F*; do
-	[ -f "$f" ] || continue
-	if [ -f "$dir/meta.txt" ]; then
-		reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
-		[ -n "$reviewed" ] || reviewed=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
-	fi
+	[ -f "$f" ] && [ -f "$dir/meta.txt" ] || break
+	seen=$(sed -n -e '/^head_sha ./p' -e '/^prev_head ./p' "$dir/meta.txt")
+	reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
+	[ -n "$reviewed" ] || reviewed=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 	break
 done
 [ -n "$reviewed" ] || reviewed=$(printf '%s\n' "$meta" | sed -n 's/^head_sha //p')
 tmp=$(mktemp "$dir/.meta.XXXXXX")
 {
 	printf 'owner %s\nrepo %s\npr %s\n' "$owner" "$repo" "$number"
-	printf '%s\n' "$meta" | sed '/^state /d'
+	if printf '%s\n' "$seen" | grep -q '^head_sha '; then
+		printf '%s\n' "$meta" | sed -e '/^state /d' -e '/^head_sha /d'
+		printf '%s\n' "$seen"
+	else
+		printf '%s\n' "$meta" | sed '/^state /d'
+	fi
 	printf 'reviewed_head %s\nauthor_permission %s\n' "$reviewed" "$permission"
 	printf 'self_login %s\nself_email %s\n' "$self_login" "$self_email"
 	printf 'repo_root %s\n' "$repo_root"
