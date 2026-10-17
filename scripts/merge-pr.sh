@@ -13,8 +13,9 @@
 # Exit 6: refused, writing nothing, for one of two reasons. Either the
 # ledger does not allow a merge, found before the forge is asked anything:
 # one line each for a finding still open ("open <id>"), a wont-fix
-# finding no person accepted ("unaccepted <id>"), and, when the check
-# gate is armed, a head the check has not passed at ("check <reason>");
+# finding no person accepted ("unaccepted <id>"), a finding marked
+# addressed that no verifier has judged ("unverified <id>"), and, when the
+# check gate is armed, a head the check has not passed at ("check <reason>");
 # or the head is not the one the review covered: someone pushed since,
 # and reviewed-head.sh leads to reviewing those commits first.
 # The head branch is deleted after the merge only when the repository
@@ -82,6 +83,10 @@ open $id"
 		sed '/^---$/q' "$dir/findings/$id" | grep -qx 'accepted: yes' ||
 			refused="$refused
 unaccepted $id"
+	done
+	for id in $(printf '%s\n' "$counts" | sed -n 's/^addressed_ids//p'); do
+		refused="$refused
+unverified $id"
 	done
 fi
 # Armed means the baseline passed for the command now configured; then
