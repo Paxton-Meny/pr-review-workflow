@@ -94,6 +94,19 @@ refused 3 "now untracked " sh "$s/checkout-guard.sh" "$dir" after
 rm "$clone/notes.txt"
 [ "$(grep -c '^escape$' "$dir/escapes.txt")" -eq 4 ]
 
+git -C "$clone" worktree add --quiet -b other "$SCRATCH/other"
+sh "$s/checkout-guard.sh" "$dir" before >/dev/null
+printf 'elsewhere\n' >>"$SCRATCH/other/file.txt"
+git -C "$SCRATCH/other" commit --quiet -am "Work in another worktree"
+sh "$s/checkout-guard.sh" "$dir" after | grep -qx 'checkout-guard: the user checkout is unchanged'
+git -C "$clone" branch --quiet loose "$head"
+sh "$s/checkout-guard.sh" "$dir" before >/dev/null
+git -C "$clone" branch --quiet -f loose "$(git -C "$SCRATCH/other" rev-parse HEAD)"
+refused 3 "now branch refs/heads/loose " sh "$s/checkout-guard.sh" "$dir" after
+git -C "$clone" worktree remove --force "$SCRATCH/other"
+git -C "$clone" branch --quiet -D other loose
+[ "$(grep -c '^escape$' "$dir/escapes.txt")" -eq 5 ]
+
 sh "$s/checkout-guard.sh" "$dir" before >/dev/null
 printf 'three\n' >>"$wt/file.txt"
 git -C "$wt" -c "user.name=$fixture_name" -c "user.email=$fixture_email" commit --quiet -am "Add the third line"
