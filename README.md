@@ -397,7 +397,9 @@ repository: the finding ledger, fetched context, and a detached review
 worktree. Re-invoking the skill on the same pull request resumes from the
 ledger. Your own checkout is never touched.
 A held run keeps only its ledger: the worktree and fetched context go
-when you choose to hold, and come back on resume. Every review starts
+when you choose to hold, and come back on resume. Commits pushed to the
+branch from outside the run are picked up on resume and reviewed; a
+branch moved back or rewritten stops the run instead. Every review starts
 by reaping runs, in any repository, whose pull request closed since,
 then pruning finished ledgers past the kept count.
 State is keyed by repository and pull request, so every worktree of a
