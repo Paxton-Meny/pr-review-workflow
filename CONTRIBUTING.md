@@ -26,7 +26,10 @@ sh scripts/gate.sh
 ```
 
 The pre-commit hook runs it and blocks the commit on failure. A pull request
-merges only after the gate passes on its branch.
+merges only after the gate passes on its branch. GitHub runs the same test
+suite on every pull request (`.github/workflows/tests.yml`); plugin validation
+needs a logged-in `claude` and stays local. The workflow takes nothing from
+outside the repository, and `tests/cases/t-ci-workflow.sh` keeps it that way.
 
 ## Branches and commits
 

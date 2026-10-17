@@ -1,0 +1,55 @@
+# The offline test suite on every pull request and every push to main.
+#
+# Nothing here comes from outside the repository: no actions, no
+# packages, no caches. The runner's sh, git, awk, sed, and grep are all
+# the suite needs, and tests/stubs/gh stands in for the GitHub CLI. The
+# token can only read the repository, reaches git through environment
+# configuration, never argv or .git/config, and is gone before any
+# repository code runs. pull_request, never pull_request_target: a
+# fork's pull request runs with no secrets and no write access.
+# tests/cases/t-ci-workflow.sh holds the file to all of this.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: sh
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Fetch the commit under test
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git init --quiet .
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 | tr -d '\n')
+          echo "::add-mask::$auth"
+          GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraheader \
+            GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth" \
+            git fetch --quiet --depth 1 --no-tags \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout --quiet --detach FETCH_HEAD
+          [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]
+
+      - name: Take the fixture identity from the account that ran this
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Run the test suite
+        run: sh tests/run.sh
