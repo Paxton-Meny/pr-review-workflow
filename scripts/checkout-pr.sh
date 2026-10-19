@@ -95,8 +95,23 @@ if [ "$cross_repo" = "true" ]; then
 else
 	src=origin
 fi
-refs=$(git -C "$repo_root" ls-remote "$src" "refs/heads/$head_branch")
-remote_head=$(printf '%s\n' "$refs" | awk -v ref="refs/heads/$head_branch" '$2 == ref { print $1 }')
+# A fork's head is read from GitHub's pull request ref on origin first, so
+# the fork is not asked for a branch while origin already has the head; the
+# fork's branch answers only when that ref is missing.
+remote_head=''
+if [ "$cross_repo" = "true" ]; then
+	case "$pr" in
+	'' | *[!0-9]*) ;;
+	*)
+		refs=$(git -C "$repo_root" ls-remote origin "refs/pull/$pr/head")
+		remote_head=$(printf '%s\n' "$refs" | awk -v ref="refs/pull/$pr/head" '$2 == ref { print $1 }')
+		;;
+	esac
+fi
+if [ -z "$remote_head" ]; then
+	refs=$(git -C "$repo_root" ls-remote "$src" "refs/heads/$head_branch")
+	remote_head=$(printf '%s\n' "$refs" | awk -v ref="refs/heads/$head_branch" '$2 == ref { print $1 }')
+fi
 case "$remote_head" in
 '' | *[!0-9a-f]*)
 	echo "checkout-pr: $head_branch is not on $src" >&2
