@@ -216,8 +216,14 @@ PRWF_SETTINGS_END
    not allow maintainer edits: findings can post but nothing can be fixed
    here, so remember the mode for step 7. Exit 2 means the fork itself is
    gone: report that and stop. Exit 3: commits pushed outside the run
-   arrived unreviewed; with findings saved, follow step 8e for every file
-   `round-diff.sh <dir> --all` lists, else rerun step 3. Then
+   arrived unreviewed, and every later call repeats it until the review
+   is done; the line `advanced <base> <head>` names the range. With
+   findings saved, follow step 8e for every file
+   `round-diff.sh <dir> --all <base>` lists, else rerun step 3; either
+   way finish with `checkout-pr.sh <dir> --reviewed`. Exit 4: the
+   branch went back or was rewritten; the message names the way on,
+   `checkout-pr.sh <dir> --accept <sha>` once a person has looked at the
+   new branch (unattended, park, step 9). Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh <dir>`, relaying
    its lines. When one says the check command and contracts will not
    run on this code unless you approve it: attended, tell the user
