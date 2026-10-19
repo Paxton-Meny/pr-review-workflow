@@ -77,11 +77,11 @@ out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
 grep -qx 'status: ready' "$stub/bodies.log"
 
 # Updates touch the header and leave the quoted lines alone.
-sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed commit=abc1234 >/dev/null
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=addressed commit="$head" >/dev/null
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F001 status=open >/dev/null
 sed -n '1,/^---$/p' "$dir/findings/F001" | grep -qx 'status: open'
 sed -n '1,/^---$/p' "$dir/findings/F001" | grep -qx 'reopens: 1'
 grep -qx 'status: ready' "$dir/findings/F001"
 grep -qx 'reopens: 7' "$dir/findings/F001"
 grep -qx 'path: src/auth/session.py' "$dir/findings/F001"
-[ "$(sed -n '/^---$/q; s/^commit: //p' "$dir/findings/F001")" = abc1234 ]
+[ "$(sed -n '/^---$/q; s/^commit: //p' "$dir/findings/F001")" = "$head" ]
