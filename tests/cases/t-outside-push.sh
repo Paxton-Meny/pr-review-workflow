@@ -29,7 +29,7 @@ git -C "$author" config user.email "$fixture_email"
 
 dir="$SCRATCH/state"
 mkdir -p "$dir"
-printf 'owner %s\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\ncross_repo false\n' "$fixture_owner" "$reviewed" >"$dir/meta.txt"
+printf 'owner %s\nrepo widgets\npr 7\nhead_branch feat-thing\nhead_sha %s\nreviewed_head %s\ncross_repo false\n' "$fixture_owner" "$reviewed" "$reviewed" >"$dir/meta.txt"
 cd "$clone"
 wt=$(sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" | head -n 1)
 [ "$(git -C "$wt" rev-parse HEAD)" = "$reviewed" ]
@@ -80,12 +80,22 @@ sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all "$reviewed" >"$SCRATCH/out" |
 [ "$rc" -eq 3 ]
 printf 'unexpected added.txt\nunexpected file.txt\n' | cmp -s - "$SCRATCH/out"
 
+# Unreviewed arrivals do not move the head the review covered, so
+# merge-pr.sh keeps refusing them.
+grep -qx "reviewed_head $reviewed" "$dir/meta.txt"
+[ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
+
 # Once marked reviewed, a call changes nothing.
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" --reviewed >"$SCRATCH/out"
 if grep -q advanced "$SCRATCH/out" || grep -q '^arrived_base ' "$dir/meta.txt"; then
 	echo "checkout-pr --reviewed left the arrival pending" >&2
 	exit 1
 fi
+# Marking the arrival reviewed also records its head as the one the review
+# covered, as reviewed-head.sh --mark does, and only that one line.
+grep -qx "reviewed_head $second" "$dir/meta.txt"
+grep -qx "head_sha $second" "$dir/meta.txt"
+[ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
 outside=$second
 
 # A held run has no worktree: it is created at the commits that arrived.

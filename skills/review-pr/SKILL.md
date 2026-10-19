@@ -220,7 +220,9 @@ PRWF_SETTINGS_END
    is done; the line `advanced <base> <head>` names the range. With
    findings saved, follow step 8e for every file
    `round-diff.sh <dir> --all <base>` lists, else rerun step 3; either
-   way finish with `checkout-pr.sh <dir> --reviewed`. Exit 4: the
+   way finish with `checkout-pr.sh <dir> --reviewed`, which also records
+   the head as the one the review covered, as `reviewed-head.sh <dir>
+   --mark` does, so merge-pr accepts it. Exit 4: the
    branch went back or was rewritten; the message names the way on,
    `checkout-pr.sh <dir> --accept <sha>` once a person has looked at the
    new branch (unattended, park, step 9). Then

@@ -10,7 +10,9 @@
 # "checkout-pr: advanced <base> <new>" names the oldest head whose
 # successors nobody reviewed yet and the current one. The base is kept in
 # meta.txt as arrived_base, so exit 3 repeats on every call, across
-# further outside pushes, until `--reviewed` clears it; round-diff.sh
+# further outside pushes, until `--reviewed` clears it and records
+# head_sha as reviewed_head, the head merge-pr.sh insists the review
+# covered, as reviewed-head.sh --mark does; round-diff.sh
 # <dir> --all <base> lists every file of the whole range. `--accept <sha>`
 # adopts the branch head <sha> as the new head_sha after a person looked
 # at a branch that went back or was rewritten. Exit 4: refused, changing nothing, because the branch went
@@ -46,7 +48,13 @@ head_repo_url=$(sed -n 's/^head_repo_url //p' "$dir/meta.txt")
 arrived_base=$(sed -n 's/^arrived_base //p' "$dir/meta.txt")
 if [ "$mode_arg" = "--reviewed" ]; then
 	tmp=$(mktemp "$dir/.meta.XXXXXX")
-	sed "/^arrived_base /d" "$dir/meta.txt" >"$tmp"
+	case "$head_sha" in
+	'' | *[!0-9a-f]*) sed "/^arrived_base /d" "$dir/meta.txt" >"$tmp" ;;
+	*)
+		sed -e "/^arrived_base /d" -e "/^reviewed_head /d" "$dir/meta.txt" >"$tmp"
+		printf 'reviewed_head %s\n' "$head_sha" >>"$tmp"
+		;;
+	esac
 	mv "$tmp" "$dir/meta.txt"
 	arrived_base=''
 fi
