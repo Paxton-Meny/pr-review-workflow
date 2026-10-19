@@ -54,6 +54,7 @@ if [ -z "$cmd" ]; then
 	exit 0
 fi
 if ! sh "$(dirname "$0")/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+	journal none
 	echo "run-check: skipped, the pull request's author is not trusted to run code here (author-trust.sh)"
 	exit 0
 fi

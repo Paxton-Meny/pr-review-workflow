@@ -129,6 +129,14 @@ push src/a.py
 update F001 status=addressed
 update F002 status=addressed
 expect 'next-step: 8c run-check.sh --gate, after batch 1 of 2 in round 1'
+# A gate run the check skips for an author whose code does not run here is
+# still a gate run, so the round moves on.
+v=$(variant 11 </dev/null)
+sed -i -e 's/^author .*/author someone-else/' -e 's/^cross_repo .*/cross_repo true/' "$v/meta.txt"
+printf 'author_permission read\n' >>"$v/meta.txt"
+sh "$REPO_ROOT/scripts/run-check.sh" "$v" --gate >/dev/null
+[ "$(tail -n 1 "$v/steps.txt")" = "gate none $(tip)" ]
+expect "$(lines 'next-step: 8b spawn the editor for batch 2 of 2 in round 1, then run-check.sh --gate' "$batch2")" "$v"
 gate
 expect "$(lines 'next-step: 8b spawn the editor for batch 2 of 2 in round 1, then run-check.sh --gate' "$batch2")"
 # An editor that pushed nothing but settled its findings has still run.
@@ -279,6 +287,12 @@ expect 'next-step: 12 merge-method.sh --refresh, then the merge gate (auto_appro
 v=$(variant 15 </dev/null)
 sed -i 's/^\(pass [0-9a-f]*\) .*/\1 0000000/' "$v/check-gate.txt"
 expect "next-step: 12 run-check.sh --gate first, as step 8c describes: the check has not passed at $(tip)" "$v"
+# The check cannot gate the merge of an author whose code does not run here.
+v=$(variant 17 </dev/null)
+sed -i 's/^\(pass [0-9a-f]*\) .*/\1 0000000/' "$v/check-gate.txt"
+sed -i -e 's/^author .*/author someone-else/' -e 's/^cross_repo .*/cross_repo true/' "$v/meta.txt"
+printf 'author_permission read\n' >>"$v/meta.txt"
+expect 'next-step: 12 merge-method.sh --refresh, then the merge gate (auto_approve false)' "$v"
 journal merge moved "$(tip)"
 expect 'next-step: 11a merge-method.sh, then sync-branch.sh: the base moved'
 journal sync current "$(tip)"
