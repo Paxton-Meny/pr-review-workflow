@@ -341,3 +341,11 @@ merges
 # A baseline that failed disarms the gate, so nothing is required.
 printf 'fail %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
 merges
+# The check does not run for an author the run does not trust, so no
+# baseline or gate record is ever written and none is required.
+rm -f "$dir/check-baseline.txt" "$dir/check-gate.txt"
+sed -i 's/^cross_repo false$/cross_repo true/' "$dir/meta.txt"
+printf 'author_permission read\n' >>"$dir/meta.txt"
+merges
+sed -i -e '/^author_permission /d' -e 's/^cross_repo true$/cross_repo false/' "$dir/meta.txt"
+refusal 'check has no baseline for the configured command'
