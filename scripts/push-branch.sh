@@ -71,10 +71,17 @@ if [ "$local_sha" != "$remote_sha" ]; then
 fi
 
 # The run's own push is the head the review covers from here on: the
-# loop verifies and re-reviews what it pushed.
+# loop verifies and re-reviews what it pushed. That holds only over a head
+# the review covered; commits that arrived from outside and are not reviewed
+# yet (reviewed_head behind head_sha, or an arrival pending) stay unreviewed.
+reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
+arrived=$(sed -n 's/^arrived_base //p' "$dir/meta.txt")
+if [ -z "$reviewed" ] || { [ "$reviewed" = "$old_head" ] && [ -z "$arrived" ]; }; then
+	reviewed=$local_sha
+fi
 tmp=$(mktemp "$dir/.meta.XXXXXX")
 sed -e "s/^head_sha .*/head_sha $local_sha/" -e "/^prev_head /d" -e "/^reviewed_head /d" "$dir/meta.txt" >"$tmp"
-printf 'prev_head %s\nreviewed_head %s\n' "$old_head" "$local_sha" >>"$tmp"
+printf 'prev_head %s\nreviewed_head %s\n' "$old_head" "$reviewed" >>"$tmp"
 mv "$tmp" "$dir/meta.txt"
 
 echo "push-branch: $head_branch at $local_sha"

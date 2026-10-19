@@ -112,6 +112,7 @@ for f in "$dir/findings"/F*; do
 	[ -f "$f" ] && [ -f "$dir/meta.txt" ] || break
 	seen=$(sed -n -e '/^head_sha ./p' -e '/^prev_head ./p' -e '/^arrived_base ./p' "$dir/meta.txt")
 	reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
+	[ -n "$reviewed" ] || reviewed=$(sed -n 's/^arrived_base //p' "$dir/meta.txt")
 	[ -n "$reviewed" ] || reviewed=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 	break
 done

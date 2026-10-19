@@ -55,6 +55,19 @@ grep -qx "head_sha $new_sha" "$dir/meta.txt"
 grep -qx "prev_head $sha" "$dir/meta.txt"
 grep -qx "reviewed_head $new_sha" "$dir/meta.txt"
 
+# A push made while an outside arrival is unreviewed does not mark it reviewed.
+sed -i -e "s/^reviewed_head .*/reviewed_head $sha/" "$dir/meta.txt"
+printf 'arrived_base %s\n' "$sha" >>"$dir/meta.txt"
+printf 'four\n' >>"$wt/file.txt"
+git -C "$wt" commit --quiet -am "Address F002"
+sh "$REPO_ROOT/scripts/push-branch.sh" "$dir" >/dev/null
+fix_sha=$(git -C "$wt" rev-parse HEAD)
+grep -qx "head_sha $fix_sha" "$dir/meta.txt"
+grep -qx "reviewed_head $sha" "$dir/meta.txt"
+[ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
+new_sha=$fix_sha
+sed -i -e "/^arrived_base /d" -e "s/^reviewed_head .*/reviewed_head $new_sha/" "$dir/meta.txt"
+
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" | grep -q "ledger kept"
 [ ! -d "$dir/worktree" ]
 [ -f "$dir/meta.txt" ]
