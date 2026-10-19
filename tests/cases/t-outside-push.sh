@@ -82,8 +82,10 @@ printf 'unexpected added.txt\nunexpected file.txt\n' | cmp -s - "$SCRATCH/out"
 
 # Once marked reviewed, a call changes nothing.
 sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" --reviewed >"$SCRATCH/out"
-! grep -q advanced "$SCRATCH/out"
-! grep -q '^arrived_base ' "$dir/meta.txt"
+if grep -q advanced "$SCRATCH/out" || grep -q '^arrived_base ' "$dir/meta.txt"; then
+	echo "checkout-pr --reviewed left the arrival pending" >&2
+	exit 1
+fi
 outside=$second
 
 # A held run has no worktree: it is created at the commits that arrived.
