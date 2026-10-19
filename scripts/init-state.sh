@@ -10,7 +10,7 @@
 # key=value, a value with spaces quoted with " or '. They are written to
 # overrides.txt (key value, one per line), replaced on every invocation,
 # so a resumed run never keeps an earlier invocation's overrides.
-# Once the ledger holds findings, head_sha and prev_head carry over and
+# Once the ledger holds findings, head_sha, prev_head and arrived_base carry over and
 # never come from GitHub: only push-branch.sh and checkout-pr.sh move
 # them, so a push made outside the run surfaces through checkout-pr.sh.
 set -eu
@@ -110,7 +110,7 @@ seen=''
 reviewed=''
 for f in "$dir/findings"/F*; do
 	[ -f "$f" ] && [ -f "$dir/meta.txt" ] || break
-	seen=$(sed -n -e '/^head_sha ./p' -e '/^prev_head ./p' "$dir/meta.txt")
+	seen=$(sed -n -e '/^head_sha ./p' -e '/^prev_head ./p' -e '/^arrived_base ./p' "$dir/meta.txt")
 	reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
 	[ -n "$reviewed" ] || reviewed=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 	break

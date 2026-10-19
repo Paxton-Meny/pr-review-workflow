@@ -1,19 +1,36 @@
 #!/bin/sh
 # Ensure a detached worktree holding the pull request head, from this clone.
-# Usage: sh scripts/checkout-pr.sh <state-dir>
+# Usage: sh scripts/checkout-pr.sh <state-dir> [--reviewed | --accept <sha>]
 # A fork's head comes from GitHub's refs/pull/<n>/head on origin, as
 # local-diff.sh fetches it, and only then from the fork's branch; every
 # branch fetch puts -- before the remote, so a name read from GitHub
 # cannot act as an option.
 # Exit 3: the branch gained commits pushed outside this run since
 # head_sha; worktree, head_sha, and prev_head moved to them, and the line
-# "checkout-pr: advanced <old> <new>" names both heads. Nothing reviewed
-# them yet. Exit 4: refused, changing nothing, because the branch went
+# "checkout-pr: advanced <base> <new>" names the oldest head whose
+# successors nobody reviewed yet and the current one. The base is kept in
+# meta.txt as arrived_base, so exit 3 repeats on every call, across
+# further outside pushes, until `--reviewed` clears it; round-diff.sh
+# <dir> --all <base> lists every file of the whole range. `--accept <sha>`
+# adopts the branch head <sha> as the new head_sha after a person looked
+# at a branch that went back or was rewritten. Exit 4: refused, changing nothing, because the branch went
 # back past head_sha or diverged from it, or the worktree holds commits
 # the branch lacks while the branch gained others.
 set -eu
 
-dir=${1:?usage: checkout-pr.sh <state-dir>}
+dir=${1:?usage: checkout-pr.sh <state-dir> [--reviewed | --accept <sha>]}
+mode_arg=${2:-}
+accept=''
+case "$mode_arg" in
+'' | --reviewed) ;;
+--accept)
+	accept=${3:?usage: checkout-pr.sh <state-dir> --accept <sha>}
+	;;
+*)
+	echo "checkout-pr: unknown argument: $mode_arg" >&2
+	exit 1
+	;;
+esac
 [ -f "$dir/meta.txt" ] || {
 	echo "checkout-pr: no meta.txt in $dir, run init-state.sh first" >&2
 	exit 1
@@ -26,6 +43,13 @@ head_sha=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 cross_repo=$(sed -n 's/^cross_repo //p' "$dir/meta.txt")
 maintainer_can_modify=$(sed -n 's/^maintainer_can_modify //p' "$dir/meta.txt")
 head_repo_url=$(sed -n 's/^head_repo_url //p' "$dir/meta.txt")
+arrived_base=$(sed -n 's/^arrived_base //p' "$dir/meta.txt")
+if [ "$mode_arg" = "--reviewed" ]; then
+	tmp=$(mktemp "$dir/.meta.XXXXXX")
+	sed "/^arrived_base /d" "$dir/meta.txt" >"$tmp"
+	mv "$tmp" "$dir/meta.txt"
+	arrived_base=''
+fi
 case "$head_sha" in
 '' | *[!0-9a-f]*)
 	echo "checkout-pr: head_sha in meta.txt is not a commit id: $head_sha" >&2
@@ -94,9 +118,25 @@ git -C "$repo_root" cat-file -e "$remote_head^{commit}" 2>/dev/null || {
 
 refuse() {
 	echo "checkout-pr: refusing, $1" >&2
+	echo "checkout-pr: after looking at $head_branch, run: sh checkout-pr.sh $dir --accept $remote_head" >&2
+	echo "checkout-pr: that adopts $remote_head as the head the run last saw; or delete $dir to start over" >&2
 	exit 4
 }
 is_ancestor() { git -C "$repo_root" merge-base --is-ancestor "$1" "$2" 2>/dev/null; }
+
+if [ -n "$accept" ]; then
+	accepted=$(git -C "$repo_root" rev-parse --verify --quiet "$accept^{commit}") || accepted=''
+	[ -n "$accepted" ] && [ "$accepted" = "$remote_head" ] || {
+		echo "checkout-pr: $accept is not the head of $head_branch ($remote_head)" >&2
+		exit 1
+	}
+	tmp=$(mktemp "$dir/.meta.XXXXXX")
+	sed -e "s/^head_sha .*/head_sha $accepted/" -e "/^prev_head /d" -e "/^arrived_base /d" "$dir/meta.txt" >"$tmp"
+	printf 'prev_head %s\n' "$accepted" >>"$tmp"
+	mv "$tmp" "$dir/meta.txt"
+	head_sha=$accepted
+	arrived_base=''
+fi
 
 target=$head_sha
 if [ "$remote_head" != "$head_sha" ]; then
@@ -134,8 +174,9 @@ fi
 
 if [ "$target" != "$head_sha" ]; then
 	tmp=$(mktemp "$dir/.meta.XXXXXX")
-	sed -e "s/^head_sha .*/head_sha $target/" -e "/^prev_head /d" "$dir/meta.txt" >"$tmp"
-	printf 'prev_head %s\n' "$head_sha" >>"$tmp"
+	[ -n "$arrived_base" ] || arrived_base=$head_sha
+	sed -e "s/^head_sha .*/head_sha $target/" -e "/^prev_head /d" -e "/^arrived_base /d" "$dir/meta.txt" >"$tmp"
+	printf 'prev_head %s\narrived_base %s\n' "$head_sha" "$arrived_base" >>"$tmp"
 	mv "$tmp" "$dir/meta.txt"
 fi
 
@@ -172,7 +213,7 @@ if [ -n "$base_branch" ] && [ -d "$ctx" ]; then
 	fi
 fi
 
-if [ "$target" != "$head_sha" ]; then
-	echo "checkout-pr: advanced $head_sha $target"
+if [ -n "$arrived_base" ]; then
+	echo "checkout-pr: advanced $arrived_base $target"
 	exit 3
 fi
