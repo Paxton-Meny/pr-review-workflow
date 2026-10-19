@@ -76,7 +76,7 @@ printf 'a\n' >"$wt/src/a.py"
 git -C "$wt" add -A
 git -C "$wt" commit -qm base
 base=$(tip)
-printf 'owner o\nrepo r\npr 7\nhead_sha %s\ncross_repo false\nmaintainer_can_modify true\n' "$base" >"$dir/meta.txt"
+printf 'owner o\nrepo r\npr 7\nhead_sha %s\ncross_repo false\nmaintainer_can_modify true\nauthor tester\nself_login tester\n' "$base" >"$dir/meta.txt"
 printf '0\n' >"$dir/round.txt"
 expect 'next-step: 2 resolve the settings with resolve-settings.sh, then the rest of step 2'
 printf 'check_command test -f ok\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
