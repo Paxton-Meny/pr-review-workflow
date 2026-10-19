@@ -213,6 +213,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A converged review now leaves a real review on the pull request. The
+  merge step submitted an approval only for another person's pull request
+  and fell back to an issue comment on your own, and an attended merge
+  recorded nothing, so a project's review gate (setup's `review-gate`)
+  found no review of record and held the merge. `merge-pr.sh` now submits
+  a review with a body on the head commit it read before merging: an
+  approval when `--approve` is given and the author is someone else, a
+  review comment otherwise. A clean run that merges leaves the same
+  record. Runs that park, hold, or stop at review-only still post status
+  comments and submit no review.
 - Setup's inventory counts files the same under every awk. It passed
   the binary-extension pattern to awk as `\.`, which mawk keeps but GNU
   awk warns about and reads as any character; the warning landed in

@@ -1,6 +1,6 @@
 #!/bin/sh
-# merge-pr: refuses bad states, approves or falls back, merges by the
-# decided method, keeps a branch that must stay, proves the merge.
+# merge-pr: refuses bad states, records a review with a body on the head,
+# merges by the decided method, keeps a branch that must stay, proves the merge.
 set -eu
 
 stub="$SCRATCH/stub"
@@ -21,6 +21,7 @@ method() {
 	# method <name> [delete_branch_on_merge]
 	printf 'method %s\nreason setting\nallowed merge squash rebase\ndelete_branch_on_merge %s\nhistory merge 0 squash 0 rebase 0 either 0\n' "$1" "${2:-false}" >"$dir/pr-context/merge-method.txt"
 }
+reviews="$stub/api-repos_${fixture_owner}_widgets_pulls_7_reviews"
 clean='state OPEN\ndraft false\nhead abc123\nmergeable MERGEABLE\nmerge_state CLEAN\n'
 
 # No decided method, nothing happens.
@@ -39,14 +40,14 @@ grep -q "merge method is undecided" "$SCRATCH/err"
 
 method rebase
 printf "$clean" >"$stub/pr-view.1"
-: >"$stub/pr-review"
+: >"$reviews"
 : >"$stub/pr-list"
 : >"$stub/pr-merge"
 printf 'MERGED\n' >"$stub/pr-view.2"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
-grep -q "^pr review 7 --repo $fixture_owner/widgets --approve" "$stub/calls.log"
+grep -q "^api repos/$fixture_owner/widgets/pulls/7/reviews -f event=APPROVE -f commit_id=abc123 -F body=@" "$stub/calls.log"
 [ "$(tail -n 1 "$dir/steps.txt")" = "merge done $(sed -n 's/^head_sha //p' "$dir/meta.txt")" ]
-grep -q 'Reviewed with \[pr-review-workflow\]' "$stub/calls.log" || {
+grep -q 'Reviewed with \[pr-review-workflow\]' "$stub/bodies.log" || {
 	echo "a clean run's approval is its first comment and names the plugin" >&2
 	exit 1
 }
@@ -56,23 +57,26 @@ grep -qx "pr list --repo $fixture_owner/widgets --base feat/x --state open --jso
 # The method the record names is the one passed; the branch stays when
 # the repository deletes it, when an open pull request bases on it, or
 # when it is a fork's.
-rm -f "$stub"/pr-view.*.done "$stub/calls.log"
+rm -f "$stub"/pr-view.*.done "$stub/calls.log" "$stub/bodies.log"
 printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\ncross_repo false\n' "$fixture_owner" "$fixture_login" "$fixture_login" >"$dir/meta.txt"
 method squash true
 printf "$clean" >"$stub/pr-view.1"
-: >"$stub/pr-comment"
+: >"$reviews"
 printf 'MERGED\n' >"$stub/pr-view.2"
 printf '1\n' >"$dir/round.txt"
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve)
 [ "$out" = "merge-pr: $fixture_owner/widgets#7 merged by squash, branch kept (the repository deletes it)" ]
 grep -qx "pr merge 7 --repo $fixture_owner/widgets --squash --match-head-commit abc123" "$stub/calls.log"
-grep -q '^pr comment 7' "$stub/calls.log"
-if grep -q 'Reviewed with' "$stub/calls.log"; then
-	echo "after a posted round the approval must not name the plugin again" >&2
+# An author cannot approve their own pull request, so the record is a
+# review comment with a body on the head, never an issue comment.
+grep -q "^api repos/$fixture_owner/widgets/pulls/7/reviews -f event=COMMENT -f commit_id=abc123 -F body=@" "$stub/calls.log"
+grep -q 'stands in for the approval' "$stub/bodies.log"
+if grep -qE '^pr (comment|review)' "$stub/calls.log"; then
+	echo "the record must be a submitted review, not an issue comment" >&2
 	exit 1
 fi
-if grep -q '^pr review' "$stub/calls.log"; then
-	echo "own pull request must not be approved" >&2
+if grep -q 'Reviewed with' "$stub/bodies.log"; then
+	echo "after a posted round the review must not name the plugin again" >&2
 	exit 1
 fi
 if grep -q '^pr list' "$stub/calls.log"; then
@@ -85,8 +89,10 @@ method merge
 printf "$clean" >"$stub/pr-view.1"
 printf '9\n11\n' >"$stub/pr-list"
 printf 'MERGED\n' >"$stub/pr-view.2"
+: >"$reviews"
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir")
 [ "$out" = "merge-pr: $fixture_owner/widgets#7 merged by merge, branch kept (#9 #11 bases on it)" ]
+grep -q "^api repos/$fixture_owner/widgets/pulls/7/reviews -f event=COMMENT -f commit_id=abc123" "$stub/calls.log"
 grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit abc123" "$stub/calls.log"
 
 # An unknown answer about dependents keeps the branch.
@@ -139,7 +145,7 @@ rm -f "$stub"/pr-view.* "$stub/calls.log"
 printf "$clean" >"$stub/pr-view.1"
 printf 'MERGED\n' >"$stub/pr-view.2"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve >/dev/null
-grep -q "^pr review 7 --repo $fixture_owner/widgets --approve" "$stub/calls.log"
+grep -q "^api repos/$fixture_owner/widgets/pulls/7/reviews -f event=APPROVE -f commit_id=abc123" "$stub/calls.log"
 grep -q '^pr merge 7' "$stub/calls.log"
 sed -i -e '/^author_permission /d' -e 's/^cross_repo true$/cross_repo false/' "$dir/meta.txt"
 
@@ -158,7 +164,7 @@ for status in 'mergeable CONFLICTING\nmerge_state DIRTY' 'mergeable MERGEABLE\nm
 		exit 1
 		;;
 	esac
-	if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+	if grep -qE '^(pr (review|comment|merge)|api .*/reviews)' "$stub/calls.log"; then
 		echo "a moved base must write nothing to the pull request" >&2
 		exit 1
 	fi
@@ -184,7 +190,6 @@ export MERGE_PR_SETTLE_SECONDS=0
 rm -f "$stub"/pr-view.*
 printf 'state OPEN\ndraft false\nhead abc123\nmergeable UNKNOWN\nmerge_state CLEAN\n' >"$stub/pr-view.1"
 printf "$clean" >"$stub/pr-view.2"
-: >"$stub/pr-comment"
 printf 'MERGED\n' >"$stub/pr-view.3"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" >/dev/null
 
@@ -210,7 +215,7 @@ for flag in --approve ''; do
 	[ "$rc" -eq 4 ]
 	[ "$out" = "$(printf 'merge-pr: migrations changed, a person decides\nmigration app/migrations/0002_add_email.py')" ]
 	[ "$(tail -n 1 "$dir/steps.txt")" = "merge migrations abc123" ]
-	if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+	if grep -qE '^(pr (review|comment|merge)|api .*/reviews)' "$stub/calls.log"; then
 		echo "a refused merge must write nothing to the pull request" >&2
 		exit 1
 	fi
@@ -228,7 +233,7 @@ rc=0
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 [ "$rc" -eq 4 ]
 [ "$out" = "merge-pr: only 1 of 150 changed files listed, so migrations cannot be ruled out; a person decides" ]
-if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+if grep -qE '^(pr (review|comment|merge)|api .*/reviews)' "$stub/calls.log"; then
 	echo "an incomplete file list must write nothing to the pull request" >&2
 	exit 1
 fi

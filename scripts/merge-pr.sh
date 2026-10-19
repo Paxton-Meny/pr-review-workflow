@@ -1,6 +1,8 @@
 #!/bin/sh
-# Merge the pull request by the method merge-method.sh decided, after proving it is mergeable.
+# Merge the pull request by the method merge-method.sh decided, after proving it is mergeable
+# and recording the converged review on the head as a review with a body.
 # Usage: sh scripts/merge-pr.sh <state-dir> [--approve] [--migrations-checked] [--overlap-checked]
+# --approve makes the record an approval when the run's user is not the author.
 # Exit 4: refused, writing nothing, because the pull request changes
 # migration files (one "migration <path>" line each) or the forge listed
 # fewer files than changed, unless --migrations-checked says a person
@@ -268,17 +270,26 @@ elif [ -n "$head_branch" ]; then
 	fi
 fi
 
-if [ "$approve" = "--approve" ]; then
-	credit=$(sh "$(dirname -- "$0")/attribution.sh" "$dir")
-	[ -z "$credit" ] || credit=$(printf '\n\n%s' "$credit")
-	if [ -n "$self" ] && [ "$author" != "$self" ]; then
-		gh pr review "$pr" --repo "$owner/$repo" --approve \
-			--body "Review converged: no open findings.$credit" >/dev/null
-	else
-		gh pr comment "$pr" --repo "$owner/$repo" \
-			--body "Review converged: no open findings. Authors cannot approve their own pull requests, so this comment stands in for the approval.$credit" >/dev/null
-	fi
+# A converged review leaves a review on the forge, with a body, on the head it
+# read: the record a project's review gate looks for. A comment does not count,
+# and an author cannot approve their own pull request, so that case is
+# recorded as a review comment instead.
+credit=$(sh "$(dirname -- "$0")/attribution.sh" "$dir")
+[ -z "$credit" ] || credit=$(printf '\n\n%s' "$credit")
+event=COMMENT
+body='Review converged: no open findings.'
+if [ "$approve" = "--approve" ] && [ -n "$self" ] && [ "$author" != "$self" ]; then
+	event=APPROVE
+elif [ "$approve" = "--approve" ]; then
+	body="$body Authors cannot approve their own pull requests, so this review comment stands in for the approval."
 fi
+rtmp=$(mktemp "$dir/.review.XXXXXX")
+trap 'rm -f "$rtmp"' EXIT
+printf '%s%s\n' "$body" "$credit" >"$rtmp"
+gh api "repos/$owner/$repo/pulls/$pr/reviews" -f event="$event" \
+	${head_sha:+-f commit_id="$head_sha"} -F body=@"$rtmp" >/dev/null
+rm -f "$rtmp"
+trap - EXIT
 
 gh pr merge "$pr" --repo "$owner/$repo" "--$method" --match-head-commit "$reviewed" $delete >/dev/null
 
