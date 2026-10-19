@@ -149,3 +149,25 @@ if sh "$bad/post-review.sh" "$dir" >/dev/null 2>&1; then
 	exit 1
 fi
 [ "$(wc -l <"$stub/calls.log")" -eq "$calls_before" ]
+
+# --addressed replies are masked too: the commit subject is text the
+# author wrote.
+rt="$SCRATCH/reply-state"
+mkdir -p "$rt/findings"
+git init --quiet "$rt/worktree"
+git -C "$rt/worktree" config user.name "$fixture_name"
+git -C "$rt/worktree" config user.email "$fixture_email"
+printf 'x\n' >"$rt/worktree/f.txt"
+git -C "$rt/worktree" add f.txt
+git -C "$rt/worktree" commit --quiet -m "Drop $gh_token from the fixture"
+fix=$(git -C "$rt/worktree" rev-parse HEAD)
+printf 'owner %s\nrepo widgets\npr 7\nhead_sha %s\n' "$fixture_owner" "$fix" >"$rt/meta.txt"
+printf 'id: F001\nstatus: addressed\ncomment_id: 9001\ncommit: %s\n---\nBody.\n' "$fix" >"$rt/findings/F001"
+: >"$stub/bodies.log"
+out=$(sh "$REPO_ROOT/scripts/reply-thread.sh" "$rt" --addressed F001)
+[ "$out" = "reply-thread: replied to 9001 as 5555, 1 masked" ]
+if grep -q "$gh_token" "$stub/bodies.log"; then
+	echo "an --addressed reply posted a credential" >&2
+	exit 1
+fi
+grep -q 'redacted: GitHub token' "$stub/bodies.log"
