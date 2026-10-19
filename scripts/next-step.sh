@@ -305,7 +305,6 @@ END {
 		if (x[1] == "push") pushed = 1
 		else if (x[1] == "gate") { if (x[2] == "fail") gfail++; else gated = 1 }
 		else if (x[1] == "route" && x[2] == "ci-repair") { rr = 1; rline = ev[i] }
-		else if (x[1] == "route" && x[2] == "repair") grepair = 1
 		else if (x[1] == "route" && x[2] == "conflict") { conflict = 1; cline = ev[i] }
 		else if (x[1] == "round-diff-all") rd = x[2]
 		else if (x[1] == "route" && x[2] == "incremental") { incr = 1; iline = ev[i] }
