@@ -78,17 +78,24 @@ grep -qx 'reviewed_head abc123' "$dir/meta.txt"
 mkdir -p "$dir/findings"
 printf 'id: F001\nstatus: open\n---\nBody.\n' >"$dir/findings/F001"
 sed -i 's/^head_sha .*/head_sha 5ee7/' "$dir/meta.txt"
-printf 'prev_head 9e70\n' >>"$dir/meta.txt"
+printf 'prev_head 9e70\narrived_base 9e69\n' >>"$dir/meta.txt"
 sed 's/^head_sha abc123$/head_sha def456/' "$stub/pr-view" >"$stub/pr-view.new"
 mv "$stub/pr-view.new" "$stub/pr-view"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx 'head_sha 5ee7' "$dir/meta.txt"
 grep -qx 'prev_head 9e70' "$dir/meta.txt"
+grep -qx 'arrived_base 9e69' "$dir/meta.txt"
 [ "$(grep -c '^head_sha ' "$dir/meta.txt")" -eq 1 ]
 grep -qx 'reviewed_head abc123' "$dir/meta.txt"
 [ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
-# A ledger written before the reviewed_head field falls back to the head it recorded.
-sed -e '/^reviewed_head /d' -e 's/^head_sha .*/head_sha 0ld0ld/' "$dir/meta.txt" >"$dir/meta.old"
+# A ledger written before the reviewed_head field with an arrival pending
+# falls back to the base of the arrival, not the head it already advanced to.
+sed -e '/^reviewed_head /d' "$dir/meta.txt" >"$dir/meta.old"
+mv "$dir/meta.old" "$dir/meta.txt"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'reviewed_head 9e69' "$dir/meta.txt"
+# Without an arrival it falls back to the head it recorded.
+sed -e '/^reviewed_head /d' -e '/^arrived_base /d' -e 's/^head_sha .*/head_sha 0ld0ld/' "$dir/meta.txt" >"$dir/meta.old"
 mv "$dir/meta.old" "$dir/meta.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx 'reviewed_head 0ld0ld' "$dir/meta.txt"

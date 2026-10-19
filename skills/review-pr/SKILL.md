@@ -181,8 +181,10 @@ PRWF_SETTINGS_END
    The current run is never touched.
 
    If `<dir>/findings/` already has records, this is a resume: run
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>` as step 4 says,
-   then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-pr.sh <dir>` as step 4 says
+   (when it exits 3, step 4's arrival review is the review of what was
+   pushed: finish it with `--reviewed` and skip the moved-head review
+   below), then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`,
    report the counts, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh <dir>`, relaying
    its line. Exit 3 means someone pushed after the review: run the
