@@ -52,10 +52,11 @@ head=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
 
 # The run's own end: an outcome since the last invocation.
 set -- $(awk '
-$1 == "invoke" { o = ""; c = 0 }
+$1 == "invoke" { o = ""; c = 0; d = 0 }
+$1 == "merge" && $2 == "done" { d = 1 }
 $1 == "outcome" { o = $2; c = 0 }
 $1 == "cleanup" { c = 1 }
-END { print (o == "" ? "none" : o), c }' "$journal")
+END { print (o == "" ? "none" : o), c, d }' "$journal")
 case "$1" in
 merged)
 	[ "$2" -eq 1 ] && place end "merged and cleaned up; report as step 13 says"
@@ -66,6 +67,9 @@ held)
 	place 12 "hold: cleanup-state.sh, report the state directory, and stop"
 	;;
 parked | review-only) place end "$1; invoking review-pr again resumes it" ;;
+none)
+	[ "$3" -eq 1 ] && place 13 "run-stats.sh merged, then cleanup-state.sh, then sweep-state.sh, then the report"
+	;;
 esac
 
 # The review phase, steps 3 to 6.

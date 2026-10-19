@@ -21,7 +21,8 @@
 # or the head is not the one the review covered: someone pushed since,
 # and reviewed-head.sh leads to reviewing those commits first.
 # Exits 4 and 5 journal "merge migrations|moved <head>" in steps.txt for
-# next-step.sh, the only write either makes.
+# next-step.sh, the only write either makes; a merge that succeeds
+# journals "merge done <head>".
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
@@ -254,4 +255,5 @@ final=$(gh pr view "$pr" --repo "$owner/$repo" --json state --jq .state)
 	echo "merge-pr: merge reported success but the pull request is $final" >&2
 	exit 2
 }
+printf 'merge done %s\n' "$head_sha" >>"$dir/steps.txt"
 echo "merge-pr: $owner/$repo#$pr merged by $method, $branch"

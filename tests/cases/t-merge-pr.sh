@@ -43,6 +43,7 @@ printf "$clean" >"$stub/pr-view.1"
 printf 'MERGED\n' >"$stub/pr-view.2"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve | grep -qx "merge-pr: $fixture_owner/widgets#7 merged by rebase, branch deleted"
 grep -q "^pr review 7 --repo $fixture_owner/widgets --approve" "$stub/calls.log"
+[ "$(tail -n 1 "$dir/steps.txt")" = "merge done $(sed -n 's/^head_sha //p' "$dir/meta.txt")" ]
 grep -q 'Reviewed with \[pr-review-workflow\]' "$stub/calls.log" || {
 	echo "a clean run's approval is its first comment and names the plugin" >&2
 	exit 1
