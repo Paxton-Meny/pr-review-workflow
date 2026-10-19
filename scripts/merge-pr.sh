@@ -93,6 +93,11 @@ fi
 # the head must have passed it, by the last gate run at that head or by
 # a baseline taken there.
 check=$(sh "$here/setting.sh" "$dir" check_command)
+# The check never runs on code author-trust.sh --exec does not allow, so it
+# cannot gate that author's merge; their merge needs a person and no check.
+if [ -n "$check" ] && ! sh "$here/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
+	check=''
+fi
 if [ -n "$check" ]; then
 	check_hash=$(printf '%s' "$check" | git hash-object --stdin)
 	baseline=$(cat "$dir/check-baseline.txt" 2>/dev/null || true)
