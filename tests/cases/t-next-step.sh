@@ -296,6 +296,8 @@ rm -rf "$v/worktree"
 expect 'next-step: 3 the worktree is gone: steps 3 and 4, then ask again' "$v"
 
 # After the merge: cleanup, then nothing.
+journal merge done "$(tip)"
+expect 'next-step: 13 run-stats.sh merged, then cleanup-state.sh, then sweep-state.sh, then the report'
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 expect 'next-step: 13 cleanup-state.sh, then sweep-state.sh, then the report'
 journal cleanup

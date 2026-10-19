@@ -21,7 +21,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   ci-repair, conflict), `push-branch.sh` each push, `run-check.sh
   --gate` each gate run, `round-diff.sh` each result, `post-review.sh`
   each posting, `sync-branch.sh` each outcome, `await-checks.sh` each
-  result, `merge-pr.sh` a moved base or changed migrations,
+  result, `merge-pr.sh` a moved base, changed migrations, or a finished merge,
   `run-stats.sh` the outcome, and `cleanup-state.sh` the cleanup. The
   incremental review is saved with the new `save-findings.sh --unit
   incremental`, journaled rather than counted in the review phase. The
