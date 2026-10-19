@@ -96,6 +96,10 @@ fi
 grep -qx "reviewed_head $second" "$dir/meta.txt"
 grep -qx "head_sha $second" "$dir/meta.txt"
 [ "$(grep -c '^reviewed_head ' "$dir/meta.txt")" -eq 1 ]
+# With no arrival pending, --reviewed marks nothing.
+sed -i "s/^reviewed_head .*/reviewed_head $reviewed/" "$dir/meta.txt"
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" --reviewed >/dev/null
+grep -qx "reviewed_head $reviewed" "$dir/meta.txt"
 outside=$second
 
 # A held run has no worktree: it is created at the commits that arrived.
