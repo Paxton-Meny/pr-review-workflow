@@ -535,7 +535,11 @@ PRWF_SETTINGS_END
        every file the repair and any gate repair changed, finding paths included, so follow
        step 8e for them; no new commit means no review; new findings run step 8 under its round cap, and a
        converged step 8 returns here. Loop to a.
-12. Merge gate. First
+12. Merge gate. `merge-pr.sh` submits the review of record before it
+    merges: a review with a body on the head commit, an approval
+    for another person's pull request under auto_approve, a review
+    comment otherwise, which is what a project's review gate looks
+    for. Holding and parking post status comments only. First
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --refresh`,
     relaying its line: the method is the setting, else the one method the
     repository allows, else the one its recent merged pull requests
