@@ -58,10 +58,33 @@ sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all >"$SCRATCH/out" || rc=$?
 [ "$rc" -eq 3 ]
 printf 'unexpected added.txt\nunexpected file.txt\n' | cmp -s - "$SCRATCH/out"
 
-# Once followed, a second call changes nothing.
-sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" >"$SCRATCH/out"
-! grep -q advanced "$SCRATCH/out"
+# Until the arrival is marked reviewed, a second call reports it again.
+rc=0
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" >"$SCRATCH/out" || rc=$?
+[ "$rc" -eq 3 ]
+grep -qx "checkout-pr: advanced $reviewed $outside" "$SCRATCH/out"
 grep -qx "prev_head $reviewed" "$dir/meta.txt"
+
+# A second outside push before any review keeps the first one's base.
+printf 'mid\n' >>"$author/file.txt"
+git -C "$author" commit --quiet -am "Second outside push"
+git -C "$author" push --quiet origin feat-thing
+second=$(git -C "$author" rev-parse HEAD)
+rc=0
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" >"$SCRATCH/out" || rc=$?
+[ "$rc" -eq 3 ]
+grep -qx "checkout-pr: advanced $reviewed $second" "$SCRATCH/out"
+grep -qx "arrived_base $reviewed" "$dir/meta.txt"
+rc=0
+sh "$REPO_ROOT/scripts/round-diff.sh" "$dir" --all "$reviewed" >"$SCRATCH/out" || rc=$?
+[ "$rc" -eq 3 ]
+printf 'unexpected added.txt\nunexpected file.txt\n' | cmp -s - "$SCRATCH/out"
+
+# Once marked reviewed, a call changes nothing.
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" --reviewed >"$SCRATCH/out"
+! grep -q advanced "$SCRATCH/out"
+! grep -q '^arrived_base ' "$dir/meta.txt"
+outside=$second
 
 # A held run has no worktree: it is created at the commits that arrived.
 sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" >/dev/null
@@ -82,20 +105,21 @@ refused() {
 	sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" >/dev/null 2>"$SCRATCH/err" || rc=$?
 	[ "$rc" -eq 4 ] || { echo "expected exit 4, got $rc" >&2; cat "$SCRATCH/err" >&2; exit 1; }
 	grep -q "$1" "$SCRATCH/err" || { cat "$SCRATCH/err" >&2; exit 1; }
+	grep -q -- "--accept $3" "$SCRATCH/err" || { cat "$SCRATCH/err" >&2; exit 1; }
 	cmp -s "$dir/meta.txt" "$SCRATCH/meta.before"
 	[ "$(git -C "$wt" rev-parse HEAD)" = "$2" ]
 }
 
 # The branch went back past the head the ledger holds.
 git -C "$author" push --quiet --force origin "$outside:refs/heads/feat-thing"
-refused "is at $outside, behind $held" "$held"
+refused "is at $outside, behind $held" "$held" "$outside"
 
 # The branch was rewritten: the ledger's head is not in its history.
 git -C "$author" reset --quiet --hard "$outside"
 printf 'rewritten\n' >>"$author/file.txt"
 git -C "$author" commit --quiet -am "Rewrite"
 git -C "$author" push --quiet --force origin feat-thing
-refused "has diverged from $held" "$held"
+refused "has diverged from $held" "$held" "$(git -C "$author" rev-parse HEAD)"
 
 # The worktree holds commits nobody pushed while others pushed theirs.
 git -C "$author" push --quiet --force origin "$held:refs/heads/feat-thing"
@@ -109,4 +133,11 @@ printf 'theirs\n' >"$author/theirs.txt"
 git -C "$author" add theirs.txt
 git -C "$author" commit --quiet -m "Push over the run"
 git -C "$author" push --quiet origin feat-thing
-refused "worktree at $local_head has diverged" "$local_head"
+refused "worktree at $local_head has diverged" "$local_head" "$(git -C "$author" rev-parse HEAD)"
+
+# The documented step: accepting the branch head lets the next call succeed.
+theirs=$(git -C "$author" rev-parse HEAD)
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" --accept "$theirs" >/dev/null
+grep -qx "head_sha $theirs" "$dir/meta.txt"
+[ "$(git -C "$wt" rev-parse HEAD)" = "$theirs" ]
+sh "$REPO_ROOT/scripts/checkout-pr.sh" "$dir" >/dev/null

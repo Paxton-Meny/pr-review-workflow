@@ -152,7 +152,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the run reviews the commits that arrived through the incremental
   review. A branch that went back, diverged, or gained commits while
   the worktree held unpushed ones is refused with exit 4, changing
-  nothing. Every resume now runs `checkout-pr.sh` first.
+  nothing, and says how to go on: `checkout-pr.sh <dir> --accept <sha>`
+  adopts the branch head after a person looked at it. The range of
+  unreviewed commits is kept as `arrived_base`, so exit 3 repeats, over
+  several outside pushes and an interrupted run, until `--reviewed`
+  clears it. Every resume now runs `checkout-pr.sh` first.
 - Repositories that do not allow rebase merging can now be merged by
   the plugin.
 - Setup readers no longer lose their slice when they stop early. Hosts
