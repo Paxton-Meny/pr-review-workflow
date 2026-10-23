@@ -287,7 +287,7 @@ rtmp=$(mktemp "$dir/.review.XXXXXX")
 trap 'rm -f "$rtmp"' EXIT
 printf '%s%s\n' "$body" "$credit" >"$rtmp"
 gh api "repos/$owner/$repo/pulls/$pr/reviews" -f event="$event" \
-	${head_sha:+-f commit_id="$head_sha"} -F body=@"$rtmp" >/dev/null
+	${reviewed:+-f commit_id="$reviewed"} -F body=@"$rtmp" >/dev/null
 rm -f "$rtmp"
 trap - EXIT
 
