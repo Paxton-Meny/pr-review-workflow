@@ -10,7 +10,7 @@
 # Exit 7: refused, writing nothing, under --approve when author-trust.sh
 # does not trust the author: an automatic merge needs an author who can
 # push to the repository, and anyone else's merge needs a person.
-# Exit 6: refused, writing nothing, for one of two reasons. Either the
+# Exit 6: refused, writing nothing, for one of three reasons. Either the
 # ledger does not allow a merge, found before the forge is asked anything:
 # one line each for a finding still open ("open <id>"), a wont-fix
 # finding no person accepted ("unaccepted <id>"), a finding marked
@@ -19,18 +19,17 @@
 # "dedup ...", "gap ..."), and, when the check gate is armed, a head the
 # check has not passed at ("check <reason>");
 # or the head is not the one the review covered: someone pushed since,
-# and reviewed-head.sh leads to reviewing those commits first.
+# and reviewed-head.sh leads to reviewing those commits first; or commits
+# that landed on the base since the review touch the reviewed hunks
+# (base-drift.sh's lines follow), unless --overlap-checked says a person
+# has decided, or the comparer's verdict on that same base is independent.
+# The overlap check is off under the overlap_check setting.
 # Exits 4 and 5 journal "merge migrations|moved <head>" in steps.txt for
 # next-step.sh, the only write either makes; a merge that succeeds
 # journals "merge done <head>".
 # The head branch is deleted after the merge only when the repository
 # does not delete it itself, no open pull request bases on it, and it
 # is not a fork's; the result line says which.
-# Exit 6: refused, writing nothing, because commits that landed on the
-# base since the review touch the reviewed hunks (base-drift.sh's lines
-# follow), unless --overlap-checked says a person has decided, or the
-# comparer's verdict on that same base is independent. Off under the
-# overlap_check setting.
 set -eu
 
 dir=${1:?usage: merge-pr.sh <state-dir> [--approve] [--migrations-checked] [--overlap-checked]}
