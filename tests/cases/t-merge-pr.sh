@@ -123,7 +123,7 @@ rc=0
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 [ "$rc" -eq 7 ]
 [ "$out" = "merge-pr: author-trust: untrusted $author fork, permission unknown; an automatic merge needs a person" ]
-if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+if grep -qE '^(pr (review|comment|merge)|api .*/reviews)' "$stub/calls.log"; then
 	echo "an untrusted author's automatic merge must write nothing" >&2
 	exit 1
 fi
@@ -250,7 +250,7 @@ for meta_head in abc123 def456; do
 	out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 	[ "$rc" -eq 6 ]
 	[ "$out" = "merge-pr: the head is def456, not abc123 that the review covered; review what was pushed since first" ]
-	if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+	if grep -qE '^(pr (review|comment|merge)|api .*/reviews)' "$stub/calls.log"; then
 		echo "an unreviewed head must write nothing to the pull request" >&2
 		exit 1
 	fi
@@ -427,7 +427,7 @@ out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" --approve) || rc=$?
 printf '%s\n' "$out" | sed -n 1p | grep -qx 'merge-pr: base moved under the review and touches the reviewed hunks, a person decides'
 printf '%s\n' "$out" | grep -qx 'base-drift: 2 commits landed, 1 files shared, level near'
 printf '%s\n' "$out" | grep -qx 'drift near src/app.py ours 10-10 theirs 15-15 in def alpha():'
-if grep -qE '^pr (review|comment|merge)' "$stub/calls.log"; then
+if grep -qE '^(pr (review|comment|merge)|api .*/reviews)' "$stub/calls.log"; then
 	echo "a drift refusal must write nothing to the pull request" >&2
 	exit 1
 fi
