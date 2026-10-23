@@ -213,6 +213,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `post-review.sh` counts every finding the round's summary comment
+  lists. It counted only the findings it demoted itself for an
+  unanchorable line, so a round whose finding the filter had demoted
+  printed `0 in the summary` while the summary carried it.
+
 - A converged review now leaves a real review on the pull request. The
   merge step submitted an approval only for another person's pull request
   and fell back to an issue comment on your own, and an attended merge

@@ -1112,7 +1112,7 @@ def phase_post() -> Fig:
     f.terminal(112, [
         (0, "filter: demoted 1 of 5"),
         (1, "prove-suggestions: 3 proven, 1 withdrawn"),
-        (2, "post-review: 4 posted inline, 0 in the summary, round 1"),
+        (2, "post-review: 4 posted inline, 1 in the summary, round 1"),
     ])
     sy, sw, sh = 232, 158, 90
     sx = [156, 330, 504]

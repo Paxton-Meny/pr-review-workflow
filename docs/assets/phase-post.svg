@@ -145,7 +145,7 @@
 <text class="term-cap" x="430" y="128" text-anchor="middle" style="font-size:10px">the orchestrating session sees one line per script</text>
 <text class="mono tl tl0" x="42" y="156"><tspan class="term-p">›</tspan> <tspan class="term-n">filter:</tspan><tspan class="term-t"> demoted 1 of 5</tspan></text>
 <text class="mono tl tl1" x="42" y="174"><tspan class="term-p">›</tspan> <tspan class="term-n">prove-suggestions:</tspan><tspan class="term-t"> 3 proven, 1 withdrawn</tspan></text>
-<text class="mono tl tl2" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">post-review:</tspan><tspan class="term-t"> 4 posted inline, 0 in the summary, round 1</tspan></text>
+<text class="mono tl tl2" x="42" y="192"><tspan class="term-p">›</tspan> <tspan class="term-n">post-review:</tspan><tspan class="term-t"> 4 posted inline, 1 in the summary, round 1</tspan></text>
 <g class="cardg st0"><rect class="cm" x="156" y="232" width="158" height="90" rx="9"/>
 <path class="ico-m" d="M174 243c.7 3.9 1.9 5.1 6 6c-4.1 .9-5.3 2.1-6 6c-.7-3.9-1.9-5.1-6-6c4.1-.9 5.3-2.1 6-6z"/>
 <text class="h hm" x="187" y="253" style="font-size:12.5px">Filter</text>
