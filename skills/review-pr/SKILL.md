@@ -562,8 +562,9 @@ PRWF_SETTINGS_END
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>` without
       `--approve`, hold as above. Unattended: park (step 9) with its
       line.
-    - merge-pr exit 6: nothing merged, for one of two reasons. Its first
-      line says which. `the ledger does not allow a merge`: nothing was
+    - merge-pr exit 6: nothing merged, for one of three reasons. Its first
+      line says which; the third, `base moved under the review`, is the
+      base-drift hold in the exit 6 bullet below. `the ledger does not allow a merge`: nothing was
       asked of the forge; relay its lines. `review`, `dedup`, or `gap`
       lines: the review phase is incomplete; do what they name, as step 2
       describes for a pending review, then step 7 onward. `open` lines:

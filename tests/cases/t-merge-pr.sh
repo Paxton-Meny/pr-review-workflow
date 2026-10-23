@@ -303,8 +303,9 @@ printf "$clean" >"$stub/pr-view.1"
 printf 'MERGED\n' >"$stub/pr-view.2"
 sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir" | grep -q "^merge-pr: $fixture_owner/widgets#7 merged by merge"
 
-# With a check command configured, the head must have passed it.
-printf 'check_command true\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+# With a check command configured, the head must have passed it. The
+# overlap check stays off: this ledger has no clone yet.
+printf 'check_command true\noverlap_check off\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
 hash=$(printf 'true' | git hash-object --stdin)
 refusal() {
 	# refusal <line>: merge-pr refuses with exactly that reason
@@ -394,7 +395,7 @@ land() {
 	git -C "$seed" commit --quiet -am "$1"
 	git -C "$seed" push --quiet origin main
 }
-clean='state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 1\nfile src/app.py\n'
+clean="state OPEN\ndraft false\nhead $head\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 1\nfile src/app.py\n"
 
 # Nothing landed: merges as before.
 rm -f "$stub"/pr-view.* "$stub/calls.log"
@@ -497,7 +498,7 @@ fi
 
 # Migrations are asked about before drift.
 rm -f "$stub"/pr-view.* "$stub/calls.log"
-printf 'state OPEN\ndraft false\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 2\nfile src/app.py\nfile db/migrate/001_x.rb\n' >"$stub/pr-view.1"
+printf 'state OPEN\ndraft false\nhead %s\nmergeable MERGEABLE\nmerge_state CLEAN\nchanged 2\nfile src/app.py\nfile db/migrate/001_x.rb\n' "$head" >"$stub/pr-view.1"
 rc=0
 out=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
 [ "$rc" -eq 4 ]
