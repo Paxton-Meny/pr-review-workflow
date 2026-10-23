@@ -6,6 +6,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-23
+
 ### Added
 
 - `scripts/next-step.sh <dir>` names the review-pr step to run next from
@@ -1015,6 +1017,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The review-pr skill: the orchestration loop, context discipline, the
   merge gate with the auto-approve setting, and resume from the ledger.
 
-[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Paxton-Meny/pr-review-workflow/releases/tag/v0.2.1
