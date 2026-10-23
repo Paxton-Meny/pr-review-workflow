@@ -131,7 +131,7 @@ Resolution: done.
 REC
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F005 placement=summary >/dev/null
 out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
-[ "$out" = "post-review: 0 posted inline, 0 in the summary, round 3" ] || {
+[ "$out" = "post-review: 0 posted inline, 1 in the summary, round 3" ] || {
 	echo "a round the filter demoted entirely must still post its summary: $out" >&2
 	exit 1
 }
@@ -188,5 +188,5 @@ refused 'unproven F007'
 sh "$REPO_ROOT/scripts/update-finding.sh" "$dir" F007 proven=abc123 >/dev/null
 printf '9003\n' >"$stub/api-repos_Paxton-Meny_widgets_pulls_7_comments.3"
 out=$(sh "$REPO_ROOT/scripts/post-review.sh" "$dir")
-[ "$out" = "post-review: 1 posted inline, 0 in the summary, round 4" ]
+[ "$out" = "post-review: 1 posted inline, 1 in the summary, round 4" ]
 grep -qx 'placement: inline' "$dir/findings/F006"

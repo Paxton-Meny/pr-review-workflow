@@ -72,7 +72,6 @@ if [ -n "$unproven" ]; then
 	exit 4
 fi
 
-demoted=0
 for record in "$dir/findings"/F*; do
 	[ -f "$record" ] && unposted "$record" || continue
 	path=$(field "$record" path)
@@ -83,14 +82,13 @@ for record in "$dir/findings"/F*; do
 	while [ "$n" -le "$last" ]; do
 		if ! grep -qxF "$path$tab$side$tab$n" "$ctx/commentable.txt"; then
 			sh "$here/update-finding.sh" "$dir" "$(field "$record" id)" placement=summary >/dev/null
-			demoted=$((demoted + 1))
 			break
 		fi
 		n=$((n + 1))
 	done
 done
 
-summarized=0
+summarized=0 in_summary=0
 new_round=0
 for record in "$dir/findings"/F*; do
 	[ -f "$record" ] && [ "$(field "$record" round)" = "$round" ] && new_round=1 && break
@@ -108,6 +106,7 @@ if [ "$new_round" -eq 1 ]; then
 		esac
 		if [ "$(field "$record" placement)" = "summary" ] && [ "$(field "$record" status)" = "open" ]; then
 			summary_ids="$summary_ids $(field "$record" id)"
+			in_summary=$((in_summary + 1))
 		fi
 	done
 	credit=$(sh "$here/attribution.sh" "$dir")
@@ -180,4 +179,4 @@ if [ "$summarized" -eq 0 ] && [ "$posted" -eq 0 ]; then
 fi
 tail=''
 [ "$masked" -eq 0 ] || tail=", $masked masked"
-echo "post-review: $posted posted inline, $demoted in the summary, round $(cat "$dir/round.txt")$tail"
+echo "post-review: $posted posted inline, $in_summary in the summary, round $(cat "$dir/round.txt")$tail"
