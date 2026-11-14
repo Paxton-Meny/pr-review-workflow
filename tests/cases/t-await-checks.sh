@@ -167,6 +167,22 @@ rc=0
 out=$(await --slice 0) || rc=$?
 [ "$rc" -eq 5 ]
 [ "$out" = "await-checks: no checks reported yet, call again" ]
+# A head that reports checks or statuses stays unreadable when
+# gh pr checks printed nothing: only "0 0" confirms there are none.
+for counts in "3 0" "0 2"; do
+	printf '%s\n' "${counts% *}" >"$stub/api-repos_o_r_commits_abc123_check-runs"
+	printf '%s\n' "${counts#* }" >"$stub/api-repos_o_r_commits_abc123_status"
+	rm -f "$dir/ci-wait.txt"
+	rc=0
+	out=$(await --slice 0) || rc=$?
+	[ "$rc" -eq 5 ]
+	[ "$out" = "await-checks: no checks reported yet, call again" ]
+	if grep -q '^none' "$dir/ci-result.txt" 2>/dev/null; then
+		echo "a head with reported checks must not be recorded as none" >&2
+		exit 1
+	fi
+done
+printf '0\n' >"$stub/api-repos_o_r_commits_abc123_check-runs"
 printf '0\n' >"$stub/api-repos_o_r_commits_abc123_status"
 [ "$(await)" = "await-checks: no checks" ]
 [ "$(cat "$dir/ci-result.txt")" = "none abc123" ]
