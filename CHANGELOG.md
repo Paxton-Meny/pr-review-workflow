@@ -6,6 +6,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `await-checks.sh` settles on a head that has no checks. `gh pr checks`
+  exits 1 when a head reports none, the same exit a failed call gives,
+  so the script read every poll as unreadable, never reached its grace,
+  and spent the whole wait budget before exit 6 left the run's CI
+  unknown. An exit 1 with nothing printed now counts as read when the
+  commit's check runs and statuses both count zero, and the run ends
+  `await-checks: no checks` once the grace passes.
+
 ## [0.4.0] - 2026-10-23
 
 ### Added

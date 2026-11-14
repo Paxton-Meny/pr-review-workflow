@@ -153,9 +153,21 @@ if grep -q '^title' "$digest"; then
 	exit 1
 fi
 
-# No checks: with no workflows on the base the status grace passes and
-# the run goes on; with workflows the schedule grace keeps it pending.
-: >"$stub/pr-checks"
+# No checks: gh pr checks exits 1 with nothing printed, and the
+# commit's check runs and statuses confirm there are none. With no
+# workflows on the base the status grace passes and the run goes on;
+# with workflows the schedule grace keeps it pending. When the
+# confirmation cannot be read, neither is it none.
+rm -f "$stub/pr-checks"
+printf '1\n' >"$stub/pr-checks.exit"
+printf "no checks reported on the 'topic' branch\n" >"$stub/pr-checks.err"
+printf '0\n' >"$stub/api-repos_o_r_commits_abc123_check-runs"
+rm -f "$dir/ci-wait.txt"
+rc=0
+out=$(await --slice 0) || rc=$?
+[ "$rc" -eq 5 ]
+[ "$out" = "await-checks: no checks reported yet, call again" ]
+printf '0\n' >"$stub/api-repos_o_r_commits_abc123_status"
 [ "$(await)" = "await-checks: no checks" ]
 [ "$(cat "$dir/ci-result.txt")" = "none abc123" ]
 mkdir -p "$clone/.github/workflows"
@@ -171,7 +183,7 @@ out=$(AWAIT_CHECKS_SCHEDULE_GRACE=600 await --slice 0) || rc=$?
 
 # A cancelled Actions run is rerun once and waited for; cancelled
 # again after the rerun grace, it is a failure.
-rm -f "$stub/pr-checks" "$stub/calls.log"
+rm -f "$stub/pr-checks" "$stub/pr-checks.exit" "$stub/pr-checks.err" "$stub/calls.log"
 printf 'cancel\tbuild\thttps://github.com/o/r/actions/runs/77/job/1\tCI\t\n' >"$stub/pr-checks.1"
 printf 'pass\tbuild\thttps://github.com/o/r/actions/runs/77/job/1\tCI\t\n' >"$stub/pr-checks.2"
 : >"$stub/run-rerun"
