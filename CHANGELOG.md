@@ -15,6 +15,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   unknown. An exit 1 with nothing printed now counts as read when the
   commit's check runs and statuses both count zero, and the run ends
   `await-checks: no checks` once the grace passes.
+- The precision filter is handed the findings it filters. Its prompt
+  gave only the state directory, and a filter that could not list
+  `findings/` reported `filter: demoted 0 of 0`, the same line as a
+  pass with nothing to demote. `count-findings.sh --list` now prints
+  `unposted_ids`, the open findings not yet posted, step 7 passes them
+  in the prompt, and a filter that cannot read a record it was given
+  reports `filter: skipped (<what stopped it>)`.
 
 ## [0.4.0] - 2026-10-23
 

@@ -52,6 +52,13 @@ out=$(sh "$REPO_ROOT/scripts/count-findings.sh" "$dir2" --list) || true
 printf '%s\n' "$out" | grep -qx 'open_mechanical_ids F001'
 printf '%s\n' "$out" | grep -qx 'capped_ids'
 
+# Unposted findings are the open ones with no placement: the filter's
+# input, so a posted finding leaves the list.
+printf '%s\n' "$out" | grep -qx 'unposted_ids F001 F002'
+sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F001 placement=inline >/dev/null
+out=$(sh "$REPO_ROOT/scripts/count-findings.sh" "$dir2" --list) || true
+printf '%s\n' "$out" | grep -qx 'unposted_ids F002'
+
 for _ in 1 2 3; do
 	sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F002 status=addressed >/dev/null
 	sh "$REPO_ROOT/scripts/update-finding.sh" "$dir2" F002 status=open >/dev/null
