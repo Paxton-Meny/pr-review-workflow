@@ -149,6 +149,13 @@ field() {
 	printf '%s\n' "$1" | cut -f"$2"
 }
 
+reported() {
+	# reported: "<check runs> <statuses>" GitHub counts for the head, or nothing when either call fails
+	runs=$(gh api "repos/$owner/$repo/commits/$head_sha/check-runs" --jq .total_count 2>/dev/null) &&
+		statuses=$(gh api "repos/$owner/$repo/commits/$head_sha/status" --jq .total_count 2>/dev/null) &&
+		printf '%s %s\n' "$runs" "$statuses"
+}
+
 digest() {
 	# digest <failed lines>: writes pr-context/ci-failure.txt, prints the signature
 	out=$(mktemp "$ctx/.digest.XXXXXX")
@@ -204,6 +211,12 @@ while :; do
 	0 | 8) ;;
 	*) readable=0 ;;
 	esac
+	# gh pr checks exits 1 for a head with no checks at all, the same
+	# exit a failed call gives, so that answer is read only when the
+	# commit's check runs and statuses both count zero.
+	if [ "$rc" -eq 1 ] && [ ! -s "$checks" ] && [ "$(reported)" = "0 0" ]; then
+		readable=1
+	fi
 	total=$(grep -c . "$checks" || true)
 	now=$(date +%s)
 	if [ "$total" -eq 0 ]; then
