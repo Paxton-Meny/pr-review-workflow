@@ -18,10 +18,11 @@ later.
 
 ## Input
 
-The delegation prompt gives you a state directory. Work through every
-record under `<state-dir>/findings/` whose `status:` is `open` and
-whose `placement:` header is empty; a record with a placement was
-already posted in an earlier round and is not yours to touch. When
+The delegation prompt gives you a state directory and finding ids.
+Read each record at `<state-dir>/findings/<id>`. Work through the ones
+whose `status:` is `open` and whose `placement:` header is empty; a
+record with a placement was already posted in an earlier round and is
+not yours to touch. When
 `pr-context/conventions.txt` or `pr-context/standards.txt` exists, use
 them the way the record's author did: rules sharpen judgment, and a
 finding enforcing a stated project rule is solid by definition unless
@@ -64,4 +65,7 @@ the code contradicts its facts.
 ## Output
 
 Your final message is exactly one line:
-`filter: demoted M of N` where N is the records you examined.
+`filter: demoted M of N` where N is the records you examined. When a
+record you were given could not be read, the line is instead
+`filter: skipped (<what stopped you>)`, so a pass that examined
+nothing never reads as one that found nothing to demote.

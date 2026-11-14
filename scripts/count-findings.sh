@@ -20,7 +20,7 @@ findings="$dir/findings"
 
 open=0 addressed=0 verified=0 wontfix=0 max_reopens=0
 open_ids='' addressed_ids='' verified_ids='' wontfix_ids=''
-mech_ids='' capped_ids=''
+mech_ids='' capped_ids='' unposted_ids=''
 for f in "$findings"/F*; do
 	[ -f "$f" ] || continue
 	status=$(sed -n '/^---$/q; s/^status: //p' "$f")
@@ -28,6 +28,7 @@ for f in "$findings"/F*; do
 	open)
 		open=$((open + 1))
 		open_ids="$open_ids ${f##*/}"
+		[ -n "$(sed -n '/^---$/q; s/^placement: //p' "$f")" ] || unposted_ids="$unposted_ids ${f##*/}"
 		sev=$(sed -n '/^---$/q; s/^severity: //p' "$f")
 		case "$sev" in
 		minor | nit)
@@ -65,5 +66,6 @@ if [ "$list" = "--list" ]; then
 	echo "wont_fix_ids$wontfix_ids"
 	echo "open_mechanical_ids$mech_ids"
 	echo "capped_ids$capped_ids"
+	echo "unposted_ids$unposted_ids"
 fi
 [ "$open" -eq 0 ]  || exit 3

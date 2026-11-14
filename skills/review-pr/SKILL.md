@@ -362,12 +362,14 @@ PRWF_SETTINGS_END
    do that item as steps 5 and 6 describe and run it again. When the
    ledger holds no findings after this step, the change is clean: skip
    to step 10.
-7. When the ledger holds open findings not yet posted, run
+7. Run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh <dir> --list`.
+   When its `unposted_ids` line lists any finding, run
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> filter`;
    unless it prints a `skip` line, spawn `pr-review-workflow:filter`
    with its `model` and `effort` and exactly:
-   `Filter the banked findings. State directory: <dir>. Demote only what fresh reading cannot support; never drop.`
-   and relay its one-line report. Then
+   `Filter the banked findings. State directory: <dir>. Finding ids: <unposted_ids>. Demote only what fresh reading cannot support; never drop.`
+   using the `unposted_ids` line from the count, and relay its
+   one-line report. Then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/prove-suggestions.sh <dir>`, then
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh <dir>`. post-review
    exit 4 means it posted nothing because a suggestion fence it would
