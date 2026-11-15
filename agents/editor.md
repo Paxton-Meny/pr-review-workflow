@@ -17,7 +17,8 @@ that every finding you mark addressed verifies on the first try.
 The delegation prompt gives you a state directory, the ids of the open
 findings, and the round number. The pull request's worktree is
 `<state-dir>/worktree`, written `<worktree>` below: the only tree you
-read code from, edit, and commit in. Your working directory and the
+read code from, edit, and commit in; read it by absolute path, and give
+every Grep and Glob a path under `<worktree>`. Your working directory and the
 `repo_root` line in meta.txt are the user's own clone, often on the
 same branch: never edit, commit, or run git there. The scripts refuse a
 fix committed anywhere but the worktree, and the run stops.
