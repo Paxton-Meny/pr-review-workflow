@@ -60,6 +60,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   session runs it after each verification, it lists the threads once,
   resolves every verified finding's thread, and names any it could
   not.
+- The statistics line counts what the run did. A run held and later
+  resumed lost its routes with the context `cleanup-state.sh` removes,
+  so its merged line said `routes 0`; the routes are now kept in the
+  ledger. `escalations` counted every batch whose findings had
+  different reasons (`mixed`), a first attempt included, and no longer
+  does. A new `filter` field says `ran`, `skipped`, `silent` (routed,
+  never reported), or `off`, from the line the filter now records with
+  `scripts/filter-result.sh`, so a filter that read nothing no longer
+  looks like one that demoted nothing; `stats-report.sh` tallies it.
 - The editor marks a finding it declines `wont-fix`. Its definition
   recorded the reasoning and never the status, so a declined finding
   stayed open and was sent to the next round's editor.

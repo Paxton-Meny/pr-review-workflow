@@ -21,6 +21,9 @@ if [ -d "$worktree" ]; then
 		rm -rf "$worktree"
 	fi
 fi
+# The routes the run took outlive the context they were written in, so
+# a run resumed after a hold still counts them in its statistics.
+[ ! -f "$dir/pr-context/routes.txt" ] || cat "$dir/pr-context/routes.txt" >>"$dir/routes.txt"
 rm -rf "$dir/pr-context"
 
 [ ! -d "$worktree" ] || {

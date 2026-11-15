@@ -15,8 +15,9 @@
 # ended wont-fix or arbitration verified it over a reopen (the
 # Arbitrated note update-finding.sh writes). This is the evidence for
 # when a stronger model beats more effort, against a plain retry with
-# the verifier's note. Run it before cleanup-state.sh, which removes
-# pr-context. The outcome is also written to outcome.txt in the state
+# the verifier's note. A batch whose findings carry different reasons
+# (mixed) is not an escalation. Run it before cleanup-state.sh, which
+# removes pr-context and keeps only its routes. The outcome is also written to outcome.txt in the state
 # directory, where sweep-state.sh and list-runs.sh read it, and
 # journaled in steps.txt as "outcome <outcome>" for next-step.sh.
 set -eu
@@ -93,20 +94,36 @@ seams=0
 
 routes=0 cheap=0 base=0 strong=0 strong_wanted=0 escalations=0
 effort_low=0 effort_medium=0 effort_high=0 effort_xhigh=0 pinned=0 unapplied=0
-[ -f "$dir/pr-context/routes.txt" ] && {
-	routes=$(grep -c '^route ' "$dir/pr-context/routes.txt" || true)
-	cheap=$(grep -c ' rung cheap ' "$dir/pr-context/routes.txt" || true)
-	base=$(grep -c ' rung base ' "$dir/pr-context/routes.txt" || true)
-	strong=$(grep -c ' rung strong ' "$dir/pr-context/routes.txt" || true)
-	strong_wanted=$(grep -c ' reason strong-wanted-unset' "$dir/pr-context/routes.txt" || true)
-	escalations=$(grep -c ' reason \(escalated\|more-effort\|gate-failed\|ci-repeat\|mixed\) ' "$dir/pr-context/routes.txt" || true)
-	effort_low=$(grep -c ' effort low ' "$dir/pr-context/routes.txt" || true)
-	effort_medium=$(grep -c ' effort medium ' "$dir/pr-context/routes.txt" || true)
-	effort_high=$(grep -c ' effort high ' "$dir/pr-context/routes.txt" || true)
-	effort_xhigh=$(grep -c ' effort xhigh ' "$dir/pr-context/routes.txt" || true)
-	pinned=$(grep -c ' pinned ' "$dir/pr-context/routes.txt" || true)
-	unapplied=$(grep -c ' unapplied ' "$dir/pr-context/routes.txt" || true)
+# Every route of the pull request: the ones cleanup-state.sh kept from
+# an earlier hold, and this context's.
+all_routes=$(cat "$dir/routes.txt" "$dir/pr-context/routes.txt" 2>/dev/null || true)
+count() { printf '%s\n' "$all_routes" | grep -c -- "$1" || true; }
+[ -z "$all_routes" ] || {
+	routes=$(count '^route ')
+	cheap=$(count ' rung cheap ')
+	base=$(count ' rung base ')
+	strong=$(count ' rung strong ')
+	strong_wanted=$(count ' reason strong-wanted-unset')
+	escalations=$(count ' reason \(escalated\|more-effort\|gate-failed\|ci-repeat\) ')
+	effort_low=$(count ' effort low ')
+	effort_medium=$(count ' effort medium ')
+	effort_high=$(count ' effort high ')
+	effort_xhigh=$(count ' effort xhigh ')
+	pinned=$(count ' pinned ')
+	unapplied=$(count ' unapplied ')
 }
+
+# What became of the filter: off when none was routed, ran or skipped as
+# its own result line says, silent when one was routed and never
+# reported.
+filter=off
+[ "$(count '^route filter all rung ')" -eq 0 ] || filter=silent
+if [ -f "$dir/filter.txt" ]; then
+	case "$(cat "$dir/filter.txt")" in
+	'filter: demoted '*) filter=ran ;;
+	'filter: skipped '*) filter=skipped ;;
+	esac
+fi
 
 # The merge method merge-method.sh decided, or none before it ran.
 method=none
@@ -141,7 +158,7 @@ if [ -f "$dir/sources.txt" ]; then
 fi
 
 root=$(CDPATH= cd -- "$dir/.." && pwd)
-line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config method $method ci $ci ci_rounds $ci_rounds updates $updates conflicts $conflicts escapes $escapes"
+line="run $owner/$repo#$pr outcome $outcome rounds $rounds findings $total verified $verified wont-fix $wontfix unresolved $open reopens $reopens demoted $demoted contracts $contracts samples $samples kind $kind groups $groups seams $seams routes $routes cheap $cheap base $base strong $strong strong_wanted $strong_wanted escalations $escalations effort_low $effort_low effort_medium $effort_medium effort_high $effort_high effort_xhigh $effort_xhigh pinned $pinned unapplied $unapplied model_retries $model_retries model_retries_verified $model_retries_verified effort_retries $effort_retries effort_retries_verified $effort_retries_verified same_retries $same_retries same_retries_verified $same_retries_verified config $config method $method ci $ci ci_rounds $ci_rounds updates $updates conflicts $conflicts escapes $escapes filter $filter"
 printf '%s\n' "$line" >>"$root/stats.txt"
 # The outcome marks the ledger for sweep-state.sh and list-runs.sh: held,
 # parked, and review-only runs stay live without a worktree.

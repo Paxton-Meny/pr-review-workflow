@@ -72,4 +72,6 @@ Your final message is exactly one line:
 `filter: demoted M of N` where N is the records you examined. When a
 record you were given could not be read, the line is instead
 `filter: skipped (<what stopped you>)`, so a pass that examined
-nothing never reads as one that found nothing to demote.
+nothing never reads as one that found nothing to demote. Record that
+line first, then send it:
+`printf '%s\n' "<the line>" | sh ${CLAUDE_PLUGIN_ROOT}/scripts/filter-result.sh <state-dir>`
