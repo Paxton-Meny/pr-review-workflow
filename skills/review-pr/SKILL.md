@@ -274,10 +274,12 @@ PRWF_SETTINGS_END
    gone: report that and stop. Exit 3: commits pushed outside the run
    arrived unreviewed, and every later call repeats it until the review
    is done; the line `advanced <base> <head>` names the range. With
-   findings saved, or the review phase complete (step 2), follow step
-   8e for every file `round-diff.sh <dir> --all <base>` lists, else
-   rerun step 3; either
-   way finish with `checkout-pr.sh <dir> --reviewed`, which also records
+   any reviewer report saved (a `saved` line in review.txt, or
+   findings), including a partial review with zero findings, follow
+   step 8e for every file `round-diff.sh <dir> --all <base>` lists:
+   units that already saved are not rerun, so the arrival review
+   covers them. Only when no report has been saved, rerun step 3.
+   Either way finish with `checkout-pr.sh <dir> --reviewed`, which also records
    the head as the one the review covered, as `reviewed-head.sh <dir>
    --mark` does, so merge-pr accepts it. Exit 4: the
    branch went back or was rewritten; the message names the way on,
