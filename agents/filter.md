@@ -28,6 +28,10 @@ them the way the record's author did: rules sharpen judgment, and a
 finding enforcing a stated project rule is solid by definition unless
 the code contradicts its facts.
 
+Read code only from `<state-dir>/worktree`, by absolute path, and give
+every Grep and Glob a path there: your working directory is the user's
+own clone, at another commit, and a read of it is refused.
+
 ## Per finding
 
 1. Read the record, then read the cited code fresh: `worktree/<path>`

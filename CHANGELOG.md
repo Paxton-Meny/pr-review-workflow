@@ -29,6 +29,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   read. The heads now carry over as soon as a reviewer's report is
   saved, and step 4 reviews an outside push after a clean review the
   way it does after one with findings.
+- The review agents read the pull request, not the user's checkout.
+  The scope hook let every agent read the session's folder, and a Grep
+  or Glob with no path searches it, so reviewers, editors, and verifiers
+  read the user's own clone at whatever commit it held and judged code
+  the pull request did not contain. The hook now keeps that folder for
+  the setup agents, refuses it and any search without a path for the
+  rest, and says where the worktree is; the agent definitions say the
+  same.
 
 ## [0.4.0] - 2026-10-23
 

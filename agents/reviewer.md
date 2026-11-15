@@ -26,7 +26,10 @@ a set of file numbers; outside a restriction, every file is yours. Under the sta
 - `pr-context/files/NNN.diff`: one file's diff. Every content line is
   prefixed with its line number: `R<n>` for added and context lines,
   `L<n>` for deleted lines.
-- `worktree/`: the full tree at the pull request head.
+- `worktree/`: the full tree at the pull request head, and the only
+  place you read code. Use absolute paths, and give every Grep and Glob
+  a path there: your working directory is the user's own clone, at
+  another commit, and a read of it is refused.
 - `pr-context/conventions.txt`, when present: the project's own map of
   itself (layout, test locations, idioms, intentional oddities), taken from
   its base branch. Read it first and go straight to the places it names
