@@ -10,9 +10,10 @@
 # key=value, a value with spaces quoted with " or '. They are written to
 # overrides.txt (key value, one per line), replaced on every invocation,
 # so a resumed run never keeps an earlier invocation's overrides.
-# Once the ledger holds findings, head_sha, prev_head and arrived_base carry over and
-# never come from GitHub: only push-branch.sh and checkout-pr.sh move
-# them, so a push made outside the run surfaces through checkout-pr.sh.
+# Once a reviewer's report is saved, with or without findings, head_sha,
+# prev_head and arrived_base carry over and never come from GitHub: only
+# push-branch.sh and checkout-pr.sh move them, so a push made outside
+# the run surfaces through checkout-pr.sh.
 # Every invocation appends "invoke" to the ledger's steps.txt, the step
 # journal the loop scripts append to and next-step.sh reads.
 set -eu
@@ -103,21 +104,27 @@ esac
 
 dir="$data_root/state/${owner}__${repo}__${number}"
 mkdir -p "$dir"
-# The heads the run last saw. Once the ledger holds findings a resume
-# keeps them, never GitHub's, so a push made outside the run waits for
-# checkout-pr.sh (head_sha, prev_head) and commits pushed since stay
-# unreviewed until reviewed-head.sh says so (reviewed_head). A ledger from
-# before the reviewed_head field falls back to the head it last recorded.
+# The heads the run last saw. Once a reviewer's report is in (a saved
+# unit in review.txt, or a finding) a resume keeps them, never GitHub's,
+# so a push made outside the run waits for checkout-pr.sh (head_sha,
+# prev_head) and commits pushed since stay unreviewed until
+# reviewed-head.sh says so (reviewed_head), whether or not the review
+# found anything. A ledger from before the reviewed_head field falls
+# back to the head it last recorded.
 seen=''
 reviewed=''
+reviewing=0
 for f in "$dir/findings"/F*; do
-	[ -f "$f" ] && [ -f "$dir/meta.txt" ] || break
+	[ -f "$f" ] && reviewing=1
+	break
+done
+grep -q '^saved ' "$dir/review.txt" 2>/dev/null && reviewing=1
+if [ "$reviewing" -eq 1 ] && [ -f "$dir/meta.txt" ]; then
 	seen=$(sed -n -e '/^head_sha ./p' -e '/^prev_head ./p' -e '/^arrived_base ./p' "$dir/meta.txt")
 	reviewed=$(sed -n 's/^reviewed_head //p' "$dir/meta.txt")
 	[ -n "$reviewed" ] || reviewed=$(sed -n 's/^arrived_base //p' "$dir/meta.txt")
 	[ -n "$reviewed" ] || reviewed=$(sed -n 's/^head_sha //p' "$dir/meta.txt")
-	break
-done
+fi
 [ -n "$reviewed" ] || reviewed=$(printf '%s\n' "$meta" | sed -n 's/^head_sha //p')
 tmp=$(mktemp "$dir/.meta.XXXXXX")
 {

@@ -101,8 +101,15 @@ sed -e '/^reviewed_head /d' -e '/^arrived_base /d' -e 's/^head_sha .*/head_sha 0
 mv "$dir/meta.old" "$dir/meta.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx 'reviewed_head 0ld0ld' "$dir/meta.txt"
-# With no findings every head is GitHub's again.
+# A review that saved a report and found nothing keeps them too: a head
+# pushed since is not the head the review covered.
 rm -r "$dir/findings"
+printf 'plan\nplanned all samples 1\nsaved all 0\n' >"$dir/review.txt"
+sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
+grep -qx 'head_sha 0ld0ld' "$dir/meta.txt"
+grep -qx 'reviewed_head 0ld0ld' "$dir/meta.txt"
+# A planned review with no report in yet has covered nothing.
+printf 'plan\nplanned all samples 1\n' >"$dir/review.txt"
 sh "$REPO_ROOT/scripts/init-state.sh" "$data" "Paxton-Meny/widgets#7" >/dev/null
 grep -qx 'head_sha def456' "$dir/meta.txt"
 grep -qx 'reviewed_head def456' "$dir/meta.txt"
