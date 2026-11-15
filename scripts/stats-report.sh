@@ -27,6 +27,7 @@ awk '
 	methods[v["method"]]++
 	ci[v["ci"] == "" ? "unknown" : v["ci"]]++; ci_rounds += v["ci_rounds"]
 	updates += v["updates"]; conflicts += v["conflicts"]; escapes += v["escapes"]
+	filter[v["filter"] == "" ? "unrecorded" : v["filter"]]++
 	if (v["reopens"] + 0 > 0) reopened++
 	delete v
 }
@@ -49,5 +50,7 @@ END {
 		ci["unknown"] + 0, ci["none"] + 0, ci["off"] + 0, ci["pass"] + 0, ci["repaired"] + 0, ci["failed"] + 0, ci_rounds
 	printf "stats-report: sync updates %d conflicts %d\n", updates, conflicts
 	printf "stats-report: escapes %d\n", escapes
+	printf "stats-report: filter ran %d skipped %d silent %d off %d unrecorded %d\n", \
+		filter["ran"] + 0, filter["skipped"] + 0, filter["silent"] + 0, filter["off"] + 0, filter["unrecorded"] + 0
 }
 ' "$stats"

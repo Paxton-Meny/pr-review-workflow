@@ -19,6 +19,12 @@ printf '%s\n' "$out" | grep -qx 'stats-report: methods merge 0 squash 1 rebase 0
 printf '%s\n' "$out" | grep -qx 'stats-report: ci unknown 1 none 0 off 0 pass 0 repaired 1 failed 0 rounds 1'
 printf '%s\n' "$out" | grep -qx 'stats-report: sync updates 2 conflicts 1'
 printf '%s\n' "$out" | grep -qx 'stats-report: escapes 1'
+# A line from before the filter field counts as unrecorded.
+printf '%s\n' "$out" | grep -qx 'stats-report: filter ran 0 skipped 0 silent 0 off 0 unrecorded 2'
+cp "$data/state/stats.txt" "$SCRATCH/stats.keep"
+sed -i '1s/$/ filter skipped/' "$data/state/stats.txt"
+sh "$REPO_ROOT/scripts/stats-report.sh" "$data" | grep -qx 'stats-report: filter ran 0 skipped 1 silent 0 off 0 unrecorded 1'
+cp "$SCRATCH/stats.keep" "$data/state/stats.txt"
 
 d1="$data/state/Paxton-Meny__widgets__7"
 mkdir -p "$d1/findings"

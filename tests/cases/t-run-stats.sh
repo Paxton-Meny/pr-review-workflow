@@ -53,8 +53,8 @@ finding F012 verified
 { note 1 inherit 'effort medium'; note 2 inherit 'effort high unapplied medium'; } >>"$dir/findings/F012"
 
 out=$(sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked)
-[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0 escapes 0" ]
-grep -qx 'run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0 escapes 0' "$root/stats.txt"
+[ "$out" = "run-stats: run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0 escapes 0 filter off" ]
+grep -qx 'run o/r#7 outcome parked rounds 2 findings 12 verified 8 wont-fix 2 unresolved 2 reopens 1 demoted 1 contracts 1 samples 2 kind code groups 2 seams 1 routes 5 cheap 1 base 3 strong 1 strong_wanted 0 escalations 1 effort_low 0 effort_medium 1 effort_high 3 effort_xhigh 1 pinned 1 unapplied 1 model_retries 3 model_retries_verified 0 effort_retries 2 effort_retries_verified 1 same_retries 4 same_retries_verified 4 config none method none ci unknown ci_rounds 0 updates 0 conflicts 0 escapes 0 filter off' "$root/stats.txt"
 
 [ "$(cat "$dir/outcome.txt")" = parked ]
 printf 'pass abc\n' >"$dir/ci-result.txt"
@@ -63,9 +63,50 @@ printf 'update rebase a1 b2\nconflicts 2 files\nupdate rebase b2 c3\n' >"$dir/sy
 printf 'escape\nescape\n' >"$dir/escapes.txt"
 sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged >/dev/null
 [ "$(grep -c . "$root/stats.txt")" = "2" ]
-grep -q ' outcome merged .* ci repaired ci_rounds 1 updates 2 conflicts 1 escapes 2$' "$root/stats.txt"
+grep -q ' outcome merged .* ci repaired ci_rounds 1 updates 2 conflicts 1 escapes 2 filter off$' "$root/stats.txt"
 [ "$(cat "$dir/outcome.txt")" = merged ]
 [ "$(cat "$dir/steps.txt")" = "$(printf 'outcome parked\noutcome merged')" ]
+
+# A batch whose findings carry different reasons is not an escalation.
+printf 'route edit all rung base model inherit effort medium reason mixed ids F001 F003\n' >>"$dir/pr-context/routes.txt"
+sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked | grep -q ' routes 6 cheap 1 base 4 strong 1 strong_wanted 0 escalations 1 '
+
+# The filter: silent when one was routed and never reported, then what
+# its own result line says.
+field() { sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" parked | sed 's/.* filter //'; }
+printf 'route filter all rung base model sonnet effort low reason role-model\n' >>"$dir/pr-context/routes.txt"
+[ "$(field)" = silent ]
+result() { printf '%s\n' "$1" | sh "$REPO_ROOT/scripts/filter-result.sh" "$dir"; }
+[ "$(result 'filter: skipped (the records could not be read)')" = 'filter-result: recorded' ]
+[ "$(field)" = skipped ]
+result 'filter: demoted 0 of 12' >/dev/null
+[ "$(field)" = ran ]
+[ "$(cat "$dir/filter.txt")" = 'filter: demoted 0 of 12' ]
+for bad in 'demoted 1 of 2' 'filter: demoted one of 2' 'filter: skipped' 'filter: skipped (a) rm -rf (b)' "$(printf 'filter: demoted 1 of 2\nextra')"; do
+	if result "$bad" >/dev/null 2>"$SCRATCH/err"; then
+		echo "expected refusal of the filter result: $bad" >&2
+		exit 1
+	fi
+	grep -q 'filter-result: expected' "$SCRATCH/err"
+done
+[ "$(cat "$dir/filter.txt")" = 'filter: demoted 0 of 12' ]
+
+# A hold drops the context and keeps its routes, so the run resumed
+# after it still counts them, with the routes of its new context.
+sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" >/dev/null
+[ ! -d "$dir/pr-context" ]
+[ "$(grep -c '^route ' "$dir/routes.txt")" -eq 7 ]
+sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" held | grep -q ' routes 7 cheap 1 base 5 strong 1 .* filter ran$'
+mkdir -p "$dir/pr-context"
+printf 'route verify all rung base model sonnet effort medium reason role-model\n' >"$dir/pr-context/routes.txt"
+sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" merged | grep -q ' routes 8 cheap 1 base 6 strong 1 '
+sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" >/dev/null
+sh "$REPO_ROOT/scripts/cleanup-state.sh" "$dir" >/dev/null
+[ "$(grep -c '^route ' "$dir/routes.txt")" -eq 8 ]
+
+# The filter's definition records its line, and the hook lets it.
+grep -q 'scripts/filter-result.sh <state-dir>' "$REPO_ROOT/agents/filter.md"
+grep -q "scripts='update-finding append-note filter-result'" "$REPO_ROOT/scripts/agent-scope.sh"
 
 if sh "$REPO_ROOT/scripts/run-stats.sh" "$dir" wat 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown outcome" >&2
