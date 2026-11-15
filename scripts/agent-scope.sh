@@ -256,7 +256,7 @@ editor)
 	statuses='addressed wont-fix'
 	;;
 verifier)
-	scripts='run-contract update-finding resolve-thread append-note reply-thread'
+	scripts='run-contract update-finding append-note reply-thread'
 	subs='show log diff status rev-parse'
 	statuses='verified open'
 	;;
