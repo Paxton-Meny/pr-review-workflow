@@ -24,6 +24,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/post-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/count-findings.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-threads.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/checkout-guard.sh *)
@@ -438,6 +439,11 @@ PRWF_SETTINGS_END
       and exactly (a `skip` line means the round addressed nothing:
       spawn no verifier and go on to step e):
       `Verify the addressed findings. State directory: <dir>. Addressed finding ids: <addressed_ids>. <round line>.`
+      When it returns, run
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-threads.sh <dir>`,
+      relaying its line: it resolves the thread of every verified
+      finding. Exit 3 names threads it could not resolve: carry on,
+      and name them in the final report.
    e. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/round-diff.sh <dir>`. Exit 3 lists
       files the round changed that no finding names: rerun
       `fetch-pr.sh <dir>`, map those paths to file numbers in the fresh
@@ -465,7 +471,8 @@ PRWF_SETTINGS_END
       verifier on its definition's default rather than the session
       model) and its `effort` and exactly:
       `Arbitrate the repeatedly reopened findings. State directory: <dir>. Finding ids: <capped_ids>. <round line>.`
-      using the `capped_ids` line from the count. Rerun
+      using the `capped_ids` line from the count. Run
+      `resolve-threads.sh <dir>` as in step d, then rerun
       `count-findings.sh <dir> --list`: if any capped finding is
       still open, stop the loop and treat it as non-convergence.
       One arbitration per run, never a second.

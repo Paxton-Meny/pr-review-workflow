@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Verifies that addressed review findings satisfy their Resolution lines, resolving their threads or reopening them with what remains. Returns counts only.
+description: Verifies that addressed review findings satisfy their Resolution lines, marking them verified or reopening them with what remains. Returns counts only.
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Bash
@@ -55,8 +55,7 @@ own clone, at another commit, and a read of it is refused.
      reopen. An undecidable finding is not a verified one.
 4. Verified:
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=verified`
-   and, when the record has a `comment_id`:
-   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-thread.sh <state-dir> <comment_id>`
+   The loop resolves the thread from that status; you never do.
 5. Reopened: write one note that names precisely what still fails, in terms
    of the Resolution line, concrete enough that the fix is unambiguous
    ("the empty-list case still divides by zero" beats "not fully fixed").
@@ -75,7 +74,7 @@ findings were reopened repeatedly and the run is about to park over
 them. Settle the dispute: judge each Resolution line from scratch
 against the current code, using the earlier reopen notes only to
 locate the dispute, never as verdicts.
-Satisfied: verify and resolve as usual; the transition from open is
+Satisfied: verify as usual; the transition from open is
 legal for exactly this case. Not satisfied: write the sharpest note
 yet and mirror it to the thread as in step 5, but change no status,
 since the finding is already open; the run parks carrying it.

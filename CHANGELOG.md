@@ -52,6 +52,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   two, so every slice went to the background and the session read a
   task's output file instead of an exit code. Step 11b now tells it
   to raise the timeout for that call.
+- Verified findings get their threads resolved. The verifier resolved
+  each thread itself, one listing of the pull request's threads per
+  finding, and where the session's permission checks refused an agent
+  that call the threads stayed open on a merged pull request.
+  `scripts/resolve-threads.sh` replaces `resolve-thread.sh`: the review
+  session runs it after each verification, it lists the threads once,
+  resolves every verified finding's thread, and names any it could
+  not.
 - The editor marks a finding it declines `wont-fix`. Its definition
   recorded the reasoning and never the status, so a declined finding
   stayed open and was sent to the next round's editor.

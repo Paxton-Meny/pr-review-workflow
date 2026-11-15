@@ -72,7 +72,7 @@ NOTE"
 bash_ok verifier "git -C $wt show abc1234"
 bash_ok verifier "sh $root/scripts/update-finding.sh $dir F001 status=verified"
 bash_ok verifier "sh $root/scripts/update-finding.sh $dir F001 status=open"
-bash_ok verifier "sh $root/scripts/resolve-thread.sh $dir 9001"
+bash_no verifier "sh $root/scripts/resolve-threads.sh $dir"
 bash_ok verifier "printf '%s\\n' \"Reopened (round 2): the empty list still divides by zero\" | sh $root/scripts/append-note.sh $dir F001"
 bash_ok filter "sh $root/scripts/update-finding.sh $dir F001 placement=summary"
 bash_ok cartographer "sh $root/scripts/save-record.sh $CLAUDE_PLUGIN_DATA/survey/acme__widgets p01 --append <<'PRWF_RECORD_END'
