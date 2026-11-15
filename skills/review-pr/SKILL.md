@@ -516,8 +516,11 @@ PRWF_SETTINGS_END
        the list.
     b. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh <dir>`, relaying
        its line. It waits only when the repository reports checks for
-       the head, and the wait budget lives on disk. Exit 5: run it
-       again. Exit 6: the budget is spent; attended, ask whether to
+       the head, and the wait budget lives on disk. One call waits up
+       to eight minutes, so give this Bash call a timeout of 600000
+       milliseconds and run it in the foreground: under the default
+       timeout it is cut off and you are left reading a background
+       task's output. Exit 5: run it again. Exit 6: the budget is spent; attended, ask whether to
        wait once more (run it with `--extend`, which gives the head a
        fresh budget) or hold (as step 12 holds);
        unattended, park (step 9) naming the pending checks. Exit 0:

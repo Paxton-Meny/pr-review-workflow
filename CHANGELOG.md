@@ -47,6 +47,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   at once; `route-models.sh edit` sends at most eight findings to one
   editor; and step 8b says what to do when an editor returns no
   report.
+- The checks wait runs in the foreground. One `await-checks.sh` call
+  waits up to eight minutes and the Bash tool cuts a command off at
+  two, so every slice went to the background and the session read a
+  task's output file instead of an exit code. Step 11b now tells it
+  to raise the timeout for that call.
 - The editor marks a finding it declines `wont-fix`. Its definition
   recorded the reasoning and never the status, so a declined finding
   stayed open and was sent to the next round's editor.
