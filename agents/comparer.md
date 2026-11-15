@@ -38,6 +38,11 @@ Read only what the hunks make necessary. For a `pr-<n>` label the scan
 runs before checkout, so the worktree may not exist; judge from the
 hunks alone then.
 
+Read code only from `<state-dir>/worktree`, by absolute path, and give
+every Grep and Glob a path there: your working directory is the user's
+own clone, at another commit, and a read of it is refused. When the
+worktree does not exist, search nothing and judge from the hunks.
+
 ## Procedure
 
 1. Read `summary.txt`, then both diffs, file by file.
