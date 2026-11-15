@@ -22,6 +22,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `unposted_ids`, the open findings not yet posted, step 7 passes them
   in the prompt, and a filter that cannot read a record it was given
   reports `filter: skipped (<what stopped it>)`.
+- A resumed run keeps the head its review covered when that review
+  found nothing. `init-state.sh` carried the recorded heads over only
+  once a finding existed, so a clean review resumed after a push took
+  the pushed head as the reviewed one and could merge commits nobody
+  read. The heads now carry over as soon as a reviewer's report is
+  saved, and step 4 reviews an outside push after a clean review the
+  way it does after one with findings.
 
 ## [0.4.0] - 2026-10-23
 
