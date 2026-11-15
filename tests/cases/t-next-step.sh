@@ -143,6 +143,13 @@ expect "$(lines 'next-step: 8b spawn the editor for batch 2 of 2 in round 1, the
 v=$(variant 9 </dev/null)
 sh "$REPO_ROOT/scripts/update-finding.sh" "$v" F003 status=wont-fix >/dev/null
 expect 'next-step: 8c run-check.sh --gate, after batch 2 of 2 in round 1' "$v"
+# One that recorded a fix and stopped before its push has not: the
+# worktree holds a commit the branch lacks, so the batch spawns again.
+v=$(variant unpushed </dev/null)
+printf 'fix\n' >>"$v/worktree/src/a.py"
+git -C "$v/worktree" commit -qam "Fix without a push"
+sh "$REPO_ROOT/scripts/update-finding.sh" "$v" F003 status=addressed >/dev/null
+expect "$(lines 'next-step: 8b spawn the editor for batch 2 of 2 in round 1, then run-check.sh --gate' "$batch2")" "$v"
 push src/a.py
 update F003 status=addressed
 rm "$wt/ok"

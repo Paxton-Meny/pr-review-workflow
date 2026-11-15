@@ -484,3 +484,21 @@ rm -f "$dir/spawn-effort.txt"
 route spawn-effort unapplied >/dev/null
 [ "$(route conflict $ARGS)" = "route conflict all rung base model inherit effort high unapplied medium reason conflict" ]
 rm -f "$dir/spawn-effort.txt"
+
+# One editor carries its whole batch in one context and one turn budget,
+# so a rung's findings go out eight at a time.
+rm -f "$dir/findings"/F*
+ids=''
+for n in 31 32 33 34 35 36 37 38 39; do
+	printf 'id: F0%s\nstatus: open\nseverity: major\n---\nbody\n' "$n" >"$dir/findings/F0$n"
+	ids="$ids F0$n"
+done
+[ "$(route edit $ARGS round=1 -- $ids)" = "route edit batch-1 rung base model inherit effort medium reason role-model ids F031 F032 F033 F034 F035 F036 F037 F038
+route edit batch-2 rung base model inherit effort medium reason role-model ids F039" ]
+# Exactly eight stay one batch. The records are fresh: an attempt already
+# noted would make this a retry.
+rm -f "$dir/findings"/F*
+for n in 31 32 33 34 35 36 37 38; do
+	printf 'id: F0%s\nstatus: open\nseverity: major\n---\nbody\n' "$n" >"$dir/findings/F0$n"
+done
+[ "$(route edit $ARGS round=1 -- ${ids% F039})" = "route edit all rung base model inherit effort medium reason role-model ids F031 F032 F033 F034 F035 F036 F037 F038" ]

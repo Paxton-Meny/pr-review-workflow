@@ -20,8 +20,11 @@
 # findings from their records. A round an outcome closed (a park or a
 # hold) is over: its findings start a new round. The checks loop is read
 # from the last outcome on, since every step of it is safe to rerun.
-# Where an agent's report leaves no trace on disk, the line says what
-# to do either way.
+# An editor batch is done once it pushed, or once none of its findings
+# is open and the worktree holds no commit the branch lacks; commits
+# without a push mean the editor stopped early and the batch spawns
+# again. Where an agent's report leaves no trace on disk, the line says
+# what to do either way.
 # Exit 0 with a placement; exit 4 with "next-step: unplaced <reason>"
 # when the ledger predates the journal and cannot show the round.
 set -eu
@@ -138,11 +141,19 @@ can=$(sed -n 's/^maintainer_can_modify //p' "$dir/meta.txt")
 # Step 8: the last round, replayed from the journal.
 rounds=0
 [ -f "$dir/rounds.txt" ] && rounds=$(cat "$dir/rounds.txt")
+# Commits in the worktree the branch lacks: an editor recorded fixes and
+# stopped before its push, so its batch is not done whatever the
+# records say.
+unpushed=0
+if [ -d "$dir/worktree" ]; then
+	at=$(git -C "$dir/worktree" rev-parse HEAD 2>/dev/null) || at=''
+	[ -z "$at" ] || [ "$at" = "$head" ] || unpushed=1
+fi
 round=$({
 	printf '%s\n' "$findings"
 	echo %%
 	cat "$journal"
-} | awk -v rounds="$rounds" '
+} | awk -v rounds="$rounds" -v unpushed="$unpushed" '
 function ids(line) { sub(/.* ids /, "", line); return line }
 function out(step, text) { print "next-step: " step " " text }
 !split_done && $0 == "%%" { split_done = 1; next }
@@ -207,6 +218,7 @@ END {
 				ran = 1
 				k = split(bids[cur], b, " ")
 				for (j = 1; j <= k; j++) if (st[b[j]] == "open") ran = 0
+				if (unpushed) ran = 0
 			}
 			if (ran) out("8c", "run-check.sh --gate, after " where)
 			else { out("8b", "spawn the editor for " where ", then run-check.sh --gate"); print bl[cur] }
