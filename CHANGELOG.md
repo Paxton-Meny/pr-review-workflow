@@ -37,6 +37,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the setup agents, refuses it and any search without a path for the
   rest, and says where the worktree is; the agent definitions say the
   same.
+- An editor that runs out of turns leaves its work recorded. It
+  committed, read the sha, and marked each finding in separate calls,
+  with every mark and reply held until after the push, so a batch of
+  sixteen findings spent its 80 turns on bookkeeping and stopped with
+  commits made and nothing in the ledger. `scripts/commit-finding.sh`
+  now stages, commits as the reviewing account, and marks the finding
+  in one call; `reply-thread.sh --addressed` takes every fixed finding
+  at once; `route-models.sh edit` sends at most eight findings to one
+  editor; and step 8b says what to do when an editor returns no
+  report.
+- The editor marks a finding it declines `wont-fix`. Its definition
+  recorded the reasoning and never the status, so a declined finding
+  stayed open and was sent to the next round's editor.
 
 ## [0.4.0] - 2026-10-23
 

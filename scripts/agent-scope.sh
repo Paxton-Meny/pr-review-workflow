@@ -251,7 +251,7 @@ esac
 scripts='' subs='' statuses='' leases=0
 case "$agent" in
 editor)
-	scripts='run-contract append-note reply-thread push-branch update-finding sync-branch'
+	scripts='run-contract append-note reply-thread push-branch update-finding sync-branch commit-finding'
 	subs='add commit diff show log status rev-parse'
 	statuses='addressed wont-fix'
 	;;
@@ -295,7 +295,7 @@ function script(seg, stdin_ok,    p, name, k, a) {
 	if (name !~ /^[a-z-]+\.sh$/) deny("a script outside the plugin")
 	sub(/\.sh$/, "", name)
 	if (index(scripts, " " name " ") == 0) deny(name ".sh, which this agent does not run")
-	if (stdin_ok && name != "append-note" && name != "reply-thread" && name != "save-record") deny("input piped into " name ".sh")
+	if (stdin_ok && name != "append-note" && name != "reply-thread" && name != "save-record" && name != "commit-finding") deny("input piped into " name ".sh")
 	if (nw[seg] < 3) deny(name ".sh without its directory")
 	if (name == "run-contract" && nw[seg] != 4) deny("run-contract.sh with arguments beyond the directory and the finding id")
 	print "dir\t" W[seg, 3]

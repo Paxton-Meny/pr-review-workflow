@@ -62,7 +62,9 @@
 # is set, and drops for a small group of a droppable kind with no risk
 # signal. The gap pass follows the highest review rung but never drops.
 # An editing round gives each open finding a starting rung and batches
-# the round by rung, cheapest first. In round one a finding starts cheap
+# the round by rung, cheapest first, at most eight findings to a batch,
+# since one editor carries its whole batch in one context and one turn
+# budget. In round one a finding starts cheap
 # when it is mechanical (minor or nit with a proven suggestion), or,
 # under the balanced posture, when its Check line would execute (by the
 # check command or a contract prefix), so a wrong fix is caught by
@@ -140,6 +142,7 @@ MAX_SAMPLES=3
 COMPARE_MAX_LINES=400
 AGENTS="$(dirname "$0")/../agents"
 
+EDIT_BATCH_MAX=8
 routing=auto reviewer=inherit editor=inherit verifier=sonnet strong='' round=1
 posture=balanced check='' prefixes='' repeat=0
 double=risky filter=true samples=1 overlap=near
@@ -615,7 +618,12 @@ batches() {
 		*) reason=mixed ;;
 		esac
 		effort=$(highest "$(awk -F '\t' -v r="$rung" '$1 == r { print $4 }' "$plan")")
-		printf '%s %s %s %s\n' "$rung" "$reason" "$effort" "$list"
+		# One editor holds every finding of its batch in one context and
+		# one turn budget, so a rung's findings go out EDIT_BATCH_MAX at a time.
+		printf '%s\n' "$list" | tr ' ' '\n' | awk -v max="$EDIT_BATCH_MAX" -v head="$rung $reason $effort" '
+			{ line = line " " $0 }
+			NR % max == 0 { print head line; line = "" }
+			END { if (line != "") print head line }'
 	done
 }
 

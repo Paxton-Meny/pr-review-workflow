@@ -397,8 +397,8 @@ PRWF_SETTINGS_END
    b. Run
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/route-models.sh <dir> edit round=<n> -- <open_ids>`
       with the round number from step a. It gives every open finding
-      a starting rung and prints one line per rung used, cheapest
-      first: in round 1 a finding starts cheap when it is mechanical
+      a starting rung and prints one line per batch, cheapest rung
+      first, at most eight findings to a batch: in round 1 a finding starts cheap when it is mechanical
       (minor or nit with a proven fence) or, as the cost posture
       allows, when its Check line will execute or a check command
       gates the round; a finding attempted before and still open tries
@@ -413,7 +413,11 @@ PRWF_SETTINGS_END
       `Address the open findings. State directory: <dir>. Open finding ids: <ids from the line>. <round line>.`
       then run step c before starting the next line, so a broken
       check is pinned on the batch that broke it.
-      Its report gives counts; trust the ledger over the prose.
+      Its report gives counts; trust the ledger over the prose. An
+      editor that returns no report (it ran out of turns) has recorded
+      every fix it committed: run `next-step.sh <dir>` and do what it
+      names, which spawns a fresh editor on the same line to finish
+      and push. Never resume the stopped one by message.
    c. `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-check.sh <dir> --gate`.
       It checks only when the recorded baseline passed for the same
       command, and takes the baseline again first when there is none

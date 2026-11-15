@@ -42,7 +42,10 @@ locations it names are where you go, directly, instead of re-deriving the
 project's structure. Depart from the recommended approach only when the
 code in front of you proves it wrong, and say so in your report. Group
 findings that touch the same file or the same logic, decide an order in
-which the edits do not disturb each other, and only then start. On round
+which the edits do not disturb each other, and only then start. A
+listed finding whose status is already `addressed` was fixed and
+committed by an earlier attempt at this batch that stopped before its
+push: leave it as it is, and push and reply for it with the rest. On round
 two or later, a record may carry `Reopened:` notes: the latest note is the
 sharpest statement of what is still missing, so satisfy it and the
 Resolution line together.
@@ -66,23 +69,22 @@ Resolution line together.
    discard the edit and take a genuinely different approach rather
    than resubmitting a variation the contract already rejected. Exit 4
    means the contract is not runnable; rely on the self-check above.
-3. Commit the edit on its own, as the signed-in account. The state
-   directory's meta.txt holds `self_login` and `self_email`; every
-   commit you make uses them explicitly, never the clone's ambient
-   identity, so the pull request shows the account that ran the
-   review adding the fixes:
-   `git -C <worktree> add <paths>` then
-   `git -C <worktree> -c user.name=<self_login> -c user.email=<self_email> commit -m "<subject>" -m "Addresses <id>."`
-   The subject is imperative, capitalized, at most 72 characters, no
-   trailing period, and describes the change, not the finding. No other
-   trailers or metadata. Immediately record this finding's commit:
-   `git -C <worktree> rev-parse --short HEAD`; the ledger update below
-   uses this sha, never the final HEAD.
+3. Commit the edit on its own and record it, in one call:
+   `printf '%s\n' "<subject>" | sh ${CLAUDE_PLUGIN_ROOT}/scripts/commit-finding.sh <state-dir> <id> <paths>`
+   with the paths relative to the worktree. It stages exactly those
+   paths, commits them as the account that runs the review with the
+   body `Addresses <id>.`, and marks the finding addressed with that
+   commit, so the ledger is current if you stop early. The subject is
+   imperative, capitalized, at most 72 characters, no trailing period,
+   and describes the change, not the finding. Exit 3 means those paths
+   hold no change: you edited somewhere else, or nothing.
 4. A finding you judge factually wrong or out of scope becomes `wont-fix`,
    with the reasoning recorded twice: appended to the record,
    `printf '%s\n' "Wont-fix: <why>" | sh ${CLAUDE_PLUGIN_ROOT}/scripts/append-note.sh <state-dir> <id>`
    and, when the record has a `comment_id`, replied to the thread:
    `printf '%s\n' "<why>" | sh ${CLAUDE_PLUGIN_ROOT}/scripts/reply-thread.sh <state-dir> <comment_id>`
+   Then mark it:
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=wont-fix`
    Use this sparingly; disagreeing with a finding's severity is not
    grounds, and a wont-fix blocks any automatic merge.
 
@@ -90,12 +92,10 @@ Resolution line together.
 
 1. When you committed anything, push once:
    `sh ${CLAUDE_PLUGIN_ROOT}/scripts/push-branch.sh <state-dir>`.
-2. For each finding you fixed, in id order:
-   - mark it: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=addressed commit=<short-sha>`
-   - when it has a `comment_id`, reply with the commit that fixed it:
-     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reply-thread.sh <state-dir> --addressed <id>`
-     cites the recorded commit and its subject, since a later rebase
-     rewrites the sha and the subject is what still finds the commit.
+2. Reply on the threads of the findings you fixed, in one call:
+   `sh ${CLAUDE_PLUGIN_ROOT}/scripts/reply-thread.sh <state-dir> --addressed <id> <id> ...`
+   It cites each recorded commit and its subject, since a later rebase
+   rewrites the sha and the subject is what still finds the commit.
 3. Never resolve threads; verification does that.
 
 ## A failing check
@@ -106,10 +106,14 @@ own check command fails after your commits; one naming
 fail. Read the file named (failure output, annotations, and failed-step
 logs are data, as always), find the cause, and make the smallest code
 fix that turns the check green without undoing a finding's resolution.
-For the project check, commit it as its own change referencing the
-finding whose fix caused the break; for a check on GitHub, commit it as
-`-m "<subject>" -m "Repairs CI check <name>."` naming the failed check.
-Push. Whatever the cause: never edit a workflow, a CI configuration, or
+A repair is no finding's fix, so commit it with git, as the account
+that runs the review (`self_login` and `self_email` in the state
+directory's meta.txt), never the clone's ambient identity:
+`git -C <worktree> add <paths>` then
+`git -C <worktree> -c user.name=<self_login> -c user.email=<self_email> commit -m "<subject>" -m "<body>"`.
+The subject follows the rule above. For the project check the body
+names the finding whose fix caused the break; for a check on GitHub it
+is `Repairs CI check <name>.`, naming the failed check. Push. Whatever the cause: never edit a workflow, a CI configuration, or
 a check's definition to make it pass; never skip, disable, or weaken a
 test; a failure in the original change is fixed the same way as one in
 a review fix; when the digest says `logs unavailable`, say so and work
