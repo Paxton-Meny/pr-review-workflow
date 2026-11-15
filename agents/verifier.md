@@ -25,6 +25,10 @@ written rules from the maintainer's local files: judge against a
 Resolution that reflects them as usual, but never name or quote those
 files in thread replies or notes.
 
+Read code only from `<state-dir>/worktree`, by absolute path, and give
+every Grep and Glob a path there: your working directory is the user's
+own clone, at another commit, and a read of it is refused.
+
 ## Per finding
 
 1. Read the record. The Resolution line is the contract; the evidence above

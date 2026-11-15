@@ -33,10 +33,11 @@ may address them. A hook (`scripts/agent-scope.sh`) holds each of them
 to its definition whenever Claude Code names the agent in the call,
 which it does from version 2.1.69:
 
-- reads stay inside the plugin's data directory, the plugin, and the
-  session's folder (never a home directory as a whole), with no `..`
-  and no symlinked file, so a link planted in a change reads nothing
-  outside;
+- reads stay inside the plugin's data directory and the plugin, with
+  no `..` and no symlinked file, so a link planted in a change reads
+  nothing outside; setup's readers also read the session's folder
+  (never a home directory as a whole), and the review agents do not,
+  since the user's checkout is not the pull request;
 - edits stay inside a review worktree;
 - shell commands are only `git -C <path in the data directory>` with
   the subcommands the agent's definition names, and the plugin scripts

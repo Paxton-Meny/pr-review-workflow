@@ -10,10 +10,13 @@
 #
 # An agent reads the pull request, and the pull request may address it.
 # Its definition says what it may touch; this makes that binding:
-# - Read, Grep, and Glob stay inside the plugin's data directory, the
-#   plugin itself, and the session's folder, with no ".." and no
-#   symlinked file, so a link planted in the change reads nothing
-#   outside.
+# - Read, Grep, and Glob stay inside the plugin's data directory and the
+#   plugin itself, with no ".." and no symlinked file, so a link planted
+#   in the change reads nothing outside. The setup agents (cartographer,
+#   assembler) also read the session's folder, the clone they survey;
+#   the review agents do not, and a Grep or Glob of theirs names its
+#   path, since the default is that folder: the user's checkout is not
+#   the pull request.
 # - Edit and Write stay inside a review worktree.
 # - Bash runs only "git -C <path in the data directory>" with the git
 #   subcommands the agent's definition names, and "sh <plugin>/scripts/
@@ -184,7 +187,21 @@ home=''
 [ -n "${HOME:-}" ] && home=$(real "$HOME")
 [ -n "$home" ] && [ -n "$session" ] && under "$home" "$session" && session=''
 
+# The setup agents survey the user's clone, so the session's folder is
+# theirs to read. Every other agent works on a pull request, whose code
+# is the worktree under the state directory: the session's folder is the
+# user's own checkout, at some other commit, and reading it reviews the
+# wrong code.
 who="pr-review-workflow:$agent"
+case "$agent" in
+cartographer | assembler)
+	reads="$who reads only the plugin's data directory, the plugin itself, and the session's folder."
+	;;
+*)
+	session=''
+	reads="$who reads only the state directory and the plugin itself. The pull request's code is under <state-dir>/worktree; the session's folder is the user's own checkout, at another commit. Name an absolute path under the state directory."
+	;;
+esac
 case "$tool" in
 Read | Grep | Glob)
 	name=file_path
@@ -204,16 +221,19 @@ Read | Grep | Glob)
 				fixed="${base:-.}/$fixed"
 			fi
 			full=$(resolve "${fixed:-/}") && under "$full" "$data" "$plugin" "$session" ||
-				decide "$who reads only the plugin's data directory (the state directory, its worktree and context), the plugin itself, and the session's folder."
+				decide "$reads"
 			;;
 		esac
 	fi
-	[ -f "$fields/input_$name" ] || exit 0
-	path=$(field "input_$name")
-	[ -n "$path" ] || exit 0
+	path=''
+	[ -f "$fields/input_$name" ] && path=$(field "input_$name")
+	if [ -z "$path" ]; then
+		[ "$tool" = Read ] || [ -n "$session" ] || decide "$reads"
+		exit 0
+	fi
 	full=$(resolve "$path") || decide "$who reads no symlinked file and no path through \"..\"; read the file the link names, inside the review."
 	under "$full" "$data" "$plugin" "$session" ||
-		decide "$who reads only the plugin's data directory (the state directory, its worktree and context), the plugin itself, and the session's folder."
+		decide "$reads"
 	exit 0
 	;;
 Edit | Write | MultiEdit | NotebookEdit)

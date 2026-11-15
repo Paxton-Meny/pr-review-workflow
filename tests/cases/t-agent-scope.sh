@@ -136,14 +136,27 @@ bash_no assembler "sh $root/scripts/append-note.sh $dir F001"
 call editor Bash command "cat $HOME/.ssh/id_rsa"
 printf '%s\n' "$out" | grep -q 'may run only: sh .*/scripts/<name>.sh <state-dir> ... for: run-contract'
 
-# Reads stay inside the data directory, the plugin, and the session's folder.
+# Reads stay inside the data directory and the plugin; the setup agents
+# also read the session's folder.
 pass reviewer Read file_path "$wt/src/app.py"
 pass reviewer Read file_path "$dir/pr-context/diff.patch"
 pass reviewer Read file_path "$root/skills/finding-records/SKILL.md"
 pass cartographer Read file_path "$clone/src/app.py"
 pass reviewer Grep path "$wt"
-pass reviewer Grep pattern "TODO"
-pass reviewer Glob pattern "**/*.py"
+pass cartographer Grep pattern "TODO"
+pass cartographer Glob pattern "**/*.py"
+pass reviewer Glob path "$wt"
+# A review agent never reads the user's checkout: it is not the pull
+# request, and a search with no path would search it.
+for agent in reviewer editor verifier filter comparer; do
+	refuse "$agent" Read file_path "$clone/src/app.py"
+	refuse "$agent" Read file_path "src/app.py"
+	refuse "$agent" Grep path "$clone"
+	refuse "$agent" Grep pattern "TODO"
+	refuse "$agent" Glob pattern "**/*.py"
+done
+call reviewer Grep pattern "TODO"
+printf '%s\n' "$out" | grep -q 'under <state-dir>/worktree'
 refuse reviewer Read file_path "$HOME/.ssh/id_rsa"
 refuse reviewer Read file_path "~/.ssh/id_rsa"
 refuse reviewer Read file_path "$SCRATCH/outside/secret"
