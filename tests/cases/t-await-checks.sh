@@ -225,3 +225,9 @@ if await --wat 2>"$SCRATCH/err"; then
 	exit 1
 fi
 grep -q "unknown argument: --wat" "$SCRATCH/err"
+
+# One slice outlasts the Bash tool's default timeout and fits under its
+# ceiling of ten minutes, and the skill tells the session to raise it.
+slice=$(sed -n 's/^slice=${AWAIT_CHECKS_SLICE:-\([0-9]*\)}$/\1/p' "$REPO_ROOT/scripts/await-checks.sh")
+[ "$slice" -gt 120 ] && [ "$slice" -lt 600 ]
+grep -q 'give this Bash call a timeout of 600000' "$REPO_ROOT/skills/review-pr/SKILL.md"
