@@ -86,6 +86,33 @@ out=$(record) || rc=$?
 [ ! -f "$stub/calls.log" ]
 [ ! -f "$dir/review-record.txt" ]
 
+# Nor is a head an armed check has not passed at: merge-pr would refuse
+# it with the same line.
+rm -rf "$dir/findings"
+printf 'check_command true\noverlap_check off\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+hash=$(printf 'true' | git hash-object --stdin)
+printf 'pass %s 0ld\n' "$hash" >"$dir/check-baseline.txt"
+rc=0
+out=$(record) || rc=$?
+[ "$rc" -eq 6 ]
+[ "$out" = "$(printf 'record-review: the ledger does not show a converged review\ncheck not run at abc123')" ]
+rc=0
+merged=$(sh "$REPO_ROOT/scripts/merge-pr.sh" "$dir") || rc=$?
+[ "$rc" -eq 6 ]
+[ "$merged" = "$(printf 'merge-pr: the ledger does not allow a merge\ncheck not run at abc123')" ]
+printf 'fail %s abc123\n' "$hash" >"$dir/check-gate.txt"
+rc=0
+out=$(record) || rc=$?
+[ "$rc" -eq 6 ]
+[ "$out" = "$(printf 'record-review: the ledger does not show a converged review\ncheck failed at abc123')" ]
+[ ! -f "$stub/calls.log" ]
+[ ! -f "$dir/review-record.txt" ]
+# Once the gate passes at the head, the review is recorded.
+printf 'pass %s abc123\n' "$hash" >"$dir/check-gate.txt"
+[ "$(record)" = "record-review: review recorded on abc123" ]
+rm -f "$dir/check-baseline.txt" "$dir/check-gate.txt"
+printf 'overlap_check off\n' | sh "$REPO_ROOT/scripts/resolve-settings.sh" "$dir" >/dev/null
+
 if record --bogus 2>"$SCRATCH/err"; then
 	echo "expected refusal of an unknown argument" >&2
 	exit 1

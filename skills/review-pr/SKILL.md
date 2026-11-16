@@ -577,7 +577,9 @@ PRWF_SETTINGS_END
       `sh ${CLAUDE_PLUGIN_ROOT}/scripts/record-review.sh <dir>`,
       relaying its line; it posts once per reviewed head. Exit 6 means
       the ledger does not show a converged review: follow its lines as
-      the merge-pr exit 6 bullet below does for the same lines.
+      the merge-pr exit 6 bullet below does for the same lines, and
+      after a `check` line's gate run, rerun this record-review
+      command where that bullet reruns merge-pr.
     - auto_approve false, attended: ask the user (merge now, or hold).
       Merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>`.
       Hold: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> held`,

@@ -13,7 +13,8 @@
 # line per record, so a rerun on the same head posts nothing unless
 # --approve now asks for an approval where a comment stands.
 # Exit 6: refused, writing nothing, because the ledger does not show a
-# converged review; ledger-allows.sh's lines follow.
+# converged review; ledger-allows.sh's lines follow, the "check <reason>"
+# lines of an armed check that has not passed at the head among them.
 set -eu
 
 dir=${1:?usage: record-review.sh <state-dir> [--approve]}
