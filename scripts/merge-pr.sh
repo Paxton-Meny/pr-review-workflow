@@ -81,55 +81,19 @@ esac
 delete_on_merge=$(sed -n 's/^delete_branch_on_merge //p' "$record")
 
 # The ledger, not the session's memory, says whether the review allows
-# a merge.
+# a merge; ledger-allows.sh carries the check gate too.
 here=$(dirname -- "$0")
-refused=''
 rc=0
-ledger=$(sh "$here/ledger-allows.sh" "$dir") || rc=$?
+refused=$(sh "$here/ledger-allows.sh" "$dir") || rc=$?
 case "$rc" in
 0) ;;
-3) refused="
-$ledger" ;;
+3)
+	echo "merge-pr: the ledger does not allow a merge"
+	printf '%s\n' "$refused"
+	exit 6
+	;;
 *) exit 1 ;;
 esac
-# Armed means the baseline passed for the command now configured; then
-# the head must have passed it, by the last gate run at that head or by
-# a baseline taken there.
-check=$(sh "$here/setting.sh" "$dir" check_command)
-# The check never runs on code author-trust.sh --exec does not allow, so it
-# cannot gate that author's merge; their merge needs a person and no check.
-if [ -n "$check" ] && ! sh "$here/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
-	check=''
-fi
-if [ -n "$check" ]; then
-	check_hash=$(printf '%s' "$check" | git hash-object --stdin)
-	baseline=$(cat "$dir/check-baseline.txt" 2>/dev/null || true)
-	gate=$(cat "$dir/check-gate.txt" 2>/dev/null || true)
-	case "$baseline" in
-	"fail $check_hash "*) ;;
-	"pass $check_hash "*)
-		case "$gate" in
-		"pass $check_hash $head_sha") ;;
-		"fail $check_hash $head_sha")
-			refused="$refused
-check failed at $head_sha"
-			;;
-		*)
-			[ "$baseline" = "pass $check_hash $head_sha" ] || refused="$refused
-check not run at $head_sha"
-			;;
-		esac
-		;;
-	*)
-		refused="$refused
-check has no baseline for the configured command"
-		;;
-	esac
-fi
-if [ -n "$refused" ]; then
-	echo "merge-pr: the ledger does not allow a merge$refused"
-	exit 6
-fi
 
 attempts=5
 settle=${MERGE_PR_SETTLE_SECONDS:-3}
