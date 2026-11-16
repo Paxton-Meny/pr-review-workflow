@@ -101,7 +101,14 @@ grep -qx "commit: $fix" "$dir/findings/F001"
 # A finding already addressed is not committed twice.
 refused 1 "F001 is addressed, not open" commit "Add it again" F001 other.txt
 
-out=$(commit "Extend the other file" F002 other.txt)
+# Another path already staged is neither committed nor counted as a change.
+git -C "$wt" add other.txt
+refused 3 "nothing to commit for F002" commit "Extend the first file" F002 file.txt
+[ "$(git -C "$wt" diff --cached --name-only)" = other.txt ]
+printf 'four\n' >>"$wt/file.txt"
+out=$(commit "Extend the first file" F002 file.txt)
+[ "$(git -C "$wt" show --format= --name-only HEAD)" = file.txt ]
+[ "$(git -C "$wt" diff --cached --name-only)" = other.txt ]
 fix2=$(git -C "$wt" rev-parse --short HEAD)
 grep -qx "commit: $fix2" "$dir/findings/F002"
 
@@ -117,7 +124,7 @@ out=$(sh "$s/reply-thread.sh" "$dir" --addressed F001 F002 F003)
 reply-thread: replied to 9002 as 5552
 reply-thread: F003 has no thread, nothing to reply to" ]
 grep -qx "Addressed in $fix (Add the third line)." "$stub/bodies.log"
-grep -qx "Addressed in $fix2 (Extend the other file)." "$stub/bodies.log"
+grep -qx "Addressed in $fix2 (Extend the first file)." "$stub/bodies.log"
 refused 1 "usage: reply-thread.sh" sh "$s/reply-thread.sh" "$dir" --addressed
 
 # The editor's definition names the calls, and the scope hook lets it run them.

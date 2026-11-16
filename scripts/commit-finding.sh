@@ -69,12 +69,12 @@ self_email=$(sed -n 's/^self_email //p' "$dir/meta.txt")
 }
 
 git -C "$worktree" add -- "$@"
-if git -C "$worktree" diff --cached --quiet; then
+if git -C "$worktree" diff --cached --quiet -- "$@"; then
 	echo "commit-finding: nothing to commit for $id in: $*" >&2
 	exit 3
 fi
 git -C "$worktree" -c "user.name=$self_login" -c "user.email=$self_email" \
-	commit --quiet -m "$subject" -m "Addresses $id."
+	commit --quiet -m "$subject" -m "Addresses $id." -- "$@"
 sha=$(git -C "$worktree" rev-parse --short HEAD)
 sh "$(dirname -- "$0")/update-finding.sh" "$dir" "$id" status=addressed "commit=$sha" >/dev/null
 echo "commit-finding: $id addressed in $sha"
