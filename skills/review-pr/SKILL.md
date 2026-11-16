@@ -35,6 +35,7 @@ allowed-tools:
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/await-checks.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh *)
+  - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/record-review.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/reviewed-head.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/author-trust.sh *)
   - Bash(sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh *)
@@ -555,11 +556,14 @@ PRWF_SETTINGS_END
        every file the repair and any gate repair changed, finding paths included, so follow
        step 8e for them; no new commit means no review; new findings run step 8 under its round cap, and a
        converged step 8 returns here. Loop to a.
-12. Merge gate. `merge-pr.sh` submits the review of record before it
-    merges: a review with a body on the head commit, an approval
-    for another person's pull request under auto_approve, a review
-    comment otherwise, which is what a project's review gate looks
-    for. Holding and parking post status comments only. First
+12. Merge gate. A converged review leaves a review of record: a review
+    with a body on the head commit, an approval for another person's
+    pull request under auto_approve, a review comment otherwise, which
+    is what a project's review gate looks for. `merge-pr.sh` submits it
+    before it merges, and with auto_approve false you submit it before
+    asking or stopping (below), so a pull request held here, or merged
+    by another tool, still carries it. Parking posts status comments
+    only. First
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --refresh`,
     relaying its line: the method is the setting, else the one method the
     repository allows, else the one its recent merged pull requests
@@ -569,6 +573,11 @@ PRWF_SETTINGS_END
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --set <method>`;
     unattended, park (step 9) quoting the line. Then:
     - auto_approve true: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir> --approve`
+    - auto_approve false: first
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/record-review.sh <dir>`,
+      relaying its line; it posts once per reviewed head. Exit 6 means
+      the ledger does not show a converged review: follow its lines as
+      the merge-pr exit 6 bullet below does for the same lines.
     - auto_approve false, attended: ask the user (merge now, or hold).
       Merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>`.
       Hold: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> held`,
