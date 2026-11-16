@@ -1,8 +1,8 @@
 #!/bin/sh
 # Merge the pull request by the method merge-method.sh decided, after proving it is mergeable
-# and recording the converged review on the head as a review with a body.
+# and recording the converged review on the head through record-review.sh.
 # Usage: sh scripts/merge-pr.sh <state-dir> [--approve] [--migrations-checked] [--overlap-checked]
-# --approve makes the record an approval when the run's user is not the author.
+# --approve makes that record an approval when the run's user is not the author.
 # Exit 4: refused, writing nothing, because the pull request changes
 # migration files (one "migration <path>" line each) or the forge listed
 # fewer files than changed, unless --migrations-checked says a person
@@ -85,31 +85,13 @@ delete_on_merge=$(sed -n 's/^delete_branch_on_merge //p' "$record")
 here=$(dirname -- "$0")
 refused=''
 rc=0
-progress=$(sh "$here/review-progress.sh" "$dir") || rc=$?
+ledger=$(sh "$here/ledger-allows.sh" "$dir") || rc=$?
 case "$rc" in
 0) ;;
-3) refused="$refused
-$(printf '%s\n' "$progress" | sed 1d)" ;;
+3) refused="
+$ledger" ;;
 *) exit 1 ;;
 esac
-if [ -d "$dir/findings" ]; then
-	rc=0
-	counts=$(sh "$here/count-findings.sh" "$dir" --list) || rc=$?
-	[ "$rc" -eq 0 ] || [ "$rc" -eq 3 ] || exit 1
-	for id in $(printf '%s\n' "$counts" | sed -n 's/^open_ids//p'); do
-		refused="$refused
-open $id"
-	done
-	for id in $(printf '%s\n' "$counts" | sed -n 's/^wont_fix_ids//p'); do
-		sed '/^---$/q' "$dir/findings/$id" | grep -qx 'accepted: yes' ||
-			refused="$refused
-unaccepted $id"
-	done
-	for id in $(printf '%s\n' "$counts" | sed -n 's/^addressed_ids//p'); do
-		refused="$refused
-unverified $id"
-	done
-fi
 # Armed means the baseline passed for the command now configured; then
 # the head must have passed it, by the last gate run at that head or by
 # a baseline taken there.
@@ -270,26 +252,10 @@ elif [ -n "$head_branch" ]; then
 	fi
 fi
 
-# A converged review leaves a review on the forge, with a body, on the head it
-# read: the record a project's review gate looks for. A comment does not count,
-# and an author cannot approve their own pull request, so that case is
-# recorded as a review comment instead.
-credit=$(sh "$(dirname -- "$0")/attribution.sh" "$dir")
-[ -z "$credit" ] || credit=$(printf '\n\n%s' "$credit")
-event=COMMENT
-body='Review converged: no open findings.'
-if [ "$approve" = "--approve" ] && [ -n "$self" ] && [ "$author" != "$self" ]; then
-	event=APPROVE
-elif [ "$approve" = "--approve" ]; then
-	body="$body Authors cannot approve their own pull requests, so this review comment stands in for the approval."
-fi
-rtmp=$(mktemp "$dir/.review.XXXXXX")
-trap 'rm -f "$rtmp"' EXIT
-printf '%s%s\n' "$body" "$credit" >"$rtmp"
-gh api "repos/$owner/$repo/pulls/$pr/reviews" -f event="$event" \
-	${reviewed:+-f commit_id="$reviewed"} -F body=@"$rtmp" >/dev/null
-rm -f "$rtmp"
-trap - EXIT
+# A converged review leaves its record on the forge before anything
+# merges. record-review.sh posts nothing when the run already recorded
+# this head, unless an approval is now due where a comment stands.
+sh "$here/record-review.sh" "$dir" $approve >/dev/null
 
 gh pr merge "$pr" --repo "$owner/$repo" "--$method" --match-head-commit "$reviewed" $delete >/dev/null
 

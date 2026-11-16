@@ -6,6 +6,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- A converged review leaves its review of record even when the run does
+  not merge. Only `merge-pr.sh` submitted the review with a body that a
+  project's review gate looks for, and the inline finding reviews carry
+  no body, so a pull request held at the merge question, or merged by
+  another tool, had no review a gate would count. The new
+  `record-review.sh` submits it once per reviewed head, step 12 runs it
+  before asking or stopping when auto_approve is false, and `merge-pr.sh`
+  calls it and posts nothing twice. It refuses, as the merge does, on a
+  ledger that does not show a converged review; both ask the new
+  `ledger-allows.sh`.
+
 ## [0.4.1] - 2026-11-16
 
 ### Fixed

@@ -58,6 +58,7 @@ grep -qx "pr list --repo $fixture_owner/widgets --base feat/x --state open --jso
 # the repository deletes it, when an open pull request bases on it, or
 # when it is a fork's.
 rm -f "$stub"/pr-view.*.done "$stub/calls.log" "$stub/bodies.log"
+rm -f "$dir/review-record.txt"
 printf 'owner %s\nrepo widgets\npr 7\nauthor %s\nself_login %s\nhead_branch feat/x\nhead_sha abc123\ncross_repo false\n' "$fixture_owner" "$fixture_login" "$fixture_login" >"$dir/meta.txt"
 method squash true
 printf "$clean" >"$stub/pr-view.1"
@@ -85,6 +86,7 @@ if grep -q '^pr list' "$stub/calls.log"; then
 fi
 
 rm -f "$stub"/pr-view.*.done "$stub/calls.log"
+rm -f "$dir/review-record.txt"
 method merge
 printf "$clean" >"$stub/pr-view.1"
 printf '9\n11\n' >"$stub/pr-list"
@@ -97,6 +99,7 @@ grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit a
 
 # An unknown answer about dependents keeps the branch.
 rm -f "$stub"/pr-view.*.done "$stub/calls.log" "$stub/pr-list"
+rm -f "$dir/review-record.txt"
 printf "$clean" >"$stub/pr-view.1"
 printf 'MERGED\n' >"$stub/pr-view.2"
 printf '1\n' >"$stub/pr-list.exit"
@@ -106,6 +109,7 @@ grep -qx "pr merge 7 --repo $fixture_owner/widgets --merge --match-head-commit a
 rm -f "$stub/pr-list.exit"
 
 rm -f "$stub"/pr-view.*.done "$stub/calls.log"
+rm -f "$dir/review-record.txt"
 sed -i 's/^cross_repo false$/cross_repo true/' "$dir/meta.txt"
 printf "$clean" >"$stub/pr-view.1"
 printf 'MERGED\n' >"$stub/pr-view.2"
