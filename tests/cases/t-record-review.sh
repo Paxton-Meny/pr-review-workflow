@@ -132,3 +132,6 @@ grep -q "unknown argument: --bogus" "$SCRATCH/err"
 skill="$REPO_ROOT/skills/review-pr/SKILL.md"
 grep -q 'scripts/record-review.sh \*)' "$skill"
 grep -q 'scripts/record-review.sh <dir>`' "$skill"
+# Every hold records first, whichever bullet or step sent it there.
+sed -n '/Hold: first$/{n;p;}' "$skill" | grep -q 'scripts/record-review.sh <dir>`'
+grep -q 'every hold this step or step 11' "$skill"
