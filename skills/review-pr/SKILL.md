@@ -560,10 +560,11 @@ PRWF_SETTINGS_END
     with a body on the head commit, an approval for another person's
     pull request under auto_approve, a review comment otherwise, which
     is what a project's review gate looks for. `merge-pr.sh` submits it
-    before it merges, and with auto_approve false you submit it before
-    asking or stopping (below), so a pull request held here, or merged
-    by another tool, still carries it. Parking posts status comments
-    only. First
+    before it merges, with auto_approve false you submit it before
+    asking or stopping (below), and every hold this step or step 11
+    describes submits it first (Hold, below), so a pull request held,
+    or merged by another tool, still carries it. Parking posts status
+    comments only. First
     `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-method.sh <dir> --refresh`,
     relaying its line: the method is the setting, else the one method the
     repository allows, else the one its recent merged pull requests
@@ -582,7 +583,13 @@ PRWF_SETTINGS_END
       command where that bullet reruns merge-pr.
     - auto_approve false, attended: ask the user (merge now, or hold).
       Merge: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/merge-pr.sh <dir>`.
-      Hold: run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> held`,
+      Hold: first
+      `sh ${CLAUDE_PLUGIN_ROOT}/scripts/record-review.sh <dir>`,
+      relaying its line and handling exit 6 as the bullet above does;
+      it posts nothing on a head already recorded, and every hold,
+      whatever auto_approve says and whichever bullet or step 11 line
+      sent it here, runs it. Then
+      run `sh ${CLAUDE_PLUGIN_ROOT}/scripts/run-stats.sh <dir> held`,
       then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-state.sh <dir>`,
       which drops the worktree and fetched context and keeps the
       ledger (a resumed run fetches and checks out again); report
