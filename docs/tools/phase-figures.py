@@ -1243,7 +1243,7 @@ def phase_fix() -> Fig:
             "or a flagged file, one lever up on a retry; the editor makes one commit per finding, "
             "replies, and pushes; the project's check gate must pass, with one repair allowed and a "
             "second failure parking the run; the verifier executes Check lines and judges each "
-            "Resolution verbatim, resolving threads or reopening them with notes; a skim sends files "
+            "Resolution verbatim, marking fixes verified or reopening them with notes; a skim sends files "
             "no finding named to an incremental review; and the count decides: open findings go "
             "around again, a finding reopened past the limit gets one arbitration and parks if still open, "
             "four spent rounds park with a status comment, and none open converges, a wont-fix "
@@ -1329,7 +1329,7 @@ def phase_fix() -> Fig:
         "The skim reviews changes no finding asked for.",
         "Arbitration is one high-effort pass, once a run."])
     led = f.ledger(max(q1.b, p2.b) + 18, [(0, "rounds.txt"), (1, "findings: Route notes"), (2, "commits, replies"),
-                               (3, "pr-context/check-failure.txt"), (4, "threads resolved or reopened"),
+                               (3, "pr-context/check-failure.txt"), (4, "fixes verified or reopened"),
                                (5, "incremental review"), (6, "count, capped_ids")])
     lb = f.legend(led.b + 28, ("script", "agent", "route", "ctx", "ok", "note", "stop"))
     f.height = int(lb + 18)

@@ -64,8 +64,7 @@ own clone, at another commit, and a read of it is refused.
    then mirror the same text to the thread when there is a `comment_id`:
    `printf '%s\n' "<what still fails>" | sh ${CLAUDE_PLUGIN_ROOT}/scripts/reply-thread.sh <state-dir> <comment_id>`
    then `sh ${CLAUDE_PLUGIN_ROOT}/scripts/update-finding.sh <state-dir> <id> status=open`.
-   Never resolve a thread you reopen, and never put a suggestion fence in a
-   note.
+   Never put a suggestion fence in a note.
 
 ## Arbitration
 

@@ -114,7 +114,9 @@ antipatterns, content leakage, outdated docs). Findings post as inline
 comments; suggested-change blocks appear only after being applied and
 checked in a scratch worktree. An editor agent fixes each finding with its
 own commit and replies to each thread; a verifier agent re-checks only the
-claimed fixes, resolving threads or reopening them. When nothing is open,
+claimed fixes, marking them verified or reopening them, and the review
+session resolves the threads of verified findings with
+`scripts/resolve-threads.sh`. When nothing is open,
 the merge gate runs. The merge uses the method the repository allows
 or, where it allows several, the one its recent merged pull requests
 used; see the `merge_method` setting. The head branch is deleted only
