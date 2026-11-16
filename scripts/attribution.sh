@@ -1,8 +1,9 @@
 #!/bin/sh
 # Print the line naming the plugin, for the first comment a run posts.
 # Usage: sh scripts/attribution.sh <state-dir>
-# Prints nothing once a review round has posted, so later comments
-# never repeat it.
+# Prints nothing once a review round has posted, or once
+# record-review.sh has recorded a converged review in review-record.txt,
+# so later comments never repeat it.
 set -eu
 
 dir=${1:?usage: attribution.sh <state-dir>}
@@ -11,6 +12,7 @@ dir=${1:?usage: attribution.sh <state-dir>}
 	exit 1
 }
 [ "$(cat "$dir/round.txt")" = 0 ] || exit 0
+[ ! -s "$dir/review-record.txt" ] || exit 0
 
 manifest="$(dirname -- "$0")/../.claude-plugin/plugin.json"
 name=$(sed -n 's/^  "name": "\(.*\)",$/\1/p' "$manifest")
