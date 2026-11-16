@@ -33,6 +33,13 @@ grep -q "^api repos/$fixture_owner/widgets/pulls/7/reviews -f event=COMMENT -f c
 grep -q 'Review converged: no open findings.' "$stub/bodies.log"
 [ "$(cat "$dir/review-record.txt")" = "COMMENT abc123" ]
 
+# The record is the run's first comment and names the plugin; the status
+# comment that follows on the same ledger does not name it again.
+: >"$stub/pr-comment"
+printf 'Review converged.\n' | sh "$REPO_ROOT/scripts/post-comment.sh" "$dir" >/dev/null
+grep -q '^pr comment 7 ' "$stub/calls.log"
+[ "$(grep -c 'Reviewed with' "$stub/bodies.log")" -eq 1 ]
+
 # The same head is recorded once.
 [ "$(record)" = "record-review: already recorded on abc123" ]
 [ "$(posts)" -eq 1 ]
@@ -62,6 +69,8 @@ meta "$author" def456
 rm -f "$stub/calls.log"
 [ "$(record)" = "record-review: review recorded on def456" ]
 grep -q "pulls/7/reviews -f event=COMMENT -f commit_id=def456 " "$stub/calls.log"
+# Neither later record names the plugin again.
+[ "$(grep -c 'Reviewed with' "$stub/bodies.log")" -eq 1 ]
 
 # merge-pr finds the record and posts no second one.
 meta "$fixture_login"
