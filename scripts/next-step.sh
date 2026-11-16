@@ -381,7 +381,7 @@ END {
 
 # Step 12: the check must have passed at the head before the merge.
 check=$(setting check_command)
-# It never runs on code author-trust.sh --exec does not allow, as merge-pr.sh knows.
+# It never runs on code author-trust.sh --exec does not allow, as ledger-allows.sh knows.
 if [ -n "$check" ] && ! sh "$here/author-trust.sh" "$dir" --exec >/dev/null 2>&1; then
 	check=''
 fi
