@@ -6,6 +6,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-21
+
 ### Fixed
 
 - A converged review leaves its review of record even when the run does
@@ -14,9 +16,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   no body, so a pull request held at the merge question, or merged by
   another tool, had no review a gate would count. The new
   `record-review.sh` submits it once per reviewed head, step 12 runs it
-  before asking or stopping when auto_approve is false, and `merge-pr.sh`
-  calls it and posts nothing twice. It refuses, as the merge does, on a
-  ledger that does not show a converged review; both ask the new
+  before asking or stopping when auto_approve is false, every hold runs
+  it first, and `merge-pr.sh` calls it and posts nothing twice. It
+  refuses, as the merge does, on a ledger that does not show a converged
+  review or whose check gate has not passed; both ask the new
   `ledger-allows.sh`.
 
 ## [0.4.1] - 2026-11-16
@@ -1099,7 +1102,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The review-pr skill: the orchestration loop, context discipline, the
   merge gate with the auto-approve setting, and resume from the ledger.
 
-[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Paxton-Meny/pr-review-workflow/compare/v0.2.1...v0.3.0
